@@ -44,6 +44,18 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/suppliers/supplier-form/supplier-form.component').then(m => m.SupplierFormComponent)
             },
             {
+                path: 'products',
+                loadComponent: () => import('./features/products/product-list/product-list.component').then(m => m.ProductListComponent)
+            },
+            {
+                path: 'products/new',
+                loadComponent: () => import('./features/products/product-form/product-form.component').then(m => m.ProductFormComponent)
+            },
+            {
+                path: 'products/edit/:id',
+                loadComponent: () => import('./features/products/product-form/product-form.component').then(m => m.ProductFormComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'home',
                 pathMatch: 'full'

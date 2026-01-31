@@ -1,0 +1,214 @@
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a routerLink="/products" class="text-decoration-none">Productos</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Producto</li>
+                </ol>
+            </nav>
+            <h2 class="h3 fw-bold mb-1">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Producto</h2>
+            <p class="text-muted mb-0">Completa la información técnica y comercial del producto</p>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="errorMessage()">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ errorMessage() }}
+                <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+            </div>
+        </div>
+    </div>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+        <div class="row g-4">
+            <!-- General Information -->
+            <div class="col-12 col-xl-8">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Información General</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Código Interno <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="code" placeholder="P001"
+                                    [class.is-invalid]="productForm.get('code')?.touched && productForm.get('code')?.invalid">
+                                <div class="invalid-feedback">El código es obligatorio</div>
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Código DIGEMID</label>
+                                <input type="text" class="form-control" formControlName="digemidCode"
+                                    placeholder="RSA-XXX">
+                            </div>
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-semibold">Nombre del Producto <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="name"
+                                    placeholder="Nombre completo"
+                                    [class.is-invalid]="productForm.get('name')?.touched && productForm.get('name')?.invalid">
+                            </div>
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-semibold">Descripción / Indicaciones</label>
+                                <textarea class="form-control" formControlName="description" rows="3"
+                                    placeholder="Detalles adicionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classifications -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 text-start">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Clasificación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Categoría <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="categoryId">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    <option *ngFor="let item of categories()" [value]="item.id">{{ item.name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Marca / Línea <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="brandId">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    <option *ngFor="let item of brands()" [value]="item.id">{{ item.name }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Laboratorio <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="laboratoryId">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    <option *ngFor="let item of laboratories()" [value]="item.id">{{ item.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Presentación <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="presentationId">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    <option *ngFor="let item of presentations()" [value]="item.id">{{ item.description
+                                        }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredients List -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Principios Activos</h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addIngredient()">
+                            + Agregar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div formArrayName="ingredients">
+                            <div *ngIf="ingredients.length === 0" class="text-center py-3 text-muted">
+                                No hay principios activos registrados
+                            </div>
+                            <div *ngFor="let ing of ingredients.controls; let i = index" [formGroupName]="i"
+                                class="row g-2 mb-2 align-items-end">
+                                <div class="col-md-6 text-start">
+                                    <label class="small fw-bold" *ngIf="i === 0">Ingrediente <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" formControlName="activeIngredientId">
+                                        <option [ngValue]="null">Seleccionar...</option>
+                                        <option *ngFor="let item of activeIngredients()" [value]="item.id">{{ item.name
+                                            }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 text-start">
+                                    <label class="small fw-bold" *ngIf="i === 0">Concentración</label>
+                                    <input type="text" class="form-control form-control-sm"
+                                        formControlName="concentration" placeholder="Ej: 500mg">
+                                </div>
+                                <div class="col-md-2 d-grid">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        (click)="removeIngredient(i)">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings & Pricing Factor -->
+            <div class="col-12 col-xl-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 text-start">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Configuración Comercial</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-semibold">Tipo Impuesto <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" formControlName="taxTypeId">
+                                <option *ngFor="let item of taxTypes()" [value]="item.id">{{ item.name }} ({{ item.rate
+                                    }}%)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-semibold">Unidad Base <span class="text-danger">*</span></label>
+                            <select class="form-select" formControlName="unitType">
+                                <option *ngFor="let item of unitTypes" [value]="item">{{ item }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-semibold">Factor de Compra <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" formControlName="purchaseFactor" min="1">
+                            <div class="form-text">Cantidad de unidades por paquete de compra</div>
+                        </div>
+                        <div class="mb-4 text-start">
+                            <label class="form-label fw-semibold">Etiqueta Fracción</label>
+                            <input type="text" class="form-control" formControlName="fractionLabel"
+                                placeholder="Ej: tableta, cápsula">
+                        </div>
+
+                        <hr>
+
+                        <div class="form-check form-switch mb-2 text-start">
+                            <input class="form-check-input" type="checkbox" formControlName="requiresPrescription"
+                                id="presc">
+                            <label class="form-check-label fw-semibold" for="presc">Requiere Receta Médica</label>
+                        </div>
+                        <div class="form-check form-switch mb-2 text-start">
+                            <input class="form-check-input" type="checkbox" formControlName="isGeneric" id="generic">
+                            <label class="form-check-label fw-semibold" for="generic">Es Genérico</label>
+                        </div>
+                        <div class="form-check form-switch mb-0 text-start">
+                            <input class="form-check-input" type="checkbox" formControlName="active" id="active">
+                            <label class="form-check-label fw-semibold" for="active">Producto Activo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sticky Actions -->
+                <div class="card shadow-sm border-0 py-3 px-3 position-sticky" style="top: 1rem;">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-2"
+                        [disabled]="isLoading() || productForm.invalid">
+                        <span *ngIf="!isLoading()">{{ isEditMode() ? 'Actualizar Producto' : 'Guardar Producto'
+                            }}</span>
+                        <span *ngIf="isLoading()" class="spinner-border spinner-border-sm"></span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary w-100" (click)='onCancel()'>Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
