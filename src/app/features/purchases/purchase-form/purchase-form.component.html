@@ -1,0 +1,178 @@
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center gap-3">
+                <button
+                    class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center"
+                    style="width: 32px; height: 32px;" routerLink="/purchases">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+                    </svg>
+                </button>
+                <h2 class="h3 fw-bold mb-0">{{ isEditMode() ? 'Detalle de Compra' : 'Nueva Compra' }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+    </div>
+
+    <form [formGroup]="purchaseForm" (ngSubmit)="onSubmit()">
+        <!-- Header Info -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="card-title h6 fw-bold mb-0">Información del Documento</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label small fw-bold text-muted">PROVEEDOR</label>
+                        <select class="form-select border-0 bg-light" formControlName="supplierId"
+                            [class.is-invalid]="purchaseForm.get('supplierId')?.touched && purchaseForm.get('supplierId')?.invalid">
+                            <option [ngValue]="null">Seleccione proveedor</option>
+                            <option *ngFor="let s of suppliers()" [value]="s.id">{{ s.name }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label small fw-bold text-muted">SEDE (RECIBE)</label>
+                        <select class="form-select border-0 bg-light" formControlName="establishmentId"
+                            [class.is-invalid]="purchaseForm.get('establishmentId')?.touched && purchaseForm.get('establishmentId')?.invalid">
+                            <option [ngValue]="null">Seleccione sede</option>
+                            <option *ngFor="let e of establishments()" [value]="e.id">{{ e.name }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small fw-bold text-muted">TIPO DOC.</label>
+                        <select class="form-select border-0 bg-light" formControlName="documentType">
+                            <option value="FACTURA">Factura</option>
+                            <option value="BOLETA">Boleta</option>
+                            <option value="GUIA">Guía</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small fw-bold text-muted">SERIE</label>
+                        <input type="text" class="form-control border-0 bg-light" formControlName="series"
+                            placeholder="E001">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small fw-bold text-muted">NÚMERO</label>
+                        <input type="text" class="form-control border-0 bg-light" formControlName="number"
+                            placeholder="000123">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small fw-bold text-muted">FECHA EMISIÓN</label>
+                        <input type="date" class="form-control border-0 bg-light" formControlName="issueDate">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">NOTAS / OBSERVACIONES</label>
+                        <textarea class="form-control border-0 bg-light" formControlName="notes" rows="2"
+                            placeholder="Opcional..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title h6 fw-bold mb-0">Detalle de Productos (Ingreso a Almacén)</h5>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="addItem()" *ngIf="!isEditMode()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-plus-lg me-1" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                    </svg>
+                    Agregar Item
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light small fw-bold text-muted">
+                            <tr>
+                                <th class="ps-4">Producto</th>
+                                <th>Lote</th>
+                                <th>Vencimiento</th>
+                                <th style="width: 100px;">Cant.</th>
+                                <th style="width: 100px;">Bonif.</th>
+                                <th style="width: 130px;">Costo Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                                <th class="text-center" *ngIf="!isEditMode()"></th>
+                            </tr>
+                        </thead>
+                        <tbody formArrayName="items">
+                            <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+                                <td class="ps-4">
+                                    <select class="form-select form-select-sm border-0 bg-transparent fw-bold"
+                                        formControlName="productId">
+                                        <option [ngValue]="null">Seleccione...</option>
+                                        <option *ngFor="let p of products()" [value]="p.id">{{ p.name }}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm border-0 bg-transparent"
+                                        placeholder="Lote" formControlName="lotCode">
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control form-control-sm border-0 bg-transparent"
+                                        formControlName="expiryDate">
+                                </td>
+                                <td>
+                                    <input type="number"
+                                        class="form-control form-control-sm border-0 bg-transparent text-center"
+                                        placeholder="0" formControlName="quantity">
+                                </td>
+                                <td>
+                                    <input type="number"
+                                        class="form-control form-control-sm border-0 bg-transparent text-center"
+                                        placeholder="0" formControlName="bonusQuantity">
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text border-0 bg-transparent pe-0">S/</span>
+                                        <input type="number" class="form-control border-0 bg-transparent"
+                                            placeholder="0.00" formControlName="unitCost">
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold">
+                                    {{ (item.get('quantity')?.value * item.get('unitCost')?.value) | currency:'PEN':'S/
+                                    ' }}
+                                </td>
+                                <td class="text-center" *ngIf="!isEditMode()">
+                                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeItem(i)"
+                                        *ngIf="items.length > 1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                            fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                            <path
+                                                d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <td colspan="6" class="text-end fw-bold py-3">TOTAL GENERAL</td>
+                                <td class="text-end fw-bold text-primary h5 pe-3 py-3">{{ calculateTotal() |
+                                    currency:'PEN':'S/ ' }}</td>
+                                <td *ngIf="!isEditMode()"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-end gap-3 mb-5" *ngIf="!isEditMode()">
+            <button type="button" class="btn btn-light px-4" routerLink="/purchases">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-5 fw-bold" [disabled]="isLoading() || purchaseForm.invalid">
+                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                Registrar Compra e Ingresar Stock
+            </button>
+        </div>
+    </form>
+</div>

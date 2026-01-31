@@ -1,0 +1,89 @@
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a routerLink="/employees" class="text-decoration-none">Empleados</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Empleado</li>
+                </ol>
+            </nav>
+            <h2 class="h3 fw-bold mb-1">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Empleado</h2>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="errorMessage()">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ errorMessage() }}
+                <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div *ngIf="isLoading() && isEditMode()" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading() || !isEditMode()">
+                        <div class="row g-3">
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-bold">Nombres <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="firstName"
+                                    [class.is-invalid]="employeeForm.get('firstName')?.touched && employeeForm.get('firstName')?.invalid">
+                            </div>
+
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-bold">Apellidos</label>
+                                <input type="text" class="form-control" formControlName="lastName">
+                            </div>
+
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-bold">Número de Documento</label>
+                                <input type="text" class="form-control" formControlName="documentNumber">
+                            </div>
+
+                            <div class="col-12 text-start">
+                                <label class="form-label fw-bold">Usuario de Sistema</label>
+                                <select class="form-select" formControlName="userId">
+                                    <option [ngValue]="null">-- Sin vinculación --</option>
+                                    <option *ngFor="let u of users()" [value]="u.id">
+                                        {{ u.username }} ({{ u.nombre }})
+                                    </option>
+                                </select>
+                                <div class="form-text mt-1 small">
+                                    Vincule este empleado con un usuario para que pueda acceder al sistema.
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-4 text-start">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" formControlName="active"
+                                        id="active">
+                                    <label class="form-check-label fw-bold" for="active">Empleado Activo</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 d-flex gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary px-4"
+                                    [disabled]="isLoading() || employeeForm.invalid">
+                                    <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-1"></span>
+                                    {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()"
+                                    [disabled]="isLoading()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

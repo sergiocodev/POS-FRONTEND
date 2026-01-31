@@ -1,0 +1,17 @@
+.form-label {
+    letter-spacing: 0.5px;
+}
+
+.input-group-lg {
+    .form-control {
+        font-size: 1.5rem;
+    }
+}
+
+.bg-primary-subtle {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.bg-danger-subtle {
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+}

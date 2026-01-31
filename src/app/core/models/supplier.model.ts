@@ -4,7 +4,7 @@ export interface SupplierRequest {
     phone?: string;
     email?: string;
     address?: string;
-    active?: boolean;
+    active: boolean;
 }
 
 export interface SupplierResponse {

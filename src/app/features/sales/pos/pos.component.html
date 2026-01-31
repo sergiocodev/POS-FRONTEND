@@ -1,0 +1,215 @@
+<div class="pos-container bg-light min-vh-100">
+    <!-- Nav / Header -->
+    <nav class="navbar navbar-dark bg-primary shadow-sm px-4 py-2 mb-3">
+        <span class="navbar-brand fw-bold d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart4 me-2"
+                viewBox="0 0 16 16">
+                <path
+                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
+            </svg>
+            Terminal Punto de Venta (POS)
+        </span>
+        <div class="d-flex align-items-center gap-3">
+            <select class="form-select form-select-sm bg-primary text-white border-light" style="width: 200px;"
+                (change)="selectedEstablishmentId.set(+$any($event.target).value)">
+                <option *ngFor="let est of establishments()" [value]="est.id"
+                    [selected]="est.id === selectedEstablishmentId()">
+                    {{ est.name }}
+                </option>
+            </select>
+            <button class="btn btn-outline-light btn-sm" (click)="router.navigate(['/sales'])">
+                Salir
+            </button>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="row g-4">
+
+            <!-- Left Column: Product Selection -->
+            <div class="col-lg-7 col-xl-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                        <div class="input-group input-group-lg border rounded-3">
+                            <span class="input-group-text bg-white border-0 ps-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                    class="bi bi-search text-muted" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                </svg>
+                            </span>
+                            <input type="text" class="form-control border-0 py-3 ps-2 shadow-none"
+                                placeholder="Buscar producto por nombre o código de barras..."
+                                [(ngModel)]="productSearchTerm" (input)="onProductSearch()">
+                        </div>
+                    </div>
+
+                    <div class="card-body px-4 pt-4">
+                        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 scrollable-products"
+                            style="max-height: 600px; overflow-y: auto;">
+                            <div class="col" *ngFor="let prod of filteredProducts()">
+                                <div class="card h-100 product-card border rounded-3 shadow-none text-center p-3 btn text-start"
+                                    (click)="addToCart(prod)">
+                                    <div class="product-icon mb-2 mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 60px; height: 60px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                            fill="currentColor" class="bi bi-box-seam text-primary" viewBox="0 0 16 16">
+                                            <path
+                                                d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.747L8.5 6.752V14.155l6.5-2.6zm-7.5 7.403V6.752L1.5 4.286v7.269zm-.107-10.336L8.5 2.152V6.752zM1 1.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5z" />
+                                        </svg>
+                                    </div>
+                                    <h6 class="card-title fw-bold mb-1 text-truncate" [title]="prod.name">{{ prod.name
+                                        }}</h6>
+                                    <span class="text-muted small mb-2 d-block">{{ prod.brandName || 'Sin Marca'
+                                        }}</span>
+                                    <div class="mt-auto pt-2">
+                                        <span class="badge bg-primary rounded-pill px-3 py-2 fs-6">S/ 10.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Cart and Summary -->
+            <div class="col-lg-5 col-xl-4">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
+                    <div
+                        class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Detalle de Venta</h5>
+                        <button class="btn btn-outline-danger btn-sm rounded-pill"
+                            (click)="cart.set([])">Limpiar</button>
+                    </div>
+
+                    <div class="card-body px-4 pt-3">
+                        <!-- Customer Selector -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">CLIENTE</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select border-0 bg-light shadow-none"
+                                    (change)="selectedCustomer.set($any($event.target).value)">
+                                    <option [ngValue]="null">Ocasional (Público General)</option>
+                                    <option *ngFor="let c of customers()" [ngValue]="c">{{ c.name }} ({{
+                                        c.documentNumber }})</option>
+                                </select>
+                                <button class="btn btn-light border" title="Registrar nuevo cliente">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cart Table -->
+                        <div class="cart-items mb-4" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm align-middle">
+                                <tbody>
+                                    <tr *ngFor="let item of cart(); let i = index">
+                                        <td>
+                                            <div class="fw-bold small text-truncate" style="max-width: 150px;">{{
+                                                item.product.name }}</div>
+                                            <small class="text-muted">S/ {{ item.price | number:'1.2-2' }}</small>
+                                        </td>
+                                        <td class="text-center" style="width: 100px;">
+                                            <div class="input-group input-group-sm">
+                                                <button class="btn btn-outline-secondary px-2"
+                                                    (click)="updateQuantity(i, item.quantity - 1)">-</button>
+                                                <input type="number" class="form-control text-center px-1"
+                                                    [value]="item.quantity"
+                                                    (change)="updateQuantity(i, +$any($event.target).value)">
+                                                <button class="btn btn-outline-secondary px-2"
+                                                    (click)="updateQuantity(i, item.quantity + 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="text-end fw-bold">
+                                            S/ {{ item.total | number:'1.2-2' }}
+                                        </td>
+                                        <td class="text-end ps-2">
+                                            <button class="btn btn-link text-danger p-0 border-0 shadow-none"
+                                                (click)="removeFromCart(i)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                                    <path
+                                                        d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 10.646a.5.5 0 0 1 0-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="cart().length === 0">
+                                        <td colspan="4" class="text-center py-4 text-muted">Carrito vacío</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="bg-light rounded-3 p-3 mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-bold">S/ {{ subtotal() | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">IGV (18%)</span>
+                                <span>S/ {{ tax() | number:'1.2-2' }}</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 fw-bold mb-0">TOTAL</span>
+                                <span class="h4 fw-bold text-primary mb-0">S/ {{ total() | number:'1.2-2' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Form -->
+                        <form [formGroup]="posForm" (ngSubmit)="onSubmitSale()">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">COMPROBANTE</label>
+                                    <select class="form-select border-0 bg-light" formControlName="documentType">
+                                        <option value="BOLETA">Boleta</option>
+                                        <option value="FACTURA">Factura</option>
+                                        <option value="TICKET">Ticket</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">PAGO</label>
+                                    <select class="form-select border-0 bg-light" formControlName="paymentMethod">
+                                        <option value="EFECTIVO">Efectivo</option>
+                                        <option value="VISA">Visa</option>
+                                        <option value="YAPE">Yape</option>
+                                        <option value="PLIN">Plin</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4" *ngIf="posForm.value.paymentMethod === 'EFECTIVO'">
+                                <label class="form-label small fw-bold text-muted">MONTO RECIBIDO</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text border-0 bg-light">S/</span>
+                                    <input type="number" class="form-control border-0 bg-light px-2"
+                                        formControlName="receivedAmount" placeholder="0.00">
+                                </div>
+                                <div class="mt-2 text-end" *ngIf="posForm.value.receivedAmount > total()">
+                                    <span class="text-muted small">Vuelto: </span>
+                                    <span class="fw-bold text-success">S/ {{ (posForm.value.receivedAmount - total()) |
+                                        number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold rounded-3 shadow"
+                                [disabled]="isLoading() || cart().length === 0">
+                                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                                PROCESAR VENTA (F10)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

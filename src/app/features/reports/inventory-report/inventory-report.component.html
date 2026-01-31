@@ -1,0 +1,105 @@
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold mb-1">Reporte de Inventario</h2>
+            <p class="text-muted mb-0">Visión general del estado de productos y stock</p>
+        </div>
+        <button class="btn btn-outline-success" (click)="exportToCsv()" [disabled]="reportData().length === 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-file-earmark-spreadsheet me-2" viewBox="0 0 16 16">
+                <path
+                    d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V9H3V2a1 1 0 0 1 1-1h5.5zM3 12v-2h2v2zm0 1h2v2H4a1 1 0 0 1-1-1zm3 2v-2h3v2zm4 0v-2h2.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5zm1.5-3h-1v-2h1zm-1-5.5V6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.5z" />
+            </svg>
+            Exportar CSV
+        </button>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4">
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'GENERAL'"
+                (click)="setTab('GENERAL')">General</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'LOW_STOCK'"
+                (click)="setTab('LOW_STOCK')">Stock Bajo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link cursor-pointer" [class.active]="activeTab() === 'EXPIRING'"
+                (click)="setTab('EXPIRING')">Por Vencer</a>
+        </li>
+    </ul>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm bg-light mb-4" *ngIf="activeTab() !== 'GENERAL'">
+        <div class="card-body">
+            <div class="row align-items-end g-3" *ngIf="activeTab() === 'LOW_STOCK'">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Stock Mínimo</label>
+                    <input type="number" class="form-control" [(ngModel)]="lowStockThreshold" min="1">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" (click)="loadReport()">Actualizar</button>
+                </div>
+            </div>
+            <div class="row align-items-end g-3" *ngIf="activeTab() === 'EXPIRING'">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Días para Vencimiento</label>
+                    <input type="number" class="form-control" [(ngModel)]="expiringDays" min="1">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" (click)="loadReport()">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Producto</th>
+                            <th>Código</th>
+                            <th>Lote</th>
+                            <th>Vencimiento</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Costo</th>
+                            <th class="text-end">Precio</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="8" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && reportData().length === 0">
+                            <td colspan="8" class="text-center py-5 text-muted">No se encontraron datos.</td>
+                        </tr>
+                        <tr *ngFor="let item of reportData()">
+                            <td class="ps-4">
+                                <div class="fw-bold">{{ item.productName }}</div>
+                                <small class="text-muted">{{ item.brand }} - {{ item.category }}</small>
+                            </td>
+                            <td>{{ item.productCode }}</td>
+                            <td>{{ item.lotCode || '-' }}</td>
+                            <td>{{ item.expiryDate | date:'dd/MM/yyyy' }}</td>
+                            <td class="text-end fw-bold">{{ item.quantity }}</td>
+                            <td class="text-end text-muted">{{ item.costPrice | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end fw-medium">{{ item.salesPrice | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" [ngClass]="getStockBadgeClass(item.stockStatus)">
+                                    {{ item.stockStatus }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

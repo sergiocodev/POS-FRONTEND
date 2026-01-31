@@ -1,0 +1,128 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Control de Caja</h2>
+                    <p class="text-muted mb-0">Gestión de aperturas y cierres de caja diaria</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button *ngIf="!activeSession()" class="btn btn-primary" (click)="onOpenSession()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-door-open me-2" viewBox="0 0 16 16">
+                            <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1" />
+                            <path
+                                d="M10.828.122A.5.5 0 0 1 11 .5V1h.5A1.5 1.5 0 0 1 13 2.5V15h.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H1V2.5A1.5 1.5 0 0 1 2.5 1H3V.5a.5.5 0 0 1 .5-.5h7.328ZM1 2v13h1V2a.5.5 0 0 0-.5-.5H1Zm2-1v14h1V1a.5.5 0 0 0-.5-.5H3Zm2 0v14h4V1a.5.5 0 0 0-.5-.5H5Zm5 0v14h1V1a.5.5 0 0 0-.5-.5H10Zm2 1.5v12.5h.5a.5.5 0 0 0 .5-.5V2.5a.5.5 0 0 0-.5-.5h-.5Z" />
+                        </svg>
+                        Abrir Caja
+                    </button>
+                    <button *ngIf="activeSession()" class="btn btn-danger" (click)="onCloseActiveSession()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-lock-fill me-2" viewBox="0 0 16 16">
+                            <path
+                                d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2" />
+                        </svg>
+                        Cerrar Caja Activa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Session Info Summary -->
+    <div class="row mb-4" *ngIf="activeSession()">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <div class="small opacity-75 text-uppercase fw-bold">Caja Actual</div>
+                            <div class="h4 mb-0">{{ activeSession()?.cashRegisterName }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small opacity-75 text-uppercase fw-bold">Saldo Apertura</div>
+                            <div class="h4 mb-0">{{ activeSession()?.openingBalance | currency:'PEN':'S/ ' }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small opacity-75 text-uppercase fw-bold">Apertura</div>
+                            <div class="h4 mb-0">{{ activeSession()?.openedAt | date:'shortTime' }}</div>
+                        </div>
+                        <div class="col-md-3 text-md-end">
+                            <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold">EN LÍNEA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session History -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title h6 fw-bold mb-0">Historial de Sesiones</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="py-3">Caja / Usuario</th>
+                            <th class="py-3 text-end">Apertura</th>
+                            <th class="py-3 text-end">Cierre</th>
+                            <th class="py-3 text-end">Diferencia</th>
+                            <th class="py-3 text-center">Estado</th>
+                            <th class="py-3 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="7" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && sessions().length === 0">
+                            <td colspan="7" class="text-center py-5 text-muted">No hay historial de cajas disponible.
+                            </td>
+                        </tr>
+                        <tr *ngFor="let session of sessions()">
+                            <td class="px-4">
+                                <div class="fw-bold">{{ session.openedAt | date:'dd/MM/yyyy' }}</div>
+                                <small class="text-muted">{{ session.openedAt | date:'shortTime' }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ session.cashRegisterName }}</div>
+                                <small class="text-muted">{{ session.username }}</small>
+                            </td>
+                            <td class="text-end fw-medium">{{ session.openingBalance | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end fw-medium">
+                                <span *ngIf="session.closingBalance">{{ session.closingBalance | currency:'PEN':'S/ '
+                                    }}</span>
+                                <span *ngIf="!session.closingBalance" class="text-muted">—</span>
+                            </td>
+                            <td class="text-end">
+                                <span *ngIf="session.status === 'CLOSED'"
+                                    [ngClass]="session.diffAmount === 0 ? 'text-success' : (session.diffAmount > 0 ? 'text-info' : 'text-danger')"
+                                    class="fw-bold">
+                                    {{ session.diffAmount | currency:'PEN':'S/ ' }}
+                                </span>
+                                <span *ngIf="session.status === 'OPEN'" class="text-muted">—</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-3" [ngClass]="getStatusBadgeClass(session.status)">
+                                    {{ session.status === 'OPEN' ? 'Abierta' : 'Cerrada' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary"
+                                    [routerLink]="['/cash/session', session.id]">
+                                    Detalles
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

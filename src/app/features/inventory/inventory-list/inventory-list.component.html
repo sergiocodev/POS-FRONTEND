@@ -1,0 +1,121 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Inventario y Stock</h2>
+                    <p class="text-muted mb-0">Gestión de existencias por sede y lote</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" (click)="loadInventory()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-arrow-clockwise me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                            <path
+                                d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                        </svg>
+                        Refrescar
+                    </button>
+                    <button class="btn btn-success" (click)="onExport()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-file-earmark-spreadsheet me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                            <path
+                                d="M5.103 7.904a11.5 11.5 0 0 1 2.028.315c.574.117 1.13.243 1.666.379.444.113.844.225 1.196.34v.002c.465.15.824.316 1.071.503.247.188.356.367.356.556s-.109.368-.356.556c-.247.187-.606.353-1.071.503v.002a6.3 6.3 0 0 1-1.196.34 11.7 11.7 0 0 1-1.666.38 11.5 11.5 0 0 1-2.028.315l-.018.002c-.524.032-1.002.046-1.428.046a7 7 0 0 1-1.284-.118c-.432-.078-.737-.197-.933-.357a1 1 0 0 1-.39-.54l-.011-.05V9.26a1 1 0 0 1 .158-.538c.15-.224.412-.417.81-.611.411-.2 1.002-.387 1.764-.597l.024-.007Zm.021 3.538c.27-.002.508-.01.713-.024.464-.033.84-.078 1.13-.134.29-.056.495-.125.626-.208.131-.082.23-.19.23-.324s-.099-.242-.23-.324c-.131-.083-.335-.152-.626-.208-.29-.056-.666-.101-1.13-.134a9 9 0 0 0-.713-.024c-.464.013-.815.045-1.05.094-.234.049-.396.111-.486.185a.5.5 0 0 0-.174.242.5.5 0 0 0 .174.242c.09.074.252.136.486.185.235.049.586.081 1.05.094Z" />
+                        </svg>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label class="form-label fw-bold text-muted small">FILTRAR POR SEDE</label>
+                    <select class="form-select border-0 bg-light shadow-none py-2 px-3"
+                        [ngModel]="selectedEstablishmentId()"
+                        (ngModelChange)="selectedEstablishmentId.set($event ? +$event : null)">
+                        <option [value]="null">Todas las Sedes</option>
+                        <option *ngFor="let est of establishments()" [value]="est.id">{{ est.name }}</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-8">
+                    <label class="form-label fw-bold text-muted small">BUSCAR PRODUCTO O LOTE</label>
+                    <div class="input-group bg-light rounded-3">
+                        <span class="input-group-text bg-transparent border-0 pe-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-search text-muted" viewBox="0 0 16 16">
+                                <path
+                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                            </svg>
+                        </span>
+                        <input type="text" class="form-control bg-transparent border-0 py-2 shadow-none"
+                            placeholder="Escriba el nombre del producto o código de lote..." [ngModel]="searchTerm()"
+                            (ngModelChange)="searchTerm.set($event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3">Sede</th>
+                            <th class="py-3">Producto</th>
+                            <th class="py-3">Lote</th>
+                            <th class="py-3 text-center">Stock Actual</th>
+                            <th class="py-3 text-end">P. Costo</th>
+                            <th class="py-3 text-end pe-4">P. Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted mb-0">Cargando inventario...</p>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && filteredInventory().length === 0">
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted mb-0">No se encontraron existencias con los filtros aplicados.</p>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let item of filteredInventory()">
+                            <td class="px-4">
+                                <span class="badge bg-info text-dark">{{ item.establishmentName }}</span>
+                            </td>
+                            <td class="fw-bold">{{ item.productName }}</td>
+                            <td>
+                                <span class="text-muted d-block small">Código:</span>
+                                <span class="fw-medium">{{ item.lotCode }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill fs-6 px-3"
+                                    [ngClass]="item.quantity > 50 ? 'bg-success' : (item.quantity > 10 ? 'bg-warning text-dark' : 'bg-danger')">
+                                    {{ item.quantity }}
+                                </span>
+                                <small class="d-block text-muted mt-1">Últ. Mov: {{ item.lastMovement | date:'shortDate'
+                                    }}</small>
+                            </td>
+                            <td class="text-end fw-medium text-muted">
+                                {{ item.costPrice | currency:'PEN':'S/ ' }}
+                            </td>
+                            <td class="text-end pe-4 fw-bold text-primary">
+                                {{ item.salesPrice | currency:'PEN':'S/ ' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

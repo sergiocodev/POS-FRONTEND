@@ -1,0 +1,8 @@
+/* Inventory styles */
+.badge {
+    font-weight: 500;
+}
+
+.table> :not(caption)>*>* {
+    padding: 1rem 0.5rem;
+}

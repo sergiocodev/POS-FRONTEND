@@ -13,9 +13,17 @@ import { AuthService } from '../services/auth.service';
 export class LayoutComponent {
     authService = inject(AuthService);
     sidebarCollapsed = false;
+    reportsMenuOpen = false;
 
     toggleSidebar(): void {
         this.sidebarCollapsed = !this.sidebarCollapsed;
+        if (this.sidebarCollapsed) {
+            this.reportsMenuOpen = false;
+        }
+    }
+
+    toggleReportsMenu(): void {
+        this.reportsMenuOpen = !this.reportsMenuOpen;
     }
 
     onLogout(): void {

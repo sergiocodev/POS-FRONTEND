@@ -1,0 +1,85 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle"
+                    [ngClass]="mode() === 'OPEN' ? 'bg-primary-subtle' : 'bg-danger-subtle'">
+                    <svg *ngIf="mode() === 'OPEN'" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                        fill="currentColor" class="bi bi-door-open-fill text-primary" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 15a.5.5 0 0 0 0 1h13a.5.5 0 0 0 0-1H13V2.5A1.5 1.5 0 0 0 11.5 1H11V.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5V1H2.5A1.5 1.5 0 0 0 1 2.5V15h.5zM10.5 10c0 .552-.224 1-.5 1s-.5-.448-.5-1 .224-1 .5-1 .5.448.5 1z" />
+                    </svg>
+                    <svg *ngIf="mode() === 'CLOSE'" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                        fill="currentColor" class="bi bi-lock-fill text-danger" viewBox="0 0 16 16">
+                        <path
+                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2" />
+                    </svg>
+                </div>
+                <h2 class="h3 fw-bold mt-3">{{ mode() === 'OPEN' ? 'Apertura de Caja' : 'Cierre de Caja' }}</h2>
+                <p class="text-muted">{{ mode() === 'OPEN' ? 'Inicie una nueva sesión para comenzar a vender' :
+                    'Finalice la sesión actual y registre el saldo final' }}</p>
+            </div>
+
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="alert alert-danger" *ngIf="errorMessage()">
+                        {{ errorMessage() }}
+                    </div>
+
+                    <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()">
+
+                        <div class="mb-4" *ngIf="mode() === 'OPEN'">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Seleccionar Caja</label>
+                            <select class="form-select border-0 bg-light py-2 px-3 fs-5"
+                                formControlName="cashRegisterId"
+                                [class.is-invalid]="sessionForm.get('cashRegisterId')?.touched && sessionForm.get('cashRegisterId')?.invalid">
+                                <option [ngValue]="null">Elija una caja disponible</option>
+                                <option *ngFor="let r of registers()" [value]="r.id">{{ r.name }} - {{
+                                    r.establishmentName }}</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4" *ngIf="mode() === 'OPEN'">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Saldo Inicial
+                                (Efectivo)</label>
+                            <div class="input-group input-group-lg shadow-sm border rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-white border-0 pe-0 text-muted">S/</span>
+                                <input type="number" class="form-control border-0 py-3 ps-2 fw-bold"
+                                    formControlName="openingBalance" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="mb-4" *ngIf="mode() === 'CLOSE'">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Saldo Final Contado
+                                (Efectivo)</label>
+                            <div class="input-group input-group-lg shadow-sm border rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-white border-0 pe-0 text-muted">S/</span>
+                                <input type="number" class="form-control border-0 py-3 ps-2 fw-bold text-danger"
+                                    formControlName="closingBalance" placeholder="0.00">
+                            </div>
+                            <div class="form-text mt-2">Ingrese el monto total en efectivo que hay físicamente en la
+                                caja.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Notas (Opcional)</label>
+                            <textarea class="form-control border-0 bg-light py-2 px-3" formControlName="notes" rows="3"
+                                placeholder="Observaciones sobre la sesión..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-lg fw-bold py-3"
+                                [ngClass]="mode() === 'OPEN' ? 'btn-primary' : 'btn-danger'" [disabled]="isLoading()">
+                                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ mode() === 'OPEN' ? 'CONFIRMAR APERTURA' : 'CONFIRMAR CIERRE' }}
+                            </button>
+                            <button type="button" class="btn btn-link text-muted py-2"
+                                routerLink="/cash">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

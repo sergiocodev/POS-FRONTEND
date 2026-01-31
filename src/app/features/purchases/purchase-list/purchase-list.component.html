@@ -1,0 +1,98 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Registro de Compras</h2>
+                    <p class="text-muted mb-0">Ingreso de mercadería y facturas de proveedores</p>
+                </div>
+                <button class="btn btn-primary" (click)="onNewPurchase()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-plus-circle me-2" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path
+                            d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                    </svg>
+                    Nueva Compra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="input-group border rounded shadow-sm">
+                <span class="input-group-text bg-white border-0 ps-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-search text-muted" viewBox="0 0 16 16">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg>
+                </span>
+                <input type="text" class="form-control border-0 ps-2"
+                    placeholder="Buscar por remisión, factura o proveedor..." (input)="onSearch($event)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="px-4 py-3">Fecha Emisión</th>
+                            <th class="py-3">Documento</th>
+                            <th class="py-3">Proveedor</th>
+                            <th class="py-3 text-end">Total</th>
+                            <th class="py-3 text-center">Estado</th>
+                            <th class="py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted mb-0">Cargando compras...</p>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && filteredPurchases().length === 0">
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted mb-0">No se encontraron registros de compras.</p>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let purchase of filteredPurchases()">
+                            <td class="px-4">
+                                <div class="fw-bold">{{ purchase.issueDate | date:'dd/MM/yyyy' }}</div>
+                                <small class="text-muted">Recibido: {{ purchase.arrivalDate | date:'short' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border me-1">{{ purchase.documentType }}</span>
+                                <span class="fw-bold">{{ purchase.series }}-{{ purchase.number }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ purchase.supplierName }}</div>
+                                <small class="text-muted">Sede: {{ purchase.establishmentName }}</small>
+                            </td>
+                            <td class="text-end fw-bold text-primary">
+                                {{ purchase.total | currency:'PEN':'S/ ' }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(purchase.status)">
+                                    {{ purchase.status === 'RECEIVED' ? 'Recibido' : (purchase.status === 'PENDING' ?
+                                    'Pendiente' : 'Anulado') }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-secondary"
+                                    [routerLink]="['/purchases/edit', purchase.id]">
+                                    Ver Detalle
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

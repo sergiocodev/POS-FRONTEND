@@ -1,0 +1,150 @@
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold mb-1">Reporte de Ventas</h2>
+            <p class="text-muted mb-0">Análisis detallado de transacciones y facturación</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm bg-white mb-4">
+        <div class="card-body py-3">
+            <div class="row align-items-end g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">Fecha Inicio</label>
+                    <input type="date" class="form-control" [(ngModel)]="startDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">Fecha Fin</label>
+                    <input type="date" class="form-control" [(ngModel)]="endDate">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100 fw-bold" (click)="loadReport()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-search me-2" viewBox="0 0 16 16">
+                            <path
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                        </svg>
+                        Generar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4" *ngIf="summary()">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small text-uppercase fw-bold mb-1">Ventas Totales</p>
+                            <h3 class="fw-bold mb-0 text-primary">{{ summary()?.totalRevenue | currency:'PEN':'S/ ' }}
+                            </h3>
+                        </div>
+                        <div class="text-primary opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                                class="bi bi-cash-coin" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8m5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0" />
+                                <path
+                                    d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.936-1.09-1.1l-.296-.075c-.701-.178-1.558-.337-1.558-.95 0-.53.535-.87 1.254-.91v-.5c.863.07 1.312.553 1.32.996l.872.18c-.08-.946-.879-1.467-1.748-1.527v-.409h-.375v.41c-.886.068-1.421.579-1.421 1.264 0 .61.411.97.942 1.099l.348.086c.797.199 1.547.391 1.547.935 0 .584-.634.912-1.325.922v.455c-.777-.07-1.257-.55-1.296-.983l-.842.19Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small text-uppercase fw-bold mb-1">Transacciones</p>
+                            <h3 class="fw-bold mb-0 text-success">{{ summary()?.salesCount }}</h3>
+                        </div>
+                        <div class="text-success opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                                class="bi bi-receipt" viewBox="0 0 16 16">
+                                <path
+                                    d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.9.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27m.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small text-uppercase fw-bold mb-1">Impuestos (IGV)</p>
+                            <h3 class="fw-bold mb-0 text-info">{{ summary()?.totalTax | currency:'PEN':'S/ ' }}</h3>
+                        </div>
+                        <div class="text-info opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                                class="bi bi-percent" viewBox="0 0 16 16">
+                                <path
+                                    d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Data -->
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>Documento</th>
+                            <th>Cliente</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Método Pago</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && sales().length === 0">
+                            <td colspan="6" class="text-center py-5 text-muted">No se encontraron ventas en el rango
+                                seleccionado.</td>
+                        </tr>
+                        <tr *ngFor="let sale of sales()">
+                            <td class="ps-4">
+                                <div class="fw-bold">{{ sale.date | date:'dd/MM/yyyy' }}</div>
+                                <small class="text-muted">{{ sale.date | date:'shortTime' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border me-1">{{ sale.documentType }}</span>
+                                <span class="fw-medium font-monospace">{{ sale.series }}-{{ sale.number }}</span>
+                            </td>
+                            <td class="fw-medium">{{ sale.customerName }}</td>
+                            <td class="text-end fw-bold">{{ sale.total | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-center">
+                                <span [class]="getPaymentMethodClass(sale.paymentMethod)">{{ sale.paymentMethod
+                                    }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" [ngClass]="getStatusClass(sale.status)">
+                                    {{ sale.status }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
