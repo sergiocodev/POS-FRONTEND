@@ -1,0 +1,75 @@
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Welcome Card -->
+            <div class="card shadow-sm fade-in border-0 rounded-3">
+                <div class="card-body text-center p-4 p-md-5">
+                    <!-- Success Icon -->
+                    <div class="d-inline-flex align-items-center justify-content-center bg-gradient-success rounded-circle mb-4"
+                        style="width: 100px; height: 100px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="white"
+                            class="bi bi-check-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path
+                                d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05" />
+                        </svg>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="display-5 fw-bold mb-3">¡Bienvenido al Sistema!</h1>
+                    <p class="lead text-muted mb-4">
+                        Has iniciado sesión exitosamente en el Sistema de Gestión de Farmacia
+                    </p>
+
+                    <!-- User Info Card -->
+                    <div class="row justify-content-center mt-4">
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div class="card bg-light border-0">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-3">Información de Usuario</h5>
+                                    <div class="row text-start">
+                                        <div class="col-5 col-sm-4">
+                                            <p class="mb-2 fw-semibold">Usuario:</p>
+                                            <p class="mb-2 fw-semibold">Nombre:</p>
+                                            <p class="mb-2 fw-semibold">Email:</p>
+                                            <p class="mb-0 fw-semibold">Rol:</p>
+                                        </div>
+                                        <div class="col-7 col-sm-8">
+                                            <p class="mb-2 text-muted">{{ authService.currentUser()?.username }}</p>
+                                            <p class="mb-2 text-muted">{{ authService.currentUser()?.nombre }}</p>
+                                            <p class="mb-2 text-muted">{{ authService.currentUser()?.email }}</p>
+                                            <p class="mb-0 text-muted">{{ authService.currentUser()?.rol }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-info-circle flex-shrink-0 me-3 mt-1" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                    <path
+                        d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533z" />
+                    <path d="M9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                </svg>
+                <div>
+                    <h5 class="alert-heading mb-2">Módulo de Autenticación Implementado</h5>
+                    <p class="mb-0">
+                        Este es el módulo inicial de autenticación. Los módulos adicionales (clientes, productos,
+                        ventas, etc.)
+                        se implementarán según lo requieras.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

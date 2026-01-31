@@ -1,0 +1,104 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary p-3">
+    <div class="card shadow-lg fade-in-up w-100" style="max-width: 500px; border-radius: 1rem;">
+        <div class="card-body p-4 p-md-5">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-gradient-primary rounded-circle mb-3"
+                    style="width: 80px; height: 80px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white"
+                        class="bi bi-person-plus" viewBox="0 0 16 16">
+                        <path
+                            d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                        <path fill-rule="evenodd"
+                            d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
+                    </svg>
+                </div>
+                <h2 class="h3 fw-bold text-dark mb-2">Crear Cuenta</h2>
+                <p class="text-muted mb-0">Regístrate en el sistema</p>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                <!-- Username Field -->
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-semibold">Usuario</label>
+                    <input type="text" class="form-control" id="username" formControlName="username"
+                        placeholder="Elige un nombre de usuario"
+                        [class.is-invalid]="username?.invalid && username?.touched" />
+                    <div class="invalid-feedback" *ngIf="username?.invalid && username?.touched">
+                        <span *ngIf="username?.errors?.['required']">El usuario es requerido</span>
+                        <span *ngIf="username?.errors?.['minlength']">El usuario debe tener al menos 3 caracteres</span>
+                    </div>
+                </div>
+
+                <!-- Name Field -->
+                <div class="mb-3">
+                    <label for="nombre" class="form-label fw-semibold">Nombre Completo</label>
+                    <input type="text" class="form-control" id="nombre" formControlName="nombre"
+                        placeholder="Ingresa tu nombre completo"
+                        [class.is-invalid]="nombre?.invalid && nombre?.touched" />
+                    <div class="invalid-feedback" *ngIf="nombre?.invalid && nombre?.touched">
+                        <span *ngIf="nombre?.errors?.['required']">El nombre es requerido</span>
+                    </div>
+                </div>
+
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" formControlName="email"
+                        placeholder="correo@ejemplo.com" [class.is-invalid]="email?.invalid && email?.touched" />
+                    <div class="invalid-feedback" *ngIf="email?.invalid && email?.touched">
+                        <span *ngIf="email?.errors?.['required']">El correo es requerido</span>
+                        <span *ngIf="email?.errors?.['email']">Ingresa un correo válido</span>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold">Contraseña</label>
+                    <input type="password" class="form-control" id="password" formControlName="password"
+                        placeholder="Crea una contraseña" [class.is-invalid]="password?.invalid && password?.touched" />
+                    <div class="invalid-feedback" *ngIf="password?.invalid && password?.touched">
+                        <span *ngIf="password?.errors?.['required']">La contraseña es requerida</span>
+                        <span *ngIf="password?.errors?.['minlength']">La contraseña debe tener al menos 4
+                            caracteres</span>
+                    </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label fw-semibold">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="confirmPassword" formControlName="confirmPassword"
+                        placeholder="Confirma tu contraseña"
+                        [class.is-invalid]="confirmPassword?.invalid && confirmPassword?.touched" />
+                    <div class="invalid-feedback" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
+                        <span *ngIf="confirmPassword?.errors?.['required']">Debes confirmar la contraseña</span>
+                        <span *ngIf="confirmPassword?.errors?.['passwordMismatch']">Las contraseñas no coinciden</span>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div class="alert alert-danger" role="alert" *ngIf="errorMessage()">
+                    <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage() }}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" [disabled]="isLoading()">
+                    <span *ngIf="!isLoading()">Registrarse</span>
+                    <span *ngIf="isLoading()">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Registrando...
+                    </span>
+                </button>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <p class="mb-0 text-muted">
+                        ¿Ya tienes cuenta?
+                        <a routerLink="/login" class="text-decoration-none fw-semibold">Inicia sesión aquí</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
