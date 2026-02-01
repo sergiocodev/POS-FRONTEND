@@ -8,7 +8,7 @@ import { SupplierRequest, SupplierResponse } from '../models/supplier.model';
 })
 export class SupplierService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/suppliers';
+    private apiUrl = '/api/v1/suppliers';
 
     getAll(): Observable<SupplierResponse[]> {
         return this.http.get<SupplierResponse[]>(this.apiUrl);

@@ -14,8 +14,8 @@ export class CashSessionService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
 
-    private sessionUrl = '/api/cash-sessions';
-    private registerUrl = '/api/cash-registers';
+    private sessionUrl = '/api/v1/cash-sessions';
+    private registerUrl = '/api/v1/cash-registers';
 
     // Cash Registers
     getRegisters(): Observable<CashRegisterResponse[]> {

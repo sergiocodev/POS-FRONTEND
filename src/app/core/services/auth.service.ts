@@ -18,7 +18,7 @@ export class AuthService {
     currentUser = signal<User | null>(this.getUserFromStorage());
 
     login(request: LoginRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>('/api/auth/login', request).pipe(
+        return this.http.post<LoginResponse>('/api/v1/auth/login', request).pipe(
             tap(response => {
                 this.saveAuthData(response);
             })
@@ -26,7 +26,7 @@ export class AuthService {
     }
 
     register(request: RegisterRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>('/api/auth/register', request).pipe(
+        return this.http.post<LoginResponse>('/api/v1/auth/register', request).pipe(
             tap(response => {
                 this.saveAuthData(response);
             })

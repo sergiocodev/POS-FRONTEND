@@ -8,7 +8,7 @@ import { SaleRequest, SaleResponse, EstablishmentResponse } from '../models/sale
 })
 export class SaleService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/sales';
+    private apiUrl = '/api/v1/sales';
 
     create(request: SaleRequest): Observable<SaleResponse> {
         return this.http.post<SaleResponse>(this.apiUrl, request);
@@ -27,6 +27,6 @@ export class SaleService {
     }
 
     getEstablishments(): Observable<EstablishmentResponse[]> {
-        return this.http.get<EstablishmentResponse[]>('/api/establishments');
+        return this.http.get<EstablishmentResponse[]>('/api/v1/establishments');
     }
 }

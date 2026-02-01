@@ -14,9 +14,9 @@ export class InventoryService {
     private http = inject(HttpClient);
 
     // Inventory Endpoints
-    private inventoryUrl = '/api/inventory';
-    private lotsUrl = '/api/product-lots';
-    private movementsUrl = '/api/stock-movements';
+    private inventoryUrl = '/api/v1/inventory';
+    private lotsUrl = '/api/v1/product-lots';
+    private movementsUrl = '/api/v1/stock-movements';
 
     // Inventory
     getAllStock(): Observable<InventoryResponse[]> {

@@ -8,7 +8,7 @@ import { ProductRequest, ProductResponse } from '../models/product.model';
 })
 export class ProductService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/products';
+    private apiUrl = '/api/v1/products';
 
     getAll(): Observable<ProductResponse[]> {
         return this.http.get<ProductResponse[]>(this.apiUrl);

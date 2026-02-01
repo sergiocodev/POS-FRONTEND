@@ -19,7 +19,7 @@ export interface User {
 })
 export class UserService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/users';
+    private apiUrl = '/api/v1/users';
 
     getAll(): Observable<User[]> {
         return this.http.get<User[]>(this.apiUrl);

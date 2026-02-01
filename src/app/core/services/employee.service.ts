@@ -8,7 +8,7 @@ import { EmployeeRequest, EmployeeResponse } from '../models/employee.model';
 })
 export class EmployeeService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/employees';
+    private apiUrl = '/api/v1/employees';
 
     getAll(): Observable<EmployeeResponse[]> {
         return this.http.get<EmployeeResponse[]>(this.apiUrl);

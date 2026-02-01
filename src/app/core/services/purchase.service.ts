@@ -8,7 +8,7 @@ import { PurchaseRequest, PurchaseResponse } from '../models/purchase.model';
 })
 export class PurchaseService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/purchases';
+    private apiUrl = '/api/v1/purchases';
 
     create(request: PurchaseRequest): Observable<PurchaseResponse> {
         return this.http.post<PurchaseResponse>(this.apiUrl, request);

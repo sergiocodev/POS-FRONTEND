@@ -8,7 +8,7 @@ import { CustomerRequest, CustomerResponse } from '../models/customer.model';
 })
 export class CustomerService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/customers';
+    private apiUrl = '/api/v1/customers';
 
     getAll(): Observable<CustomerResponse[]> {
         return this.http.get<CustomerResponse[]>(this.apiUrl);

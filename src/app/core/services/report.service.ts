@@ -8,7 +8,7 @@ import { InventoryReport, PurchaseReport, SalesReport, SalesSummary } from '../m
 })
 export class ReportService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/reports';
+    private apiUrl = '/api/v1/reports';
 
     // Inventory Reports
     getInventoryReport(): Observable<InventoryReport[]> {
