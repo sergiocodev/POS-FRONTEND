@@ -4,9 +4,8 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
 
 :host {
   display: block;
-  height: 100vh;
-  position: sticky;
-  top: 0;
+  height: 100%;
+  position: relative;
   z-index: 1000;
   font-family: $font-family;
 }

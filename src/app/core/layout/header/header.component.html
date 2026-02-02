@@ -1,0 +1,112 @@
+<header class="main-header">
+    <div class="header-left">
+        <button class="btn-menu" (click)="toggleSidebar.emit()">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="header-logo">
+            <div class="logo-wrapper">
+                <div class="logo-icon-bg">
+                    <i class="bi bi-capsule logo-icon"></i>
+                </div>
+                <span class="logo-text" *ngIf="!collapsed" [@slideInOut]>Farmacia</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="header-actions">
+            <button class="action-btn notification-btn">
+                <i class="bi bi-bell"></i>
+            </button>
+            <button class="action-btn theme-btn" (click)="toggleTheme()">
+                <i class="bi" [class.bi-sun]="!isDarkMode()" [class.bi-moon-stars]="isDarkMode()"></i>
+            </button>
+        </div>
+
+        <div class="language-selector">
+            <img src="https://flagcdn.com/w20/es.png" alt="ES" class="lang-flag">
+            <span class="lang-text">{{ currentLanguage() }}</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+
+        <div class="profile-menu-container">
+            <!-- Profile Trigger -->
+            <div class="profile-trigger" (click)="toggleProfileDropdown($event)"
+                [class.active]="isProfileDropdownOpen()">
+                <span class="user-name">{{ authService.currentUser()?.nombre || 'PAMELA GLORIA TONE RECLIAY' }}</span>
+                <div class="profile-avatar">
+                    <div class="avatar-content">{{ userInitials }}</div>
+                    <div class="status-indicator"></div>
+                </div>
+                <i class="bi bi-chevron-down chevron-icon" [class.rotated]="isProfileDropdownOpen()"></i>
+            </div>
+
+            @if (isProfileDropdownOpen()) {
+            <div class="dropdown-menu open">
+                <!-- Menu Header -->
+                <div class="menu-header">
+                    <div class="header-content">
+                        <div class="avatar-wrapper">
+                            <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.nombre || 'User' }}&background=0033cc&color=fff&bold=true&size=112"
+                                alt="Profile" />
+                        </div>
+                        <div class="user-details">
+                            <h4 class="name">{{ authService.currentUser()?.nombre || 'PAMELA GLORIA TONE RECLIAY' }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Body -->
+                <div class="menu-body">
+                    <div class="section-label">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>Centro de atención asignados</span>
+                    </div>
+
+                    <div class="care-centers-list">
+                        @for (center of availableServiceCenters(); track center.id) {
+                        <div class="care-center-item" (click)="selectCareCenter(center.id)"
+                            [class.selected]="center.id === selectedServiceCenterId()">
+                            <div class="item-icon">
+                                <i class="bi"
+                                    [ngClass]="center.id === selectedServiceCenterId() ? 'bi-check-lg' : 'bi-geo-alt'"></i>
+                            </div>
+                            <span class="center-name">{{ center.name }}</span>
+                            @if (center.id === selectedServiceCenterId()) {
+                            <span class="selected-badge">Activo</span>
+                            }
+                        </div>
+                        }
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Menu Actions -->
+                    <div class="menu-actions">
+                        <div class="menu-item" (click)="myAccount()">
+                            <div class="item-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span>Cuenta</span>
+                            <i class="bi bi-chevron-right arrow-icon"></i>
+                        </div>
+
+                        <div class="menu-item logout" (click)="logout()">
+                            <div class="item-icon">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </div>
+                            <span>Cerrar sesión</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Footer -->
+                <div class="menu-footer">
+                    <p>© 2025 RECSA • Sistema de Gestión</p>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</header>
