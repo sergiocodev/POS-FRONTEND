@@ -28,7 +28,23 @@ export class InventoryService {
     }
 
     updateStock(request: InventoryRequest): Observable<InventoryResponse> {
-        return this.http.post<InventoryResponse>(this.inventoryUrl, request);
+        return this.http.post<InventoryResponse>(`${this.inventoryUrl}/update`, request);
+    }
+
+    adjustStock(request: InventoryRequest): Observable<InventoryResponse> {
+        return this.http.post<InventoryResponse>(`${this.inventoryUrl}/adjustments`, request);
+    }
+
+    getAlerts(): Observable<InventoryResponse[]> {
+        return this.http.get<InventoryResponse[]>(`${this.inventoryUrl}/alerts`);
+    }
+
+    getLowStock(): Observable<InventoryResponse[]> {
+        return this.http.get<InventoryResponse[]>(`${this.inventoryUrl}/low-stock`);
+    }
+
+    getById(id: number): Observable<InventoryResponse> {
+        return this.http.get<InventoryResponse>(`${this.inventoryUrl}/${id}`);
     }
 
     // Product Lots

@@ -47,4 +47,21 @@ export class CashSessionService {
         const params = new HttpParams().set('closingBalance', closingBalance.toString());
         return this.http.post<CashSessionResponse>(`${this.sessionUrl}/${id}/close`, {}, { params });
     }
+
+    getStatus(userId: number): Observable<CashSessionResponse> {
+        const params = new HttpParams().set('userId', userId.toString());
+        return this.http.get<CashSessionResponse>(`${this.sessionUrl}/status`, { params });
+    }
+
+    closeActiveSession(userId: number, closingBalance: number): Observable<CashSessionResponse> {
+        const params = new HttpParams()
+            .set('userId', userId.toString())
+            .set('closingBalance', closingBalance.toString());
+        return this.http.post<CashSessionResponse>(`${this.sessionUrl}/close`, {}, { params });
+    }
+
+    getHistory(userId: number): Observable<CashSessionResponse[]> {
+        const params = new HttpParams().set('userId', userId.toString());
+        return this.http.get<CashSessionResponse[]>(`${this.sessionUrl}/history`, { params });
+    }
 }

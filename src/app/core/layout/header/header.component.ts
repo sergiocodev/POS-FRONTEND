@@ -1,7 +1,10 @@
-import { Component, inject, signal, Output, EventEmitter, Input, HostListener } from '@angular/core';
+import { Component, inject, signal, Output, EventEmitter, Input, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../services/auth.service';
+import { EstablishmentService } from '../../services/establishment.service';
+import { EstablishmentStateService } from '../../services/establishment-state.service';
+import { EstablishmentResponse } from '../../models/maintenance.model';
 
 @Component({
     selector: 'app-header',
@@ -25,20 +28,42 @@ import { AuthService } from '../../services/auth.service';
         ])
     ]
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
     @Input() collapsed = false;
     @Output() toggleSidebar = new EventEmitter<void>();
     authService = inject(AuthService);
+    private establishmentService = inject(EstablishmentService);
+    private establishmentStateService = inject(EstablishmentStateService);
     isDarkMode = signal(false);
     currentLanguage = signal('Español');
     isProfileDropdownOpen = signal(false);
 
-    // Mock data for service centers following reference project pattern
-    availableServiceCenters = signal([
-        { id: 1, name: 'CENTRO COMERCIAL CENTRAL', active: true },
-        { id: 2, name: 'ALMACEN CENTRAL', active: false }
-    ]);
-    selectedServiceCenterId = signal(1);
+    // Establishments loaded from API
+    availableServiceCenters = signal<EstablishmentResponse[]>([]);
+    selectedServiceCenterId = signal<number | null>(null);
+
+    ngOnInit() {
+        this.loadEstablishments();
+    }
+
+    loadEstablishments() {
+        this.establishmentService.getAll().subscribe({
+            next: (establishments) => {
+                // Filter only active establishments
+                const activeEstablishments = establishments.filter(e => e.active);
+                this.availableServiceCenters.set(activeEstablishments);
+
+                // Set the first active establishment as selected by default
+                if (activeEstablishments.length > 0) {
+                    this.selectedServiceCenterId.set(activeEstablishments[0].id);
+                    this.establishmentStateService.setSelectedEstablishment(activeEstablishments[0].id);
+                }
+            },
+            error: (error) => {
+                console.error('Error loading establishments:', error);
+            }
+        });
+    }
 
     toggleProfileDropdown(event: Event) {
         event.stopPropagation();
@@ -56,6 +81,7 @@ export class HeaderComponent {
 
     selectCareCenter(id: number) {
         this.selectedServiceCenterId.set(id);
+        this.establishmentStateService.setSelectedEstablishment(id);
         this.isProfileDropdownOpen.set(false);
     }
 

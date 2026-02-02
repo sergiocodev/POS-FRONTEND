@@ -10,6 +10,7 @@ import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus } from '../../../
 import { ProductResponse } from '../../../core/models/product.model';
 import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -25,6 +26,7 @@ export class PurchaseFormComponent implements OnInit {
     private productService = inject(ProductService);
     private supplierService = inject(SupplierService);
     private saleService = inject(SaleService);
+    private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -157,8 +159,9 @@ export class PurchaseFormComponent implements OnInit {
 
         this.isLoading.set(true);
         const request: PurchaseRequest = this.purchaseForm.value;
+        const userId = this.authService.currentUser()?.id || 1;
 
-        this.purchaseService.create(request).subscribe({
+        this.purchaseService.create(request, userId).subscribe({
             next: () => {
                 this.router.navigate(['/purchases']);
             },

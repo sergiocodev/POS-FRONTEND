@@ -10,8 +10,14 @@ export class ProductService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/products';
 
-    getAll(): Observable<ProductResponse[]> {
-        return this.http.get<ProductResponse[]>(this.apiUrl);
+    getAll(categoryId?: number, brandId?: number, active?: boolean): Observable<ProductResponse[]> {
+        let params = '';
+        const queryParams: string[] = [];
+        if (categoryId !== undefined) queryParams.push(`categoryId=${categoryId}`);
+        if (brandId !== undefined) queryParams.push(`brandId=${brandId}`);
+        if (active !== undefined) queryParams.push(`active=${active}`);
+        if (queryParams.length > 0) params = '?' + queryParams.join('&');
+        return this.http.get<ProductResponse[]>(`${this.apiUrl}${params}`);
     }
 
     getById(id: number): Observable<ProductResponse> {
@@ -28,5 +34,13 @@ export class ProductService {
 
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    search(query: string): Observable<ProductResponse[]> {
+        return this.http.get<ProductResponse[]>(`${this.apiUrl}/search?query=${encodeURIComponent(query)}`);
+    }
+
+    getLots(id: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/${id}/lots`);
     }
 }

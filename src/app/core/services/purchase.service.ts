@@ -10,8 +10,8 @@ export class PurchaseService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/purchases';
 
-    create(request: PurchaseRequest): Observable<PurchaseResponse> {
-        return this.http.post<PurchaseResponse>(this.apiUrl, request);
+    create(request: PurchaseRequest, userId: number): Observable<PurchaseResponse> {
+        return this.http.post<PurchaseResponse>(`${this.apiUrl}?userId=${userId}`, request);
     }
 
     getAll(): Observable<PurchaseResponse[]> {

@@ -6,10 +6,12 @@ import { SaleService } from '../../../core/services/sale.service';
 import { ProductService } from '../../../core/services/product.service';
 import { CustomerService } from '../../../core/services/customer.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ProductResponse } from '../../../core/models/product.model';
 import { CustomerResponse } from '../../../core/models/customer.model';
 import { CashSessionResponse } from '../../../core/models/cash.model';
-import { SaleRequest, SaleItemRequest, PaymentMethod, SaleDocumentType, EstablishmentResponse } from '../../../core/models/sale.model';
+import { SaleRequest, SaleItemRequest, PaymentMethod, SaleDocumentType } from '../../../core/models/sale.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
 
 interface CartItem {
@@ -32,18 +34,18 @@ export class PosComponent implements OnInit {
     private productService = inject(ProductService);
     private customerService = inject(CustomerService);
     private cashSessionService = inject(CashSessionService);
+    private authService = inject(AuthService);
+    private establishmentStateService = inject(EstablishmentStateService);
     public router = inject(Router);
 
     // Data lookups
     products = signal<ProductResponse[]>([]);
     customers = signal<CustomerResponse[]>([]);
-    establishments = signal<EstablishmentResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
 
     // Cart State
     cart = signal<CartItem[]>([]);
     selectedCustomer = signal<CustomerResponse | null>(null);
-    selectedEstablishmentId = signal<number | null>(null);
 
     // Totals
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
@@ -73,19 +75,13 @@ export class PosComponent implements OnInit {
         forkJoin({
             products: this.productService.getAll(),
             customers: this.customerService.getAll(),
-            establishments: this.saleService.getEstablishments(),
             activeSession: this.cashSessionService.getActiveSession()
         }).subscribe({
             next: (data) => {
                 this.products.set(data.products);
                 this.filteredProducts.set(data.products);
                 this.customers.set(data.customers);
-                this.establishments.set(data.establishments);
                 this.activeSession.set(data.activeSession);
-
-                if (data.establishments.length > 0) {
-                    this.selectedEstablishmentId.set(data.establishments[0].id);
-                }
 
                 this.isLoading.set(false);
             },
@@ -143,15 +139,17 @@ export class PosComponent implements OnInit {
     }
 
     onSubmitSale(): void {
-        if (this.cart().length === 0 || !this.selectedEstablishmentId()) {
-            alert('Carrito vacío o sin establecimiento seleccinado');
+        const establishmentId = this.establishmentStateService.getSelectedEstablishment();
+
+        if (this.cart().length === 0 || !establishmentId) {
+            alert('Carrito vacío o sin establecimiento seleccionado');
             return;
         }
 
         this.isLoading.set(true);
 
         const request: SaleRequest = {
-            establishmentId: this.selectedEstablishmentId()!,
+            establishmentId: establishmentId!,
             cashSessionId: this.activeSession()?.id,
             customerId: this.selectedCustomer()?.id,
             documentType: this.posForm.value.documentType,
@@ -168,7 +166,9 @@ export class PosComponent implements OnInit {
             ]
         };
 
-        this.saleService.create(request).subscribe({
+        const userId = this.authService.currentUser()?.id || 1;
+
+        this.saleService.create(request, userId).subscribe({
             next: (res) => {
                 this.isLoading.set(false);
                 alert(`Venta realizada con éxito! Comprobante: ${res.series}-${res.number}`);

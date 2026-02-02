@@ -10,8 +10,8 @@ export class SaleService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/sales';
 
-    create(request: SaleRequest): Observable<SaleResponse> {
-        return this.http.post<SaleResponse>(this.apiUrl, request);
+    create(request: SaleRequest, userId: number): Observable<SaleResponse> {
+        return this.http.post<SaleResponse>(`${this.apiUrl}?userId=${userId}`, request);
     }
 
     getAll(): Observable<SaleResponse[]> {
@@ -24,6 +24,30 @@ export class SaleService {
 
     cancel(id: number): Observable<void> {
         return this.http.post<void>(`${this.apiUrl}/${id}/cancel`, {});
+    }
+
+    getPdf(id: number): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
+    }
+
+    getXml(id: number): Observable<string> {
+        return this.http.get(`${this.apiUrl}/${id}/xml`, { responseType: 'text' });
+    }
+
+    getCdr(id: number): Observable<string> {
+        return this.http.get(`${this.apiUrl}/${id}/cdr`, { responseType: 'text' });
+    }
+
+    createCreditNote(id: number, reason: string, userId: number): Observable<SaleResponse> {
+        return this.http.post<SaleResponse>(`${this.apiUrl}/${id}/credit-note?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
+    }
+
+    createDebitNote(id: number, reason: string, userId: number): Observable<SaleResponse> {
+        return this.http.post<SaleResponse>(`${this.apiUrl}/${id}/debit-note?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
+    }
+
+    invalidate(id: number, reason: string, userId: number): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/${id}/invalidate?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
     }
 
     getEstablishments(): Observable<EstablishmentResponse[]> {

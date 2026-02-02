@@ -2,7 +2,8 @@ export enum SaleDocumentType {
     TICKET = 'TICKET',
     BOLETA = 'BOLETA',
     FACTURA = 'FACTURA',
-    NOTA_CREDITO = 'NOTA_CREDITO'
+    NOTA_CREDITO = 'NOTA_CREDITO',
+    NOTA_DEBITO = 'NOTA_DEBITO'
 }
 
 export enum SaleStatus {
@@ -63,6 +64,9 @@ export interface SaleRequest {
     cashSessionId?: number;
     customerId?: number;
     documentType: SaleDocumentType;
+    relatedSaleId?: number;
+    noteCode?: string;
+    noteReason?: string;
     items: SaleItemRequest[];
     payments: SalePaymentRequest[];
 }
@@ -82,6 +86,13 @@ export interface SaleResponse {
     status: SaleStatus;
     sunatStatus: SunatStatus;
     pdfUrl?: string;
+    cdrUrl?: string;
+    relatedSaleId?: number;
+    noteCode?: string;
+    noteReason?: string;
+    isVoided: boolean;
+    voidedAt?: string;
+    voidReason?: string;
     items: SaleItemResponse[];
     payments: SalePaymentResponse[];
 }
