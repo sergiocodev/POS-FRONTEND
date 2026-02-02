@@ -1,0 +1,115 @@
+<div class="roles-list-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h2 class="page-title">
+                <i class="bi bi-shield-lock me-2"></i>
+                Roles y Permisos
+            </h2>
+            <p class="page-description">Gestiona los roles del sistema y sus permisos</p>
+        </div>
+        <button class="btn btn-primary" (click)="createRole()">
+            <i class="bi bi-plus-lg me-2"></i>
+            Nuevo Rol
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control" placeholder="Buscar por nombre o descripción..."
+                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
+                        <option value="">Todos los estados</option>
+                        <option value="true">Activos</option>
+                        <option value="false">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Roles Table -->
+    <div *ngIf="!isLoading()" class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Descripción</th>
+                            <th>Permisos</th>
+                            <th>Estado</th>
+                            <th>Fecha Creación</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let role of filteredRoles()">
+                            <td>
+                                <div class="role-info">
+                                    <div class="role-icon">
+                                        <i class="bi bi-shield-fill"></i>
+                                    </div>
+                                    <strong>{{ role.name }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted">{{ role.description || 'Sin descripción' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ getPermissionCount(role) }} permisos
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge" [class.bg-success]="role.active"
+                                    [class.bg-secondary]="!role.active">
+                                    {{ role.active ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ role.createdAt | date:'dd/MM/yyyy' }}</small>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline-primary" (click)="editRole(role.id)"
+                                        title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" (click)="managePermissions(role.id)"
+                                        title="Gestionar permisos">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" (click)="deleteRole(role)"
+                                        title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredRoles().length === 0">
+                            <td colspan="6" class="text-center py-4">
+                                <i class="bi bi-inbox display-4 text-muted"></i>
+                                <p class="text-muted mt-2">No se encontraron roles</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

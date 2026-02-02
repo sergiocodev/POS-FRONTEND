@@ -120,6 +120,34 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/reports/purchase-report/purchase-report.component').then(m => m.PurchaseReportComponent)
             },
             {
+                path: 'settings/users',
+                loadComponent: () => import('./features/settings/users/users-list/users-list.component').then(m => m.UsersListComponent)
+            },
+            {
+                path: 'settings/users/new',
+                loadComponent: () => import('./features/settings/users/user-form/user-form.component').then(m => m.UserFormComponent)
+            },
+            {
+                path: 'settings/users/:id/edit',
+                loadComponent: () => import('./features/settings/users/user-form/user-form.component').then(m => m.UserFormComponent)
+            },
+            {
+                path: 'settings/roles',
+                loadComponent: () => import('./features/settings/roles/roles-list/roles-list.component').then(m => m.RolesListComponent)
+            },
+            {
+                path: 'settings/roles/new',
+                loadComponent: () => import('./features/settings/roles/role-form/role-form.component').then(m => m.RoleFormComponent)
+            },
+            {
+                path: 'settings/roles/:id/edit',
+                loadComponent: () => import('./features/settings/roles/role-form/role-form.component').then(m => m.RoleFormComponent)
+            },
+            {
+                path: 'settings/roles/:id/permissions',
+                loadComponent: () => import('./features/settings/roles/role-permissions/role-permissions.component').then(m => m.RolePermissionsComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'home',
                 pathMatch: 'full'

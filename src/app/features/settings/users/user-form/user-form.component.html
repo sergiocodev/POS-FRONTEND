@@ -1,0 +1,143 @@
+<div class="user-form-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h2 class="page-title">
+                <i class="bi bi-person-plus me-2"></i>
+                {{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}
+            </h2>
+            <p class="page-description">
+                {{ isEditMode() ? 'Modifica los datos del usuario' : 'Completa los datos para crear un nuevo usuario' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <ng-container *ngIf="!isLoading()">
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+                <!-- Left Column: Basic Info -->
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Información Básica
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Usuario <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="username"
+                                    placeholder="Nombre de usuario" />
+                                <div *ngIf="f['username']?.invalid && f['username']?.touched"
+                                    class="text-danger small mt-1">
+                                    <div *ngIf="f['username']?.errors?.['required']">El usuario es requerido</div>
+                                    <div *ngIf="f['username']?.errors?.['minlength']">Mínimo 3 caracteres</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" formControlName="email"
+                                    placeholder="correo@ejemplo.com" />
+                                <div *ngIf="f['email']?.invalid && f['email']?.touched" class="text-danger small mt-1">
+                                    <div *ngIf="f['email']?.errors?.['required']">El email es requerido</div>
+                                    <div *ngIf="f['email']?.errors?.['email']">Email inválido</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" formControlName="fullName"
+                                    placeholder="Nombre completo del usuario" />
+                                <div *ngIf="f['fullName']?.invalid && f['fullName']?.touched"
+                                    class="text-danger small mt-1">
+                                    El nombre completo es requerido
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Contraseña
+                                    <span *ngIf="!isEditMode()" class="text-danger">*</span>
+                                    <small *ngIf="isEditMode()" class="text-muted">(dejar en blanco para mantener la
+                                        actual)</small>
+                                </label>
+                                <input type="password" class="form-control" formControlName="password"
+                                    placeholder="Mínimo 8 caracteres" />
+                                <div *ngIf="f['password']?.invalid && f['password']?.touched"
+                                    class="text-danger small mt-1">
+                                    <div *ngIf="f['password']?.errors?.['required']">La contraseña es requerida</div>
+                                    <div *ngIf="f['password']?.errors?.['minlength']">Mínimo 8 caracteres</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Roles & Establishments -->
+                <div class="col-lg-6">
+                    <!-- Roles -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-shield-lock me-2"></i>
+                                Roles <span class="text-danger">*</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="roles-selection">
+                                <div *ngIf="roles().length === 0">
+                                    <p class="text-muted">No hay roles disponibles</p>
+                                </div>
+
+                                <ng-container *ngIf="roles().length > 0">
+                                    <div *ngFor="let role of roles(); let i = index">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" [id]="'role-' + role.id"
+                                                [checked]="isRoleSelected(role.id)" (change)="toggleRole(role.id)" />
+                                            <label class="form-check-label" [for]="'role-' + role.id">
+                                                <strong>{{ role.name }}</strong>
+                                                <ng-container *ngIf="role.description">
+                                                    <br />
+                                                    <small class="text-muted">{{ role.description }}</small>
+                                                </ng-container>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <div *ngIf="selectedRoles().length === 0" class="alert alert-warning mt-3 mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Debe seleccionar al menos un rol
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSaving()">
+                    <i class="bi bi-x-lg me-2"></i>
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"
+                        aria-hidden="true"></span>
+                    <i class="bi bi-check-lg me-2"></i>
+                    {{ isEditMode() ? 'Actualizar' : 'Crear' }} Usuario
+                </button>
+            </div>
+        </form>
+    </ng-container>
+</div>

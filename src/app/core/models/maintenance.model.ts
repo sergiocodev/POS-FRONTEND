@@ -9,6 +9,7 @@ export interface RoleResponse {
     name: string;
     description?: string;
     active: boolean;
+    permissions?: PermissionResponse[];
     createdAt: string;
 }
 
