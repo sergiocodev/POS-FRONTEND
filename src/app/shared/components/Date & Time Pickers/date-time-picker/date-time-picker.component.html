@@ -1,0 +1,25 @@
+<div class="row g-3 align-items-end filter-container bg-white p-3 rounded-3 shadow-sm">
+    <div class="col-md-5">
+        <label class="form-label fw-bold text-primary small text-uppercase">{{ startLabel }}</label>
+        <div class="input-group">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-minus"></i></span>
+            <input type="datetime-local" class="form-control border-start-0 ps-0" [(ngModel)]="startValue" />
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <label class="form-label fw-bold text-primary small text-uppercase">{{ endLabel }}</label>
+        <div class="input-group">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar-plus"></i></span>
+            <input type="datetime-local" class="form-control border-start-0 ps-0" [(ngModel)]="endValue" />
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+            (click)="onFilterClick()">
+            <i class="bi bi-search"></i>
+            <span>Filtrar</span>
+        </button>
+    </div>
+</div>

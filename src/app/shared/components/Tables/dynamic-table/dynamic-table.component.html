@@ -1,0 +1,94 @@
+<div class="table-container border">
+    <table class="table table-hover table-bordered">
+        <thead class="table-background">
+            <!-- Primera fila de encabezados -->
+            <tr>
+                <ng-container *ngFor="let col of headers">
+                    <th [attr.colspan]="col.subHeaders?.length || 1" [attr.rowspan]="!col.subHeaders?.length ? 2 : 1"
+                        scope="col" class="text-center align-middle" [class.sortable]="col.sortable"
+                        (click)="col.sortable ? handleSort(col) : null">
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <span>{{ col.label }}</span>
+                            <i *ngIf="col.sortable" class="bi bi-arrow-down-up small opacity-50"></i>
+                        </div>
+                    </th>
+                </ng-container>
+            </tr>
+
+            <!-- Subencabezados -->
+            <tr *ngIf="hasSubHeaders">
+                <ng-container *ngFor="let col of headers">
+                    <ng-container *ngFor="let subCol of (col.subHeaders || [])">
+                        <th scope="col" class="text-center align-middle border-0 bg-light">
+                            <div class="p-1" *ngIf="subCol.fieldType === 'text' || !subCol.fieldType">
+                                <span class="small fw-bold">{{ subCol.label }}</span>
+                            </div>
+                            <div class="p-1" *ngIf="subCol.fieldType === 'input'">
+                                <input *ngIf="showFilters" class="form-control form-control-sm" type="text"
+                                    [placeholder]="subCol.label || ''" (input)="onInputChange($event, subCol.key)">
+                            </div>
+                        </th>
+                    </ng-container>
+                </ng-container>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of data; trackBy: trackById" (click)="isRowClick ? sendRow(row) : null"
+                [ngClass]="{'row-clickable': isRowClick}">
+                <ng-container *ngFor="let col of headers">
+                    <ng-container *ngIf="!col.subHeaders; else subColumns">
+                        <td class="text-center">{{ row[col.key || ''] }}</td>
+                    </ng-container>
+                    <ng-template #subColumns>
+                        <td class="text-center align-middle" *ngFor="let subCol of col.subHeaders">
+
+                            <!-- Acciones -->
+                            <ng-container *ngIf="subCol.key === 'action'; else defaultContent">
+                                <div class="p-1">
+                                    <app-button-actions [actions]="listActions"
+                                        (actionClicked)="SendButtonActions(row, $event)"
+                                        [size]="'small'"></app-button-actions>
+                                </div>
+                            </ng-container>
+
+                            <!-- Contenido por defecto -->
+                            <ng-template #defaultContent>
+                                <ng-container *ngIf="isBoolean(row[subCol.key]); else textContent">
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input class="form-check-input" type="checkbox" [checked]="row[subCol.key]"
+                                            (change)="SendStatusOfData($event, row, subCol.key)" />
+                                    </div>
+                                </ng-container>
+                                <ng-template #textContent>
+                                    {{ row[subCol.key] }}
+                                </ng-template>
+                            </ng-template>
+                        </td>
+                    </ng-template>
+                </ng-container>
+            </tr>
+
+            <!-- Fila de Totales -->
+            <tr class="table-info" *ngIf="showTotalRow">
+                <ng-container *ngFor="let col of headers">
+                    <ng-container *ngIf="!col.subHeaders; else totalSubColumns">
+                        <td class="text-center fw-bold">
+                            {{ isTotalLabelColumn(col) ? totalLabel : '' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-template #totalSubColumns>
+                        <td class="text-center align-middle fw-bold" *ngFor="let subCol of col.subHeaders">
+                            <ng-container *ngIf="subCol.key === totalLabelColumn; else valueCell">
+                                {{ totalLabel }}
+                            </ng-container>
+                            <ng-template #valueCell>
+                                {{ isTotalValueColumn(subCol) ? (calculateTotal(subCol.key) | number:'1.2-2') : '' }}
+                            </ng-template>
+                        </td>
+                    </ng-template>
+                </ng-container>
+            </tr>
+        </tbody>
+    </table>
+</div>

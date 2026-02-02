@@ -1,0 +1,8 @@
+<div *ngIf="messages.length > 0" class="validation-wrapper mt-1">
+    <ul class="list-unstyled mb-0">
+        <li *ngFor="let message of messages" class="text-danger small">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            {{ message }}
+        </li>
+    </ul>
+</div>

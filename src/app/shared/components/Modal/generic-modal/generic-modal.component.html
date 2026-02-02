@@ -1,0 +1,27 @@
+<div *ngIf="isOpen" class="modal-wrapper">
+    <div class="modal-backdrop fade show" (click)="closeModal()"></div>
+
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" [ngClass]="sizeClass">
+            <div class="modal-content shadow-lg border-0">
+
+                <!-- Header -->
+                <div class="modal-header border-bottom-0 pb-0" *ngIf="title || showCloseButton">
+                    <h5 class="modal-title fw-bold text-primary" *ngIf="title">{{ title }}</h5>
+                    <button *ngIf="showCloseButton" type="button" class="btn-close" (click)="closeModal()"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body py-4">
+                    <ng-content></ng-content>
+                </div>
+
+                <!-- Footer (Optional slot via ng-content) -->
+                <div class="modal-footer border-top-0 pt-0" *ngIf="modalFooter">
+                    <ng-content select="[footer]"></ng-content>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

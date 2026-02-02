@@ -44,6 +44,7 @@
                     <!-- Submenu items -->
                     <div class="submenu" *ngIf="item.expanded && !collapsed" [@slideInOut]>
                         <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active"
+                            [routerLinkActiveOptions]="child.routerLinkActiveOptions || { exact: false }"
                             class="nav-link sub-link">
                             <span class="bullet"></span>
                             <span class="nav-text">{{child.label}}</span>
@@ -57,6 +58,13 @@
 
     <!-- Footer / User Profile -->
     <div class="sidebar-footer">
+        <div class="footer-actions" [class.collapsed-actions]="collapsed">
+            <button class="theme-toggle-btn" (click)="toggleTheme()"
+                [title]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+                <i class="bi" [class.bi-sun]="isDarkMode" [class.bi-moon-stars]="!isDarkMode"></i>
+            </button>
+        </div>
+
         <div class="user-profile" *ngIf="!collapsed" [@slideInOut]>
             <div class="user-avatar">
                 {{ (authService.currentUser()?.nombre?.charAt(0) || 'U') | uppercase }}

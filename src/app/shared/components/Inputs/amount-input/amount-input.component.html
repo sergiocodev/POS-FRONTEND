@@ -1,0 +1,12 @@
+<div class="amount-input-container" [ngClass]="className">
+    <div class="btn-group mb-1" role="group">
+        <button type="button" class="btn btn-sm mode-btn mode-btn-left" [ngClass]="{
+        'btn-primary': isAmountMode(),
+        'btn-outline-secondary': !isAmountMode()}" (click)="handleModeChange('amount')">$</button>
+        <button type="button" class="btn btn-sm mode-btn mode-btn-right" [ngClass]="{
+        'btn-primary': isPercentageMode(),
+        'btn-outline-secondary': !isPercentageMode()}" (click)="handleModeChange('percentage')">%</button>
+    </div>
+    <input type="text" class="form-control input-field" [value]="inputValue" [placeholder]="placeholder"
+        (input)="handleValueChange($event)">
+</div>

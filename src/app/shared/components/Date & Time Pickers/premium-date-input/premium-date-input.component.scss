@@ -1,0 +1,202 @@
+$primary: #0d6efd;
+$primary-subtle: rgba(13, 110, 253, 0.1);
+$text-dark: #2c3e50;
+$text-light: #94a3b8;
+$bg-light: #f8fafc;
+$border-color: #e2e8f0;
+$surface: #ffffff;
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.premium-date-container {
+    position: relative;
+
+    &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .input-wrapper {
+        position: relative;
+        cursor: pointer;
+
+        &:hover {
+            .premium-input {
+                border-color: $primary;
+            }
+
+            .input-icon {
+                color: $primary;
+            }
+        }
+    }
+
+    .premium-input {
+        min-height: 48px;
+        padding-left: 45px;
+        border-radius: 10px;
+        border: 1.5px solid $border-color;
+        background-color: $surface;
+        font-weight: 500;
+        color: $text-dark;
+        transition: all 0.2s ease;
+        cursor: pointer;
+
+        &:focus {
+            box-shadow: 0 0 0 0.25rem $primary-subtle;
+            border-color: $primary;
+        }
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: $text-light;
+        transition: color 0.2s ease;
+
+        &.active {
+            color: $primary;
+        }
+    }
+
+    .dropdown-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-light;
+        transition: transform 0.3s ease;
+
+        &.rotated {
+            transform: translateY(-50%) rotate(180deg);
+        }
+    }
+
+    .premium-picker-popup {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        background: $surface;
+        border-radius: 12px;
+        display: flex;
+        z-index: 1060;
+        min-width: 300px;
+        animation: slideDown 0.2s ease-out;
+        background-color: white;
+    }
+
+    .calendar-section {
+        padding: 1.2rem;
+        flex: 1;
+    }
+
+    .days-header {
+        display: flex;
+
+        span {
+            display: inline-block;
+        }
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+
+        .day-cell {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: $text-dark;
+            font-weight: 500;
+
+            &:hover:not(.empty):not(.disabled):not(.selected) {
+                background-color: $bg-light;
+            }
+
+            &.selected {
+                background-color: $primary;
+                color: white;
+                box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+            }
+
+            &.today:not(.selected) {
+                color: $primary;
+                background-color: $primary-subtle;
+                font-weight: 700;
+            }
+
+            &.disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+        }
+    }
+
+    .time-section {
+        width: 150px;
+        height: 320px;
+    }
+
+    .time-column {
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        text-align: center;
+        background-color: #fafbfc;
+
+        .time-item {
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: $text-dark;
+
+            &:hover {
+                background: $bg-light;
+            }
+
+            &.selected {
+                background: $primary;
+                color: white;
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.letter-spacing {
+    letter-spacing: 0.05em;
+}
+
+.scroll-hide {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

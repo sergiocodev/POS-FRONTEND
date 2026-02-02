@@ -1,5 +1,40 @@
-/* Import Bootstrap */
+/* Import Bootstrap - Must be first */
 @use 'bootstrap/scss/bootstrap';
+
+/* Theme Variables */
+:root {
+  --primary-color: #7367f0;
+  --bg-body: #f8f7fa;
+  --bg-sidebar-start: #ffffff;
+  --bg-sidebar-end: #ffffff;
+  --text-main: #5d596c;
+  --text-muted: #a5a3ae;
+  --border-color: #dbdade;
+  --hover-bg: rgba(75, 70, 92, 0.08);
+  --active-bg: rgba(115, 103, 240, 0.16);
+  --text-on-primary: #ffffff;
+  --card-bg: #ffffff;
+}
+
+.dark-theme {
+  --primary-color: #7367f0;
+  --bg-body: #25293c;
+  --bg-sidebar-start: #2f3349;
+  --bg-sidebar-end: #2f3349;
+  --text-main: #cfcde5;
+  --text-muted: #b6bee3;
+  --border-color: #434968;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --active-bg: linear-gradient(90deg, rgba(115, 103, 240, 0.15) 0%, rgba(115, 103, 240, 0) 100%);
+  --text-on-primary: #ffffff;
+  --card-bg: #2f3349;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
 /* Minimal custom utilities using Bootstrap variables */
 .bg-gradient-primary {

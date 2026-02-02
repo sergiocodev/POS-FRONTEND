@@ -1,0 +1,41 @@
+.custom-pills {
+    background-color: #f1f5f9;
+    padding: 4px;
+    border-radius: 10px;
+    width: fit-content;
+
+    .nav-link {
+        border-radius: 8px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #64748b;
+        border: none;
+        transition: all 0.2s ease;
+
+        &:hover:not(.active) {
+            color: #1e293b;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &.active {
+            background-color: #ffffff;
+            color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    }
+}
+
+.animate-fade {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

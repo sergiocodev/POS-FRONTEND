@@ -1,0 +1,35 @@
+<div class="custom-tabs-container">
+    <!-- Tabs Navigation -->
+    <div class="tabs-navigation-wrapper border-bottom mb-3" *ngIf="visibleTabs.length > 1">
+        <div class="d-flex overflow-x-auto no-scrollbar">
+            <div *ngFor="let tab of visibleTabs"
+                class="custom-tab-item px-4 py-3 cursor-pointer transition-all border-bottom border-3 border-transparent"
+                [class.active]="isActive(tab.id)" (click)="selectTab(tab.id)">
+                <div class="d-flex align-items-center gap-2">
+                    <i *ngIf="tab.icon" [class]="tab.icon" [class.text-primary]="isActive(tab.id)"></i>
+                    <span class="tab-label fw-bold small text-uppercase tracking-wider"
+                        [class.text-primary]="isActive(tab.id)" [class.text-muted]="!isActive(tab.id)">
+                        {{ tab.label }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="tab-content-area">
+        <!-- Shared Content (Optional) -->
+        <div class="shared-content mb-3" *ngIf="config.sharedContent">
+            <ng-container *ngTemplateOutlet="config.sharedContent"></ng-container>
+        </div>
+
+        <!-- Active Tab Content -->
+        <div class="active-tab-content">
+            <ng-container *ngFor="let tab of visibleTabs">
+                <div *ngIf="isActive(tab.id)" class="animate-fade-in">
+                    <ng-container *ngIf="tab.content" [ngTemplateOutlet]="tab.content"></ng-container>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>

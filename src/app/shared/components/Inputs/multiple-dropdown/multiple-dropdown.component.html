@@ -1,0 +1,20 @@
+<button class="btn btn-outline-secondary dropdown-toggle w-100 text-truncate" type="button" id="dropdownMenuButton"
+    data-bs-toggle="dropdown" aria-expanded="false">
+    <ng-container *ngIf="selectedOptions.length > 0; else noSelection">
+        <span *ngFor="let option of selectedOptions" class="badge bg-primary me-2 text-white">
+            {{ getOptionName(option) }} <i class="bi bi-x-circle" (click)="removeSelection(option)"></i>
+        </span>
+    </ng-container>
+    <ng-template #noSelection>
+        Seleccionar opciones <span class="ms-2">&#x2193;</span>
+    </ng-template>
+</button>
+
+<ul class="dropdown-menu overflow-auto" style="max-height: 200px;" aria-labelledby="dropdownMenuButton">
+    <li *ngFor="let option of options">
+        <a class="dropdown-item" (click)="option.id !== undefined ? toggleSelection(option.id) : null"
+            [ngClass]="{'bg-primary text-white': selectedOptions.includes(option.id ?? 0)}">
+            {{ option.name }}
+        </a>
+    </li>
+</ul>

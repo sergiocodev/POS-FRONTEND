@@ -1,0 +1,9 @@
+<div class="button-actions d-flex gap-1 justify-content-center  position-relative">
+    <button class="d-flex align-items-center justify-content-center gap-1" *ngFor="let action of selectedActions"
+        [ngClass]="action.class" [ngStyle]="{ 'color': action.color, 'background-color': action.backgroundColor }"
+        (click)="onActionClick(action)" [class.btn-sm]="size === 'small'" [class.btn-lg]="size === 'small'"
+        [appTooltip]="showTooltip ? (action.label ?? '') : ''">
+        <i [class]="action.icon"></i>
+        <span *ngIf="showLabels" class="ml-2">{{ action.label }}</span>
+    </button>
+</div>
