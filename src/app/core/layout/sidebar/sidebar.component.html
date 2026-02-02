@@ -1,0 +1,74 @@
+<div class="sidebar-container" [class.collapsed]="collapsed">
+    <!-- Header -->
+    <div class="sidebar-header">
+        <div class="logo-wrapper">
+            <div class="logo-icon-bg">
+                <i class="bi bi-capsule logo-icon"></i>
+            </div>
+            <span class="logo-text" *ngIf="!collapsed" [@slideInOut]>FarmaciaPro</span>
+        </div>
+    </div>
+
+    <!-- Toggle Button (Floating or part of header) -->
+    <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="bi bi-layout-sidebar-inset" *ngIf="!collapsed"></i>
+        <i class="bi bi-layout-sidebar" *ngIf="collapsed"></i>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+        <ul class="nav-list">
+            <ng-container *ngFor="let item of menuItems">
+
+                <!-- Single Link -->
+                <li class="nav-item" *ngIf="!item.children">
+                    <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
+                        [title]="collapsed ? item.label : ''">
+                        <i class="bi {{item.icon}} nav-icon"></i>
+                        <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
+
+                        <!-- Tooltip for collapsed mode (simple CSS implementation) -->
+                        <span class="tooltip-text" *ngIf="collapsed">{{item.label}}</span>
+                    </a>
+                </li>
+
+                <!-- Dropdown Group -->
+                <li class="nav-item" *ngIf="item.children">
+                    <div class="nav-link group-link" (click)="toggleSubmenu(item)" [class.active-group]="item.expanded"
+                        [title]="collapsed ? item.label : ''">
+                        <i class="bi {{item.icon}} nav-icon"></i>
+                        <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
+                        <i class="bi bi-chevron-down dropdown-arrow" *ngIf="!collapsed" [@rotate]="item.expanded"></i>
+                    </div>
+
+                    <!-- Submenu items -->
+                    <div class="submenu" *ngIf="item.expanded && !collapsed" [@slideInOut]>
+                        <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active"
+                            class="nav-link sub-link">
+                            <span class="bullet"></span>
+                            <span class="nav-text">{{child.label}}</span>
+                        </a>
+                    </div>
+                </li>
+
+            </ng-container>
+        </ul>
+    </nav>
+
+    <!-- Footer / User Profile -->
+    <div class="sidebar-footer">
+        <div class="user-profile" *ngIf="!collapsed" [@slideInOut]>
+            <div class="user-avatar">
+                {{ (authService.currentUser()?.nombre?.charAt(0) || 'U') | uppercase }}
+            </div>
+            <div class="user-info">
+                <span class="user-name text-truncate">{{ authService.currentUser()?.nombre }}</span>
+                <span class="user-role">Administrador</span>
+            </div>
+        </div>
+        <button class="logout-btn" (click)="onLogout()" [class.collapsed-logout]="collapsed">
+            <i class="bi bi-box-arrow-right"></i>
+            <span *ngIf="!collapsed" [@slideInOut]>Cerrar Sesión</span>
+        </button>
+    </div>
+</div>
