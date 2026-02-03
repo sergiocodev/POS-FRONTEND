@@ -1,9 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CashSessionService } from '../../../core/services/cash-session.service';
-import { CashRegisterResponse } from '../../../core/models/cash.model';
+import { CashRegisterResponse, CashSessionResponse } from '../../../core/models/cash.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith } from 'rxjs';
 
 @Component({
     selector: 'app-session-form',
@@ -18,20 +20,30 @@ export class SessionFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
-    sessionForm: FormGroup;
+    sessionForm: FormGroup = this.fb.group({
+        cashRegisterId: [null],
+        openingBalance: [0, [Validators.required, Validators.min(0)]],
+        closingBalance: [0, [Validators.min(0)]],
+        notes: ['']
+    });
     isLoading = signal<boolean>(false);
     mode = signal<'OPEN' | 'CLOSE'>('OPEN');
     registers = signal<CashRegisterResponse[]>([]);
     errorMessage = signal<string>('');
+    sessionData = signal<CashSessionResponse | null>(null);
 
-    constructor() {
-        this.sessionForm = this.fb.group({
-            cashRegisterId: [null],
-            openingBalance: [0, [Validators.required, Validators.min(0)]],
-            closingBalance: [0, [Validators.min(0)]],
-            notes: ['']
-        });
-    }
+    // Watch closingBalance changes for real-time difference calculation
+    closingBalanceValue = toSignal(
+        this.sessionForm.get('closingBalance')!.valueChanges.pipe(
+            startWith(this.sessionForm.get('closingBalance')?.value || 0),
+            map(v => Number(v) || 0)
+        )
+    );
+
+    calculatedBalance = computed(() => this.sessionData()?.calculatedBalance || 0);
+    differenceAmount = computed(() => (this.closingBalanceValue() || 0) - this.calculatedBalance());
+
+    constructor() { }
 
     ngOnInit(): void {
         const segments = this.route.snapshot.url.map(s => s.path);
@@ -39,6 +51,7 @@ export class SessionFormComponent implements OnInit {
             this.mode.set('CLOSE');
             const id = this.route.snapshot.params['id'];
             this.sessionForm.get('closingBalance')?.setValidators([Validators.required, Validators.min(0)]);
+            this.loadSessionData(id);
         } else {
             this.mode.set('OPEN');
             this.sessionForm.get('cashRegisterId')?.setValidators([Validators.required]);
@@ -48,8 +61,22 @@ export class SessionFormComponent implements OnInit {
 
     loadRegisters(): void {
         this.cashService.getRegisters().subscribe({
+            next: (data: CashRegisterResponse[]) => {
+                this.registers.set(data.filter((r: CashRegisterResponse) => r.active));
+            }
+        });
+    }
+
+    loadSessionData(id: number): void {
+        this.isLoading.set(true);
+        this.cashService.getById(id).subscribe({
             next: (data) => {
-                this.registers.set(data.filter(r => r.active));
+                this.sessionData.set(data);
+                this.isLoading.set(false);
+            },
+            error: () => {
+                this.errorMessage.set('Error al cargar los datos de la sesión.');
+                this.isLoading.set(false);
             }
         });
     }
@@ -77,7 +104,7 @@ export class SessionFormComponent implements OnInit {
             });
         } else {
             const id = this.route.snapshot.params['id'];
-            this.cashService.closeSession(id, formValue.closingBalance).subscribe({
+            this.cashService.closeSession(id, formValue.closingBalance, this.differenceAmount()).subscribe({
                 next: () => this.router.navigate(['/cash']),
                 error: (err) => {
                     this.errorMessage.set('Error al cerrar la caja.');

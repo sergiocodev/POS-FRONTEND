@@ -62,6 +62,7 @@
                             <th class="px-4 py-3">Fecha / Hora</th>
                             <th class="py-3">Caja / Responsable</th>
                             <th class="py-3 text-end">Saldo Inicial</th>
+                            <th class="py-3 text-end">Saldo Esperado</th>
                             <th class="py-3 text-end">Saldo Final</th>
                             <th class="py-3 text-end">Diferencia</th>
                             <th class="py-3 text-center">Estado</th>
@@ -69,13 +70,13 @@
                     </thead>
                     <tbody>
                         <tr *ngIf="isLoading()">
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="spinner-border text-primary" role="status"></div>
                                 <p class="mt-2 text-muted mb-0">Cargando sesiones...</p>
                             </td>
                         </tr>
                         <tr *ngIf="!isLoading() && filteredSessions().length === 0">
-                            <td colspan="6" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <i class="bi bi-journal-x fs-1 opacity-25 d-block mb-3"></i>
                                 No hay historial de cajas disponible para esta sede.
                             </td>
@@ -91,6 +92,7 @@
                                     }}</small>
                             </td>
                             <td class="text-end fw-medium">{{ session.openingBalance | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end fw-medium">{{ session.calculatedBalance | currency:'PEN':'S/ ' }}</td>
                             <td class="text-end fw-medium">
                                 <span *ngIf="session.status === 'CLOSED'">{{ session.closingBalance | currency:'PEN':'S/
                                     '

@@ -59,8 +59,10 @@ export class CashSessionService {
         return this.http.post<CashSessionResponse>(`${this.sessionUrl}/open`, request, { params });
     }
 
-    closeSession(id: number, closingBalance: number): Observable<CashSessionResponse> {
-        const params = new HttpParams().set('closingBalance', closingBalance.toString());
+    closeSession(id: number, closingBalance: number, diffAmount: number): Observable<CashSessionResponse> {
+        const params = new HttpParams()
+            .set('closingBalance', closingBalance.toString())
+            .set('diffAmount', diffAmount.toString());
         return this.http.post<CashSessionResponse>(`${this.sessionUrl}/${id}/close`, {}, { params });
     }
 
@@ -69,10 +71,11 @@ export class CashSessionService {
         return this.http.get<CashSessionResponse>(`${this.sessionUrl}/status`, { params });
     }
 
-    closeActiveSession(userId: number, closingBalance: number): Observable<CashSessionResponse> {
+    closeActiveSession(userId: number, closingBalance: number, diffAmount: number): Observable<CashSessionResponse> {
         const params = new HttpParams()
             .set('userId', userId.toString())
-            .set('closingBalance', closingBalance.toString());
+            .set('closingBalance', closingBalance.toString())
+            .set('diffAmount', diffAmount.toString());
         return this.http.post<CashSessionResponse>(`${this.sessionUrl}/close`, {}, { params });
     }
 

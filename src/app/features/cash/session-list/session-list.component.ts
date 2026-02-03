@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CashSessionService } from '../../../core/services/cash-session.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { CashSessionResponse, SessionStatus } from '../../../core/models/cash.model';
 
@@ -14,6 +15,7 @@ import { CashSessionResponse, SessionStatus } from '../../../core/models/cash.mo
 })
 export class SessionListComponent implements OnInit {
     private cashService = inject(CashSessionService);
+    private authService = inject(AuthService);
     private establishmentStateService = inject(EstablishmentStateService);
     private router = inject(Router);
 
@@ -36,7 +38,7 @@ export class SessionListComponent implements OnInit {
     }
 
     loadData(): void {
-        const userId = this.cashService['authService'].currentUser()?.id;
+        const userId = this.authService.currentUser()?.id;
         if (!userId) return;
 
         this.isLoading.set(true);
@@ -66,10 +68,14 @@ export class SessionListComponent implements OnInit {
 
     applyFilter(): void {
         const estId = this.selectedEstablishmentId();
-        // Since backend might not return establishmentId in history item (need to verify model)
-        // I'll filter by what's available or just show all for the user if model lacks it.
-        // Actually CashRegisterResponse has establishmentId, maybe CashSessionResponse should too.
-        this.filteredSessions.set(this.sessions());
+        if (!estId) {
+            this.filteredSessions.set(this.sessions());
+            return;
+        }
+
+        this.filteredSessions.set(
+            this.sessions().filter(s => s.establishmentId === Number(estId))
+        );
     }
 
     onOpenSession(): void {

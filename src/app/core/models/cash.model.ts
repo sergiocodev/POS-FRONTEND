@@ -41,4 +41,5 @@ export interface CashSessionResponse {
     closedAt?: string;
     notes: string;
     status: SessionStatus;
+    establishmentId: number;
 }
