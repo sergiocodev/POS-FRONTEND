@@ -1,0 +1,77 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 col-lg-6 mx-auto">
+            <div class="d-flex align-items-center mb-4">
+                <button class="btn btn-link link-dark p-0 me-3" routerLink="/cash/registers">
+                    <i class="bi bi-arrow-left fs-4"></i>
+                </button>
+                <div>
+                    <h2 class="h3 fw-bold mb-1">{{ isEdit() ? 'Editar' : 'Nueva' }} Caja Registradora</h2>
+                    <p class="text-muted mb-0">Configura un punto de cobro para tus establecimientos</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-body p-4">
+                    <div *ngIf="isLoading()" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <form *ngIf="!isLoading()" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                        <div class="row g-4">
+                            <!-- Nombre -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Nombre de la Caja</label>
+                                <input type="text" class="form-control border-0 bg-light py-2 shadow-none"
+                                    formControlName="name" placeholder="Ej: Caja Principal 01">
+                                <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+                                    class="text-danger small mt-1">
+                                    El nombre es requerido (máx. 100 caracteres).
+                                </div>
+                            </div>
+
+                            <!-- Establecimiento -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Establecimiento</label>
+                                <select class="form-select border-0 bg-light py-2 shadow-none"
+                                    formControlName="establishmentId">
+                                    <option [value]="null" disabled>Seleccione un establecimiento...</option>
+                                    <option *ngFor="let est of establishments()" [value]="est.id">{{ est.name }}
+                                    </option>
+                                </select>
+                                <div *ngIf="registerForm.get('establishmentId')?.invalid && registerForm.get('establishmentId')?.touched"
+                                    class="text-danger small mt-1">
+                                    Debe seleccionar un establecimiento.
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="activeSwitch"
+                                        formControlName="active">
+                                    <label class="form-check-label fw-bold" for="activeSwitch">Caja Activa</label>
+                                </div>
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="col-12 mt-5">
+                                <div class="d-flex gap-3 justify-content-end">
+                                    <button type="button" class="btn btn-light px-4 py-2" routerLink="/cash/registers">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-5 py-2"
+                                        [disabled]="registerForm.invalid || isSaving()">
+                                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"
+                                            role="status"></span>
+                                        {{ isSaving() ? 'Guardando...' : (isEdit() ? 'Actualizar' : 'Guardar') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

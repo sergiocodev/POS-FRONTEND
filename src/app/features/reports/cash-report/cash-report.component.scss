@@ -1,0 +1,26 @@
+:host {
+    display: block;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.table {
+    th {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+}
+
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+
+.fs-xs {
+    font-size: 0.7rem;
+}
+
+.badge {
+    font-weight: 500;
+}

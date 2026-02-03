@@ -1,0 +1,162 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Reporte de Caja</h2>
+                    <p class="text-muted mb-0">Resumen y arqueo de sesiones de efectivo</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" (click)="loadReport()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                    </button>
+                    <button class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4 rounded-3">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Desde</label>
+                    <input type="date" class="form-control" [(ngModel)]="startDate" (change)="loadReport()">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">Hasta</label>
+                    <input type="date" class="form-control" [(ngModel)]="endDate" (change)="loadReport()">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100 py-2 mt-md-0" (click)="loadReport()">
+                        <i class="bi bi-search me-2"></i> Generar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="bi bi-box-arrow-in-right text-primary fs-4"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase">Apertura (Total)</span>
+                    </div>
+                    <div class="h3 mb-0 fw-bold">{{ getTotalOpening() | currency:'PEN':'S/ ' }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-info bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="bi bi-calculator text-info fs-4"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase">Ventas Estimadas</span>
+                    </div>
+                    <div class="h3 mb-0 fw-bold">{{ getTotalCalculated() | currency:'PEN':'S/ ' }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="bi bi-cash-coin text-success fs-4"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase">Cierre (Efectivo Real)</span>
+                    </div>
+                    <div class="h3 mb-0 fw-bold">{{ getTotalClosing() | currency:'PEN':'S/ ' }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4"
+                    [ngClass]="{'bg-danger bg-opacity-10': getTotalDiff() < 0, 'bg-success bg-opacity-10': getTotalDiff() >= 0}">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-2 rounded-3 me-3"
+                            [ngClass]="getTotalDiff() < 0 ? 'bg-danger text-white' : 'bg-success text-white'">
+                            <i class="bi" [ngClass]="getTotalDiff() < 0 ? 'bi-dash-circle' : 'bi-plus-circle'"></i>
+                        </div>
+                        <span class="fw-bold small text-uppercase"
+                            [ngClass]="getTotalDiff() < 0 ? 'text-danger' : 'text-success'">Diferencia Neta</span>
+                    </div>
+                    <div class="h3 mb-0 fw-bold" [ngClass]="getTotalDiff() < 0 ? 'text-danger' : 'text-success'">
+                        {{ getTotalDiff() | currency:'PEN':'S/ ' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="px-4 py-3">Sesión / Fecha</th>
+                            <th class="py-3">Caja / Usuario</th>
+                            <th class="py-3 text-end">Apertura</th>
+                            <th class="py-3 text-end">Esperado</th>
+                            <th class="py-3 text-end">Real</th>
+                            <th class="py-3 text-end">Diferencia</th>
+                            <th class="py-3 text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="7" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted mb-0">Procesando reporte...</p>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && sessions().length === 0">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-file-earmark-x fs-1 opacity-25 d-block mb-3"></i>
+                                No se encontraron sesiones para este período y establecimiento.
+                            </td>
+                        </tr>
+                        <tr *ngFor="let s of sessions()">
+                            <td class="px-4">
+                                <div class="fw-bold">#{{ s.id }}</div>
+                                <small class="text-muted">{{ s.openedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ s.cashRegisterName }}</div>
+                                <small class="text-muted"><i class="bi bi-person me-1"></i>{{ s.username }}</small>
+                            </td>
+                            <td class="text-end fw-medium">{{ s.openingBalance | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end fw-medium">{{ s.calculatedBalance | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end fw-bold text-primary">{{ s.closingBalance | currency:'PEN':'S/ ' }}</td>
+                            <td class="text-end">
+                                <span class="fw-bold"
+                                    [ngClass]="s.diffAmount === 0 ? 'text-success' : (s.diffAmount > 0 ? 'text-info' : 'text-danger')">
+                                    {{ s.diffAmount | currency:'PEN':'S/ ' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-3 py-2"
+                                    [ngClass]="s.status === 'OPEN' ? 'bg-primary' : 'bg-secondary'">
+                                    {{ s.status === 'OPEN' ? 'ABIERTA' : 'CERRADA' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

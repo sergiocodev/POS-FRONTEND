@@ -22,6 +22,22 @@ export class CashSessionService {
         return this.http.get<CashRegisterResponse[]>(this.registerUrl);
     }
 
+    getRegisterById(id: number): Observable<CashRegisterResponse> {
+        return this.http.get<CashRegisterResponse>(`${this.registerUrl}/${id}`);
+    }
+
+    createRegister(request: CashRegisterRequest): Observable<CashRegisterResponse> {
+        return this.http.post<CashRegisterResponse>(this.registerUrl, request);
+    }
+
+    updateRegister(id: number, request: CashRegisterRequest): Observable<CashRegisterResponse> {
+        return this.http.put<CashRegisterResponse>(`${this.registerUrl}/${id}`, request);
+    }
+
+    deleteRegister(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.registerUrl}/${id}`);
+    }
+
     // Cash Sessions
     getAllSessions(): Observable<CashSessionResponse[]> {
         return this.http.get<CashSessionResponse[]>(this.sessionUrl);

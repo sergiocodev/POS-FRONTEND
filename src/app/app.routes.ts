@@ -108,6 +108,18 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/cash/session-form/session-form.component').then(m => m.SessionFormComponent)
             },
             {
+                path: 'cash/registers',
+                loadComponent: () => import('./features/cash/registers-list/registers-list.component').then(m => m.RegistersListComponent)
+            },
+            {
+                path: 'cash/registers/new',
+                loadComponent: () => import('./features/cash/register-form/register-form.component').then(m => m.RegisterFormComponent)
+            },
+            {
+                path: 'cash/registers/edit/:id',
+                loadComponent: () => import('./features/cash/register-form/register-form.component').then(m => m.RegisterFormComponent)
+            },
+            {
                 path: 'reports/inventory',
                 loadComponent: () => import('./features/reports/inventory-report/inventory-report.component').then(m => m.InventoryReportComponent)
             },
@@ -118,6 +130,10 @@ export const routes: Routes = [
             {
                 path: 'reports/purchases',
                 loadComponent: () => import('./features/reports/purchase-report/purchase-report.component').then(m => m.PurchaseReportComponent)
+            },
+            {
+                path: 'reports/cash',
+                loadComponent: () => import('./features/reports/cash-report/cash-report.component').then(m => m.CashReportComponent)
             },
             {
                 path: 'settings/users',
