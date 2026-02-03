@@ -20,7 +20,7 @@ export class EstablishmentsListComponent implements OnInit {
     filteredEstablishments = signal<EstablishmentResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +46,7 @@ export class EstablishmentsListComponent implements OnInit {
     applyFilters() {
         let filtered = this.establishments();
 
-        // Search filter
+        
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(est =>
@@ -56,7 +56,7 @@ export class EstablishmentsListComponent implements OnInit {
             );
         }
 
-        // Status filter
+        
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(est => est.active === this.selectedStatusFilter());
         }
@@ -88,7 +88,7 @@ export class EstablishmentsListComponent implements OnInit {
 
     toggleEstablishmentStatus(establishment: EstablishmentResponse) {
         if (confirm(`¿Está seguro de ${establishment.active ? 'desactivar' : 'activar'} el establecimiento ${establishment.name}?`)) {
-            // Update using the existing update method
+            
             const request = {
                 name: establishment.name,
                 address: establishment.address,

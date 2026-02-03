@@ -1,5 +1,5 @@
 <div class="container-fluid py-4">
-    <!-- Header -->
+    
     <div class="row mb-4">
         <div class="col-12">
             <nav aria-label="breadcrumb">
@@ -25,7 +25,7 @@
 
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
         <div class="row g-4">
-            <!-- General Information -->
+            
             <div class="col-12 col-xl-8">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3">
@@ -61,7 +61,7 @@
                     </div>
                 </div>
 
-                <!-- Classifications -->
+                
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 text-start">
                         <h5 class="card-title mb-0 fw-bold text-primary">Clasificación</h5>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <!-- Ingredients List -->
+                
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-primary">Principios Activos</h5>
@@ -147,7 +147,7 @@
                 </div>
             </div>
 
-            <!-- Settings & Pricing Factor -->
+            
             <div class="col-12 col-xl-4">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 text-start">
@@ -198,7 +198,7 @@
                     </div>
                 </div>
 
-                <!-- Sticky Actions -->
+                
                 <div class="card shadow-sm border-0 py-3 px-3 position-sticky" style="top: 1rem;">
                     <button type="submit" class="btn btn-primary btn-lg w-100 mb-2"
                         [disabled]="isLoading() || productForm.invalid">

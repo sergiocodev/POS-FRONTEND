@@ -1,7 +1,7 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary p-3">
     <div class="card shadow-lg fade-in-up w-100" style="max-width: 500px; border-radius: 1rem;">
         <div class="card-body p-4 p-md-5">
-            <!-- Header -->
+            
             <div class="text-center mb-4">
                 <div class="d-inline-flex align-items-center justify-content-center bg-gradient-primary rounded-circle mb-3"
                     style="width: 80px; height: 80px;">
@@ -17,9 +17,9 @@
                 <p class="text-muted mb-0">Regístrate en el sistema</p>
             </div>
 
-            <!-- Form -->
+            
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-                <!-- Username Field -->
+                
                 <div class="mb-3">
                     <label for="username" class="form-label fw-semibold">Usuario</label>
                     <input type="text" class="form-control" id="username" formControlName="username"
@@ -31,7 +31,7 @@
                     </div>
                 </div>
 
-                <!-- Name Field -->
+                
                 <div class="mb-3">
                     <label for="nombre" class="form-label fw-semibold">Nombre Completo</label>
                     <input type="text" class="form-control" id="nombre" formControlName="nombre"
@@ -42,7 +42,7 @@
                     </div>
                 </div>
 
-                <!-- Email Field -->
+                
                 <div class="mb-3">
                     <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
                     <input type="email" class="form-control" id="email" formControlName="email"
@@ -53,7 +53,7 @@
                     </div>
                 </div>
 
-                <!-- Password Field -->
+                
                 <div class="mb-3">
                     <label for="password" class="form-label fw-semibold">Contraseña</label>
                     <input type="password" class="form-control" id="password" formControlName="password"
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <!-- Confirm Password Field -->
+                
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label fw-semibold">Confirmar Contraseña</label>
                     <input type="password" class="form-control" id="confirmPassword" formControlName="confirmPassword"
@@ -77,12 +77,12 @@
                     </div>
                 </div>
 
-                <!-- Error Message -->
+                
                 <div class="alert alert-danger" role="alert" *ngIf="errorMessage()">
                     <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage() }}
                 </div>
 
-                <!-- Submit Button -->
+                
                 <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" [disabled]="isLoading()">
                     <span *ngIf="!isLoading()">Registrarse</span>
                     <span *ngIf="isLoading()">
@@ -91,7 +91,7 @@
                     </span>
                 </button>
 
-                <!-- Login Link -->
+                
                 <div class="text-center">
                     <p class="mb-0 text-muted">
                         ¿Ya tienes cuenta?

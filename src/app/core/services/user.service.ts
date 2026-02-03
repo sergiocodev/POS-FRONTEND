@@ -3,9 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserRequest, UserResponse, UserAssignRolesRequest, UserAssignEstablishmentsRequest } from '../models/user.model';
 
-/**
- * Basic User interface matching backend model (for auth compatibility)
- */
+
 export interface User {
     id: number;
     username: string;

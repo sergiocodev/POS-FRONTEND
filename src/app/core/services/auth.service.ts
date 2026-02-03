@@ -14,7 +14,7 @@ export class AuthService {
     private readonly TOKEN_KEY = 'auth_token';
     private readonly USER_KEY = 'current_user';
 
-    // Signal to track authentication state
+    
     currentUser = signal<User | null>(this.getUserFromStorage());
 
     login(request: LoginRequest): Observable<LoginResponse> {
@@ -48,11 +48,9 @@ export class AuthService {
         return !!this.getToken();
     }
 
-    // ==================== Permission Checking ====================
+    
 
-    /**
-     * Verifica si el usuario tiene un permiso específico
-     */
+    
     hasPermission(permission: string): boolean {
         const user = this.currentUser();
         if (!user || !user.permissions) {
@@ -61,12 +59,10 @@ export class AuthService {
         return user.permissions.includes(permission);
     }
 
-    /**
-     * Verifica si el usuario tiene al menos uno de los permisos especificados
-     */
+    
     hasAnyPermission(permissions: string[]): boolean {
         if (!permissions || permissions.length === 0) {
-            return true; // Si no se requieren permisos, permitir acceso
+            return true; 
         }
         const user = this.currentUser();
         if (!user || !user.permissions) {
@@ -75,9 +71,7 @@ export class AuthService {
         return permissions.some(permission => user.permissions.includes(permission));
     }
 
-    /**
-     * Verifica si el usuario tiene todos los permisos especificados
-     */
+    
     hasAllPermissions(permissions: string[]): boolean {
         if (!permissions || permissions.length === 0) {
             return true;
@@ -89,25 +83,19 @@ export class AuthService {
         return permissions.every(permission => user.permissions.includes(permission));
     }
 
-    /**
-     * Obtiene los permisos del usuario actual
-     */
+    
     getUserPermissions(): string[] {
         const user = this.currentUser();
         return user?.permissions || [];
     }
 
-    /**
-     * Obtiene los roles del usuario actual
-     */
+    
     getUserRoles(): string[] {
         const user = this.currentUser();
         return user?.roles || [];
     }
 
-    /**
-     * Verifica si el usuario tiene un rol específico
-     */
+    
     hasRole(role: string): boolean {
         const user = this.currentUser();
         if (!user || !user.roles) {
@@ -116,9 +104,7 @@ export class AuthService {
         return user.roles.includes(role);
     }
 
-    /**
-     * Verifica si el usuario tiene al menos uno de los roles especificados
-     */
+    
     hasAnyRole(roles: string[]): boolean {
         if (!roles || roles.length === 0) {
             return true;
@@ -130,7 +116,7 @@ export class AuthService {
         return roles.some(role => user.roles.includes(role));
     }
 
-    // ==================== Private Methods ====================
+    
 
     private saveAuthData(response: LoginResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);

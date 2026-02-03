@@ -26,7 +26,7 @@ export class FormFieldOptionComponent implements OnInit, ControlValueAccessor, O
     @Input() required: boolean = false;
     @Input() minLength?: number;
     @Input() maxLength?: number;
-    @Input() options: any[] = []; // Simplified to any[]
+    @Input() options: any[] = []; 
     @Input() forceShowErrors: boolean = false;
     @Output() valueChange = new EventEmitter<void>();
 

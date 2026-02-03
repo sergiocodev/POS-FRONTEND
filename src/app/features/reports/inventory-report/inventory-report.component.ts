@@ -21,12 +21,12 @@ export class InventoryReportComponent implements OnInit {
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
     activeTab = signal<'GENERAL' | 'LOW_STOCK' | 'EXPIRING'>('GENERAL');
 
-    // Filters
+    
     lowStockThreshold = signal<number>(10);
     expiringDays = signal<number>(30);
 
     constructor() {
-        // Automatically reload when establishment changes
+        
         effect(() => {
             if (this.selectedEstablishmentId()) {
                 this.loadReport();
@@ -83,7 +83,7 @@ export class InventoryReportComponent implements OnInit {
     }
 
     exportToCsv(): void {
-        // Basic CSV export logic
+        
         const data = this.reportData();
         if (data.length === 0) return;
 

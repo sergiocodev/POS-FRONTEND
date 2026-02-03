@@ -63,7 +63,7 @@ export class PurchaseFormComponent implements OnInit {
             this.isEditMode.set(true);
             this.loadPurchase(id);
         } else {
-            this.addItem(); // Start with one item row
+            this.addItem(); 
         }
     }
 
@@ -101,7 +101,7 @@ export class PurchaseFormComponent implements OnInit {
                     notes: purchase.notes
                 });
 
-                // Load items
+                
                 this.items.clear();
                 purchase.items.forEach(item => {
                     const product = this.products().find(p => p.name === item.productName);
@@ -115,7 +115,7 @@ export class PurchaseFormComponent implements OnInit {
                     }));
                 });
 
-                this.purchaseForm.disable(); // Only view for now in edit mode as per backend support
+                this.purchaseForm.disable(); 
                 this.isLoading.set(false);
             },
             error: (err) => {

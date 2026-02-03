@@ -11,7 +11,7 @@
                 <td [ngClass]="selectedRow === row && SelectListRowData !== null ? 'table-blue' : ''"
                     *ngFor="let field of row; let x = index">
 
-                    <!-- Toggle para booleanos -->
+                    
                     <ng-container *ngIf="isBoolean(field)">
                         <label class="switch">
                             <input type="checkbox" [checked]="field" (change)="onToggleChange(row, field, $event)">
@@ -19,7 +19,7 @@
                         </label>
                     </ng-container>
 
-                    <!-- Categorías como cajas -->
+                    
                     <ng-container *ngIf="isArray(field) && i !== 0; else normalContent">
                         <div class="d-flex flex-wrap gap-1 justify-content-center">
                             <span *ngFor="let category of field" class="category-box">{{ category }}</span>
@@ -28,7 +28,7 @@
 
                     <ng-template #normalContent>
                         <div *ngIf="!isBoolean(field)">
-                            <!-- Input Filter en la primera fila si está activo -->
+                            
                             <div *ngIf="isActiveInputFilter && i === 0">
                                 <div *ngFor="let item of InputFilter">
                                     <div *ngIf="x === (headers.indexOf(item))">
@@ -38,7 +38,7 @@
                                 </div>
                             </div>
 
-                            <!-- Text Filter en la primera fila -->
+                            
                             <div *ngIf="isActiveTextFilter && i === 0">
                                 <div *ngFor="let item of TextFilter">
                                     <div *ngIf="x === (headers.indexOf(item))">
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
 
-                            <!-- Contenido normal (ignorar celdas de filtro si estamos en la fila 0) -->
+                            
                             <div *ngIf="(!isActiveInputFilter && !isActiveTextFilter) || i > 0">
                                 {{ field }}
                             </div>
@@ -55,7 +55,7 @@
                     </ng-template>
                 </td>
 
-                <!-- Columna de Acciones -->
+                
                 <td *ngIf="isActiveButtonAction">
                     <div *ngIf="!isActiveInputFilter || i > 0">
                         <app-button-actions [actions]="actions"

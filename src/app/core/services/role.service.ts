@@ -40,7 +40,7 @@ export class RoleService {
         return this.http.patch<RoleResponse>(`${this.apiUrl}/${id}/toggle-active`, {});
     }
 
-    // ==================== Permission Management ====================
+    
 
     getPermissions(roleId: number): Observable<PermissionResponse[]> {
         return this.http.get<PermissionResponse[]>(`${this.apiUrl}/${roleId}/permissions`);

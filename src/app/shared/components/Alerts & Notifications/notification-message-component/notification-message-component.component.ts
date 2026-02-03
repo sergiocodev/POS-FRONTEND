@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
     styleUrl: './notification-message-component.component.scss'
 })
 export class NotificationMessageComponent implements OnInit {
-    @Input() type: string = ''; // 'success', 'error', 'warning'
+    @Input() type: string = ''; 
     @Input() message: string = '';
     @Output() show = new EventEmitter<boolean>();
 
@@ -18,7 +18,7 @@ export class NotificationMessageComponent implements OnInit {
     ngOnInit(): void {
         setTimeout(() => {
             this.closeNotification();
-        }, 2000); // 2 seconds for better readability
+        }, 2000); 
     }
 
     closeNotification(): void {

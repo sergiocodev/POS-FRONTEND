@@ -55,7 +55,7 @@ export class RegisterComponent {
 
         const { confirmPassword, nombre, ...registerData } = this.registerForm.value;
 
-        // Map 'nombre' to 'fullName' for backend compatibility
+        
         const payload = {
             ...registerData,
             fullName: nombre

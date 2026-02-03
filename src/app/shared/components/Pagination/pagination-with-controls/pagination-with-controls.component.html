@@ -1,6 +1,6 @@
 <div class="pagination-wrapper d-flex align-items-center justify-content-between flex-wrap gap-3">
 
-    <!-- Description -->
+    
     <div class="pagination-description" *ngIf="descriptionIsActive">
         <span class="text-muted small">
             Mostrando <span class="fw-bold text-dark">{{ pageItemsStartsAt }}</span>
@@ -9,7 +9,7 @@
         </span>
     </div>
 
-    <!-- Controls -->
+    
     <nav aria-label="Page navigation">
         <ul class="pagination pagination-sm m-0">
             <li class="page-item" [class.disabled]="!hasPreviousPage">

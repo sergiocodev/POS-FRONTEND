@@ -25,7 +25,7 @@ export class UsersListComponent implements OnInit {
     roles = signal<RoleResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedRoleFilter = signal<number | null>(null);
     selectedStatusFilter = signal<boolean | null>(null);
@@ -61,7 +61,7 @@ export class UsersListComponent implements OnInit {
     applyFilters() {
         let filtered = this.users();
 
-        // Search filter
+        
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(user =>
@@ -71,14 +71,14 @@ export class UsersListComponent implements OnInit {
             );
         }
 
-        // Role filter
+        
         if (this.selectedRoleFilter() !== null) {
             filtered = filtered.filter(user =>
                 user.roles.some(role => role.id === this.selectedRoleFilter())
             );
         }
 
-        // Status filter
+        
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(user => user.active === this.selectedStatusFilter());
         }

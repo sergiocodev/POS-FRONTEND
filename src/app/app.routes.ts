@@ -175,7 +175,7 @@ export const routes: Routes = [
                 path: 'settings/establishments/:id/edit',
                 loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
             },
-            // Pharmacy Routes
+            
             {
                 path: 'pharmacy/active-ingredients',
                 loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients-list/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent)

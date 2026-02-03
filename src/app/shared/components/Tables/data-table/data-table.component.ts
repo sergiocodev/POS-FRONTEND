@@ -46,7 +46,7 @@ export class DataTableComponent implements OnChanges {
         const target = event.target as HTMLInputElement;
         if (target) {
             const state = target.checked;
-            const id = row[0]; // Assuming ID is in the first position
+            const id = row[0]; 
             this.toggleStateChange.emit({ id, state });
         }
     }

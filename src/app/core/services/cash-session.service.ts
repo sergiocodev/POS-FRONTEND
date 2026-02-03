@@ -17,7 +17,7 @@ export class CashSessionService {
     private sessionUrl = '/api/v1/cash-sessions';
     private registerUrl = '/api/v1/cash-registers';
 
-    // Cash Registers
+    
     getRegisters(): Observable<CashRegisterResponse[]> {
         return this.http.get<CashRegisterResponse[]>(this.registerUrl);
     }
@@ -38,7 +38,7 @@ export class CashSessionService {
         return this.http.delete<void>(`${this.registerUrl}/${id}`);
     }
 
-    // Cash Sessions
+    
     getAllSessions(): Observable<CashSessionResponse[]> {
         return this.http.get<CashSessionResponse[]>(this.sessionUrl);
     }

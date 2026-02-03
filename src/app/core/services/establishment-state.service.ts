@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
     providedIn: 'root'
 })
 export class EstablishmentStateService {
-    // Shared signal for the selected establishment ID
+    
     selectedEstablishmentId = signal<number | null>(null);
 
     setSelectedEstablishment(id: number) {

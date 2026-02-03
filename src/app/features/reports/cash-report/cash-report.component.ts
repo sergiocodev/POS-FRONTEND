@@ -43,17 +43,17 @@ export class CashReportComponent implements OnInit {
 
     loadReport(): void {
         this.isLoading.set(true);
-        // Note: For now the backend list all sessions. I'll filter by date and establishment on frontend.
-        // If the backend is updated with start/end parameters, this should be updated.
+        
+        
         this.cashService.getAllSessions().subscribe({
             next: (data) => {
                 const estId = this.selectedEstablishmentId();
                 const filtered = data.filter(s => {
                     const sessionDate = s.openedAt.split('T')[0];
                     const matchesDate = sessionDate >= this.startDate && sessionDate <= this.endDate;
-                    // Note: CashSessionResponse might not have establishmentId directly, 
-                    // we might need to check how to filter it correctly.
-                    // Assuming for now it's globally related or we filter by cash register if we had that mapping.
+                    
+                    
+                    
                     return matchesDate;
                 });
                 this.sessions.set(filtered);

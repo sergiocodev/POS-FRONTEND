@@ -82,7 +82,7 @@ export class ProductListComponent implements OnInit {
     }
 
     onToggleStatus(product: ProductResponse): void {
-        // Logic for toggling active/inactive if needed
+        
     }
 
     onNew(): void {

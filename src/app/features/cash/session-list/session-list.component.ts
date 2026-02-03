@@ -42,7 +42,7 @@ export class SessionListComponent implements OnInit {
         if (!userId) return;
 
         this.isLoading.set(true);
-        // Get user history
+        
         this.cashService.getHistory(userId).subscribe({
             next: (data) => {
                 this.sessions.set(data);
@@ -55,7 +55,7 @@ export class SessionListComponent implements OnInit {
             }
         });
 
-        // Check for active session
+        
         this.cashService.getActiveSession().subscribe({
             next: (session) => {
                 this.activeSession.set(session);

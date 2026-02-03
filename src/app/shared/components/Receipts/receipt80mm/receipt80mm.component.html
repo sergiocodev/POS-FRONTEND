@@ -1,10 +1,10 @@
 <div class="receipt-container mx-auto" *ngIf="header && body" [ngClass]="className">
-    <!-- Watermark -->
+    
     <div *ngIf="watermark" class="watermark-overlay">
         <div class="watermark-text">{{ watermark }}</div>
     </div>
 
-    <!-- Header -->
+    
     <div class="text-center mb-3">
         <div class="fw-bold fs-5 text-uppercase mb-1">{{ header.companyLegalName }}</div>
         <div class="small fw-semibold">RUC: {{ header.companyRUC }}</div>
@@ -12,13 +12,13 @@
         <div class="small mt-1 fst-italic">{{ header.companyEmail }} | {{ header.companyWebsite }}</div>
     </div>
 
-    <!-- Document Title -->
+    
     <div class="document-header text-center my-3 py-2 border-top border-bottom">
         <div class="fw-bold text-uppercase">{{ header.documentType }}</div>
         <div class="fw-bold fs-5">{{ header.seriesAndNumber }}</div>
     </div>
 
-    <!-- Main Info -->
+    
     <div class="info-grid small mb-3">
         <div class="row g-1">
             <div class="col-4 text-muted">Fecha Emisión:</div>
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <!-- Items Table -->
+    
     <div class="items-table mb-3">
         <table class="w-100 small">
             <thead class="border-bottom-2">
@@ -55,7 +55,7 @@
         </table>
     </div>
 
-    <!-- Totals Section -->
+    
     <div class="totals-grid small mb-3">
         <div class="row g-1 justify-content-end">
             <div class="col-7 text-end text-muted">OP. GRAVADAS:</div>
@@ -71,12 +71,12 @@
         </div>
     </div>
 
-    <!-- SON Section -->
+    
     <div class="amount-words small fw-bold text-uppercase mb-3 px-2 py-1 bg-light text-center rounded">
         Son: {{ body.totalInWords }}
     </div>
 
-    <!-- QR & Footer -->
+    
     <div class="footer-section text-center">
         <div *ngIf="qrSrc" class="qr-container mb-3 mx-auto">
             <img [src]="qrSrc" alt="QR Code" class="img-fluid" style="width: 100px;">

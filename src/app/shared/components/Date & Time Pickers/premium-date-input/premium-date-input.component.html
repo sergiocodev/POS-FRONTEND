@@ -2,7 +2,7 @@
     <label class="form-label fw-bold mb-2 text-primary small text-uppercase letter-spacing" *ngIf="label">{{ label
         }}</label>
 
-    <!-- Trigger Input -->
+    
     <div class="input-wrapper" (click)="togglePopup()">
         <i class="bi bi-calendar-event input-icon" [class.active]="isOpen"></i>
         <input readonly type="text" class="premium-input form-control" [ngModel]="displayValue" (blur)="onTouched()"
@@ -11,11 +11,11 @@
         <i class="bi bi-chevron-down dropdown-icon" [class.rotated]="isOpen"></i>
     </div>
 
-    <!-- Custom Popup Overlay -->
+    
     <div class="premium-picker-popup shadow-lg border-0" *ngIf="isOpen" (click)="$event.stopPropagation()">
-        <!-- Calendar Section -->
+        
         <div class="calendar-section">
-            <!-- Header: Month/Year Nav -->
+            
             <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
                 <button type="button" class="nav-btn btn btn-light btn-sm rounded-circle" (click)="prevMonth()">
                     <i class="bi bi-chevron-left"></i>
@@ -28,12 +28,12 @@
                 </button>
             </div>
 
-            <!-- Days Header -->
+            
             <div class="days-header text-center mb-2">
                 <span *ngFor="let d of daysOfWeek" class="fw-bold text-muted small" style="width: 14.28%">{{ d }}</span>
             </div>
 
-            <!-- Calendar Grid -->
+            
             <div class="calendar-grid">
                 <div *ngFor="let day of calendarDays" class="day-cell" [class.empty]="day.isEmpty"
                     [class.disabled]="day.isDisabled" [class.selected]="day.isSelected" [class.today]="day.isToday"
@@ -42,14 +42,14 @@
                 </div>
             </div>
 
-            <!-- Footer actions -->
+            
             <div class="calendar-footer pt-3 border-top mt-2 d-flex justify-content-end">
                 <button type="button" class="btn btn-link btn-sm text-decoration-none fw-bold"
                     (click)="setToday()">HOY</button>
             </div>
         </div>
 
-        <!-- Time Section (Optional) -->
+        
         <div class="time-section d-flex border-start" *ngIf="includeTime">
             <div class="time-column flex-grow-1 border-end scroll-hide">
                 <div *ngFor="let h of hours" class="time-item py-1" [class.selected]="selectedHour === h"

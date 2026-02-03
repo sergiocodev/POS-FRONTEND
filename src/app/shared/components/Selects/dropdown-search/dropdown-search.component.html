@@ -1,6 +1,6 @@
 <div class="select-container" [class.disabled]="disabled">
     <div class="select-trigger" (click)="toggleDropdown()">
-        <!-- MULTIPLE SELECCIÓN TAGS -->
+        
         <div class="selected-tags" *ngIf="multiple && selectedIds.length > 0">
             <span class="tag" *ngFor="let id of selectedIds">
                 {{ idNameMap.get(id) }}
@@ -10,7 +10,7 @@
             </span>
         </div>
 
-        <!-- UNICA SELECCIÓN o PLACEHOLDER -->
+        
         <span class="select-value" *ngIf="!multiple || selectedIds.length === 0"
             [ngClass]="isPlaceholder() ? 'select-value-placeholder' : 'select-value-not-placeholder'">
             {{ getSelectedLabel() }}
@@ -21,9 +21,9 @@
         </span>
     </div>
 
-    <!-- Dropdown -->
+    
     <div class="select-dropdown shadow-sm" *ngIf="isOpen">
-        <!-- Búsqueda -->
+        
         <div class="search-container" *ngIf="showSearch">
             <div class="search-icon">
                 <i class="bi bi-search"></i>
@@ -32,7 +32,7 @@
                 (input)="onSearch($event)" (click)="$event.stopPropagation()" />
         </div>
 
-        <!-- Opciones -->
+        
         <div class="options-container">
             <div class="empty-message" *ngIf="filteredOptions.length === 0">
                 {{ emptyMessage }}

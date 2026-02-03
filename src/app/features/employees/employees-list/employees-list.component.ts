@@ -20,7 +20,7 @@ export class EmployeesListComponent implements OnInit {
     filteredEmployees = signal<EmployeeResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +46,7 @@ export class EmployeesListComponent implements OnInit {
     applyFilters() {
         let filtered = this.employees();
 
-        // Search filter
+        
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(emp =>
@@ -57,7 +57,7 @@ export class EmployeesListComponent implements OnInit {
             );
         }
 
-        // Status filter
+        
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(emp => emp.active === this.selectedStatusFilter());
         }

@@ -8,7 +8,7 @@ export class ThemeService {
     isDarkMode = this.darkMode.asReadonly();
 
     constructor() {
-        // Check local storage or system preference
+        
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             this.setDarkMode(true);

@@ -1,7 +1,7 @@
 <div class="table-container border">
     <table class="table table-hover table-bordered">
         <thead class="table-background">
-            <!-- Primera fila de encabezados -->
+            
             <tr>
                 <ng-container *ngFor="let col of headers">
                     <th [attr.colspan]="col.subHeaders?.length || 1" [attr.rowspan]="!col.subHeaders?.length ? 2 : 1"
@@ -15,7 +15,7 @@
                 </ng-container>
             </tr>
 
-            <!-- Subencabezados -->
+            
             <tr *ngIf="hasSubHeaders">
                 <ng-container *ngFor="let col of headers">
                     <ng-container *ngFor="let subCol of (col.subHeaders || [])">
@@ -42,7 +42,7 @@
                     <ng-template #subColumns>
                         <td class="text-center align-middle" *ngFor="let subCol of col.subHeaders">
 
-                            <!-- Acciones -->
+                            
                             <ng-container *ngIf="subCol.key === 'action'; else defaultContent">
                                 <div class="p-1">
                                     <app-button-actions [actions]="listActions"
@@ -51,7 +51,7 @@
                                 </div>
                             </ng-container>
 
-                            <!-- Contenido por defecto -->
+                            
                             <ng-template #defaultContent>
                                 <ng-container *ngIf="isBoolean(row[subCol.key]); else textContent">
                                     <div class="form-check form-switch d-flex justify-content-center">
@@ -68,7 +68,7 @@
                 </ng-container>
             </tr>
 
-            <!-- Fila de Totales -->
+            
             <tr class="table-info" *ngIf="showTotalRow">
                 <ng-container *ngFor="let col of headers">
                     <ng-container *ngIf="!col.subHeaders; else totalSubColumns">

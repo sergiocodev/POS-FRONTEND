@@ -14,7 +14,7 @@ interface MenuItem {
     expanded?: boolean;
     isActive?: boolean;
     routerLinkActiveOptions?: { exact: boolean };
-    requiredPermissions?: string[]; // Permisos necesarios para ver este item
+    requiredPermissions?: string[]; 
 }
 
 @Component({
@@ -144,22 +144,20 @@ export class SidebarComponent {
         }
     ];
 
-    // Computed signal que filtra los items del menú según los permisos del usuario
+    
     menuItems = computed(() => {
         return this.filterMenuItems(this.allMenuItems);
     });
 
-    /**
-     * Filtra los items del menú según los permisos del usuario
-     */
+    
     private filterMenuItems(items: MenuItem[]): MenuItem[] {
         return items
             .map(item => {
-                // Si el item tiene hijos, filtrarlos recursivamente
+                
                 if (item.children) {
                     const filteredChildren = this.filterMenuItems(item.children);
 
-                    // Si no hay hijos visibles, ocultar el item padre
+                    
                     if (filteredChildren.length === 0) {
                         return null;
                     }
@@ -167,12 +165,12 @@ export class SidebarComponent {
                     return { ...item, children: filteredChildren };
                 }
 
-                // Si el item no tiene permisos requeridos, mostrarlo
+                
                 if (!item.requiredPermissions || item.requiredPermissions.length === 0) {
                     return item;
                 }
 
-                // Verificar si el usuario tiene al menos uno de los permisos requeridos
+                
                 if (this.authService.hasAnyPermission(item.requiredPermissions)) {
                     return item;
                 }

@@ -30,7 +30,7 @@
         </div>
 
         <div class="profile-menu-container">
-            <!-- Profile Trigger -->
+            
             <div class="profile-trigger" (click)="toggleProfileDropdown($event)"
                 [class.active]="isProfileDropdownOpen()">
                 <span class="user-name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}</span>
@@ -43,7 +43,7 @@
 
             @if (isProfileDropdownOpen()) {
             <div class="dropdown-menu open">
-                <!-- Menu Header -->
+                
                 <div class="menu-header">
                     <div class="header-content">
                         <div class="avatar-wrapper">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
 
-                <!-- Menu Body -->
+                
                 <div class="menu-body">
                     <div class="section-label">
                         <i class="bi bi-geo-alt-fill"></i>
@@ -82,7 +82,7 @@
 
                     <div class="divider"></div>
 
-                    <!-- Menu Actions -->
+                    
                     <div class="menu-actions">
                         <div class="menu-item" (click)="myAccount()">
                             <div class="item-icon">
@@ -101,7 +101,7 @@
                     </div>
                 </div>
 
-                <!-- Menu Footer -->
+                
                 <div class="menu-footer">
                     <p>© 2025 RECSA • Sistema de Gestión</p>
                 </div>

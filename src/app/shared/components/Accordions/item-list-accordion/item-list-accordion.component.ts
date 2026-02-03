@@ -10,19 +10,19 @@ import { RouterLink, RouterModule, RouterLinkActive } from '@angular/router';
     styleUrl: './item-list-accordion.component.scss'
 })
 export class ItemListAccordionComponent {
-    /** Nombre del menú */
+    
     @Input() MenuName: string = '';
 
-    /** Icono principal */
+    
     @Input() MenuIcon: string = '';
 
-    /** Array de objetos para el dropdown */
+    
     @Input() Items: { ItemName: string; ItemLink: string }[] = [];
 
-    /** Link directo cuando no hay items */
+    
     @Input() Link: string = '';
 
     get isVisible(): boolean {
-        return true; // Simplificado: siempre visible
+        return true; 
     }
 }

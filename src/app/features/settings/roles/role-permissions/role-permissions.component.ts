@@ -26,7 +26,7 @@ export class RolePermissionsComponent implements OnInit {
     isLoading = signal(false);
     isSaving = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedModule = signal<string>('');
 
@@ -40,7 +40,7 @@ export class RolePermissionsComponent implements OnInit {
     loadData(roleId: number) {
         this.isLoading.set(true);
 
-        // Load role
+        
         this.roleService.getById(roleId).subscribe({
             next: (role) => {
                 this.role.set(role);
@@ -53,7 +53,7 @@ export class RolePermissionsComponent implements OnInit {
             }
         });
 
-        // Load grouped permissions
+        
         this.permissionService.getGrouped().subscribe({
             next: (grouped) => {
                 this.groupedPermissions.set(grouped);

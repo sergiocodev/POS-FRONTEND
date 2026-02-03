@@ -5,7 +5,7 @@
             <i *ngIf="icono" class="bi bi-{{ icono }} me-2 text-primary fs-4"></i>
             <h5 class="fw-bold mb-0 text-dark">{{ title }}</h5>
 
-            <!-- Validation Indicators -->
+            
             <div *ngIf="validate !== null" class="ms-auto">
                 <div *ngIf="validate === true" class="d-flex align-items-center text-success animate-fade-in">
                     <i class="bi bi-check-circle-fill me-2 fs-5"></i>
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <!-- Summary Slots -->
+        
         <div class="summary-area mt-3" *ngIf="(isSummary && validate === true) || isUnvalidatedSummary">
             <div class="d-flex flex-wrap gap-2">
                 <ng-content select="[summary]"></ng-content>

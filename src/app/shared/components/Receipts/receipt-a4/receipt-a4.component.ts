@@ -19,7 +19,7 @@ export class ReceiptA4Component implements AfterViewInit {
     @ViewChild('mainContainer') mainContainer!: ElementRef;
 
     scale: number = 1;
-    contentWidth: number = 794; // Baseline for A4 (~210mm)
+    contentWidth: number = 794; 
 
     constructor(private datePipe: DatePipe) { }
 

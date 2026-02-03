@@ -66,11 +66,11 @@ export class UserFormComponent implements OnInit {
             this.isEditMode.set(true);
             this.userId.set(+id);
             this.loadUser(+id);
-            // Password is optional in edit mode
+            
             this.userForm.get('password')?.clearValidators();
             this.userForm.get('password')?.updateValueAndValidity();
         } else {
-            // Password is required in create mode
+            
             this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
             this.userForm.get('password')?.updateValueAndValidity();
         }
@@ -135,7 +135,7 @@ export class UserFormComponent implements OnInit {
             active: formValue.active
         };
 
-        // Only include password if provided
+        
         if (formValue.password) {
             request.password = formValue.password;
         }

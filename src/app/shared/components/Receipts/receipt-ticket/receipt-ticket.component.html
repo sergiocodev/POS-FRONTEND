@@ -1,17 +1,17 @@
 <div class="receipt-container mx-auto" *ngIf="header && body" [ngClass]="className">
-    <!-- Watermark -->
+    
     <div *ngIf="watermark" class="watermark-overlay">
         <div class="watermark-text">{{ watermark }}</div>
     </div>
 
-    <!-- Header -->
+    
     <div class="text-center mb-2">
         <div class="fw-bold receipt-title text-uppercase">{{ header.companyLegalName }}</div>
         <div class="small">RUC: {{ header.companyRUC }}</div>
         <div class="small text-muted">{{ header.companyAddress }}</div>
     </div>
 
-    <!-- Receipt Info -->
+    
     <div class="text-center fw-bold mb-2">
         <div class="small">{{ header.documentType }}</div>
         <div class="fs-6">{{ header.seriesAndNumber }}</div>
@@ -19,7 +19,7 @@
 
     <div class="receipt-separator mb-2 border-top border-dark border-1 opacity-25"></div>
 
-    <!-- Client & Date -->
+    
     <div class="small mb-2">
         <div class="d-flex justify-content-between">
             <span class="text-muted">Fecha:</span>
@@ -32,7 +32,7 @@
 
     <div class="receipt-separator mb-2 border-top border-dark border-1 opacity-25"></div>
 
-    <!-- Items -->
+    
     <div class="items-table small">
         <div class="d-flex fw-bold mb-1 border-bottom border-dark border-1 pb-1">
             <span class="flex-grow-1">DESC</span>
@@ -48,7 +48,7 @@
 
     <div class="receipt-separator my-2 border-top border-dark border-1 opacity-25"></div>
 
-    <!-- Totals -->
+    
     <div class="totals-section small">
         <div class="d-flex justify-content-between" *ngIf="body.opGravadas > 0">
             <span>OP. GRAVADAS:</span>
@@ -70,7 +70,7 @@
 
     <div class="receipt-separator my-2 border-top border-dark border-1 opacity-25"></div>
 
-    <!-- Footer -->
+    
     <div class="text-center receipt-footer small text-muted">
         <div *ngIf="body.footerNote" class="mb-2 italic">{{ body.footerNote }}</div>
         <div class="fw-bold">Gracias por su compra</div>

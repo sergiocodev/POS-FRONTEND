@@ -10,7 +10,7 @@ export class ReportService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/reports';
 
-    // Inventory Reports
+    
     getInventoryReport(establishmentId?: number): Observable<InventoryReport[]> {
         let params = new HttpParams();
         if (establishmentId) {
@@ -35,7 +35,7 @@ export class ReportService {
         return this.http.get<InventoryReport[]>(`${this.apiUrl}/inventory/expiring`, { params });
     }
 
-    // Sales Reports
+    
     getSalesReport(start: string, end: string, establishmentId?: number): Observable<SalesReport[]> {
         let params = new HttpParams()
             .set('start', start)
@@ -56,7 +56,7 @@ export class ReportService {
         return this.http.get<SalesSummary>(`${this.apiUrl}/sales/summary`, { params });
     }
 
-    // Purchase Reports
+    
     getPurchaseReport(start: string, end: string, establishmentId?: number): Observable<PurchaseReport[]> {
         let params = new HttpParams()
             .set('start', start)

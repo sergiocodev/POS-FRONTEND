@@ -58,7 +58,7 @@ export class RegistersListComponent implements OnInit {
     }
 
     onToggleStatus(register: CashRegisterResponse): void {
-        // Toggle active status logic
+        
         this.cashService.updateRegister(register.id, {
             name: register.name,
             establishmentId: register.establishmentId,

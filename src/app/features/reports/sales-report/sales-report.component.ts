@@ -21,12 +21,12 @@ export class SalesReportComponent implements OnInit {
     isLoading = signal<boolean>(false);
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
-    // Default to current month
+    
     startDate = '';
     endDate = '';
 
     constructor() {
-        // Automatically reload when establishment changes
+        
         effect(() => {
             if (this.selectedEstablishmentId()) {
                 this.loadReport();
@@ -41,7 +41,7 @@ export class SalesReportComponent implements OnInit {
         this.startDate = firstDay.toISOString().split('T')[0];
         this.endDate = today.toISOString().split('T')[0];
 
-        // Initial load only if effect hasn't triggered it
+        
         if (this.selectedEstablishmentId()) {
             this.loadReport();
         }
@@ -51,11 +51,11 @@ export class SalesReportComponent implements OnInit {
         this.isLoading.set(true);
         const establishmentId = this.selectedEstablishmentId() || undefined;
 
-        // ForkJoin isn't optimal here if one fails, but good for loading together
+        
         this.reportService.getSalesReport(this.startDate, this.endDate, establishmentId).subscribe({
             next: (data) => {
                 this.sales.set(data);
-                this.loadSummary(); // Chaing call
+                this.loadSummary(); 
             },
             error: (err) => {
                 console.error(err);

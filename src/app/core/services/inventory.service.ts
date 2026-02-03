@@ -13,12 +13,12 @@ import {
 export class InventoryService {
     private http = inject(HttpClient);
 
-    // Inventory Endpoints
+    
     private inventoryUrl = '/api/v1/inventory';
     private lotsUrl = '/api/v1/product-lots';
     private movementsUrl = '/api/v1/stock-movements';
 
-    // Inventory
+    
     getAllStock(): Observable<InventoryResponse[]> {
         return this.http.get<InventoryResponse[]>(this.inventoryUrl);
     }
@@ -47,7 +47,7 @@ export class InventoryService {
         return this.http.get<InventoryResponse>(`${this.inventoryUrl}/${id}`);
     }
 
-    // Product Lots
+    
     getAllLots(): Observable<ProductLotResponse[]> {
         return this.http.get<ProductLotResponse[]>(this.lotsUrl);
     }
@@ -64,7 +64,7 @@ export class InventoryService {
         return this.http.delete<void>(`${this.lotsUrl}/${id}`);
     }
 
-    // Stock Movements
+    
     getMovements(): Observable<StockMovementResponse[]> {
         return this.http.get<StockMovementResponse[]>(this.movementsUrl);
     }

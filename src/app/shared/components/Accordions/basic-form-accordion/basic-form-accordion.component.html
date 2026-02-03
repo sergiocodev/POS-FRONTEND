@@ -8,7 +8,7 @@
                     </div>
                     <span class="span-title">{{ title }}</span>
 
-                    <!-- Validación negativa -->
+                    
                     <div *ngIf="formIsFilled === false"
                         class="bg-danger p-1 text-danger ms-auto bg-opacity-10 d-flex align-items-center gap-2"
                         style="font-size: 0.9rem;">
@@ -16,7 +16,7 @@
                         <span class="text-alert-validation">Completar los campos requeridos correctamente</span>
                     </div>
 
-                    <!-- Validación positiva con acordeón abierto -->
+                    
                     <div *ngIf="formIsFilled === true && internalExpanded"
                         class="bg-success p-1 text-success ms-auto bg-opacity-10 d-flex align-items-center gap-2"
                         style="font-size: 0.9rem;">
@@ -24,7 +24,7 @@
                         <span class="text-alert-validation">Se completó los campos requeridos correctamente</span>
                     </div>
 
-                    <!-- Resumen cuando está cerrado -->
+                    
                     <ng-container *ngIf="formIsValid && !internalExpanded">
                         <div class="values-summary ms-auto">
                             <span class="text-success ms-auto" style="font-size: 0.9rem;">

@@ -96,7 +96,7 @@ export class SupplierFormComponent implements OnInit {
         this.router.navigate(['/suppliers']);
     }
 
-    // Getters for form controls
+    
     get name() { return this.supplierForm.get('name'); }
     get ruc() { return this.supplierForm.get('ruc'); }
     get phone() { return this.supplierForm.get('phone'); }

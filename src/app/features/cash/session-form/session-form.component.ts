@@ -32,7 +32,7 @@ export class SessionFormComponent implements OnInit {
     errorMessage = signal<string>('');
     sessionData = signal<CashSessionResponse | null>(null);
 
-    // Watch closingBalance changes for real-time difference calculation
+    
     closingBalanceValue = toSignal(
         this.sessionForm.get('closingBalance')!.valueChanges.pipe(
             startWith(this.sessionForm.get('closingBalance')?.value || 0),

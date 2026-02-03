@@ -11,9 +11,7 @@ export enum ReferenceType {
     TRASLADO = 'TRASLADO'
 }
 
-/**
- * Product Lot Models
- */
+
 export interface ProductLotRequest {
     productId: number;
     lotCode: string;
@@ -29,16 +27,14 @@ export interface ProductLotResponse {
     createdAt: string;
 }
 
-/**
- * Inventory Models
- */
+
 export interface InventoryRequest {
     establishmentId: number;
     lotId: number;
     quantity: number;
     costPrice?: number;
     salesPrice?: number;
-    movementType?: string; // IN, OUT, ADJUSTMENT, LOSS, THEFT, RETURN
+    movementType?: string; 
     notes?: string;
 }
 
@@ -55,9 +51,7 @@ export interface InventoryResponse {
     lastMovement: string;
 }
 
-/**
- * Stock Movement Models
- */
+
 export interface StockMovementRequest {
     establishmentId: number;
     productId: number;

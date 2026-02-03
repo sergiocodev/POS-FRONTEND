@@ -20,7 +20,7 @@ export class RolesListComponent implements OnInit {
     filteredRoles = signal<RoleResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +46,7 @@ export class RolesListComponent implements OnInit {
     applyFilters() {
         let filtered = this.roles();
 
-        // Search filter
+        
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(role =>
@@ -55,7 +55,7 @@ export class RolesListComponent implements OnInit {
             );
         }
 
-        // Status filter
+        
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(role => role.active === this.selectedStatusFilter());
         }

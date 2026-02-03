@@ -4,7 +4,7 @@
     </label>
 
     <ng-container [ngSwitch]="type">
-        <!-- TEXT / EMAIL / NUMBER / DATE -->
+        
         <input *ngSwitchCase="'text'" type="text" class="form-control" [id]="formControlName" [value]="control.value"
             (input)="onInput($event)" (blur)="onBlur()" [placeholder]="placeholder" [attr.maxLength]="maxLength"
             [attr.minLength]="minLength" [ngClass]="{ 'is-invalid': showError, 'is-valid': isValid }" />
@@ -21,7 +21,7 @@
             [value]="control.value || today" (input)="onInput($event)" (blur)="onBlur()"
             [ngClass]="{ 'is-invalid': showError, 'is-valid': isValid }" />
 
-        <!-- SELECT -->
+        
         <select *ngSwitchCase="'select'" class="form-select" [formControlName]="formControlName" [id]="formControlName"
             (change)="onInput($event)" (blur)="onBlur()"
             [ngClass]="required || hasValue() ? { 'is-invalid': showError, 'is-valid': isValid } : {}">
@@ -31,13 +31,13 @@
             </option>
         </select>
 
-        <!-- TEXTAREA -->
+        
         <textarea *ngSwitchCase="'textarea'" class="form-control" [id]="formControlName" [value]="control.value"
             (input)="onInput($event)" (blur)="onBlur()" [placeholder]="placeholder" [attr.maxLength]="maxLength"
             [attr.minLength]="minLength" [ngClass]="{ 'is-invalid': showError, 'is-valid': isValid }"></textarea>
     </ng-container>
 
-    <!-- Validation Messages -->
+    
     <div class="errors-area mt-1 min-h-20">
         <div *ngIf="showError" class="text-danger animate-slide-up">
             <small *ngIf="control.errors?.['required']" class="error-text">

@@ -38,21 +38,21 @@ export class PosComponent implements OnInit {
     private establishmentStateService = inject(EstablishmentStateService);
     public router = inject(Router);
 
-    // Data lookups
+    
     products = signal<ProductResponse[]>([]);
     customers = signal<CustomerResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
 
-    // Cart State
+    
     cart = signal<CartItem[]>([]);
     selectedCustomer = signal<CustomerResponse | null>(null);
 
-    // Totals
+    
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
     tax = computed(() => this.subtotal() * 0.18);
-    total = computed(() => this.subtotal()); // Assuming prices are already inclusive for now or match backend logic
+    total = computed(() => this.subtotal()); 
 
-    // Form State
+    
     posForm: FormGroup;
     isLoading = signal<boolean>(false);
     productSearchTerm = '';
@@ -88,7 +88,7 @@ export class PosComponent implements OnInit {
             error: (err) => {
                 console.error('Error loading POS data:', err);
                 this.isLoading.set(false);
-                // If 404 or error getting session, redirect to cash management
+                
                 alert('Debe abrir una caja antes de realizar ventas.');
                 this.router.navigate(['/cash']);
             }
@@ -111,7 +111,7 @@ export class PosComponent implements OnInit {
 
     addToCart(product: ProductResponse): void {
         const existing = this.cart().find(item => item.product.id === product.id);
-        const price = 10.0; // TODO: Fetch actual price from inventory/stock. For now dummy.
+        const price = 10.0; 
 
         if (existing) {
             this.cart.update(items => items.map(item =>

@@ -1,4 +1,4 @@
-/* Header Layout */
+
 .main-header {
     height: 64px;
     background: #fff;
@@ -10,7 +10,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     z-index: 1000;
     position: relative;
-    /* Ensure it stays on top */
+    
 }
 
 .header-left,
@@ -26,7 +26,7 @@
     gap: 0.75rem;
 }
 
-/* Base Components */
+
 .btn-menu {
     background: none;
     border: none;
@@ -112,7 +112,7 @@
     }
 }
 
-/* Profile Menu Variables */
+
 $profile-primary: #0033cc;
 $profile-text: #1e293b;
 $profile-text-secondary: #64748b;
@@ -126,7 +126,7 @@ $profile-shadow: 0 10px 40px -10px rgba(0, 51, 204, 0.25);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Profile Menu System */
+
 .profile-menu-container {
     position: relative;
     display: inline-block;
@@ -216,7 +216,7 @@ $profile-shadow: 0 10px 40px -10px rgba(0, 51, 204, 0.25);
         animation: menuSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         transform-origin: top center;
         display: block !important;
-        /* Force visibility when *ngIf/ @if is true */
+        
 
         .menu-header {
             padding: 24px;
@@ -433,7 +433,7 @@ $profile-shadow: 0 10px 40px -10px rgba(0, 51, 204, 0.25);
     }
 }
 
-/* Dark Mode Support */
+
 :host-context(.dark-theme) {
     .main-header {
         background: #2f3349;

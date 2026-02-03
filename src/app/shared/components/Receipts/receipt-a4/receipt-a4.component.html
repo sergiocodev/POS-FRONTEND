@@ -2,12 +2,12 @@
     <div class="scaling-wrapper" [style.transform]="'scale(' + scale + ')'" #contentToScale>
         <div class="a4-document border shadow-sm bg-white" *ngIf="header && body">
 
-            <!-- Watermark -->
+            
             <div *ngIf="watermark" class="watermark-overlay">
                 <div class="watermark-text">{{ watermark }}</div>
             </div>
 
-            <!-- Header Section -->
+            
             <div class="row mb-5 align-items-center">
                 <div class="col-7">
                     <h2 class="fw-bold text-primary mb-1">{{ header.companyLegalName }}</h2>
@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <!-- Client Section -->
+            
             <div class="row mb-4">
                 <div class="col-6">
                     <div class="p-3 border rounded h-100">
@@ -47,7 +47,7 @@
                 </div>
             </div>
 
-            <!-- Items Table -->
+            
             <div class="mb-4">
                 <table class="table table-bordered table-striped custom-table">
                     <thead class="bg-primary text-white text-center">
@@ -69,7 +69,7 @@
                 </table>
             </div>
 
-            <!-- Totals Section -->
+            
             <div class="row align-items-end">
                 <div class="col-7">
                     <div class="p-3 border rounded bg-light small">
@@ -98,7 +98,7 @@
                 </div>
             </div>
 
-            <!-- Footer Info -->
+            
             <div class="mt-auto pt-5 text-center small text-muted">
                 <div class="d-flex justify-content-center gap-4 border-top pt-4">
                     <div *ngIf="body.qrBase64">

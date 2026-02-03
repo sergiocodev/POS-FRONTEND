@@ -1,4 +1,4 @@
-// ==================== Role Interfaces ====================
+
 
 export interface RoleRequest {
     name: string;
@@ -24,7 +24,7 @@ export interface RoleDetailResponse {
     createdAt: string;
 }
 
-// ==================== Permission Interfaces ====================
+
 
 export interface PermissionResponse {
     id: number;

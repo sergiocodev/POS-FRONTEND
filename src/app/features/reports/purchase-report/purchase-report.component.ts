@@ -20,12 +20,12 @@ export class PurchaseReportComponent implements OnInit {
     isLoading = signal<boolean>(false);
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
-    // Default to current month based logic 
+    
     startDate = '';
     endDate = '';
 
     constructor() {
-        // Automatically reload when establishment changes
+        
         effect(() => {
             if (this.selectedEstablishmentId()) {
                 this.loadReport();
@@ -40,7 +40,7 @@ export class PurchaseReportComponent implements OnInit {
         this.startDate = firstDay.toISOString().split('T')[0];
         this.endDate = today.toISOString().split('T')[0];
 
-        // Initial load only if effect hasn't triggered it
+        
         if (this.selectedEstablishmentId()) {
             this.loadReport();
         }

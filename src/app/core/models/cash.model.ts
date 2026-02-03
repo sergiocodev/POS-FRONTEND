@@ -3,9 +3,7 @@ export enum SessionStatus {
     CLOSED = 'CLOSED'
 }
 
-/**
- * Cash Register Models
- */
+
 export interface CashRegisterRequest {
     name: string;
     establishmentId: number;
@@ -20,9 +18,7 @@ export interface CashRegisterResponse {
     active: boolean;
 }
 
-/**
- * Cash Session Models
- */
+
 export interface CashSessionRequest {
     cashRegisterId: number;
     openingBalance: number;

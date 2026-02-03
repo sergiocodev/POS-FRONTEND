@@ -78,7 +78,7 @@ export class EstablishmentFormComponent implements OnInit {
             name: formValue.name,
             address: formValue.address || undefined,
             codeSunat: formValue.codeSunat || '0000',
-            active: true // Always set to active when creating/updating
+            active: true 
         };
 
         const operation = this.isEditMode()

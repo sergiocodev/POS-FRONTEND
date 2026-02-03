@@ -110,7 +110,7 @@ export class CustomerFormComponent implements OnInit {
         this.router.navigate(['/customers']);
     }
 
-    // Getters for form controls
+    
     get documentType() { return this.customerForm.get('documentType'); }
     get documentNumber() { return this.customerForm.get('documentNumber'); }
     get name() { return this.customerForm.get('name'); }

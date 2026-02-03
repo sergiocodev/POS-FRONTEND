@@ -62,7 +62,7 @@ export class SaleListComponent implements OnInit {
     }
 
     onViewDetails(id: number): void {
-        // Implement viewing details modal or page later
+        
         console.log('View sale details:', id);
     }
 

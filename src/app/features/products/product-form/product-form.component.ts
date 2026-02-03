@@ -34,7 +34,7 @@ export class ProductFormComponent implements OnInit {
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
 
-    // Lookup Data
+    
     brands = signal<BrandResponse[]>([]);
     categories = signal<CategoryResponse[]>([]);
     laboratories = signal<LaboratoryResponse[]>([]);
@@ -138,7 +138,7 @@ export class ProductFormComponent implements OnInit {
                     active: product.active
                 });
 
-                // Load ingredients
+                
                 if (product.ingredients) {
                     product.ingredients.forEach(i => {
                         this.ingredients.push(this.fb.group({

@@ -47,7 +47,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
   }
 }
 
-// Header
+
 .sidebar-header {
   height: 80px;
   display: flex;
@@ -82,7 +82,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
   }
 }
 
-// Toggle Button
+
 .toggle-btn {
   position: absolute;
   top: 25px;
@@ -113,7 +113,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
   top: 70px;
 }
 
-// Navigation
+
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
@@ -230,7 +230,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
   }
 }
 
-// Submenu
+
 .submenu {
   margin-left: 20px;
   padding-left: 10px;
@@ -259,10 +259,10 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
   }
 }
 
-// Footer
+
 .sidebar-footer {
   padding: 16px;
-  background: var(--hover-bg); // Slightly different bg for footer
+  background: var(--hover-bg); 
   margin-top: auto;
 
   .footer-actions {
@@ -290,7 +290,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
 
     &:hover {
       background: var(--hover-bg);
-      color: var(--warning-color, #ff9f43); // Sun color
+      color: var(--warning-color, #ff9f43); 
     }
   }
 

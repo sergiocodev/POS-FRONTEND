@@ -20,7 +20,7 @@ export class ActiveIngredientsListComponent implements OnInit {
     filteredActiveIngredients = signal<ActiveIngredientResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +46,7 @@ export class ActiveIngredientsListComponent implements OnInit {
     applyFilters() {
         let filtered = this.activeIngredients();
 
-        // Search filter
+        
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(ingredient =>
@@ -55,7 +55,7 @@ export class ActiveIngredientsListComponent implements OnInit {
             );
         }
 
-        // Status filter
+        
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(ingredient => ingredient.active === this.selectedStatusFilter());
         }

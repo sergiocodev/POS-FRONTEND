@@ -71,7 +71,7 @@ export class EmployeeFormComponent implements OnInit {
                     firstName: employee.firstName,
                     lastName: employee.lastName,
                     documentNumber: employee.documentNumber,
-                    userId: null // TODO: Add userId to EmployeeResponse if available
+                    userId: null 
                 });
                 this.isLoading.set(false);
             },
@@ -97,7 +97,7 @@ export class EmployeeFormComponent implements OnInit {
             lastName: formValue.lastName || undefined,
             documentNumber: formValue.documentNumber || undefined,
             userId: formValue.userId || undefined,
-            active: true // Always set to active when creating/updating
+            active: true 
         };
 
         const operation = this.isEditMode()

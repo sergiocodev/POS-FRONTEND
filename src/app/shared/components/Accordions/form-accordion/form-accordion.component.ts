@@ -33,7 +33,7 @@ export class FormAccordionComponent implements OnInit {
     @HostBinding('class.is-expanded')
     @Input() isExpanded: boolean = false;
 
-    // Resumen simplificado
+    
     @Input() summaryFields: any[] | null = null;
 
     @Input() status: 'valid' | 'invalid' | 'neutral' | null = null;
