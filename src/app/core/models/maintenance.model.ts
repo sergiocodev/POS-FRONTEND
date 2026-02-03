@@ -1,3 +1,5 @@
+// ==================== Role Interfaces ====================
+
 export interface RoleRequest {
     name: string;
     description?: string;
@@ -9,15 +11,37 @@ export interface RoleResponse {
     name: string;
     description?: string;
     active: boolean;
-    permissions?: PermissionResponse[];
+    permissionCount?: number;
     createdAt: string;
 }
+
+export interface RoleDetailResponse {
+    id: number;
+    name: string;
+    description?: string;
+    active: boolean;
+    permissions: PermissionResponse[];
+    createdAt: string;
+}
+
+// ==================== Permission Interfaces ====================
 
 export interface PermissionResponse {
     id: number;
     name: string;
     description?: string;
+    module?: string;
     createdAt: string;
+}
+
+export interface CreatePermissionRequest {
+    name: string;
+    description?: string;
+    module?: string;
+}
+
+export interface AssignPermissionsRequest {
+    permissionIds: number[];
 }
 
 export interface EstablishmentRequest {

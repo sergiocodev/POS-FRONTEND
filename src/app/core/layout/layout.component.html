@@ -184,7 +184,7 @@
                 <div class="mt-auto pt-3 border-top border-secondary">
                     <div class="mb-3">
                         <small class="text-muted d-block">Conectado como:</small>
-                        <strong class="d-block">{{ authService.currentUser()?.nombre ||
+                        <strong class="d-block">{{ authService.currentUser()?.fullName ||
                             authService.currentUser()?.username
                             }}</strong>
                     </div>

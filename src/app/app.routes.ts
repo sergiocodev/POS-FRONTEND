@@ -57,14 +57,14 @@ export const routes: Routes = [
             },
             {
                 path: 'employees',
-                loadComponent: () => import('./features/employees/employee-list/employee-list.component').then(m => m.EmployeeListComponent)
+                loadComponent: () => import('./features/employees/employees-list/employees-list.component').then(m => m.EmployeesListComponent)
             },
             {
                 path: 'employees/new',
                 loadComponent: () => import('./features/employees/employee-form/employee-form.component').then(m => m.EmployeeFormComponent)
             },
             {
-                path: 'employees/edit/:id',
+                path: 'employees/:id/edit',
                 loadComponent: () => import('./features/employees/employee-form/employee-form.component').then(m => m.EmployeeFormComponent)
             },
             {
@@ -146,6 +146,18 @@ export const routes: Routes = [
             {
                 path: 'settings/roles/:id/permissions',
                 loadComponent: () => import('./features/settings/roles/role-permissions/role-permissions.component').then(m => m.RolePermissionsComponent)
+            },
+            {
+                path: 'settings/establishments',
+                loadComponent: () => import('./features/settings/establishments/establishments-list/establishments-list.component').then(m => m.EstablishmentsListComponent)
+            },
+            {
+                path: 'settings/establishments/new',
+                loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
+            },
+            {
+                path: 'settings/establishments/:id/edit',
+                loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
             },
             {
                 path: '',

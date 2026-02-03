@@ -7,22 +7,26 @@ export interface RegisterRequest {
     username: string;
     password: string;
     email: string;
-    nombre: string;
+    fullName: string;
 }
 
 export interface LoginResponse {
     token: string;
+    refreshToken?: string;
+    type?: string;
     id: number;
     username: string;
     email: string;
-    nombre: string;
-    rol: string;
+    fullName: string;
+    roles: string[];
+    permissions: string[];
 }
 
 export interface User {
     id?: number;
     username: string;
     email: string;
-    nombre: string;
-    rol: string;
+    fullName: string;
+    roles: string[];
+    permissions: string[];
 }

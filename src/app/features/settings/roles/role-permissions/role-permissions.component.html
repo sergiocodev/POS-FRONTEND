@@ -20,6 +20,29 @@
 
     <!-- Permissions -->
     <ng-container *ngIf="!isLoading()">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="search-box">
+                            <i class="bi bi-search"></i>
+                            <input type="text" class="form-control" placeholder="Buscar permisos..."
+                                [(ngModel)]="searchTerm" (ngModelChange)="searchTerm.set($event)">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-select" [(ngModel)]="selectedModule"
+                            (ngModelChange)="selectedModule.set($event)">
+                            <option value="">Todos los módulos</option>
+                            <option *ngFor="let module of modules()" [value]="module">{{ module }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permissions by Module -->
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
@@ -38,32 +61,49 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="permissions-grid">
-                    <div *ngFor="let permission of allPermissions()" class="permission-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" [id]="'perm-' + permission.id"
-                                [checked]="isPermissionSelected(permission.id)"
-                                (change)="togglePermission(permission.id)" />
-                            <label class="form-check-label" [for]="'perm-' + permission.id">
-                                <strong>{{ permission.name }}</strong>
-                                <ng-container *ngIf="permission.description">
-                                    <br />
-                                    <small class="text-muted">{{ permission.description }}</small>
-                                </ng-container>
-                            </label>
+                <!-- Module Groups -->
+                <div *ngFor="let module of getFilteredModules()" class="module-group mb-4">
+                    <div class="module-header d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="bi bi-folder2-open me-2"></i>
+                            {{ module || 'Sin módulo' }}
+                        </h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-sm btn-outline-primary" (click)="selectAllInModule(module)">
+                                <i class="bi bi-check-all"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" (click)="deselectAllInModule(module)">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <div *ngIf="allPermissions().length === 0" class="text-center py-4">
-                        <i class="bi bi-inbox display-4 text-muted"></i>
-                        <p class="text-muted mt-2">No hay permisos disponibles</p>
+                    <div class="permissions-grid">
+                        <div *ngFor="let permission of getFilteredPermissions(module)" class="permission-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [id]="'perm-' + permission.id"
+                                    [checked]="isPermissionSelected(permission.id)"
+                                    (change)="togglePermission(permission.id)" />
+                                <label class="form-check-label" [for]="'perm-' + permission.id">
+                                    <strong>{{ permission.name }}</strong>
+                                    <ng-container *ngIf="permission.description">
+                                        <br />
+                                        <small class="text-muted">{{ permission.description }}</small>
+                                    </ng-container>
+                                </label>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <div *ngIf="getFilteredModules().length === 0" class="text-center py-4">
+                    <i class="bi bi-inbox display-4 text-muted"></i>
+                    <p class="text-muted mt-2">No hay permisos disponibles</p>
                 </div>
 
                 <div class="selected-count mt-3 p-3 bg-light rounded">
                     <i class="bi bi-info-circle me-2"></i>
-                    <strong>{{ selectedPermissions().length }}</strong> de {{ allPermissions().length }} permisos
-                    seleccionados
+                    <strong>{{ selectedPermissions().length }}</strong> permisos seleccionados
                 </div>
             </div>
         </div>

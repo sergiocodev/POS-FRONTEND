@@ -53,9 +53,15 @@ export class RegisterComponent {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
-        const { confirmPassword, ...registerData } = this.registerForm.value;
+        const { confirmPassword, nombre, ...registerData } = this.registerForm.value;
 
-        this.authService.register(registerData).subscribe({
+        // Map 'nombre' to 'fullName' for backend compatibility
+        const payload = {
+            ...registerData,
+            fullName: nombre
+        };
+
+        this.authService.register(payload).subscribe({
             next: () => {
                 this.router.navigate(['/home']);
             },

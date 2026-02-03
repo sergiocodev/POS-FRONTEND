@@ -94,6 +94,12 @@
                                         title="Gestionar permisos">
                                         <i class="bi bi-key"></i>
                                     </button>
+                                    <button class="btn btn-sm" [class.btn-outline-success]="!role.active"
+                                        [class.btn-outline-warning]="role.active" (click)="toggleActive(role)"
+                                        [title]="role.active ? 'Desactivar' : 'Activar'">
+                                        <i class="bi" [class.bi-toggle-off]="!role.active"
+                                            [class.bi-toggle-on]="role.active"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-outline-danger" (click)="deleteRole(role)"
                                         title="Eliminar">
                                         <i class="bi bi-trash"></i>

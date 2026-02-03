@@ -3,7 +3,7 @@
     <!-- Navigation Menu -->
     <nav class="sidebar-nav">
         <ul class="nav-list">
-            <ng-container *ngFor="let item of menuItems">
+            <ng-container *ngFor="let item of menuItems()">
 
                 <!-- Single Link -->
                 <li class="nav-item" *ngIf="!item.children">

@@ -19,7 +19,7 @@
                 <i class="bi bi-bell"></i>
             </button>
             <button class="action-btn theme-btn" (click)="toggleTheme()">
-                <i class="bi" [class.bi-sun]="!isDarkMode()" [class.bi-moon-stars]="isDarkMode()"></i>
+                <i class="bi" [class.bi-sun]="!isDarkMode" [class.bi-moon-stars]="isDarkMode"></i>
             </button>
         </div>
 
@@ -33,7 +33,7 @@
             <!-- Profile Trigger -->
             <div class="profile-trigger" (click)="toggleProfileDropdown($event)"
                 [class.active]="isProfileDropdownOpen()">
-                <span class="user-name">{{ authService.currentUser()?.nombre || 'PAMELA GLORIA TONE RECLIAY' }}</span>
+                <span class="user-name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}</span>
                 <div class="profile-avatar">
                     <div class="avatar-content">{{ userInitials }}</div>
                     <div class="status-indicator"></div>
@@ -47,11 +47,11 @@
                 <div class="menu-header">
                     <div class="header-content">
                         <div class="avatar-wrapper">
-                            <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.nombre || 'User' }}&background=0033cc&color=fff&bold=true&size=112"
+                            <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.fullName || 'User' }}&background=0033cc&color=fff&bold=true&size=112"
                                 alt="Profile" />
                         </div>
                         <div class="user-details">
-                            <h4 class="name">{{ authService.currentUser()?.nombre || 'PAMELA GLORIA TONE RECLIAY' }}
+                            <h4 class="name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}
                             </h4>
                         </div>
                     </div>

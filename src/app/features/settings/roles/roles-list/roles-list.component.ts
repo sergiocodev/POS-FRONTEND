@@ -103,11 +103,19 @@ export class RolesListComponent implements OnInit {
         }
     }
 
-    getPermissionNames(role: RoleResponse): string {
-        return role.permissions?.map(p => p.name).join(', ') || 'Sin permisos';
+    toggleActive(role: RoleResponse) {
+        this.roleService.toggleActive(role.id).subscribe({
+            next: () => {
+                this.loadData();
+            },
+            error: (error) => {
+                console.error('Error toggling role status:', error);
+                alert('Error al cambiar el estado del rol');
+            }
+        });
     }
 
     getPermissionCount(role: RoleResponse): number {
-        return role.permissions?.length || 0;
+        return role.permissionCount || 0;
     }
 }

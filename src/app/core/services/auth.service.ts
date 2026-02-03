@@ -48,6 +48,90 @@ export class AuthService {
         return !!this.getToken();
     }
 
+    // ==================== Permission Checking ====================
+
+    /**
+     * Verifica si el usuario tiene un permiso específico
+     */
+    hasPermission(permission: string): boolean {
+        const user = this.currentUser();
+        if (!user || !user.permissions) {
+            return false;
+        }
+        return user.permissions.includes(permission);
+    }
+
+    /**
+     * Verifica si el usuario tiene al menos uno de los permisos especificados
+     */
+    hasAnyPermission(permissions: string[]): boolean {
+        if (!permissions || permissions.length === 0) {
+            return true; // Si no se requieren permisos, permitir acceso
+        }
+        const user = this.currentUser();
+        if (!user || !user.permissions) {
+            return false;
+        }
+        return permissions.some(permission => user.permissions.includes(permission));
+    }
+
+    /**
+     * Verifica si el usuario tiene todos los permisos especificados
+     */
+    hasAllPermissions(permissions: string[]): boolean {
+        if (!permissions || permissions.length === 0) {
+            return true;
+        }
+        const user = this.currentUser();
+        if (!user || !user.permissions) {
+            return false;
+        }
+        return permissions.every(permission => user.permissions.includes(permission));
+    }
+
+    /**
+     * Obtiene los permisos del usuario actual
+     */
+    getUserPermissions(): string[] {
+        const user = this.currentUser();
+        return user?.permissions || [];
+    }
+
+    /**
+     * Obtiene los roles del usuario actual
+     */
+    getUserRoles(): string[] {
+        const user = this.currentUser();
+        return user?.roles || [];
+    }
+
+    /**
+     * Verifica si el usuario tiene un rol específico
+     */
+    hasRole(role: string): boolean {
+        const user = this.currentUser();
+        if (!user || !user.roles) {
+            return false;
+        }
+        return user.roles.includes(role);
+    }
+
+    /**
+     * Verifica si el usuario tiene al menos uno de los roles especificados
+     */
+    hasAnyRole(roles: string[]): boolean {
+        if (!roles || roles.length === 0) {
+            return true;
+        }
+        const user = this.currentUser();
+        if (!user || !user.roles) {
+            return false;
+        }
+        return roles.some(role => user.roles.includes(role));
+    }
+
+    // ==================== Private Methods ====================
+
     private saveAuthData(response: LoginResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);
 
@@ -55,8 +139,9 @@ export class AuthService {
             id: response.id,
             username: response.username,
             email: response.email,
-            nombre: response.nombre,
-            rol: response.rol
+            fullName: response.fullName,
+            roles: response.roles || [],
+            permissions: response.permissions || []
         };
 
         localStorage.setItem(this.USER_KEY, JSON.stringify(user));

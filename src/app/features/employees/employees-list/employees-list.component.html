@@ -1,0 +1,120 @@
+<div class="employees-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h2 class="page-title">
+                <i class="bi bi-people-fill me-2"></i>
+                Gestión de Personal
+            </h2>
+            <p class="page-description">Administra el personal y empleados de la empresa</p>
+        </div>
+        <button class="btn btn-primary" (click)="createEmployee()">
+            <i class="bi bi-plus-lg me-2"></i>
+            Nuevo Empleado
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section card">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Nombre, apellido, documento o usuario..."
+                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
+                        <option value="">Todos</option>
+                        <option value="true">Activos</option>
+                        <option value="false">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card">
+        <div class="card-body">
+            <div *ngIf="isLoading()" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+
+            <div *ngIf="!isLoading()" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Documento</th>
+                            <th>Usuario Asociado</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="filteredEmployees().length === 0">
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                No se encontraron empleados
+                            </td>
+                        </tr>
+
+                        <tr *ngFor="let employee of filteredEmployees(); trackBy: trackByEmployeeId">
+                            <td>
+                                <span class="badge bg-secondary">{{ employee.id }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">
+                                        {{ employee.firstName.charAt(0).toUpperCase() }}
+                                    </div>
+                                    <strong>{{ getFullName(employee) }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                <code *ngIf="employee.documentNumber">{{ employee.documentNumber }}</code>
+                                <small *ngIf="!employee.documentNumber" class="text-muted">Sin documento</small>
+                            </td>
+                            <td>
+                                <span *ngIf="employee.username" class="badge bg-info">
+                                    <i class="bi bi-person-badge me-1"></i>{{ employee.username }}
+                                </span>
+                                <small *ngIf="!employee.username" class="text-muted">Sin usuario</small>
+                            </td>
+                            <td>
+                                <span *ngIf="employee.active" class="badge bg-success">Activo</span>
+                                <span *ngIf="!employee.active" class="badge bg-secondary">Inactivo</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary" (click)="editEmployee(employee.id)"
+                                        title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning" (click)="toggleEmployeeStatus(employee)"
+                                        [title]="employee.active ? 'Desactivar' : 'Activar'">
+                                        <i class="bi" [class.bi-toggle-on]="employee.active"
+                                            [class.bi-toggle-off]="!employee.active"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" (click)="deleteEmployee(employee)"
+                                        title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

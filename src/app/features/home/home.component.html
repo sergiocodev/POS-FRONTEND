@@ -37,9 +37,10 @@
                                         </div>
                                         <div class="col-7 col-sm-8">
                                             <p class="mb-2 text-muted">{{ authService.currentUser()?.username }}</p>
-                                            <p class="mb-2 text-muted">{{ authService.currentUser()?.nombre }}</p>
+                                            <p class="mb-2 text-muted">{{ authService.currentUser()?.fullName }}</p>
                                             <p class="mb-2 text-muted">{{ authService.currentUser()?.email }}</p>
-                                            <p class="mb-0 text-muted">{{ authService.currentUser()?.rol }}</p>
+                                            <p class="mb-0 text-muted">{{ authService.currentUser()?.roles?.join(', ')
+                                                || 'N/A' }}</p>
                                         </div>
                                     </div>
                                 </div>

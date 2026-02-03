@@ -2,6 +2,7 @@ import { Component, inject, signal, Output, EventEmitter, Input, HostListener, O
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 import { EstablishmentService } from '../../services/establishment.service';
 import { EstablishmentStateService } from '../../services/establishment-state.service';
 import { EstablishmentResponse } from '../../models/maintenance.model';
@@ -32,11 +33,15 @@ export class HeaderComponent implements OnInit {
     @Input() collapsed = false;
     @Output() toggleSidebar = new EventEmitter<void>();
     authService = inject(AuthService);
+    themeService = inject(ThemeService);
     private establishmentService = inject(EstablishmentService);
     private establishmentStateService = inject(EstablishmentStateService);
-    isDarkMode = signal(false);
     currentLanguage = signal('Español');
     isProfileDropdownOpen = signal(false);
+
+    get isDarkMode() {
+        return this.themeService.isDarkMode();
+    }
 
     // Establishments loaded from API
     availableServiceCenters = signal<EstablishmentResponse[]>([]);
@@ -96,14 +101,13 @@ export class HeaderComponent implements OnInit {
     }
 
     toggleTheme() {
-        this.isDarkMode.update(v => !v);
-        document.body.classList.toggle('dark-theme', this.isDarkMode());
+        this.themeService.toggleTheme();
     }
 
     get userInitials(): string {
         const user = this.authService.currentUser();
-        if (!user || !user.nombre) return 'U';
-        const names = user.nombre.split(' ');
+        if (!user || !user.fullName) return 'U';
+        const names = user.fullName.split(' ');
         if (names.length >= 2) {
             return (names[0][0] + names[1][0]).toUpperCase();
         }

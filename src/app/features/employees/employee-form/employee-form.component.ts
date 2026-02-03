@@ -1,10 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EmployeeService } from '../../../core/services/employee.service';
-import { UserService, User } from '../../../core/services/user.service';
-import { forkJoin } from 'rxjs';
+import { EmployeeRequest } from '../../../core/models/employee.model';
+import { UserService } from '../../../core/services/user.service';
+import { UserResponse } from '../../../core/models/user.model';
 
 @Component({
     selector: 'app-employee-form',
@@ -20,89 +21,108 @@ export class EmployeeFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
-    employeeForm: FormGroup;
-    isEditMode = signal<boolean>(false);
+    employeeForm!: FormGroup;
+    isEditMode = signal(false);
     employeeId = signal<number | null>(null);
-    isLoading = signal<boolean>(false);
-    errorMessage = signal<string>('');
+    isLoading = signal(false);
+    isSaving = signal(false);
+    users = signal<UserResponse[]>([]);
 
-    users = signal<User[]>([]);
+    ngOnInit() {
+        this.initForm();
+        this.loadUsers();
+        this.checkEditMode();
+    }
 
-    constructor() {
+    initForm() {
         this.employeeForm = this.fb.group({
-            firstName: ['', [Validators.required, Validators.maxLength(100)]],
-            lastName: ['', [Validators.maxLength(100)]],
-            documentNumber: ['', [Validators.maxLength(20)]],
-            userId: [null],
-            active: [true]
+            firstName: ['', [Validators.required, Validators.minLength(2)]],
+            lastName: [''],
+            documentNumber: ['', [Validators.pattern(/^[0-9]{8,11}$/)]],
+            userId: [null]
         });
     }
 
-    ngOnInit(): void {
-        this.loadInitialData();
-    }
-
-    loadInitialData(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        this.isLoading.set(true);
-
-        const requests: any = {
-            users: this.userService.getAll()
-        };
-
-        if (id) {
-            this.isEditMode.set(true);
-            this.employeeId.set(+id);
-            requests.employee = this.employeeService.getById(+id);
-        }
-
-        forkJoin(requests).subscribe({
-            next: (data: any) => {
-                this.users.set(data.users);
-                if (data.employee) {
-                    // Find the userId if username matches
-                    const associatedUser = data.users.find((u: any) => u.username === data.employee.username);
-
-                    this.employeeForm.patchValue({
-                        firstName: data.employee.firstName,
-                        lastName: data.employee.lastName,
-                        documentNumber: data.employee.documentNumber,
-                        userId: associatedUser ? associatedUser.id : null,
-                        active: data.employee.active
-                    });
-                }
-                this.isLoading.set(false);
+    loadUsers() {
+        this.userService.getAll().subscribe({
+            next: (users) => {
+                this.users.set(users);
             },
-            error: (err) => {
-                this.errorMessage.set('Error al cargar datos. Intenta de nuevo.');
-                this.isLoading.set(false);
+            error: (error) => {
+                console.error('Error loading users:', error);
             }
         });
     }
 
-    onSubmit(): void {
+    checkEditMode() {
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.isEditMode.set(true);
+            this.employeeId.set(+id);
+            this.loadEmployee(+id);
+        }
+    }
+
+    loadEmployee(id: number) {
+        this.isLoading.set(true);
+        this.employeeService.getById(id).subscribe({
+            next: (employee) => {
+                this.employeeForm.patchValue({
+                    firstName: employee.firstName,
+                    lastName: employee.lastName,
+                    documentNumber: employee.documentNumber,
+                    userId: null // TODO: Add userId to EmployeeResponse if available
+                });
+                this.isLoading.set(false);
+            },
+            error: (error) => {
+                console.error('Error loading employee:', error);
+                alert('Error al cargar el empleado');
+                this.router.navigate(['/employees']);
+            }
+        });
+    }
+
+    onSubmit() {
         if (this.employeeForm.invalid) {
             this.employeeForm.markAllAsTouched();
             return;
         }
 
-        this.isLoading.set(true);
-        const employeeData = this.employeeForm.value;
+        this.isSaving.set(true);
 
-        const request$ = this.isEditMode()
-            ? this.employeeService.update(this.employeeId()!, employeeData)
-            : this.employeeService.create(employeeData);
+        const formValue = this.employeeForm.value;
+        const request: EmployeeRequest = {
+            firstName: formValue.firstName,
+            lastName: formValue.lastName || undefined,
+            documentNumber: formValue.documentNumber || undefined,
+            userId: formValue.userId || undefined,
+            active: true // Always set to active when creating/updating
+        };
 
-        request$.subscribe({
-            next: () => this.router.navigate(['/employees']),
-            error: (err) => {
-                this.errorMessage.set('Error al guardar el empleado. Verifica los datos.');
-                this.isLoading.set(false);
+        const operation = this.isEditMode()
+            ? this.employeeService.update(this.employeeId()!, request)
+            : this.employeeService.create(request);
+
+        operation.subscribe({
+            next: () => {
+                this.isSaving.set(false);
+                alert(`Empleado ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente`);
+                this.router.navigate(['/employees']);
+            },
+            error: (error) => {
+                console.error('Error saving employee:', error);
+                this.isSaving.set(false);
+                alert('Error al guardar el empleado');
             }
         });
     }
 
-    onCancel(): void {
+    cancel() {
         this.router.navigate(['/employees']);
+    }
+
+    get f() {
+        return this.employeeForm.controls;
     }
 }

@@ -1,0 +1,86 @@
+<div class="establishment-form-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h2 class="page-title">
+                <i class="bi bi-building me-2"></i>
+                {{ isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento' }}
+            </h2>
+            <p class="page-description">
+                {{ isEditMode() ? 'Modifica los datos del establecimiento' : 'Completa el formulario para crear un nuevo
+                establecimiento' }}
+            </p>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <div *ngIf="!isLoading()" class="card">
+        <div class="card-body">
+            <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()">
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">
+                            Nombre del Establecimiento <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="name" formControlName="name"
+                            [class.is-invalid]="f['name'].invalid && f['name'].touched"
+                            placeholder="Ej: Sede Principal, Sucursal Norte">
+                        <div *ngIf="f['name'].invalid && f['name'].touched" class="invalid-feedback">
+                            <div *ngIf="f['name'].errors?.['required']">
+                                El nombre es requerido
+                            </div>
+                            <div *ngIf="f['name'].errors?.['minlength']">
+                                El nombre debe tener al menos 3 caracteres
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code SUNAT -->
+                    <div class="col-md-6">
+                        <label for="codeSunat" class="form-label">
+                            Código SUNAT
+                        </label>
+                        <input type="text" class="form-control" id="codeSunat" formControlName="codeSunat"
+                            [class.is-invalid]="f['codeSunat'].invalid && f['codeSunat'].touched" placeholder="0000"
+                            maxlength="10">
+                        <small class="form-text text-muted">
+                            Código de establecimiento según SUNAT (por defecto: 0000)
+                        </small>
+                        <div *ngIf="f['codeSunat'].invalid && f['codeSunat'].touched" class="invalid-feedback">
+                            <div *ngIf="f['codeSunat'].errors?.['maxlength']">
+                                El código no puede exceder 10 caracteres
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-12">
+                        <label for="address" class="form-label">
+                            Dirección
+                        </label>
+                        <textarea class="form-control" id="address" formControlName="address" rows="2"
+                            placeholder="Dirección completa del establecimiento"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <i class="bi bi-check-lg me-2"></i>
+                        {{ isEditMode() ? 'Actualizar' : 'Crear' }} Establecimiento
+                    </button>
+                    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSaving()">
+                        <i class="bi bi-x-lg me-2"></i>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
