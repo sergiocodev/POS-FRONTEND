@@ -1,0 +1,121 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 col-lg-8 mx-auto">
+            <div class="d-flex align-items-center mb-4">
+                <button class="btn btn-link link-dark p-0 me-3" routerLink="/inventory">
+                    <i class="bi bi-arrow-left fs-4"></i>
+                </button>
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Ajuste de Inventario</h2>
+                    <p class="text-muted mb-0">Ajustar stock manualmente por pérdida, robo o error</p>
+                </div>
+            </div>
+
+            <div *ngIf="isLoading()" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando datos del producto...</p>
+            </div>
+
+            <div *ngIf="!isLoading() && inventoryItem()" class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-header bg-light border-0 p-4">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="fw-bold mb-1 text-primary">{{ inventoryItem()?.productName }}</h5>
+                            <div class="d-flex gap-3">
+                                <span class="text-muted small">
+                                    <i class="bi bi-tag-fill me-1"></i> Lote: <strong>{{ inventoryItem()?.lotCode
+                                        }}</strong>
+                                </span>
+                                <span class="text-muted small">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> Sede: <strong>{{
+                                        inventoryItem()?.establishmentName }}</strong>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span class="text-muted small d-block">Stock Actual</span>
+                            <span class="badge rounded-pill fs-5 px-3"
+                                [ngClass]="inventoryItem()!.quantity > 10 ? 'bg-success' : 'bg-danger'">
+                                {{ inventoryItem()?.quantity }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <form [formGroup]="adjustmentForm" (ngSubmit)="onSubmit()">
+                        <div class="row g-4">
+                            <!-- Tipo de Ajuste -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Tipo de Movimiento</label>
+                                <select class="form-select border-0 bg-light py-2 shadow-none"
+                                    formControlName="movementType">
+                                    <option *ngFor="let type of movementTypes" [value]="type.value">{{ type.label }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Nueva Cantidad -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Nueva Cantidad en Stock</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control border-0 bg-light py-2 shadow-none"
+                                        formControlName="quantity" placeholder="0">
+                                    <span class="input-group-text border-0 bg-light text-muted">Uds.</span>
+                                </div>
+                                <div *ngIf="adjustmentForm.get('quantity')?.invalid && adjustmentForm.get('quantity')?.touched"
+                                    class="text-danger small mt-1">
+                                    La cantidad debe ser mayor o igual a 0.
+                                </div>
+                            </div>
+
+                            <!-- Precios (Lectura/Opcional) -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Precio Costo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light text-muted">S/</span>
+                                    <input type="number" class="form-control border-0 bg-light py-2 shadow-none"
+                                        formControlName="costPrice">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Precio Venta</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-0 bg-light text-muted">S/</span>
+                                    <input type="number" class="form-control border-0 bg-light py-2 shadow-none"
+                                        formControlName="salesPrice">
+                                </div>
+                            </div>
+
+                            <!-- Notas -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Notas / Motivo del Ajuste</label>
+                                <textarea class="form-control border-0 bg-light py-2 shadow-none" rows="3"
+                                    formControlName="notes" placeholder="Explique el motivo del ajuste..."></textarea>
+                                <div *ngIf="adjustmentForm.get('notes')?.invalid && adjustmentForm.get('notes')?.touched"
+                                    class="text-danger small mt-1">
+                                    Máximo 255 caracteres.
+                                </div>
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="col-12 mt-5">
+                                <div class="d-flex gap-3 justify-content-end">
+                                    <button type="button" class="btn btn-light px-4 py-2" routerLink="/inventory">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-5 py-2"
+                                        [disabled]="adjustmentForm.invalid || isSaving()">
+                                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"
+                                            role="status"></span>
+                                        {{ isSaving() ? 'Procesando...' : 'Aplicar Ajuste' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

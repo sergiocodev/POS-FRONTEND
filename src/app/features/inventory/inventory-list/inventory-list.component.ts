@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { InventoryService } from '../../../core/services/inventory.service';
-import { SaleService } from '../../../core/services/sale.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { InventoryResponse } from '../../../core/models/inventory.model';
-import { EstablishmentResponse } from '../../../core/models/sale.model';
 
 @Component({
     selector: 'app-inventory-list',
@@ -15,13 +15,14 @@ import { EstablishmentResponse } from '../../../core/models/sale.model';
 })
 export class InventoryListComponent implements OnInit {
     private inventoryService = inject(InventoryService);
-    private saleService = inject(SaleService);
+    private establishmentStateService = inject(EstablishmentStateService);
+    private router = inject(Router);
 
     inventory = signal<InventoryResponse[]>([]);
-    establishments = signal<EstablishmentResponse[]>([]);
-    selectedEstablishmentId = signal<number | null>(null);
-    searchTerm = signal<string>('');
     isLoading = signal<boolean>(false);
+    searchTerm = signal<string>('');
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     filteredInventory = computed(() => {
         let result = this.inventory();
@@ -43,22 +44,27 @@ export class InventoryListComponent implements OnInit {
         return result;
     });
 
-    ngOnInit(): void {
-        this.loadInitialData();
+    constructor() {
+        // Automatically reload when establishment changes
+        effect(() => {
+            if (this.selectedEstablishmentId()) {
+                this.loadInventory();
+            }
+        });
     }
 
-    loadInitialData(): void {
-        this.isLoading.set(true);
-        this.saleService.getEstablishments().subscribe(ests => {
-            this.establishments.set(ests);
-        });
-
-        this.loadInventory();
+    ngOnInit(): void {
+        if (this.selectedEstablishmentId()) {
+            this.loadInventory();
+        }
     }
 
     loadInventory(): void {
+        const estId = this.selectedEstablishmentId();
+        if (!estId) return;
+
         this.isLoading.set(true);
-        this.inventoryService.getAllStock().subscribe({
+        this.inventoryService.getStockByEstablishment(estId).subscribe({
             next: (data) => {
                 this.inventory.set(data);
                 this.isLoading.set(false);
@@ -68,6 +74,10 @@ export class InventoryListComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    onAdjust(item: InventoryResponse): void {
+        this.router.navigate(['/inventory/adjust', item.id]);
     }
 
     onExport(): void {

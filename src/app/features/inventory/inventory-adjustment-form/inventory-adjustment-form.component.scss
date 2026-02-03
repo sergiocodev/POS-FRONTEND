@@ -1,0 +1,27 @@
+:host {
+    display: block;
+}
+
+.card {
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.form-select,
+.form-control {
+    &:focus {
+        background-color: #f8f9fa !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1) !important;
+    }
+}
+
+.input-group-text {
+    border: none;
+}
+
+textarea {
+    resize: none;
+}

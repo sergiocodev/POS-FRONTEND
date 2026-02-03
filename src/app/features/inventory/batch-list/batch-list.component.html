@@ -1,0 +1,99 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Lotes y Vencimientos</h2>
+                    <p class="text-muted mb-0">Seguimiento de lotes de productos y fechas de caducidad</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" (click)="loadLots()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
+                    </button>
+                    <button class="btn btn-primary" routerLink="/inventory/batches/new">
+                        <i class="bi bi-plus-lg me-1"></i> Nuevo Lote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold text-muted small">BUSCAR POR PRODUCTO O LOTE</label>
+                    <div class="input-group bg-light rounded-3">
+                        <span class="input-group-text bg-transparent border-0 pe-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control bg-transparent border-0 py-2 shadow-none"
+                            placeholder="Nombre del producto o código de lote..." [ngModel]="searchTerm()"
+                            (ngModelChange)="searchTerm.set($event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3">Producto</th>
+                            <th class="py-3">Código de Lote</th>
+                            <th class="py-3">Fecha Vencimiento</th>
+                            <th class="py-3 text-center">Estado</th>
+                            <th class="py-3 text-center">Días Restantes</th>
+                            <th class="py-3 text-center pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted mb-0">Cargando lotes...</p>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!isLoading() && filteredLots().length === 0">
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted mb-0">No se encontraron lotes registrados.</p>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let lot of filteredLots()">
+                            <td class="px-4 fw-bold text-primary">{{ lot.productName }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ lot.lotCode }}</span>
+                            </td>
+                            <td>
+                                {{ lot.expiryDate | date:'dd/MM/yyyy' }}
+                            </td>
+                            <td class="text-center">
+                                @let status = getExpiryStatus(lot.expiryDate);
+                                <span class="badge rounded-pill px-3" [ngClass]="status.class"
+                                    [style.color]="status.color">
+                                    {{ status.text }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @let days = getDaysRemaining(lot.expiryDate);
+                                <span
+                                    [ngClass]="days < 30 ? 'text-danger fw-bold' : (days < 90 ? 'text-warning fw-bold' : 'text-muted')">
+                                    {{ days }} días
+                                </span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <!-- Actions can be added here if needed -->
+                                <button class="btn btn-sm btn-outline-info" title="Ver Movimientos">
+                                    <i class="bi bi-list-ul"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

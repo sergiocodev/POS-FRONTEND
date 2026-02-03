@@ -48,6 +48,10 @@ export class InventoryService {
     }
 
     // Product Lots
+    getAllLots(): Observable<ProductLotResponse[]> {
+        return this.http.get<ProductLotResponse[]>(this.lotsUrl);
+    }
+
     getLotsByProduct(productId: number): Observable<ProductLotResponse[]> {
         return this.http.get<ProductLotResponse[]>(`${this.lotsUrl}/product/${productId}`);
     }
@@ -56,9 +60,17 @@ export class InventoryService {
         return this.http.post<ProductLotResponse>(this.lotsUrl, request);
     }
 
+    deleteLot(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.lotsUrl}/${id}`);
+    }
+
     // Stock Movements
     getMovements(): Observable<StockMovementResponse[]> {
         return this.http.get<StockMovementResponse[]>(this.movementsUrl);
+    }
+
+    getMovementsByEstablishment(establishmentId: number): Observable<StockMovementResponse[]> {
+        return this.http.get<StockMovementResponse[]>(`${this.movementsUrl}/establishment/${establishmentId}`);
     }
 
     createMovement(request: StockMovementRequest): Observable<StockMovementResponse> {

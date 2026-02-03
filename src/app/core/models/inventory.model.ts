@@ -38,6 +38,8 @@ export interface InventoryRequest {
     quantity: number;
     costPrice?: number;
     salesPrice?: number;
+    movementType?: string; // IN, OUT, ADJUSTMENT, LOSS, THEFT, RETURN
+    notes?: string;
 }
 
 export interface InventoryResponse {

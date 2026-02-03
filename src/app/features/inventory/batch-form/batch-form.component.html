@@ -1,0 +1,75 @@
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12 col-lg-6 mx-auto">
+            <div class="d-flex align-items-center mb-4">
+                <button class="btn btn-link link-dark p-0 me-3" routerLink="/inventory/batches">
+                    <i class="bi bi-arrow-left fs-4"></i>
+                </button>
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Registrar Nuevo Lote</h2>
+                    <p class="text-muted mb-0">Asignar un lote y fecha de vencimiento a un producto</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="card-body p-4">
+                    <form [formGroup]="batchForm" (ngSubmit)="onSubmit()">
+                        <div class="row g-4">
+                            <!-- Producto -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Producto</label>
+                                <select class="form-select border-0 bg-light py-2 shadow-none"
+                                    formControlName="productId">
+                                    <option [value]="null" disabled>Seleccione un producto...</option>
+                                    <option *ngFor="let p of products()" [value]="p.id">{{ p.name }}</option>
+                                </select>
+                                <div *ngIf="batchForm.get('productId')?.invalid && batchForm.get('productId')?.touched"
+                                    class="text-danger small mt-1">
+                                    Debe seleccionar un producto.
+                                </div>
+                            </div>
+
+                            <!-- Código de Lote -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Código de Lote</label>
+                                <input type="text" class="form-control border-0 bg-light py-2 shadow-none"
+                                    formControlName="lotCode" placeholder="Ej: LOTE-2024-001">
+                                <div *ngIf="batchForm.get('lotCode')?.invalid && batchForm.get('lotCode')?.touched"
+                                    class="text-danger small mt-1">
+                                    El código de lote es requerido.
+                                </div>
+                            </div>
+
+                            <!-- Fecha de Vencimiento -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Fecha de Vencimiento</label>
+                                <input type="date" class="form-control border-0 bg-light py-2 shadow-none"
+                                    formControlName="expiryDate">
+                                <div *ngIf="batchForm.get('expiryDate')?.invalid && batchForm.get('expiryDate')?.touched"
+                                    class="text-danger small mt-1">
+                                    La fecha de vencimiento es requerida.
+                                </div>
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="col-12 mt-5">
+                                <div class="d-flex gap-3 justify-content-end">
+                                    <button type="button" class="btn btn-light px-4 py-2"
+                                        routerLink="/inventory/batches">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-5 py-2"
+                                        [disabled]="batchForm.invalid || isSaving()">
+                                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"
+                                            role="status"></span>
+                                        {{ isSaving() ? 'Guardando...' : 'Registrar Lote' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

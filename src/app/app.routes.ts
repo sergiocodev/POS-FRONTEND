@@ -221,6 +221,26 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
             },
             {
+                path: 'inventory',
+                loadComponent: () => import('./features/inventory/inventory-list/inventory-list.component').then(m => m.InventoryListComponent)
+            },
+            {
+                path: 'inventory/adjust/:id',
+                loadComponent: () => import('./features/inventory/inventory-adjustment-form/inventory-adjustment-form.component').then(m => m.InventoryAdjustmentFormComponent)
+            },
+            {
+                path: 'inventory/batches',
+                loadComponent: () => import('./features/inventory/batch-list/batch-list.component').then(m => m.BatchListComponent)
+            },
+            {
+                path: 'inventory/batches/new',
+                loadComponent: () => import('./features/inventory/batch-form/batch-form.component').then(m => m.BatchFormComponent)
+            },
+            {
+                path: 'inventory/movements',
+                loadComponent: () => import('./features/inventory/movement-list/movement-list.component').then(m => m.MovementListComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'home',
                 pathMatch: 'full'

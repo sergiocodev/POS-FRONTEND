@@ -35,24 +35,11 @@
     <div class="card shadow-sm border-0 rounded-3 mb-4">
         <div class="card-body p-4">
             <div class="row g-3">
-                <div class="col-12 col-md-6 col-lg-4">
-                    <label class="form-label fw-bold text-muted small">FILTRAR POR SEDE</label>
-                    <select class="form-select border-0 bg-light shadow-none py-2 px-3"
-                        [ngModel]="selectedEstablishmentId()"
-                        (ngModelChange)="selectedEstablishmentId.set($event ? +$event : null)">
-                        <option [value]="null">Todas las Sedes</option>
-                        <option *ngFor="let est of establishments()" [value]="est.id">{{ est.name }}</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-6 col-lg-8">
+                <div class="col-12">
                     <label class="form-label fw-bold text-muted small">BUSCAR PRODUCTO O LOTE</label>
                     <div class="input-group bg-light rounded-3">
                         <span class="input-group-text bg-transparent border-0 pe-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-search text-muted" viewBox="0 0 16 16">
-                                <path
-                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                            </svg>
+                            <i class="bi bi-search text-muted"></i>
                         </span>
                         <input type="text" class="form-control bg-transparent border-0 py-2 shadow-none"
                             placeholder="Escriba el nombre del producto o código de lote..." [ngModel]="searchTerm()"
@@ -74,19 +61,20 @@
                             <th class="py-3">Lote</th>
                             <th class="py-3 text-center">Stock Actual</th>
                             <th class="py-3 text-end">P. Costo</th>
-                            <th class="py-3 text-end pe-4">P. Venta</th>
+                            <th class="py-3 text-end">P. Venta</th>
+                            <th class="py-3 text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngIf="isLoading()">
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="spinner-border text-primary" role="status"></div>
                                 <p class="mt-2 text-muted mb-0">Cargando inventario...</p>
                             </td>
                         </tr>
                         <tr *ngIf="!isLoading() && filteredInventory().length === 0">
-                            <td colspan="6" class="text-center py-5">
-                                <p class="text-muted mb-0">No se encontraron existencias con los filtros aplicados.</p>
+                            <td colspan="7" class="text-center py-5">
+                                <p class="text-muted mb-0">No se encontraron existencias en esta sede.</p>
                             </td>
                         </tr>
                         <tr *ngFor="let item of filteredInventory()">
@@ -109,8 +97,14 @@
                             <td class="text-end fw-medium text-muted">
                                 {{ item.costPrice | currency:'PEN':'S/ ' }}
                             </td>
-                            <td class="text-end pe-4 fw-bold text-primary">
+                            <td class="text-end fw-bold text-primary">
                                 {{ item.salesPrice | currency:'PEN':'S/ ' }}
+                            </td>
+                            <td class="text-center pe-4">
+                                <button class="btn btn-sm btn-outline-warning" (click)="onAdjust(item)"
+                                    title="Ajuste Manual">
+                                    <i class="bi bi-gear-fill"></i> Ajustar
+                                </button>
                             </td>
                         </tr>
                     </tbody>
