@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../../core/services/report.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { PurchaseReport } from '../../../core/models/report.model';
 
 @Component({
@@ -13,13 +14,24 @@ import { PurchaseReport } from '../../../core/models/report.model';
 })
 export class PurchaseReportComponent implements OnInit {
     private reportService = inject(ReportService);
+    private establishmentStateService = inject(EstablishmentStateService);
 
     purchases = signal<PurchaseReport[]>([]);
     isLoading = signal<boolean>(false);
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // Default to current month based logic 
     startDate = '';
     endDate = '';
+
+    constructor() {
+        // Automatically reload when establishment changes
+        effect(() => {
+            if (this.selectedEstablishmentId()) {
+                this.loadReport();
+            }
+        });
+    }
 
     ngOnInit(): void {
         const today = new Date();
@@ -28,12 +40,16 @@ export class PurchaseReportComponent implements OnInit {
         this.startDate = firstDay.toISOString().split('T')[0];
         this.endDate = today.toISOString().split('T')[0];
 
-        this.loadReport();
+        // Initial load only if effect hasn't triggered it
+        if (this.selectedEstablishmentId()) {
+            this.loadReport();
+        }
     }
 
     loadReport(): void {
         this.isLoading.set(true);
-        this.reportService.getPurchaseReport(this.startDate, this.endDate).subscribe({
+        const establishmentId = this.selectedEstablishmentId() || undefined;
+        this.reportService.getPurchaseReport(this.startDate, this.endDate, establishmentId).subscribe({
             next: (data) => {
                 this.purchases.set(data);
                 this.isLoading.set(false);

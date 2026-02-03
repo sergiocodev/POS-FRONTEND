@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../../core/services/report.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { InventoryReport } from '../../../core/models/report.model';
 
 @Component({
@@ -13,17 +14,30 @@ import { InventoryReport } from '../../../core/models/report.model';
 })
 export class InventoryReportComponent implements OnInit {
     private reportService = inject(ReportService);
+    private establishmentStateService = inject(EstablishmentStateService);
 
     reportData = signal<InventoryReport[]>([]);
     isLoading = signal<boolean>(false);
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
     activeTab = signal<'GENERAL' | 'LOW_STOCK' | 'EXPIRING'>('GENERAL');
 
     // Filters
     lowStockThreshold = signal<number>(10);
     expiringDays = signal<number>(30);
 
+    constructor() {
+        // Automatically reload when establishment changes
+        effect(() => {
+            if (this.selectedEstablishmentId()) {
+                this.loadReport();
+            }
+        });
+    }
+
     ngOnInit(): void {
-        this.loadReport();
+        if (this.selectedEstablishmentId()) {
+            this.loadReport();
+        }
     }
 
     setTab(tab: 'GENERAL' | 'LOW_STOCK' | 'EXPIRING'): void {
@@ -34,16 +48,17 @@ export class InventoryReportComponent implements OnInit {
     loadReport(): void {
         this.isLoading.set(true);
         let request;
+        const establishmentId = this.selectedEstablishmentId() || undefined;
 
         switch (this.activeTab()) {
             case 'LOW_STOCK':
-                request = this.reportService.getLowStockReport(this.lowStockThreshold());
+                request = this.reportService.getLowStockReport(this.lowStockThreshold(), establishmentId);
                 break;
             case 'EXPIRING':
-                request = this.reportService.getExpiringReport(this.expiringDays());
+                request = this.reportService.getExpiringReport(this.expiringDays(), establishmentId);
                 break;
             default:
-                request = this.reportService.getInventoryReport();
+                request = this.reportService.getInventoryReport(establishmentId);
                 break;
         }
 

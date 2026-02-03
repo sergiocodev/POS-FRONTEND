@@ -159,6 +159,67 @@ export const routes: Routes = [
                 path: 'settings/establishments/:id/edit',
                 loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
             },
+            // Pharmacy Routes
+            {
+                path: 'pharmacy/active-ingredients',
+                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients-list/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent)
+            },
+            {
+                path: 'pharmacy/active-ingredients/new',
+                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredient-form/active-ingredient-form.component').then(m => m.ActiveIngredientFormComponent)
+            },
+            {
+                path: 'pharmacy/active-ingredients/:id/edit',
+                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredient-form/active-ingredient-form.component').then(m => m.ActiveIngredientFormComponent)
+            },
+            {
+                path: 'pharmacy/labs',
+                loadComponent: () => import('./features/pharmacy/laboratories/laboratories-list/laboratories-list.component').then(m => m.LaboratoriesListComponent)
+            },
+            {
+                path: 'pharmacy/labs/new',
+                loadComponent: () => import('./features/pharmacy/laboratories/laboratory-form/laboratory-form.component').then(m => m.LaboratoryFormComponent)
+            },
+            {
+                path: 'pharmacy/labs/:id/edit',
+                loadComponent: () => import('./features/pharmacy/laboratories/laboratory-form/laboratory-form.component').then(m => m.LaboratoryFormComponent)
+            },
+            {
+                path: 'pharmacy/brands',
+                loadComponent: () => import('./features/pharmacy/brands/brands-list/brands-list.component').then(m => m.BrandsListComponent)
+            },
+            {
+                path: 'pharmacy/brands/new',
+                loadComponent: () => import('./features/pharmacy/brands/brand-form/brand-form.component').then(m => m.BrandFormComponent)
+            },
+            {
+                path: 'pharmacy/brands/:id/edit',
+                loadComponent: () => import('./features/pharmacy/brands/brand-form/brand-form.component').then(m => m.BrandFormComponent)
+            },
+            {
+                path: 'pharmacy/categories',
+                loadComponent: () => import('./features/pharmacy/categories/categories-list/categories-list.component').then(m => m.CategoriesListComponent)
+            },
+            {
+                path: 'pharmacy/categories/new',
+                loadComponent: () => import('./features/pharmacy/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
+            },
+            {
+                path: 'pharmacy/categories/:id/edit',
+                loadComponent: () => import('./features/pharmacy/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
+            },
+            {
+                path: 'pharmacy/presentations',
+                loadComponent: () => import('./features/pharmacy/presentations/presentations-list/presentations-list.component').then(m => m.PresentationsListComponent)
+            },
+            {
+                path: 'pharmacy/presentations/new',
+                loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
+            },
+            {
+                path: 'pharmacy/presentations/:id/edit',
+                loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
+            },
             {
                 path: '',
                 redirectTo: 'home',

@@ -1,0 +1,35 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+}
+
+.table {
+    margin-bottom: 0;
+
+    th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        color: var(--bs-secondary);
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+.btn-group-sm {
+    .btn {
+        padding: 0.25rem 0.5rem;
+    }
+}

@@ -11,40 +11,59 @@ export class ReportService {
     private apiUrl = '/api/v1/reports';
 
     // Inventory Reports
-    getInventoryReport(): Observable<InventoryReport[]> {
-        return this.http.get<InventoryReport[]>(`${this.apiUrl}/inventory`);
+    getInventoryReport(establishmentId?: number): Observable<InventoryReport[]> {
+        let params = new HttpParams();
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
+        return this.http.get<InventoryReport[]>(`${this.apiUrl}/inventory`, { params });
     }
 
-    getLowStockReport(threshold: number = 10): Observable<InventoryReport[]> {
-        const params = new HttpParams().set('threshold', threshold.toString());
+    getLowStockReport(threshold: number = 10, establishmentId?: number): Observable<InventoryReport[]> {
+        let params = new HttpParams().set('threshold', threshold.toString());
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
         return this.http.get<InventoryReport[]>(`${this.apiUrl}/inventory/low-stock`, { params });
     }
 
-    getExpiringReport(days: number = 30): Observable<InventoryReport[]> {
-        const params = new HttpParams().set('days', days.toString());
+    getExpiringReport(days: number = 30, establishmentId?: number): Observable<InventoryReport[]> {
+        let params = new HttpParams().set('days', days.toString());
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
         return this.http.get<InventoryReport[]>(`${this.apiUrl}/inventory/expiring`, { params });
     }
 
     // Sales Reports
-    getSalesReport(start: string, end: string): Observable<SalesReport[]> {
-        const params = new HttpParams()
+    getSalesReport(start: string, end: string, establishmentId?: number): Observable<SalesReport[]> {
+        let params = new HttpParams()
             .set('start', start)
             .set('end', end);
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
         return this.http.get<SalesReport[]>(`${this.apiUrl}/sales`, { params });
     }
 
-    getSalesSummary(start: string, end: string): Observable<SalesSummary> {
-        const params = new HttpParams()
+    getSalesSummary(start: string, end: string, establishmentId?: number): Observable<SalesSummary> {
+        let params = new HttpParams()
             .set('start', start)
             .set('end', end);
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
         return this.http.get<SalesSummary>(`${this.apiUrl}/sales/summary`, { params });
     }
 
     // Purchase Reports
-    getPurchaseReport(start: string, end: string): Observable<PurchaseReport[]> {
-        const params = new HttpParams()
+    getPurchaseReport(start: string, end: string, establishmentId?: number): Observable<PurchaseReport[]> {
+        let params = new HttpParams()
             .set('start', start)
             .set('end', end);
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
         return this.http.get<PurchaseReport[]>(`${this.apiUrl}/purchases`, { params });
     }
 }

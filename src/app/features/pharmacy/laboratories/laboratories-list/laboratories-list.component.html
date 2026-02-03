@@ -1,0 +1,93 @@
+<div class="container-fluid">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-building me-2"></i>
+            Laboratorios
+        </h1>
+        <button class="btn btn-primary" (click)="createLaboratory()">
+            <i class="bi bi-plus-circle me-2"></i>
+            Nuevo Laboratorio
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" class="form-control" placeholder="Buscar por nombre..." [value]="searchTerm()"
+                        (input)="onSearchChange($any($event.target).value)">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
+                        <option value="">Todos</option>
+                        <option value="true">Activos</option>
+                        <option value="false">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            @if (isLoading()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+            } @else if (filteredLaboratories().length === 0) {
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <p class="text-muted mt-3">No se encontraron laboratorios</p>
+            </div>
+            } @else {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (laboratory of filteredLaboratories(); track trackByLaboratoryId($index, laboratory)) {
+                        <tr>
+                            <td>{{ laboratory.id }}</td>
+                            <td>{{ laboratory.name }}</td>
+                            <td>
+                                <span class="badge" [class.bg-success]="laboratory.active"
+                                    [class.bg-danger]="!laboratory.active">
+                                    {{ laboratory.active ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" (click)="editLaboratory(laboratory.id)"
+                                        title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning" (click)="toggleLaboratoryStatus(laboratory)"
+                                        title="{{ laboratory.active ? 'Desactivar' : 'Activar' }}">
+                                        <i class="bi" [class.bi-toggle-on]="laboratory.active"
+                                            [class.bi-toggle-off]="!laboratory.active"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" (click)="deleteLaboratory(laboratory)"
+                                        title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            }
+        </div>
+    </div>
+</div>
