@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,11 +16,14 @@ export class RolesListComponent implements OnInit {
     private roleService = inject(RoleService);
     private router = inject(Router);
 
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+
     roles = signal<RoleResponse[]>([]);
     filteredRoles = signal<RoleResponse[]>([]);
     isLoading = signal(false);
 
-    
+
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +49,7 @@ export class RolesListComponent implements OnInit {
     applyFilters() {
         let filtered = this.roles();
 
-        
+
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(role =>
@@ -55,7 +58,7 @@ export class RolesListComponent implements OnInit {
             );
         }
 
-        
+
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(role => role.active === this.selectedStatusFilter());
         }
@@ -78,11 +81,11 @@ export class RolesListComponent implements OnInit {
     }
 
     createRole() {
-        this.router.navigate(['/settings/roles/new']);
+        this.create.emit();
     }
 
     editRole(id: number) {
-        this.router.navigate(['/settings/roles', id, 'edit']);
+        this.edit.emit(id);
     }
 
     managePermissions(id: number) {

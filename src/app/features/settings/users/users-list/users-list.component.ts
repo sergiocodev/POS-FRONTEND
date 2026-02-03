@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,12 +20,15 @@ export class UsersListComponent implements OnInit {
     private roleService = inject(RoleService);
     private router = inject(Router);
 
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+
     users = signal<UserResponse[]>([]);
     filteredUsers = signal<UserResponse[]>([]);
     roles = signal<RoleResponse[]>([]);
     isLoading = signal(false);
 
-    
+
     searchTerm = signal('');
     selectedRoleFilter = signal<number | null>(null);
     selectedStatusFilter = signal<boolean | null>(null);
@@ -61,7 +64,7 @@ export class UsersListComponent implements OnInit {
     applyFilters() {
         let filtered = this.users();
 
-        
+
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(user =>
@@ -71,14 +74,14 @@ export class UsersListComponent implements OnInit {
             );
         }
 
-        
+
         if (this.selectedRoleFilter() !== null) {
             filtered = filtered.filter(user =>
                 user.roles.some(role => role.id === this.selectedRoleFilter())
             );
         }
 
-        
+
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(user => user.active === this.selectedStatusFilter());
         }
@@ -106,11 +109,11 @@ export class UsersListComponent implements OnInit {
     }
 
     createUser() {
-        this.router.navigate(['/settings/users/new']);
+        this.create.emit();
     }
 
     editUser(id: number) {
-        this.router.navigate(['/settings/users', id, 'edit']);
+        this.edit.emit(id);
     }
 
     toggleUserStatus(user: UserResponse) {

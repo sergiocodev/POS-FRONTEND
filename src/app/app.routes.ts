@@ -137,27 +137,11 @@ export const routes: Routes = [
             },
             {
                 path: 'settings/users',
-                loadComponent: () => import('./features/settings/users/users-list/users-list.component').then(m => m.UsersListComponent)
-            },
-            {
-                path: 'settings/users/new',
-                loadComponent: () => import('./features/settings/users/user-form/user-form.component').then(m => m.UserFormComponent)
-            },
-            {
-                path: 'settings/users/:id/edit',
-                loadComponent: () => import('./features/settings/users/user-form/user-form.component').then(m => m.UserFormComponent)
+                loadComponent: () => import('./features/settings/users/users.component').then(m => m.UsersComponent)
             },
             {
                 path: 'settings/roles',
-                loadComponent: () => import('./features/settings/roles/roles-list/roles-list.component').then(m => m.RolesListComponent)
-            },
-            {
-                path: 'settings/roles/new',
-                loadComponent: () => import('./features/settings/roles/role-form/role-form.component').then(m => m.RoleFormComponent)
-            },
-            {
-                path: 'settings/roles/:id/edit',
-                loadComponent: () => import('./features/settings/roles/role-form/role-form.component').then(m => m.RoleFormComponent)
+                loadComponent: () => import('./features/settings/roles/roles.component').then(m => m.RolesComponent)
             },
             {
                 path: 'settings/roles/:id/permissions',
@@ -165,17 +149,9 @@ export const routes: Routes = [
             },
             {
                 path: 'settings/establishments',
-                loadComponent: () => import('./features/settings/establishments/establishments-list/establishments-list.component').then(m => m.EstablishmentsListComponent)
+                loadComponent: () => import('./features/settings/establishments/establishments.component').then(m => m.EstablishmentsComponent)
             },
-            {
-                path: 'settings/establishments/new',
-                loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
-            },
-            {
-                path: 'settings/establishments/:id/edit',
-                loadComponent: () => import('./features/settings/establishments/establishment-form/establishment-form.component').then(m => m.EstablishmentFormComponent)
-            },
-            
+
             {
                 path: 'pharmacy/active-ingredients',
                 loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients-list/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent)

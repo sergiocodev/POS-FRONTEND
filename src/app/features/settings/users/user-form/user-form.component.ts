@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -22,9 +22,20 @@ export class UserFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() set userId(value: number | null) {
+        this._userId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get userId(): number | null {
+        return this._userId();
+    }
+    private _userId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
+
     userForm!: FormGroup;
     isEditMode = signal(false);
-    userId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
 
@@ -60,20 +71,29 @@ export class UserFormComponent implements OnInit {
 
     }
 
-    checkEditMode() {
-        const id = this.route.snapshot.paramMap.get('id');
+    checkEditModeFromInput() {
+        const id = this.userId;
         if (id) {
             this.isEditMode.set(true);
-            this.userId.set(+id);
-            this.loadUser(+id);
-            
-            this.userForm.get('password')?.clearValidators();
-            this.userForm.get('password')?.updateValueAndValidity();
+            this.loadUser(id);
+
+            if (this.userForm) {
+                this.userForm.get('password')?.clearValidators();
+                this.userForm.get('password')?.updateValueAndValidity();
+            }
         } else {
-            
-            this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
-            this.userForm.get('password')?.updateValueAndValidity();
+            this.isEditMode.set(false);
+            if (this.userForm) {
+                this.userForm.reset({ active: true });
+                this.selectedRoles.set([]);
+                this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
+                this.userForm.get('password')?.updateValueAndValidity();
+            }
         }
+    }
+
+    checkEditMode() {
+
     }
 
     loadUser(id: number) {
@@ -135,20 +155,19 @@ export class UserFormComponent implements OnInit {
             active: formValue.active
         };
 
-        
+
         if (formValue.password) {
             request.password = formValue.password;
         }
 
         const operation = this.isEditMode()
-            ? this.userService.update(this.userId()!, request)
+            ? this.userService.update(this.userId!, request)
             : this.userService.create(request);
 
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
-                alert(`Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente`);
-                this.router.navigate(['/settings/users']);
+                this.saved.emit();
             },
             error: (error) => {
                 console.error('Error saving user:', error);
@@ -159,7 +178,7 @@ export class UserFormComponent implements OnInit {
     }
 
     cancel() {
-        this.router.navigate(['/settings/users']);
+        this.cancelled.emit();
     }
 
     get f() {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -18,9 +18,20 @@ export class EstablishmentFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() set establishmentId(value: number | null) {
+        this._establishmentId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get establishmentId(): number | null {
+        return this._establishmentId();
+    }
+    private _establishmentId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
+
     establishmentForm!: FormGroup;
     isEditMode = signal(false);
-    establishmentId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
 
@@ -37,13 +48,21 @@ export class EstablishmentFormComponent implements OnInit {
         });
     }
 
-    checkEditMode() {
-        const id = this.route.snapshot.paramMap.get('id');
+    checkEditModeFromInput() {
+        const id = this.establishmentId;
         if (id) {
             this.isEditMode.set(true);
-            this.establishmentId.set(+id);
-            this.loadEstablishment(+id);
+            this.loadEstablishment(id);
+        } else {
+            this.isEditMode.set(false);
+            if (this.establishmentForm) {
+                this.establishmentForm.reset({ codeSunat: '0000' });
+            }
         }
+    }
+
+    checkEditMode() {
+
     }
 
     loadEstablishment(id: number) {
@@ -78,18 +97,17 @@ export class EstablishmentFormComponent implements OnInit {
             name: formValue.name,
             address: formValue.address || undefined,
             codeSunat: formValue.codeSunat || '0000',
-            active: true 
+            active: true
         };
 
         const operation = this.isEditMode()
-            ? this.establishmentService.update(this.establishmentId()!, request)
+            ? this.establishmentService.update(this.establishmentId!, request)
             : this.establishmentService.create(request);
 
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
-                alert(`Establecimiento ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente`);
-                this.router.navigate(['/settings/establishments']);
+                this.saved.emit();
             },
             error: (error) => {
                 console.error('Error saving establishment:', error);
@@ -100,7 +118,7 @@ export class EstablishmentFormComponent implements OnInit {
     }
 
     cancel() {
-        this.router.navigate(['/settings/establishments']);
+        this.cancelled.emit();
     }
 
     get f() {

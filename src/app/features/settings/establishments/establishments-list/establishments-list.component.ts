@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,11 +16,14 @@ export class EstablishmentsListComponent implements OnInit {
     private establishmentService = inject(EstablishmentService);
     private router = inject(Router);
 
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+
     establishments = signal<EstablishmentResponse[]>([]);
     filteredEstablishments = signal<EstablishmentResponse[]>([]);
     isLoading = signal(false);
 
-    
+
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +49,7 @@ export class EstablishmentsListComponent implements OnInit {
     applyFilters() {
         let filtered = this.establishments();
 
-        
+
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(est =>
@@ -56,7 +59,7 @@ export class EstablishmentsListComponent implements OnInit {
             );
         }
 
-        
+
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(est => est.active === this.selectedStatusFilter());
         }
@@ -79,16 +82,16 @@ export class EstablishmentsListComponent implements OnInit {
     }
 
     createEstablishment() {
-        this.router.navigate(['/settings/establishments/new']);
+        this.create.emit();
     }
 
     editEstablishment(id: number) {
-        this.router.navigate(['/settings/establishments', id, 'edit']);
+        this.edit.emit(id);
     }
 
     toggleEstablishmentStatus(establishment: EstablishmentResponse) {
         if (confirm(`¿Está seguro de ${establishment.active ? 'desactivar' : 'activar'} el establecimiento ${establishment.name}?`)) {
-            
+
             const request = {
                 name: establishment.name,
                 address: establishment.address,

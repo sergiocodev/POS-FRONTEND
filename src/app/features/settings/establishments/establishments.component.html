@@ -1,0 +1,15 @@
+<div class="establishments-page">
+    <app-establishments-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
+    </app-establishments-list>
+
+    <p-dialog [header]="isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento'" [(visible)]="displayForm"
+        [modal]="true" [style]="{ width: '50vw' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }"
+        [draggable]="false" [resizable]="false">
+
+        @if (displayForm()) {
+        <app-establishment-form [establishmentId]="selectedEstablishmentId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-establishment-form>
+        }
+    </p-dialog>
+</div>

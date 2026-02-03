@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -18,9 +18,20 @@ export class RoleFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() set roleId(value: number | null) {
+        this._roleId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get roleId(): number | null {
+        return this._roleId();
+    }
+    private _roleId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
+
     roleForm!: FormGroup;
     isEditMode = signal(false);
-    roleId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
 
@@ -37,13 +48,21 @@ export class RoleFormComponent implements OnInit {
         });
     }
 
-    checkEditMode() {
-        const id = this.route.snapshot.paramMap.get('id');
+    checkEditModeFromInput() {
+        const id = this.roleId;
         if (id) {
             this.isEditMode.set(true);
-            this.roleId.set(+id);
-            this.loadRole(+id);
+            this.loadRole(id);
+        } else {
+            this.isEditMode.set(false);
+            if (this.roleForm) {
+                this.roleForm.reset({ active: true });
+            }
         }
+    }
+
+    checkEditMode() {
+
     }
 
     loadRole(id: number) {
@@ -81,14 +100,13 @@ export class RoleFormComponent implements OnInit {
         };
 
         const operation = this.isEditMode()
-            ? this.roleService.update(this.roleId()!, request)
+            ? this.roleService.update(this.roleId!, request)
             : this.roleService.create(request);
 
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
-                alert(`Rol ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente`);
-                this.router.navigate(['/settings/roles']);
+                this.saved.emit();
             },
             error: (error) => {
                 console.error('Error saving role:', error);
@@ -99,7 +117,7 @@ export class RoleFormComponent implements OnInit {
     }
 
     cancel() {
-        this.router.navigate(['/settings/roles']);
+        this.cancelled.emit();
     }
 
     get f() {
