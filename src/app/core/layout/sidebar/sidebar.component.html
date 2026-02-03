@@ -1,23 +1,23 @@
 <div class="sidebar-container" [class.collapsed]="collapsed">
 
-    
+
     <nav class="sidebar-nav">
         <ul class="nav-list">
             <ng-container *ngFor="let item of menuItems()">
 
-                
+
                 <li class="nav-item" *ngIf="!item.children">
                     <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
                         [title]="collapsed ? item.label : ''">
                         <i class="bi {{item.icon}} nav-icon"></i>
                         <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
 
-                        
+
                         <span class="tooltip-text" *ngIf="collapsed">{{item.label}}</span>
                     </a>
                 </li>
 
-                
+
                 <li class="nav-item" *ngIf="item.children">
                     <div class="nav-link group-link" (click)="toggleSubmenu(item)" [class.active-group]="item.expanded"
                         [title]="collapsed ? item.label : ''">
@@ -26,7 +26,7 @@
                         <i class="bi bi-chevron-down dropdown-arrow" *ngIf="!collapsed" [@rotate]="item.expanded"></i>
                     </div>
 
-                    
+
                     <div class="submenu" *ngIf="item.expanded && !collapsed" [@slideInOut]>
                         <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active"
                             [routerLinkActiveOptions]="child.routerLinkActiveOptions || { exact: false }"

@@ -14,7 +14,7 @@ interface MenuItem {
     expanded?: boolean;
     isActive?: boolean;
     routerLinkActiveOptions?: { exact: boolean };
-    requiredPermissions?: string[]; 
+    requiredPermissions?: string[];
 }
 
 @Component({
@@ -144,20 +144,20 @@ export class SidebarComponent {
         }
     ];
 
-    
+
     menuItems = computed(() => {
         return this.filterMenuItems(this.allMenuItems);
     });
 
-    
+
     private filterMenuItems(items: MenuItem[]): MenuItem[] {
         return items
             .map(item => {
-                
+
                 if (item.children) {
                     const filteredChildren = this.filterMenuItems(item.children);
 
-                    
+
                     if (filteredChildren.length === 0) {
                         return null;
                     }
@@ -165,12 +165,12 @@ export class SidebarComponent {
                     return { ...item, children: filteredChildren };
                 }
 
-                
+
                 if (!item.requiredPermissions || item.requiredPermissions.length === 0) {
                     return item;
                 }
 
-                
+
                 if (this.authService.hasAnyPermission(item.requiredPermissions)) {
                     return item;
                 }

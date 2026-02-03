@@ -43,7 +43,7 @@ export class HeaderComponent implements OnInit {
         return this.themeService.isDarkMode();
     }
 
-    
+
     availableServiceCenters = signal<EstablishmentResponse[]>([]);
     selectedServiceCenterId = signal<number | null>(null);
 
@@ -54,11 +54,11 @@ export class HeaderComponent implements OnInit {
     loadEstablishments() {
         this.establishmentService.getAll().subscribe({
             next: (establishments) => {
-                
+
                 const activeEstablishments = establishments.filter(e => e.active);
                 this.availableServiceCenters.set(activeEstablishments);
 
-                
+
                 if (activeEstablishments.length > 0) {
                     this.selectedServiceCenterId.set(activeEstablishments[0].id);
                     this.establishmentStateService.setSelectedEstablishment(activeEstablishments[0].id);
@@ -91,7 +91,7 @@ export class HeaderComponent implements OnInit {
     }
 
     myAccount() {
-        
+
         this.isProfileDropdownOpen.set(false);
     }
 

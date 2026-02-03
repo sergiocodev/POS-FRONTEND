@@ -262,7 +262,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
 
 .sidebar-footer {
   padding: 16px;
-  background: var(--hover-bg); 
+  background: var(--hover-bg);
   margin-top: auto;
 
   .footer-actions {
@@ -290,7 +290,7 @@ $font-family: 'Public Sans', sans-serif, -apple-system, BlinkMacSystemFont, "Seg
 
     &:hover {
       background: var(--hover-bg);
-      color: var(--warning-color, #ff9f43); 
+      color: var(--warning-color, #ff9f43);
     }
   }
 

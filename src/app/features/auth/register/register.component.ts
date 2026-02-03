@@ -4,10 +4,28 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
+// PrimeNG Imports
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
+import { FloatLabelModule } from 'primeng/floatlabel';
+
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        CardModule,
+        InputTextModule,
+        PasswordModule,
+        ButtonModule,
+        MessageModule,
+        FloatLabelModule
+    ],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -25,24 +43,10 @@ export class RegisterComponent {
             username: ['', [Validators.required, Validators.minLength(3)]],
             nombre: ['', [Validators.required]],
             email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(4)]],
-            confirmPassword: ['', [Validators.required]]
-        }, {
-            validators: this.passwordMatchValidator
+            password: ['', [Validators.required, Validators.minLength(4)]]
         });
     }
 
-    passwordMatchValidator(form: FormGroup) {
-        const password = form.get('password');
-        const confirmPassword = form.get('confirmPassword');
-
-        if (password && confirmPassword && password.value !== confirmPassword.value) {
-            confirmPassword.setErrors({ passwordMismatch: true });
-            return { passwordMismatch: true };
-        }
-
-        return null;
-    }
 
     onSubmit(): void {
         if (this.registerForm.invalid) {
@@ -53,9 +57,9 @@ export class RegisterComponent {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
-        const { confirmPassword, nombre, ...registerData } = this.registerForm.value;
+        const { nombre, ...registerData } = this.registerForm.value;
 
-        
+
         const payload = {
             ...registerData,
             fullName: nombre
@@ -93,7 +97,4 @@ export class RegisterComponent {
         return this.registerForm.get('password');
     }
 
-    get confirmPassword() {
-        return this.registerForm.get('confirmPassword');
-    }
 }
