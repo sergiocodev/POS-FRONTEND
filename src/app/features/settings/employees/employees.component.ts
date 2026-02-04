@@ -1,13 +1,18 @@
 import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DialogModule } from 'primeng/dialog';
+// Eliminado: import { DialogModule } ...
 import { EmployeesListComponent } from './employees-list/employees-list.component';
 import { EmployeeFormComponent } from './employee-form/employee-form.component';
 
 @Component({
     selector: 'app-employees',
     standalone: true,
-    imports: [CommonModule, DialogModule, EmployeesListComponent, EmployeeFormComponent],
+    imports: [
+        CommonModule,
+        EmployeesListComponent,
+        EmployeeFormComponent
+        // Eliminado: DialogModule
+    ],
     templateUrl: './employees.component.html',
     styleUrl: './employees.component.scss'
 })
@@ -26,10 +31,12 @@ export class EmployeesComponent {
 
     onFormSaved() {
         this.displayForm.set(false);
+        this.selectedEmployeeId.set(null); // Limpiar ID al guardar
         this.employeesList.loadData();
     }
 
     onFormCancelled() {
         this.displayForm.set(false);
+        this.selectedEmployeeId.set(null); // Limpiar ID al cancelar
     }
 }

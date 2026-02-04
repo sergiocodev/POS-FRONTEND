@@ -1,97 +1,185 @@
-<div class="roles-list-container">
-    <div class="page-header d-flex justify-content-end align-items-center mb-4">
-        <p-button label="Nuevo Rol" icon="bi bi-plus-lg" (onClick)="createRole()" [raised]="true"></p-button>
+<div class="roles-list-container container-fluid animate-fade-in position-relative">
+
+    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
+        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
+        <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        <strong class="mx-2">{{ alertTitle }}</strong> {{ alertMessage }}
+        <button type="button" class="btn-close" (click)="closeAlert()"></button>
     </div>
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0 fw-bold text-dark">Roles del Sistema</h4>
+        <button class="btn btn-primary" (click)="createRole()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-center">
                 <div class="col-md-8">
-                    <p-iconfield iconPosition="left">
-                        <p-inputicon class="bi bi-search"></p-inputicon>
-                        <input type="text" pInputText class="w-100" placeholder="Buscar por nombre o descripción..."
-                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)" />
-                    </p-iconfield>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 bg-light"
+                            placeholder="Buscar por nombre o descripción..." [ngModel]="searchTerm()"
+                            (input)="onSearchChange($any($event.target).value)">
+                    </div>
                 </div>
+
                 <div class="col-md-4">
-                    <p-select [options]="statusOptions" [ngModel]="selectedStatusFilter()"
-                        (onChange)="onStatusFilterChange($event)" optionLabel="label" optionValue="value" class="w-100"
-                        placeholder="Filtrar por estado"></p-select>
+                    <select class="form-select" [ngModel]="selectedStatusFilter()"
+                        (ngModelChange)="onStatusFilterChange($event)">
+                        <option [ngValue]="null">Todos los estados</option>
+                        <option [ngValue]="true">Activos</option>
+                        <option [ngValue]="false">Inactivos</option>
+                    </select>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <p-table [value]="filteredRoles()" [loading]="isLoading()" [rows]="10" [paginator]="true"
-            [responsiveLayout]="'scroll'" styleClass="p-datatable-striped p-datatable-sm" [showCurrentPageReport]="true"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} roles">
-
-            <ng-template pTemplate="header">
-                <tr>
-                    <th pSortableColumn="name">Rol <p-sortIcon field="name"></p-sortIcon></th>
-                    <th>Descripción</th>
-                    <th>Permisos</th>
-                    <th pSortableColumn="active">Estado <p-sortIcon field="active"></p-sortIcon></th>
-                    <th pSortableColumn="createdAt">Fecha Creación <p-sortIcon field="createdAt"></p-sortIcon></th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-role>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="role-icon-circle me-3">
-                                <i class="bi bi-shield-fill text-primary"></i>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th (click)="sortData('name')" class="cursor-pointer ps-4">
+                            Rol <i class="bi" [ngClass]="getSortIcon('name')"></i>
+                        </th>
+                        <th>Descripción</th>
+                        <th>Permisos</th>
+                        <th (click)="sortData('active')" class="cursor-pointer text-center">
+                            Estado <i class="bi" [ngClass]="getSortIcon('active')"></i>
+                        </th>
+                        <th (click)="sortData('createdAt')" class="cursor-pointer">
+                            Fecha Creación <i class="bi" [ngClass]="getSortIcon('createdAt')"></i>
+                        </th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngIf="isLoading()">
+                        <td colspan="6" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
                             </div>
-                            <span class="fw-bold">{{ role.name }}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="text-muted">{{ role.description || 'Sin descripción' }}</span>
-                    </td>
-                    <td>
-                        <p-tag [value]="getPermissionCount(role) + ' permisos'" severity="secondary"
-                            [rounded]="true"></p-tag>
-                    </td>
-                    <td>
-                        <p-tag [severity]="role.active ? 'success' : 'warn'"
-                            [value]="role.active ? 'Activo' : 'Inactivo'" [rounded]="true"></p-tag>
-                    </td>
-                    <td>
-                        <small class="text-muted">{{ role.createdAt | date:'dd/MM/yyyy' }}</small>
-                    </td>
-                    <td>
-                        <div class="d-flex justify-content-end gap-2">
-                            <p-button icon="bi bi-pencil" [text]="true" [rounded]="true" severity="primary"
-                                (onClick)="editRole(role.id)" pTooltip="Editar"></p-button>
+                        </td>
+                    </tr>
 
-                            <p-button icon="bi bi-key" [text]="true" [rounded]="true" severity="info"
-                                (onClick)="managePermissions(role.id)" pTooltip="Gestionar permisos"></p-button>
+                    <tr *ngIf="!isLoading() && paginatedRoles.length === 0">
+                        <td colspan="6" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center text-muted">
+                                <i class="bi bi-shield-slash display-4 mb-2"></i>
+                                <p class="mb-0">No se encontraron roles</p>
+                            </div>
+                        </td>
+                    </tr>
 
-                            <p-button [icon]="role.active ? 'bi bi-toggle-on' : 'bi bi-toggle-off'" [text]="true"
-                                [rounded]="true" [severity]="role.active ? 'warn' : 'success'"
-                                (onClick)="toggleActive(role)"
-                                [pTooltip]="role.active ? 'Desactivar' : 'Activar'"></p-button>
+                    <tr *ngFor="let role of paginatedRoles; trackBy: trackByRoleId">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="role-icon-circle me-3">
+                                    <i class="bi bi-shield-fill text-primary"></i>
+                                </div>
+                                <span class="fw-bold text-dark">{{ role.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ role.description || 'Sin descripción' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary-subtle text-secondary rounded-pill border">
+                                {{ getPermissionCount(role) }} permisos
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill"
+                                [ngClass]="role.active ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'">
+                                {{ role.active ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ role.createdAt | date:'dd/MM/yyyy' }}</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-light text-primary" (click)="editRole(role.id)"
+                                    title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
 
-                            <p-button icon="bi bi-trash" [text]="true" [rounded]="true" severity="danger"
-                                (onClick)="deleteRole(role)" pTooltip="Eliminar"></p-button>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
+                                <button class="btn btn-sm btn-light text-info" (click)="managePermissions(role.id)"
+                                    title="Gestionar permisos">
+                                    <i class="bi bi-key"></i>
+                                </button>
 
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="6">
-                        <div class="text-center py-5">
-                            <i class="bi bi-inbox display-4 text-muted mb-3"></i>
-                            <p class="text-muted">No se encontraron roles</p>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+                                <button class="btn btn-sm btn-light"
+                                    [ngClass]="role.active ? 'text-warning' : 'text-success'"
+                                    (click)="confirmToggleActive(role)"
+                                    [title]="role.active ? 'Desactivar' : 'Activar'">
+                                    <i class="bi" [ngClass]="role.active ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-light text-danger" (click)="confirmDelete(role)"
+                                    title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top-0" *ngIf="filteredRoles().length > 0">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <small class="text-muted">
+                    Mostrando {{ (currentPage - 1) * pageSize + 1 }} a
+                    {{ min(currentPage * pageSize, filteredRoles().length) }}
+                    de {{ filteredRoles().length }} roles
+                </small>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="currentPage === 1">
+                            <button class="page-link" (click)="changePage(currentPage - 1)">Anterior</button>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link border-0 text-dark fw-bold">{{ currentPage }}</span>
+                        </li>
+                        <li class="page-item" [class.disabled]="currentPage * pageSize >= filteredRoles().length">
+                            <button class="page-link" (click)="changePage(currentPage + 1)">Siguiente</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
+
+    <div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p [innerHTML]="modalMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                    <button type="button" class="btn"
+                        [ngClass]="modalActionType === 'delete' ? 'btn-danger' : 'btn-warning'"
+                        (click)="executePendingAction()">
+                        {{ modalActionType === 'delete' ? 'Eliminar' : 'Confirmar' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="showConfirmModal" class="modal-backdrop fade show"></div>
+
 </div>

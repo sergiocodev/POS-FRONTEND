@@ -4,11 +4,6 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { RoleRequest } from '../../../../core/models/maintenance.model';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-role-form',
@@ -16,12 +11,8 @@ import { MessageModule } from 'primeng/message';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        RouterModule,
-        InputTextModule,
-        TextareaModule,
-        ToggleSwitchModule,
-        ButtonModule,
-        MessageModule
+        RouterModule
+        // Eliminados: InputTextModule, TextareaModule, etc.
     ],
     templateUrl: './role-form.component.html',
     styleUrl: './role-form.component.scss'
@@ -30,7 +21,6 @@ export class RoleFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private roleService = inject(RoleService);
     private router = inject(Router);
-    private route = inject(ActivatedRoute);
 
     @Input() set roleId(value: number | null) {
         this._roleId.set(value);
@@ -51,7 +41,6 @@ export class RoleFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditMode();
     }
 
     initForm() {
@@ -75,10 +64,6 @@ export class RoleFormComponent implements OnInit {
         }
     }
 
-    checkEditMode() {
-
-    }
-
     loadRole(id: number) {
         this.isLoading.set(true);
         this.roleService.getById(id).subscribe({
@@ -92,8 +77,9 @@ export class RoleFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading role:', error);
+                // Aquí podrías emitir un evento de error o usar un servicio de alertas nativo
                 alert('Error al cargar el rol');
-                this.router.navigate(['/settings/roles']);
+                this.cancelled.emit();
             }
         });
     }

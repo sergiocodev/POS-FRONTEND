@@ -1,88 +1,113 @@
-<div class="role-permissions-container">
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <div class="header-content">
-            <h2 class="page-title mb-1">
-                <i class="bi bi-key me-2 text-primary"></i>
-                Gestionar Permisos
-            </h2>
+<div class="role-permissions-container container-fluid animate-fade-in position-relative">
+
+    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
+        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1060; max-width: 400px; left: auto; right: 20px;">
+        <div class="d-flex align-items-center">
+            <i class="bi"
+                [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+            <div class="ms-2">
+                <strong>{{ alertTitle }}</strong><br>
+                <small>{{ alertMessage }}</small>
+            </div>
+            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="bi bi-shield-lock me-2"></i>Gestionar Permisos
+            </h4>
             <p class="text-muted mb-0" *ngIf="role()">
-                Asigna permisos al rol: <span class="fw-bold text-dark">{{ role()?.name }}</span>
+                Asignando a: <span class="fw-bold text-dark">{{ role()?.name }}</span>
             </p>
         </div>
         <div class="d-flex gap-2">
-            <p-button label="Cancelar" icon="bi bi-x-lg" [text]="true" severity="secondary"
-                (onClick)="cancel()"></p-button>
-            <p-button label="Guardar Permisos" icon="bi bi-check-lg" (onClick)="onSave()" [loading]="isSaving()"
-                [raised]="true"></p-button>
+            <button class="btn btn-outline-secondary" (click)="cancel()">
+                <i class="bi bi-x-lg me-1"></i> Cancelar
+            </button>
+            <button class="btn btn-primary" (click)="onSave()" [disabled]="isSaving()">
+                <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1"></span>
+                <i *ngIf="!isSaving()" class="bi bi-check-lg me-1"></i> Guardar Permisos
+            </button>
         </div>
     </div>
 
     <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="text-muted">Cargando permisos...</p>
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="text-muted">Cargando catálogo de permisos...</p>
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <!-- Filtros y Acciones por Lote -->
-        <div class="card shadow-sm border-0 mb-4 bg-light-subtle">
-            <div class="card-body">
+
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body p-3">
                 <div class="row g-3 align-items-center">
                     <div class="col-md-5">
-                        <p-iconfield iconPosition="left">
-                            <p-inputicon class="bi bi-search"></p-inputicon>
-                            <input type="text" pInputText class="w-100" placeholder="Buscar permisos..."
-                                [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
-                        </p-iconfield>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar permiso..."
+                                [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+                        </div>
                     </div>
+
                     <div class="col-md-3">
-                        <p-select [options]="modules()" [ngModel]="selectedModule()"
-                            (ngModelChange)="selectedModule.set($event)" class="w-100" placeholder="Todos los módulos"
-                            [showClear]="true"></p-select>
+                        <select class="form-select" [ngModel]="selectedModule()"
+                            (ngModelChange)="selectedModule.set($event)">
+                            <option value="">Todos los módulos</option>
+                            <option *ngFor="let mod of modules()" [value]="mod">{{ mod }}</option>
+                        </select>
                     </div>
-                    <div class="col-md-4 d-flex justify-content-end gap-2">
-                        <p-button label="Seleccionar Todo" icon="bi bi-check-all" [text]="true" severity="primary"
-                            (onClick)="selectAll()"></p-button>
-                        <p-button label="Limpiar" icon="bi bi-x" [text]="true" severity="secondary"
-                            (onClick)="deselectAll()"></p-button>
+
+                    <div class="col-md-4 d-flex justify-content-md-end gap-2">
+                        <button class="btn btn-outline-primary btn-sm" (click)="selectAll()">
+                            <i class="bi bi-check-all me-1"></i> Todo
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" (click)="deselectAll()">
+                            <i class="bi bi-eraser me-1"></i> Nada
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Lista de Permisos Agrupados -->
-        <div class="row g-4">
+        <div class="row g-4 pb-5 mb-5">
             <div *ngFor="let module of getFilteredModules()" class="col-12 col-xl-6">
-                <div class="card h-100 shadow-sm border-0 border-top border-4 border-primary">
+                <div class="card h-100 shadow-sm border-0 module-card">
                     <div
-                        class="card-header border-0 bg-transparent d-flex justify-content-between align-items-center pt-3">
-                        <h6 class="mb-0 fw-bold">
-                            <i class="bi bi-folder2-open me-2 text-primary"></i>
+                        class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark d-flex align-items-center">
+                            <span class="module-icon me-2"><i class="bi bi-folder2-open"></i></span>
                             {{ module || 'General' }}
                         </h6>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-sm btn-link text-primary p-0"
-                                (click)="selectAllInModule(module)" pTooltip="Seleccionar todos">
-                                <i class="bi bi-check-circle"></i>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-light text-primary" (click)="selectAllInModule(module)"
+                                title="Seleccionar todos en este módulo">
+                                <i class="bi bi-check-circle-fill"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-link text-secondary p-0 ms-2"
-                                (click)="deselectAllInModule(module)" pTooltip="Deseleccionar todos">
+                            <button class="btn btn-sm btn-light text-secondary" (click)="deselectAllInModule(module)"
+                                title="Deseleccionar todos">
                                 <i class="bi bi-dash-circle"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="permissions-list">
+
+                    <div class="card-body pt-0">
+                        <div class="permissions-grid">
                             <div *ngFor="let permission of getFilteredPermissions(module)"
-                                class="permission-item p-2 rounded mb-1 d-flex align-items-start gap-3 transition-all"
-                                [class.bg-primary-subtle]="isPermissionSelected(permission.id)">
-                                <p-checkbox [binary]="true" [inputId]="'perm-' + permission.id"
-                                    [ngModel]="isPermissionSelected(permission.id)"
-                                    (onChange)="togglePermission(permission.id)"></p-checkbox>
-                                <label [for]="'perm-' + permission.id" class="flex-grow-1 cursor-pointer mb-0">
-                                    <span class="d-block fw-semibold">{{ permission.name }}</span>
-                                    <small class="text-muted d-block lh-sm">{{ permission.description }}</small>
+                                class="permission-item form-check p-3 rounded border mb-2 cursor-pointer position-relative"
+                                [class.selected]="isPermissionSelected(permission.id)"
+                                (click)="togglePermission(permission.id)">
+
+                                <input class="form-check-input mt-1" type="checkbox" [id]="'perm-' + permission.id"
+                                    [checked]="isPermissionSelected(permission.id)"
+                                    (click)="$event.stopPropagation(); togglePermission(permission.id)"> <label
+                                    class="form-check-label ms-2 cursor-pointer w-100" [for]="'perm-' + permission.id"
+                                    (click)="$event.stopPropagation()">
+                                    <span class="d-block fw-semibold text-dark">{{ permission.name }}</span>
+                                    <small class="text-muted d-block lh-sm mt-1">{{ permission.description }}</small>
                                 </label>
                             </div>
                         </div>
@@ -92,22 +117,24 @@
         </div>
 
         <div *ngIf="getFilteredModules().length === 0" class="text-center py-5">
-            <i class="bi bi-inbox display-4 text-muted mb-3"></i>
-            <p class="text-muted">No hay permisos que coincidan con la búsqueda</p>
+            <i class="bi bi-filter-circle display-4 text-muted mb-3"></i>
+            <p class="text-muted">No se encontraron permisos con los filtros actuales.</p>
         </div>
 
-        <!-- Footer Flotante con Resumen -->
         <div
-            class="sticky-footer mt-5 p-3 rounded shadow-lg bg-white border d-flex justify-content-between align-items-center">
+            class="sticky-footer bg-white border-top shadow-lg p-3 d-flex justify-content-between align-items-center rounded-top">
             <div class="d-flex align-items-center">
-                <p-tag [value]="selectedPermissions().length.toString()" severity="info" class="me-2"></p-tag>
-                <span class="text-muted">permisos seleccionados en total</span>
+                <span class="badge bg-primary rounded-pill fs-6 me-2">{{ selectedPermissions().length }}</span>
+                <span class="text-muted fw-semibold">permisos seleccionados</span>
             </div>
             <div class="d-flex gap-2">
-                <p-button label="Cancelar" [text]="true" severity="secondary" (onClick)="cancel()"></p-button>
-                <p-button label="Guardar Cambios" icon="bi bi-check-lg" (onClick)="onSave()" [loading]="isSaving()"
-                    [raised]="true"></p-button>
+                <button class="btn btn-light text-secondary" (click)="cancel()">Cancelar</button>
+                <button class="btn btn-success px-4" (click)="onSave()" [disabled]="isSaving()">
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1"></span>
+                    Guardar Cambios
+                </button>
             </div>
         </div>
+
     </ng-container>
 </div>

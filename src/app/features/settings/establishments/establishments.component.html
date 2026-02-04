@@ -1,18 +1,35 @@
-<app-module-header title="Establecimientos" iconClass="pi pi-building"></app-module-header>
+<app-module-header title="Establecimientos" iconClass="bi bi-shop"></app-module-header>
 
-<div class="establishments-page">
+<div class="establishments-page animate-fade-in">
     <app-establishments-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
     </app-establishments-list>
 
-    <p-dialog [header]="isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento'" [(visible)]="displayForm"
-        [modal]="true" [style]="{ width: '500px' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }"
-        [draggable]="false" [resizable]="false" styleClass="p-dialog-modern" [closeOnEscape]="true"
-        [dismissableMask]="true">
+    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
+        tabindex="-1" role="dialog" aria-hidden="true" (click)="onFormCancelled()">
 
-        @if (displayForm()) {
-        <app-establishment-form [establishmentId]="selectedEstablishmentId()" (saved)="onFormSaved()"
-            (cancelled)="onFormCancelled()">
-        </app-establishment-form>
-        }
-    </p-dialog>
+        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+            <div class="modal-content border-0 shadow-lg">
+
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark">
+                        {{ isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento' }}
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="onFormCancelled()"></button>
+                </div>
+
+                <div class="modal-body p-0">
+                    @if (displayForm()) {
+                    <app-establishment-form [establishmentId]="selectedEstablishmentId()" (saved)="onFormSaved()"
+                        (cancelled)="onFormCancelled()">
+                    </app-establishment-form>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @if (displayForm()) {
+    <div class="modal-backdrop fade show"></div>
+    }
 </div>

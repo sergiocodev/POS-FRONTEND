@@ -1,4 +1,4 @@
-<div class="employee-form-container p-4 animate-fade-in">
+<div class="employee-form-container container p-4 animate-fade-in">
     <div *ngIf="isLoading()" class="d-flex justify-content-center align-items-center py-5">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Cargando...</span>
@@ -8,68 +8,56 @@
     <form *ngIf="!isLoading()" [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="row g-4">
 
         <div class="col-12 col-md-6">
-            <div class="d-flex flex-column gap-2">
-                <label for="firstName" class="form-label fw-semibold">
-                    Nombres <span class="text-danger">*</span>
-                </label>
-                <input id="firstName" type="text" pInputText formControlName="firstName" placeholder="Ej: Juan Carlos"
-                    [class.ng-invalid]="f['firstName'].invalid && f['firstName'].touched"
-                    [class.ng-dirty]="f['firstName'].touched" />
-                <small class="p-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">
-                    <span *ngIf="f['firstName'].errors?.['required']">El nombre es requerido.</span>
-                    <span *ngIf="f['firstName'].errors?.['minlength']">Mínimo 2 caracteres.</span>
-                </small>
+            <label for="firstName" class="form-label fw-semibold">
+                Nombres <span class="text-danger">*</span>
+            </label>
+            <input id="firstName" type="text" class="form-control" formControlName="firstName"
+                placeholder="Ej: Juan Carlos" [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched" />
+            <div class="invalid-feedback">
+                <span *ngIf="f['firstName'].errors?.['required']">El nombre es requerido.</span>
+                <span *ngIf="f['firstName'].errors?.['minlength']">Mínimo 2 caracteres.</span>
             </div>
         </div>
-
 
         <div class="col-12 col-md-6">
-            <div class="d-flex flex-column gap-2">
-                <label for="lastName" class="form-label fw-semibold">Apellidos</label>
-                <input id="lastName" type="text" pInputText formControlName="lastName" placeholder="Ej: García Pérez" />
-            </div>
+            <label for="lastName" class="form-label fw-semibold">Apellidos</label>
+            <input id="lastName" type="text" class="form-control" formControlName="lastName"
+                placeholder="Ej: García Pérez" />
         </div>
-
 
         <div class="col-12 col-md-6">
-            <div class="d-flex flex-column gap-2">
-                <label for="documentNumber" class="form-label fw-semibold">Número de Documento</label>
-                <input id="documentNumber" type="text" pInputText formControlName="documentNumber"
-                    placeholder="DNI (8 dgt) o RUC (11 dgt)" maxlength="11"
-                    [class.ng-invalid]="f['documentNumber'].invalid && f['documentNumber'].touched" />
-                <small class="text-muted small">Sólo números (8 o 11 dígitos)</small>
-                <small class="p-error" *ngIf="f['documentNumber'].invalid && f['documentNumber'].touched">
-                    Número de documento no válido.
-                </small>
+            <label for="documentNumber" class="form-label fw-semibold">Número de Documento</label>
+            <input id="documentNumber" type="text" class="form-control" formControlName="documentNumber"
+                placeholder="DNI (8 dgt) o RUC (11 dgt)" maxlength="11"
+                [class.is-invalid]="f['documentNumber'].invalid && f['documentNumber'].touched" />
+            <div class="form-text text-muted">Sólo números (8 o 11 dígitos)</div>
+            <div class="invalid-feedback">
+                Número de documento no válido.
             </div>
         </div>
-
 
         <div class="col-12 col-md-6">
-            <div class="d-flex flex-column gap-2">
-                <label for="userId" class="form-label fw-semibold">Usuario Asociado</label>
-                <p-select [options]="users()" formControlName="userId" optionLabel="fullName" optionValue="id"
-                    placeholder="Seleccione un usuario (Opcional)" [showClear]="true" appendTo="body"
-                    styleClass="w-100">
-                    <ng-template let-user pTemplate="item">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="pi pi-user text-muted"></i>
-                            <span>{{ user.fullName }} <small class="text-muted">({{ user.username }})</small></span>
-                        </div>
-                    </ng-template>
-                </p-select>
-            </div>
+            <label for="userId" class="form-label fw-semibold">Usuario Asociado</label>
+            <select id="userId" class="form-select" formControlName="userId">
+                <option [ngValue]="null">Seleccione un usuario (Opcional)</option>
+                <option *ngFor="let user of users()" [value]="user.id">
+                    {{ user.fullName }} ({{ user.username }})
+                </option>
+            </select>
         </div>
 
-
-        <div class="col-12 mt-5 text-end">
+        <div class="col-12 mt-5">
             <div class="d-flex justify-content-end gap-2 border-top pt-4">
-                <button type="button" pButton label="Cancelar" icon="pi pi-times"
-                    class="p-button-text p-button-secondary" (click)="cancel()" [disabled]="isSaving()">
+                <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="isSaving()">
+                    <i class="bi bi-x-lg me-1"></i> Cancelar
                 </button>
-                <button type="submit" pButton [label]="isEditMode() ? 'Actualizar' : 'Guardar'"
-                    [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" class="p-button-primary px-4"
-                    [disabled]="isSaving() || employeeForm.invalid">
+
+                <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving() || employeeForm.invalid">
+
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
+                        aria-hidden="true"></span>
+                    <i *ngIf="!isSaving()" class="bi bi-check-lg me-1"></i>
+                    {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
                 </button>
             </div>
         </div>

@@ -1,3 +1,16 @@
-.employees-page {
-    padding: 0;
+// Asegura que el modal aparezca suavemente
+.modal {
+    background-color: rgba(0, 0, 0, 0.5); // Fallback si no usas el backdrop separado
+    transition: opacity 0.15s linear;
+
+    &.show {
+        background-color: transparent; // Dejamos que el div .modal-backdrop maneje el color
+    }
+}
+
+// Opcional: Si quieres quitar el padding del body del modal para que el formulario controle sus margenes
+.modal-body {
+    background-color: #fff;
+    border-bottom-left-radius: var(--bs-modal-border-radius);
+    border-bottom-right-radius: var(--bs-modal-border-radius);
 }

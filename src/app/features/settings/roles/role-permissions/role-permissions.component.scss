@@ -1,49 +1,81 @@
 .role-permissions-container {
-    padding: 1.5rem;
+    padding-bottom: 80px; // Espacio extra para que el footer no tape contenido al final
+}
 
-    .page-title {
-        color: #2c3e50;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
     }
 
-    .permission-item {
-        transition: all 0.2s;
-        border: 1px solid transparent;
+    to {
+        opacity: 1;
+    }
+}
 
-        &:hover {
-            background-color: #f8f9fa;
-            border-color: #dee2e6;
-        }
+.module-card {
+    transition: transform 0.2s;
 
-        &.bg-primary-subtle {
-            border-color: rgba(var(--p-primary-color-rgb), 0.2);
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-        }
+    &:hover {
+        transform: translateY(-2px);
     }
 
+    .module-icon {
+        width: 32px;
+        height: 32px;
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+        color: var(--bs-primary);
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.permission-item {
+    transition: all 0.2s ease;
+    border-color: #dee2e6;
+    background-color: #fff;
+
+    &:hover {
+        background-color: #f8f9fa;
+        border-color: #ced4da;
+    }
+
+    &.selected {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        border-color: var(--bs-primary);
+
+        .form-check-label span {
+            color: var(--bs-primary);
+        }
+    }
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.sticky-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0; // Ajustar según el margen de tu layout principal (ej. si tienes sidebar)
+    right: 0;
+    margin-left: 0; // Si tienes sidebar, aquí iría el ancho del sidebar (ej. 250px)
+    z-index: 1000;
+
+    // Mejora visual: borde superior difuso
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+// Ajustes responsive
+@media (min-width: 992px) {
+
+    // Si tu layout tiene un sidebar fijo, ajusta esto:
     .sticky-footer {
-        position: sticky;
-        bottom: 1.5rem;
-        z-index: 100;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(8px);
-    }
-
-    :host ::v-deep {
-        .p-checkbox {
-            margin-top: 2px;
-        }
-
-        .p-select {
-            border-radius: 8px;
-        }
-
-        .p-inputtext {
-            border-radius: 8px;
-        }
+        // left: 250px; 
     }
 }

@@ -1,3 +1,30 @@
 .establishments-page {
     padding: 0;
 }
+
+// Animación de entrada para el módulo
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Transición suave para la opacidad del modal
+.modal {
+    background-color: rgba(0, 0, 0, 0.1); // Fallback visual
+    transition: opacity 0.15s linear;
+}
+
+// Ajuste para el ancho del modal (opcional, para igualar los 500px del original)
+.modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+}

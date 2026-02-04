@@ -1,114 +1,212 @@
-<app-module-header title="Gestión de Usuarios" iconClass="pi pi-users"></app-module-header>
+<app-module-header title="Gestión de Usuarios" iconClass="bi bi-people-fill"></app-module-header>
 
-<div class="users-container">
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
+<div class="users-container container-fluid animate-fade-in position-relative">
 
-    <div class="d-flex justify-content-end mb-3">
-        <p-button label="Nuevo Usuario" icon="pi pi-plus" (onClick)="createUser()" severity="primary"></p-button>
+    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
+        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
+        <div class="d-flex align-items-center">
+            <i class="bi"
+                [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+            <div class="ms-2">
+                <strong>{{ alertTitle }}</strong><br>
+                <small>{{ alertMessage }}</small>
+            </div>
+            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
+        </div>
     </div>
 
-    <!-- Filters Section -->
-    <div class="filters-section card mb-4">
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-primary" (click)="createUser()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Usuario
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label d-block">Buscar</label>
-                    <p-iconField iconPosition="left">
-                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
-                        <input type="text" pInputText placeholder="Nombre, usuario o email..." class="w-full"
-                            [ngModel]="searchTerm()" (ngModelChange)="onSearchChange($event)" />
-                    </p-iconField>
+                    <label class="form-label fw-semibold">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 bg-light"
+                            placeholder="Nombre, usuario o email..." [ngModel]="searchTerm()"
+                            (ngModelChange)="onSearchChange($event)">
+                    </div>
                 </div>
+
                 <div class="col-md-3">
-                    <label class="form-label d-block">Filtrar por Rol</label>
-                    <p-select [options]="roles()" [ngModel]="selectedRoleFilter()" optionLabel="name" optionValue="id"
-                        placeholder="Todos los roles" class="w-full" [showClear]="true"
-                        (ngModelChange)="onRoleFilterChange($event)"></p-select>
+                    <label class="form-label fw-semibold">Filtrar por Rol</label>
+                    <select class="form-select" [ngModel]="selectedRoleFilter()"
+                        (ngModelChange)="onRoleFilterChange($event)">
+                        <option [ngValue]="null">Todos los roles</option>
+                        <option *ngFor="let role of roles()" [ngValue]="role.id">{{ role.name }}</option>
+                    </select>
                 </div>
+
                 <div class="col-md-3">
-                    <label class="form-label d-block">Estado</label>
-                    <p-select [options]="[
-                        {label: 'Activos', value: true},
-                        {label: 'Inactivos', value: false}
-                    ]" [ngModel]="selectedStatusFilter()" optionLabel="label" optionValue="value" placeholder="Todos"
-                        class="w-full" [showClear]="true" (ngModelChange)="onStatusFilterChange($event)"></p-select>
+                    <label class="form-label fw-semibold">Estado</label>
+                    <select class="form-select" [ngModel]="selectedStatusFilter()"
+                        (ngModelChange)="onStatusFilterChange($event)">
+                        <option [ngValue]="null">Todos</option>
+                        <option [ngValue]="true">Activos</option>
+                        <option [ngValue]="false">Inactivos</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary w-100" (click)="clearFilters()"
+                        [disabled]="!searchTerm() && selectedRoleFilter() === null && selectedStatusFilter() === null">
+                        <i class="bi bi-funnel me-1"></i> Limpiar
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Table Section -->
-    <div class="card">
-        <p-table [value]="filteredUsers()" [loading]="isLoading()" [rows]="10" [paginator]="true"
-            [responsiveLayout]="'scroll'" styleClass="p-datatable-striped" [rowsPerPageOptions]="[5, 10, 25, 50]">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Usuario</th>
-                    <th>Nombre Completo</th>
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Estado</th>
-                    <th>Último Acceso</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-user>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="me-2" style="width: 32px; height: 32px; flex-shrink: 0;">
-                                @if (user.profilePicture) {
-                                <img [src]="user.profilePicture" class="rounded-circle w-100 h-100"
-                                    style="object-fit: cover;" (error)="$any($event.target).style.display = 'none'">
-                                } @else {
-                                <div class="avatar-circle">
-                                    {{ user.username.charAt(0).toUpperCase() }}
-                                </div>
-                                }
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th (click)="sortData('username')" class="cursor-pointer">
+                            Usuario <i class="bi" [ngClass]="getSortIcon('username')"></i>
+                        </th>
+                        <th (click)="sortData('fullName')" class="cursor-pointer">
+                            Nombre Completo <i class="bi" [ngClass]="getSortIcon('fullName')"></i>
+                        </th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th class="text-center">Estado</th>
+                        <th>Último Acceso</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngIf="isLoading()">
+                        <td colspan="7" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
                             </div>
-                            <strong>{{ user.username }}</strong>
-                        </div>
-                    </td>
-                    <td>{{ user.fullName }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        <div class="roles-badges">
-                            @for (role of user.roles; track role.id) {
-                            <p-tag [value]="role.name" severity="info" class="me-1"></p-tag>
-                            }
-                        </div>
-                    </td>
-                    <td>
-                        <p-tag [value]="user.active ? 'Activo' : 'Inactivo'"
-                            [severity]="user.active ? 'success' : 'secondary'"></p-tag>
-                    </td>
-                    <td>
-                        <small class="text-muted">
-                            {{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}
-                        </small>
-                    </td>
-                    <td class="text-end">
-                        <div class="action-buttons">
-                            <p-button icon="pi pi-pencil" [text]="true" severity="info" (onClick)="editUser(user.id)"
-                                pTooltip="Editar" tooltipPosition="top"></p-button>
-                            <p-button [icon]="user.active ? 'pi pi-user-minus' : 'pi pi-user-plus'" [text]="true"
-                                [severity]="user.active ? 'warn' : 'success'" (onClick)="toggleUserStatus(user)"
-                                [pTooltip]="user.active ? 'Desactivar' : 'Activar'" tooltipPosition="top"></p-button>
-                            <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="deleteUser(user)"
-                                pTooltip="Eliminar" tooltipPosition="top"></p-button>
-                        </div>
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="7" class="text-center py-5">
-                        <i class="pi pi-inbox fs-1 d-block mb-2 text-muted"></i>
-                        <span class="text-muted">No se encontraron usuarios</span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="!isLoading() && paginatedUsers.length === 0">
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center text-muted">
+                                <i class="bi bi-inbox fs-1 mb-2"></i>
+                                <span>No se encontraron usuarios</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr *ngFor="let user of paginatedUsers; trackBy: trackByUserId">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                    <img *ngIf="user.profilePicture" [src]="user.profilePicture"
+                                        class="rounded-circle w-100 h-100 object-fit-cover"
+                                        (error)="$any($event.target).style.display = 'none'">
+
+                                    <div *ngIf="!user.profilePicture" class="avatar-circle">
+                                        {{ user.username.charAt(0).toUpperCase() }}
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-dark">{{ user.username }}</span>
+                            </div>
+                        </td>
+                        <td>{{ user.fullName }}</td>
+                        <td class="text-muted small">{{ user.email }}</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span *ngFor="let role of user.roles" class="badge bg-light text-dark border">
+                                    {{ role.name }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill"
+                                [ngClass]="user.active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                                {{ user.active ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>
+                                {{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}
+                            </small>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-light text-primary" (click)="editUser(user.id)"
+                                    title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light"
+                                    [ngClass]="user.active ? 'text-warning' : 'text-success'"
+                                    (click)="confirmToggleStatus(user)"
+                                    [title]="user.active ? 'Desactivar' : 'Activar'">
+                                    <i class="bi" [ngClass]="user.active ? 'bi-person-dash' : 'bi-person-check'"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light text-danger" (click)="confirmDelete(user)"
+                                    title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer bg-white py-3 border-top-0" *ngIf="filteredUsers().length > 0">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <small class="text-muted">
+                    Mostrando {{ (currentPage - 1) * pageSize + 1 }} a
+                    {{ min(currentPage * pageSize, filteredUsers().length) }}
+                    de {{ filteredUsers().length }} usuarios
+                </small>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="currentPage === 1">
+                            <button class="page-link" (click)="changePage(currentPage - 1)">Anterior</button>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link border-0 text-dark fw-bold">Página {{currentPage}}</span>
+                        </li>
+                        <li class="page-item" [class.disabled]="currentPage * pageSize >= filteredUsers().length">
+                            <button class="page-link" (click)="changePage(currentPage + 1)">Siguiente</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
+
+    <div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmación</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p [innerHTML]="modalMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+                    <button type="button" class="btn"
+                        [ngClass]="modalActionType === 'delete' ? 'btn-danger' : 'btn-warning'"
+                        (click)="executePendingAction()">
+                        {{ modalActionType === 'delete' ? 'Eliminar' : 'Confirmar' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="showConfirmModal" class="modal-backdrop fade show"></div>
+
 </div>

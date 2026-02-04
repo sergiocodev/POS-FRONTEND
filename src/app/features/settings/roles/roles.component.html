@@ -1,16 +1,33 @@
-<app-module-header title="Roles y Permisos" iconClass="pi pi-shield"></app-module-header>
+<app-module-header title="Roles y Permisos" iconClass="bi bi-shield-lock"></app-module-header>
 
-<div class="roles-page">
+<div class="roles-page animate-fade-in">
     <app-roles-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
     </app-roles-list>
 
-    <p-dialog [header]="isEditMode() ? 'Editar Rol' : 'Nuevo Rol'" [(visible)]="displayForm" [modal]="true"
-        [style]="{ width: '450px' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }" [draggable]="false"
-        [resizable]="false" styleClass="p-dialog-modern" [closeOnEscape]="true" [dismissableMask]="true">
+    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
+        tabindex="-1" role="dialog" aria-hidden="true" (click)="onFormCancelled()">
+        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+            <div class="modal-content border-0 shadow-lg">
 
-        @if (displayForm()) {
-        <app-role-form [roleId]="selectedRoleId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
-        </app-role-form>
-        }
-    </p-dialog>
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark">
+                        {{ isEditMode() ? 'Editar Rol' : 'Nuevo Rol' }}
+                    </h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="onFormCancelled()"></button>
+                </div>
+
+                <div class="modal-body p-0">
+                    @if (displayForm()) {
+                    <app-role-form [roleId]="selectedRoleId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+                    </app-role-form>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @if (displayForm()) {
+    <div class="modal-backdrop fade show"></div>
+    }
 </div>

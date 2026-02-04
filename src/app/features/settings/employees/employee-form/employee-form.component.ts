@@ -2,16 +2,11 @@ import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+// Asegúrate de que las rutas a tus servicios sean correctas
 import { EmployeeService } from '../../../../core/services/employee.service';
 import { EmployeeRequest } from '../../../../core/models/employee.model';
 import { UserService } from '../../../../core/services/user.service';
 import { UserResponse } from '../../../../core/models/user.model';
-
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { ButtonModule } from 'primeng/button';
-import { InputMaskModule } from 'primeng/inputmask';
-import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-employee-form',
@@ -19,12 +14,8 @@ import { MessageModule } from 'primeng/message';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        RouterModule,
-        InputTextModule,
-        SelectModule,
-        ButtonModule,
-        InputMaskModule,
-        MessageModule
+        RouterModule
+        // NOTA: Ya no importamos InputTextModule, SelectModule, etc.
     ],
     templateUrl: './employee-form.component.html',
     styleUrl: './employee-form.component.scss'
@@ -86,6 +77,8 @@ export class EmployeeFormComponent implements OnInit {
             this.isEditMode.set(false);
             if (this.employeeForm) {
                 this.employeeForm.reset();
+                // Reset select to null explicitly if needed
+                this.employeeForm.controls['userId'].setValue(null);
             }
         }
     }
@@ -98,7 +91,7 @@ export class EmployeeFormComponent implements OnInit {
                     firstName: employee.firstName,
                     lastName: employee.lastName,
                     documentNumber: employee.documentNumber,
-                    userId: null // We don't have the userId in the response currently, but keep placeholder
+                    //userId: employee.userId // Asegúrate que tu backend devuelva userId, si no, será null
                 });
                 this.isLoading.set(false);
             },
@@ -123,7 +116,8 @@ export class EmployeeFormComponent implements OnInit {
             firstName: formValue.firstName,
             lastName: formValue.lastName || undefined,
             documentNumber: formValue.documentNumber || undefined,
-            userId: formValue.userId || undefined,
+            // Convertir a numero si viene como string del select nativo, o undefined si es null
+            userId: formValue.userId ? Number(formValue.userId) : undefined,
             active: true
         };
 

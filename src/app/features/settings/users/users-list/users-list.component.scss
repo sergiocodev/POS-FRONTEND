@@ -1,78 +1,65 @@
-.users-container {
-    padding: 1.5rem;
+// Animación suave de entrada
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
 }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-}
-
-.page-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.page-description {
-    color: var(--text-secondary);
-    margin-bottom: 0;
-}
-
-.filters-section {
-    margin-bottom: 1.5rem;
-}
-
-.avatar-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-.roles-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-}
-
-.avatar-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-}
-
-.action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-:host ::v-deep {
-    .p-datatable {
-        .p-datatable-header {
-            background: transparent;
-            border: none;
-            padding: 0;
-        }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    .p-tag {
-        font-weight: 500;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Avatar Circular
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+// Utilidades para tabla
+.cursor-pointer {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+// Badges de estado suaves (Estilo Bootstrap moderno)
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+.bg-secondary-subtle {
+    background-color: #e2e3e5 !important;
+    color: #41464b !important;
+}
+
+// Ajustes del Select nativo para que se vea bien
+.form-select {
+    cursor: pointer;
+
+    &:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
     }
 }

@@ -1,196 +1,252 @@
-<div class="user-form-container">
-    <p-toast></p-toast>
+<div class="user-form-container container fade-in">
 
-    <div *ngIf="isLoading()" class="text-center py-5">
-        <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
+        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
+        <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        <strong class="mx-2">{{ alertTitle }}</strong> {{ alertMessage }}
+        <button type="button" class="btn-close" (click)="closeAlert()"></button>
+    </div>
+
+    <div *ngIf="isLoading()" class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <div class="form-header">
-            <div class="header-content">
-                <h2>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Usuario</h2>
-                <p>Complete la información detallada para la gestión del perfil.</p>
+        <div class="row mb-4 align-items-center">
+            <div class="col">
+                <h2 class="fw-bold mb-1">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Usuario</h2>
+                <p class="text-muted mb-0">Complete la información detallada para la gestión del perfil.</p>
             </div>
         </div>
 
         <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-            <div class="grid">
-                <!-- Columna Izquierda: Información Principal -->
-                <div class="col-12 lg:col-7">
-                    <div class="glass-card mb-4 min-h-full">
-                        <p-card header="Información de Cuenta">
-                            <div class="section-subtitle">
-                                <i class="pi pi-user-edit"></i>
-                                <span>Credenciales y datos personales obligatorios</span>
+            <div class="row g-4">
+
+                <div class="col-12 col-lg-7">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                            <div
+                                class="d-flex align-items-center mb-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                                <i class="bi bi-person-gear fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Información de Cuenta</h6>
+                                    <small class="text-muted">Credenciales y datos personales obligatorios</small>
+                                </div>
                             </div>
+                        </div>
 
-                            <div class="grid">
+                        <div class="card-body px-4 pb-4">
+                            <div class="row g-3">
 
-                                <div class="col-12 field" *ngIf="!isEditMode()">
-                                    <label>Número de documento</label>
-                                    <div class="document-search-group">
-                                        <input type="text" pInputText formControlName="document"
-                                            placeholder="N° de Documento (DNI/CEX)" class="w-full" />
-                                        <p-button icon="pi pi-search" severity="info" type="button" class="search-btn"
-                                            (onClick)="searchDocument()" [loading]="isSearching()"></p-button>
+                                <div class="col-12" *ngIf="!isEditMode()">
+                                    <label class="form-label fw-semibold">Número de documento</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" formControlName="document"
+                                            placeholder="N° de Documento (DNI/CEX)">
+                                        <button class="btn btn-info text-white" type="button" (click)="searchDocument()"
+                                            [disabled]="isSearching()">
+                                            <span *ngIf="isSearching()"
+                                                class="spinner-border spinner-border-sm me-1"></span>
+                                            <i *ngIf="!isSearching()" class="bi bi-search"></i>
+                                        </button>
                                     </div>
-                                    <small class="text-muted">Use la búsqueda para autocompletar datos</small>
+                                    <div class="form-text">Use la búsqueda para autocompletar datos</div>
                                 </div>
 
-                                <div class="col-12 field">
-                                    <label>Nombre Completo <span class="text-danger">*</span></label>
-                                    <span class="p-input-icon-left w-full">
-                                        <i class="pi pi-id-card"></i>
-                                        <input type="text" pInputText formControlName="fullName"
-                                            placeholder="Ej: Juan Pérez García" />
-                                    </span>
-                                    <small *ngIf="f['fullName']?.invalid && f['fullName']?.touched" class="text-danger">
-                                        El nombre es requerido para el registro
-                                    </small>
-                                </div>
-
-                                <div class="col-12 md:col-6 field">
-                                    <label>Email <span class="text-danger">*</span></label>
-                                    <span class="p-input-icon-left w-full">
-                                        <i class="pi pi-envelope"></i>
-                                        <input type="email" pInputText formControlName="email"
-                                            placeholder="correo@corporativo.com" />
-                                    </span>
-                                    <small *ngIf="f['email']?.invalid && f['email']?.touched" class="text-danger">
-                                        {{ f['email']?.errors?.['required'] ? 'El email es requerido' : 'Email inválido'
-                                        }}
-                                    </small>
-                                </div>
-
-                                <div class="col-12 md:col-6 field">
-                                    <label>Usuario <span class="text-danger">*</span></label>
-                                    <span class="p-input-icon-left w-full">
-                                        <i class="pi pi-user"></i>
-                                        <input type="text" pInputText formControlName="username"
-                                            placeholder="Identificador de ingreso" />
-                                    </span>
-                                    <small *ngIf="f['username']?.invalid && f['username']?.touched" class="text-danger">
-                                        {{ f['username']?.errors?.['required'] ? 'El usuario es requerido' : 'Mínimo 3
-                                        caracteres' }}
-                                    </small>
-                                </div>
-
-                                <div class="col-12 field">
-                                    <label>Seguridad</label>
-                                    <div class="grid align-items-center">
-                                        <div class="col-12 md:col-8">
-                                            <p-password formControlName="password" [toggleMask]="true"
-                                                [feedback]="false" placeholder="Contraseña segura (min 8 car.)"
-                                                styleClass="w-full" [inputStyleClass]="'w-full'"></p-password>
-                                            <small *ngIf="isEditMode()" class="text-muted block mt-1">
-                                                (dejar vacío para no cambiar)
-                                            </small>
-                                            <small *ngIf="f['password']?.invalid && f['password']?.touched"
-                                                class="text-danger block mt-1">
-                                                {{ f['password']?.errors?.['required'] ? 'La contraseña es obligatoria'
-                                                :
-                                                'Mínimo 8 caracteres' }}
-                                            </small>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Nombre Completo <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
+                                        <input type="text" class="form-control" formControlName="fullName"
+                                            placeholder="Ej: Juan Pérez García"
+                                            [class.is-invalid]="f['fullName'].invalid && f['fullName'].touched">
+                                        <div class="invalid-feedback">
+                                            El nombre es requerido para el registro.
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- profilePicture Field -->
-                                <div class="col-12 field border-top-1 surface-border pt-4 mt-4">
-                                    <label class="font-bold text-primary mb-3 block">Foto de Perfil</label>
-                                    <div class="grid align-items-center">
-                                        <div class="col-12 md:col-8">
-                                            <div class="flex gap-2 mb-2">
-                                                <span class="p-input-icon-left flex-grow-1">
-                                                    <i class="pi pi-image text-primary"></i>
-                                                    <input type="text" pInputText formControlName="profilePicture"
-                                                        placeholder="/uploads/usuarios/nombre.png" class="w-full" />
-                                                </span>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Email <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" formControlName="email"
+                                            placeholder="correo@corporativo.com"
+                                            [class.is-invalid]="f['email'].invalid && f['email'].touched">
+                                        <div class="invalid-feedback">
+                                            {{ f['email'].errors?.['required'] ? 'El email es requerido' : 'Email
+                                            inválido' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Usuario <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" formControlName="username"
+                                            placeholder="Identificador"
+                                            [class.is-invalid]="f['username'].invalid && f['username'].touched">
+                                        <div class="invalid-feedback">
+                                            {{ f['username'].errors?.['required'] ? 'Requerido' : 'Mínimo 3 caracteres'
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Seguridad</label>
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-md-8">
+                                            <div class="input-group has-validation">
+                                                <input [type]="showPassword() ? 'text' : 'password'"
+                                                    class="form-control" formControlName="password"
+                                                    placeholder="Contraseña segura (min 8 car.)"
+                                                    [class.is-invalid]="f['password'].invalid && f['password'].touched">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                    (click)="togglePassword()">
+                                                    <i class="bi"
+                                                        [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                </button>
+                                                <div class="invalid-feedback">
+                                                    {{ f['password'].errors?.['required'] ? 'Obligatoria' : 'Mínimo 8
+                                                    caracteres' }}
+                                                </div>
+                                            </div>
+                                            <div *ngIf="isEditMode()" class="form-text mt-1">
+                                                (dejar vacío para no cambiar)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 border-top pt-4 mt-2">
+                                    <label class="form-label fw-bold text-primary mb-3">Foto de Perfil</label>
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-md-8 mb-3 mb-md-0">
+                                            <div class="input-group mb-2">
+                                                <span class="input-group-text bg-light"><i
+                                                        class="bi bi-image"></i></span>
+                                                <input type="text" class="form-control" formControlName="profilePicture"
+                                                    placeholder="/uploads/usuarios/nombre.png">
                                                 <input type="file" #fileInput hidden (change)="onFileSelected($event)"
                                                     accept="image/*">
-                                                <p-button icon="pi pi-upload" (onClick)="fileInput.click()"
-                                                    [loading]="isSaving()" severity="info" pTooltip="Subir Foto"
-                                                    tooltipPosition="top"></p-button>
+                                                <button class="btn btn-outline-primary" type="button"
+                                                    (click)="fileInput.click()" [disabled]="isSaving()"
+                                                    title="Subir Foto">
+                                                    <i class="bi bi-cloud-upload"></i>
+                                                </button>
                                             </div>
-                                            <small class="text-muted block">Ingrese la ruta o use el botón para subir
-                                                una
-                                                foto (ej: /uploads/usuarios/admin.png)</small>
+                                            <small class="text-muted">Ingrese ruta o suba un archivo.</small>
                                         </div>
-                                        <div class="col-12 md:col-4 flex justify-content-center">
-                                            <div class="avatar-preview-container border-2 border-circle surface-border surface-50 flex align-items-center justify-content-center overflow-hidden"
-                                                style="width: 100px; height: 100px; transition: all 0.3s ease;">
-                                                @if (userForm.get('profilePicture')?.value && !imageError()) {
-                                                <img [src]="userForm.get('profilePicture')?.value" alt="Preview"
-                                                    class="preview-image" (error)="imageError.set(true)">
-                                                } @else {
-                                                <div class="flex flex-column align-items-center text-muted">
-                                                    <i class="pi pi-user text-3xl mb-1"></i>
-                                                    <span class="text-xs">Sin foto</span>
+                                        <div class="col-12 col-md-4 d-flex justify-content-center">
+                                            <div class="avatar-preview rounded-circle border d-flex align-items-center justify-content-center overflow-hidden bg-light"
+                                                style="width: 100px; height: 100px;">
+                                                <img *ngIf="userForm.get('profilePicture')?.value && !imageError()"
+                                                    [src]="userForm.get('profilePicture')?.value"
+                                                    class="w-100 h-100 object-fit-cover" (error)="imageError.set(true)"
+                                                    alt="Preview">
+                                                <div *ngIf="!userForm.get('profilePicture')?.value || imageError()"
+                                                    class="text-center text-muted">
+                                                    <i class="bi bi-person fs-1"></i>
+                                                    <div style="font-size: 0.7rem;">Sin foto</div>
                                                 </div>
-                                                }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
-                        </p-card>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Roles y Configuración -->
-                <div class="col-12 lg:col-5">
-                    <div class="glass-card min-h-full">
-                        <p-card header="Nivel de Acceso">
-                            <div class="section-subtitle">
-                                <i class="pi pi-shield"></i>
-                                <span>Permisos y privilegios del sistema</span>
-                            </div>
-
-                            <div class="roles-grid">
-                                <div *ngIf="roles().length === 0" class="text-center py-4 border-round-xl surface-50">
-                                    <i class="pi pi-exclamation-circle text-2xl text-muted mb-2"></i>
-                                    <p class="text-muted m-0">No se encontraron roles activos</p>
-                                </div>
-
-                                <div *ngFor="let role of roles()" class="role-card"
-                                    [class.selected]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
-                                    <div class="role-icon-box">
-                                        <i [class]="isRoleSelected(role.id) ? 'pi pi-check' : 'pi pi-lock'"></i>
-                                    </div>
-                                    <div class="role-details">
-                                        <span class="role-name">{{ role.name }}</span>
-                                        <span class="role-desc">{{ role.description || 'Sin descripción asignada'
-                                            }}</span>
-                                    </div>
-                                    <p-checkbox [binary]="true" [ngModel]="isRoleSelected(role.id)"
-                                        [ngModelOptions]="{standalone: true}"
-                                        (click)="$event.stopPropagation()"></p-checkbox>
+                <div class="col-12 col-lg-5">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                            <div
+                                class="d-flex align-items-center mb-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                                <i class="bi bi-shield-lock fs-4 text-primary me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Nivel de Acceso</h6>
+                                    <small class="text-muted">Permisos y privilegios del sistema</small>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="mt-3 p-3 surface-50 border-round-xl" *ngIf="selectedRoles().length > 0">
-                                <small
-                                    class="text-muted d-block mb-2 uppercase font-bold text-xs">Seleccionados:</small>
-                                <div class="flex flex-wrap gap-2">
+                        <div class="card-body px-4 pb-4">
+                            <div class="roles-container custom-scrollbar mb-3">
+                                <div *ngIf="roles().length === 0" class="text-center py-4 bg-light rounded">
+                                    <i class="bi bi-exclamation-circle fs-3 text-muted mb-2 d-block"></i>
+                                    <span class="text-muted">No se encontraron roles activos</span>
+                                </div>
+
+                                <div *ngFor="let role of roles()"
+                                    class="role-item p-3 mb-2 rounded border cursor-pointer position-relative d-flex align-items-center gap-3"
+                                    [class.border-primary]="isRoleSelected(role.id)"
+                                    [class.bg-primary-subtle]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
+
+                                    <div class="role-icon d-flex align-items-center justify-content-center rounded bg-white border"
+                                        style="width: 40px; height: 40px;">
+                                        <i class="bi"
+                                            [ngClass]="isRoleSelected(role.id) ? 'bi-check-lg text-primary' : 'bi-lock text-muted'"></i>
+                                    </div>
+
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-dark">{{ role.name }}</div>
+                                        <div class="small text-muted lh-sm">{{ role.description || 'Sin descripción' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                            [checked]="isRoleSelected(role.id)" (click)="$event.stopPropagation()"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded" *ngIf="selectedRoles().length > 0">
+                                <small class="text-uppercase fw-bold text-muted d-block mb-2"
+                                    style="font-size: 0.75rem;">Seleccionados:</small>
+                                <div class="d-flex flex-wrap gap-2">
                                     <ng-container *ngFor="let role of roles()">
-                                        <p-chip *ngIf="isRoleSelected(role.id)" [style]="{'font-size': '12px'}"
-                                            [label]="role.name" icon="pi pi-tag"></p-chip>
+                                        <span *ngIf="isRoleSelected(role.id)"
+                                            class="badge bg-primary rounded-pill fw-normal">
+                                            <i class="bi bi-tag-fill me-1"></i> {{ role.name }}
+                                        </span>
                                     </ng-container>
                                 </div>
                             </div>
-                        </p-card>
+
+                            <div *ngIf="f['roleIds'].invalid && f['roleIds'].touched" class="text-danger small mt-2">
+                                <i class="bi bi-exclamation-circle me-1"></i> Debe seleccionar al menos un rol.
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+            </div>
+
+            <div class="card border-0 mt-4 shadow-sm">
+                <div class="card-body d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="isSaving()">
+                        <i class="bi bi-arrow-left me-1"></i> Descartar
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving()">
+                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
+                            aria-hidden="true"></span>
+                        <i *ngIf="!isSaving()" class="bi bi-check-circle me-1"></i>
+                        {{ isEditMode() ? 'Guardar Cambios' : 'Registrar Usuario' }}
+                    </button>
                 </div>
             </div>
 
-            <div class="form-actions">
-                <p-button label="Descartar" icon="pi pi-arrow-left" (onClick)="cancel()" severity="secondary"
-                    [text]="true" [disabled]="isSaving()" class="btn-action"></p-button>
-
-                <p-button [label]="isEditMode() ? 'Guardar Cambios' : 'Registrar Usuario'" icon="pi pi-check-circle"
-                    type="submit" [loading]="isSaving()" severity="primary" [disabled]="isSaving()"
-                    class="btn-action"></p-button>
-            </div>
         </form>
     </ng-container>
 </div>

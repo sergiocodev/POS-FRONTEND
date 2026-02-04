@@ -1,32 +1,31 @@
 .role-form-container {
-    .form-label {
-        font-size: 0.9rem;
-        color: #495057;
+
+    // Aseguramos que el input group se vea integrado
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #6c757d;
     }
 
-    .card {
-        border-radius: 12px;
-    }
+    .form-control:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 
-    :host ::v-deep {
-
-        .p-inputtext,
-        .p-textarea {
-            border-radius: 8px;
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            transition: all 0.2s;
-
-            &:focus {
-                border-color: var(--p-primary-color);
-                box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
-            }
+        // Ajuste para cuando está dentro de un input-group sin borde izquierdo
+        &.border-start-0 {
+            border-left: 1px solid var(--bs-primary);
         }
+    }
 
-        .p-toggleswitch {
-            .p-toggleswitch-slider {
-                border-radius: 20px;
-            }
+    // Estilo para el switch
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        margin-right: 0.75em;
+        cursor: pointer;
+
+        &:checked {
+            background-color: var(--bs-success);
+            border-color: var(--bs-success);
         }
     }
 }

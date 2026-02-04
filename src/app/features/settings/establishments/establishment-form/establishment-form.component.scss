@@ -1,24 +1,18 @@
 .establishment-form-container {
-    .form-label {
-        font-size: 0.9rem;
-        color: #495057;
+
+    // Aseguramos que el input group se vea integrado visualmente
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #6c757d;
     }
 
-    .card {
-        border-radius: 12px;
-    }
+    .form-control:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 
-    :host ::v-deep {
-        .p-inputtext {
-            border-radius: 8px;
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            transition: all 0.2s;
-
-            &:focus {
-                border-color: var(--p-primary-color);
-                box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
-            }
+        // Ajuste para el borde izquierdo cuando está dentro de un input-group
+        &.border-start-0 {
+            border-left: 1px solid var(--bs-primary);
         }
     }
 }

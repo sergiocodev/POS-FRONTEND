@@ -4,9 +4,6 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentRequest } from '../../../../core/models/maintenance.model';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-establishment-form',
@@ -14,10 +11,8 @@ import { MessageModule } from 'primeng/message';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        RouterModule,
-        InputTextModule,
-        ButtonModule,
-        MessageModule
+        RouterModule
+        // Eliminados módulos de PrimeNG
     ],
     templateUrl: './establishment-form.component.html',
     styleUrl: './establishment-form.component.scss'
@@ -25,6 +20,9 @@ import { MessageModule } from 'primeng/message';
 export class EstablishmentFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private establishmentService = inject(EstablishmentService);
+
+    // Eliminados Router y ActivatedRoute si no se usan explícitamente en el código lógico, 
+    // pero los dejo por si los necesitas para navegación futura.
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -84,6 +82,8 @@ export class EstablishmentFormComponent implements OnInit {
             error: (error) => {
                 console.error('Error loading establishment:', error);
                 this.isLoading.set(false);
+                // Opcional: Emitir cancelación si falla la carga
+                // this.cancelled.emit(); 
             }
         });
     }
@@ -116,6 +116,7 @@ export class EstablishmentFormComponent implements OnInit {
             error: (error) => {
                 console.error('Error saving establishment:', error);
                 this.isSaving.set(false);
+                // Aquí podrías agregar una lógica de alerta visual si lo deseas
             }
         });
     }

@@ -1,77 +1,58 @@
-.establishments-list-container {
-    padding: 1.5rem;
+// Animación
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
 
-    .page-title {
-        color: #2c3e50;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    .est-icon-circle {
-        width: 38px;
-        height: 38px;
-        background-color: rgba(var(--p-primary-color-rgb), 0.1);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    .card {
-        border-radius: 12px;
-        transition: transform 0.2s, box-shadow 0.2s;
+// Icono circular personalizado
+.est-icon-circle {
+    width: 36px;
+    height: 36px;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+// Utilidades
+.cursor-pointer {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
     }
+}
 
-    :host ::v-deep {
-        .p-datatable {
-            .p-datatable-header {
-                background: transparent;
-                border: none;
-                padding: 1rem 0;
-            }
+// Badges suaves estilo moderno
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
 
-            .p-datatable-thead>tr>th {
-                background-color: #f8f9fa;
-                color: #495057;
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 0.75rem;
-                letter-spacing: 0.5px;
-                padding: 1rem;
-            }
+.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+}
 
-            .p-datatable-tbody>tr {
-                transition: background-color 0.2s;
-
-                &:hover {
-                    background-color: rgba(var(--p-primary-color-rgb), 0.02) !important;
-                }
-            }
-
-            .p-datatable-tbody>tr>td {
-                padding: 1rem;
-                vertical-align: middle;
-            }
-        }
-
-        .p-paginator {
-            border: none;
-            padding: 1rem;
-            background: transparent;
-        }
-
-        .p-select {
-            border-radius: 8px;
-
-            .p-select-label {
-                padding: 0.6rem;
-            }
-        }
-
-        .p-inputtext {
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
-        }
+// Ajustes Input/Select
+.form-select,
+.form-control {
+    &:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
     }
 }

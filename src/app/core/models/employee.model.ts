@@ -12,5 +12,6 @@ export interface EmployeeResponse {
     lastName?: string;
     documentNumber?: string;
     username?: string;
+    email?: string;
     active: boolean;
 }

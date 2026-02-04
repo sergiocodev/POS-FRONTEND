@@ -1,15 +1,20 @@
 import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DialogModule } from 'primeng/dialog';
+// Eliminado: import { DialogModule } from 'primeng/dialog';
 import { EstablishmentsListComponent } from './establishments-list/establishments-list.component';
 import { EstablishmentFormComponent } from './establishment-form/establishment-form.component';
-
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-establishments',
     standalone: true,
-    imports: [CommonModule, DialogModule, EstablishmentsListComponent, EstablishmentFormComponent, ModuleHeaderComponent],
+    imports: [
+        CommonModule,
+        EstablishmentsListComponent,
+        EstablishmentFormComponent,
+        ModuleHeaderComponent
+        // Eliminado: DialogModule
+    ],
     templateUrl: './establishments.component.html',
     styleUrl: './establishments.component.scss'
 })
@@ -28,10 +33,12 @@ export class EstablishmentsComponent {
 
     onFormSaved() {
         this.displayForm.set(false);
+        this.selectedEstablishmentId.set(null);
         this.establishmentsList.loadData();
     }
 
     onFormCancelled() {
         this.displayForm.set(false);
+        this.selectedEstablishmentId.set(null);
     }
 }

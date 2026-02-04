@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -6,22 +6,8 @@ import { UserService } from '../../../../core/services/user.service';
 import { RoleService } from '../../../../core/services/role.service';
 import { UploadService } from '../../../../core/services/upload.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { UserRequest, UserResponse } from '../../../../core/models/user.model';
+import { UserRequest } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
-
-// PrimeNG Imports
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageModule } from 'primeng/message';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { ChipModule } from 'primeng/chip';
 
 @Component({
     selector: 'app-user-form',
@@ -30,20 +16,8 @@ import { ChipModule } from 'primeng/chip';
         CommonModule,
         ReactiveFormsModule,
         FormsModule,
-        RouterModule,
-        InputTextModule,
-        PasswordModule,
-        CheckboxModule,
-        ToggleSwitchModule,
-        ButtonModule,
-        InputNumberModule,
-        CardModule,
-        ProgressSpinnerModule,
-        MessageModule,
-        ToastModule,
-        ChipModule
+        RouterModule
     ],
-    providers: [MessageService],
     templateUrl: './user-form.component.html',
     styleUrl: './user-form.component.scss'
 })
@@ -53,10 +27,7 @@ export class UserFormComponent implements OnInit {
     private roleService = inject(RoleService);
     private uploadService = inject(UploadService);
     private authService = inject(AuthService);
-
     private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private messageService = inject(MessageService);
 
     @Input() set userId(value: number | null) {
         this._userId.set(value);
@@ -76,6 +47,12 @@ export class UserFormComponent implements OnInit {
     isSaving = signal(false);
     isSearching = signal(false);
     imageError = signal(false);
+    showPassword = signal(false);
+
+    // Alert State
+    alertMessage = '';
+    alertTitle = '';
+    alertType = 'success';
 
     roles = signal<RoleResponse[]>([]);
     selectedRoles = signal<number[]>([]);
@@ -83,7 +60,6 @@ export class UserFormComponent implements OnInit {
     ngOnInit() {
         this.initForm();
         this.loadLookupData();
-        this.checkEditMode();
     }
 
     initForm() {
@@ -108,12 +84,8 @@ export class UserFormComponent implements OnInit {
             next: (roles) => {
                 this.roles.set(roles.filter(r => r.active));
             },
-            error: (error) => {
-                console.error('Error loading roles:', error);
-            }
+            error: (error) => console.error('Error loading roles:', error)
         });
-
-
     }
 
     checkEditModeFromInput() {
@@ -121,7 +93,6 @@ export class UserFormComponent implements OnInit {
         if (id) {
             this.isEditMode.set(true);
             this.loadUser(id);
-
             if (this.userForm) {
                 this.userForm.get('password')?.clearValidators();
                 this.userForm.get('password')?.updateValueAndValidity();
@@ -137,10 +108,6 @@ export class UserFormComponent implements OnInit {
         }
     }
 
-    checkEditMode() {
-
-    }
-
     loadUser(id: number) {
         this.isLoading.set(true);
         this.userService.getById(id).subscribe({
@@ -154,17 +121,12 @@ export class UserFormComponent implements OnInit {
                     profilePicture: user.profilePicture || ''
                 });
                 this.selectedRoles.set(user.roles?.map(r => r.id) || []);
-
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading user:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al cargar el usuario'
-                });
-                this.router.navigate(['/settings/users']);
+                this.showAlert('Error', 'Error al cargar el usuario', 'danger');
+                this.cancel();
             }
         });
     }
@@ -187,14 +149,14 @@ export class UserFormComponent implements OnInit {
         return this.selectedRoles().includes(roleId);
     }
 
+    togglePassword() {
+        this.showPassword.update(v => !v);
+    }
+
     searchDocument() {
         const document = this.userForm.get('document')?.value;
         if (!document) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Atención',
-                detail: 'Ingrese un número de documento'
-            });
+            this.showAlert('Atención', 'Ingrese un número de documento', 'warning');
             return;
         }
 
@@ -208,21 +170,11 @@ export class UserFormComponent implements OnInit {
                     const fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     this.userForm.patchValue({ fullName: fullName });
                 }
-
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: 'Datos encontrados'
-                });
+                this.showAlert('Éxito', 'Datos encontrados', 'success');
             },
             error: (error) => {
                 this.isSearching.set(false);
-                console.error('Error searching document:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se encontraron datos para el documento ingresado'
-                });
+                this.showAlert('Error', 'No se encontraron datos', 'danger');
             }
         });
     }
@@ -238,12 +190,7 @@ export class UserFormComponent implements OnInit {
                     this.isSaving.set(false);
                 },
                 error: (err) => {
-                    console.error('Error uploading file:', err);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'No se pudo subir la imagen'
-                    });
+                    this.showAlert('Error', 'No se pudo subir la imagen', 'danger');
                     this.isSaving.set(false);
                 }
             });
@@ -253,19 +200,13 @@ export class UserFormComponent implements OnInit {
     onSubmit() {
         if (this.userForm.invalid) {
             this.userForm.markAllAsTouched();
-
             if (this.userForm.get('roleIds')?.invalid) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Atención',
-                    detail: 'Debe seleccionar al menos un rol'
-                });
+                this.showAlert('Atención', 'Debe seleccionar al menos un rol', 'warning');
             }
             return;
         }
 
         this.isSaving.set(true);
-
         const formValue = this.userForm.value;
         const request: UserRequest = {
             username: formValue.username,
@@ -276,7 +217,6 @@ export class UserFormComponent implements OnInit {
             profilePicture: formValue.profilePicture
         };
 
-
         if (formValue.password) {
             request.password = formValue.password;
         }
@@ -286,33 +226,20 @@ export class UserFormComponent implements OnInit {
             : this.userService.create(request);
 
         operation.subscribe({
-            next: (response) => {
+            next: () => {
                 this.isSaving.set(false);
-
-                // Update auth session if editing own profile
+                // Update session logic if needed...
                 const currentUser = this.authService.currentUser();
                 if (currentUser && currentUser.id === this.userId) {
-                    const updatedUser: any = { ...currentUser, ...request };
-                    // Ensure ID and other critical fields are preserved
-                    updatedUser.id = currentUser.id;
-                    this.authService.updateCurrentUser(updatedUser);
+                    this.authService.updateCurrentUser({ ...currentUser, ...request, id: currentUser.id });
                 }
-
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`
-                });
-                this.saved.emit();
+                this.showAlert('Éxito', `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`, 'success');
+                setTimeout(() => this.saved.emit(), 1000); // Pequeño delay para ver la alerta
             },
             error: (error) => {
                 console.error('Error saving user:', error);
                 this.isSaving.set(false);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al guardar el usuario'
-                });
+                this.showAlert('Error', 'Error al guardar el usuario', 'danger');
             }
         });
     }
@@ -323,5 +250,17 @@ export class UserFormComponent implements OnInit {
 
     get f() {
         return this.userForm.controls;
+    }
+
+    // Alert Helpers
+    showAlert(title: string, message: string, type: string) {
+        this.alertTitle = title;
+        this.alertMessage = message;
+        this.alertType = type;
+        setTimeout(() => this.closeAlert(), 4000);
+    }
+
+    closeAlert() {
+        this.alertMessage = '';
     }
 }

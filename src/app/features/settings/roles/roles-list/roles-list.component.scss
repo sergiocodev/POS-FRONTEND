@@ -1,59 +1,63 @@
-.roles-list-container {
-    padding: 1.5rem;
+// Animación
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
 
-    .page-title {
-        color: #2c3e50;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    .role-icon-circle {
-        width: 40px;
-        height: 40px;
-        background: rgba(var(--p-primary-color-rgb), 0.1);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    :host ::v-deep {
-        .p-datatable {
-            .p-datatable-header {
-                background: transparent;
-                border: none;
-                padding: 1rem 0;
-            }
+// Icono circular personalizado
+.role-icon-circle {
+    width: 36px;
+    height: 36px;
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
 
-            .p-datatable-thead>tr>th {
-                background: #f8f9fa;
-                color: #495057;
-                font-weight: 600;
-                border-bottom: 2px solid #dee2e6;
-            }
+// Utilidades
+.cursor-pointer {
+    cursor: pointer;
+    user-select: none;
 
-            .p-datatable-tbody>tr {
-                transition: background-color 0.2s;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+}
 
-                &:hover {
-                    background-color: rgba(6, 182, 212, 0.02);
-                }
-            }
-        }
+// Badges suaves estilo moderno
+.bg-secondary-subtle {
+    background-color: #e2e3e5 !important;
+    color: #41464b !important;
+}
 
-        .p-paginator {
-            background: transparent;
-            border: none;
-            margin-top: 1rem;
-        }
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
 
-        .p-select {
-            border-radius: 8px;
-        }
+.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+}
 
-        .p-inputtext {
-            border-radius: 8px;
-        }
+// Ajustes Input/Select
+.form-select,
+.form-control {
+    &:focus {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
     }
 }

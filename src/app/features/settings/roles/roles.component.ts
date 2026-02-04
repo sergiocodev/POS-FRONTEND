@@ -1,15 +1,19 @@
 import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DialogModule } from 'primeng/dialog';
+// Eliminado: import { DialogModule } from 'primeng/dialog';
 import { RolesListComponent } from './roles-list/roles-list.component';
 import { RoleFormComponent } from './role-form/role-form.component';
-
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-roles',
     standalone: true,
-    imports: [CommonModule, DialogModule, RolesListComponent, RoleFormComponent, ModuleHeaderComponent],
+    imports: [
+        CommonModule,
+        RolesListComponent,
+        RoleFormComponent,
+        ModuleHeaderComponent
+    ],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
 })
@@ -28,10 +32,12 @@ export class RolesComponent {
 
     onFormSaved() {
         this.displayForm.set(false);
+        this.selectedRoleId.set(null);
         this.rolesList.loadData();
     }
 
     onFormCancelled() {
         this.displayForm.set(false);
+        this.selectedRoleId.set(null);
     }
 }

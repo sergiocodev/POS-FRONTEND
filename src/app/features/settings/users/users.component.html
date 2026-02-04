@@ -1,14 +1,20 @@
-<div class="users-page">
-    <app-users-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
-    </app-users-list>
+<div class="users-page animate-fade-in">
+    <app-users-list (create)="onOpenForm()" (edit)="onOpenForm($event)"></app-users-list>
 
-    <p-dialog [header]="isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario'" [(visible)]="displayForm" [modal]="true"
-        [style]="{ width: '80vw' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }" [draggable]="false"
-        [resizable]="false">
-
-        @if (displayForm()) {
-        <app-user-form [userId]="selectedUserId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
-        </app-user-form>
-        }
-    </p-dialog>
+    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
+        tabindex="-1" (click)="onFormCancelled()">
+        <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold">{{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
+                    <button type="button" class="btn-close" (click)="onFormCancelled()"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <app-user-form *ngIf="displayForm()" [userId]="selectedUserId()" (saved)="onFormSaved()"
+                        (cancelled)="onFormCancelled()"></app-user-form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="displayForm()" class="modal-backdrop fade show"></div>
 </div>

@@ -5,14 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { RoleDetailResponse, PermissionResponse } from '../../../../core/models/maintenance.model';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-role-permissions',
@@ -20,15 +12,8 @@ import { TagModule } from 'primeng/tag';
     imports: [
         CommonModule,
         RouterModule,
-        FormsModule,
-        CheckboxModule,
-        ButtonModule,
-        InputTextModule,
-        SelectModule,
-        IconFieldModule,
-        InputIconModule,
-        TooltipModule,
-        TagModule
+        FormsModule
+        // Eliminados módulos de PrimeNG
     ],
     templateUrl: './role-permissions.component.html',
     styleUrl: './role-permissions.component.scss'
@@ -43,12 +28,17 @@ export class RolePermissionsComponent implements OnInit {
     groupedPermissions = signal<{ [module: string]: PermissionResponse[] }>({});
     modules = signal<string[]>([]);
     selectedPermissions = signal<number[]>([]);
+
     isLoading = signal(false);
     isSaving = signal(false);
 
-
     searchTerm = signal('');
     selectedModule = signal<string>('');
+
+    // Estado para Alertas
+    alertMessage = '';
+    alertTitle = '';
+    alertType = 'success';
 
     ngOnInit() {
         const roleId = this.route.snapshot.paramMap.get('id');
@@ -60,7 +50,7 @@ export class RolePermissionsComponent implements OnInit {
     loadData(roleId: number) {
         this.isLoading.set(true);
 
-
+        // Cargar Rol
         this.roleService.getById(roleId).subscribe({
             next: (role) => {
                 this.role.set(role);
@@ -68,12 +58,12 @@ export class RolePermissionsComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading role:', error);
-                alert('Error al cargar el rol');
-                this.router.navigate(['/settings/roles']);
+                this.showAlert('Error', 'No se pudo cargar el rol', 'danger');
+                setTimeout(() => this.router.navigate(['/settings/roles']), 2000);
             }
         });
 
-
+        // Cargar Permisos
         this.permissionService.getGrouped().subscribe({
             next: (grouped) => {
                 this.groupedPermissions.set(grouped);
@@ -82,6 +72,7 @@ export class RolePermissionsComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading permissions:', error);
+                this.showAlert('Error', 'No se pudieron cargar los permisos', 'danger');
                 this.isLoading.set(false);
             }
         });
@@ -105,10 +96,15 @@ export class RolePermissionsComponent implements OnInit {
         this.selectedPermissions.set(allPermissions.map(p => p.id));
     }
 
+    deselectAll() {
+        this.selectedPermissions.set([]);
+    }
+
     selectAllInModule(module: string) {
         const modulePermissions = this.groupedPermissions()[module] || [];
         const current = this.selectedPermissions();
         const moduleIds = modulePermissions.map(p => p.id);
+        // Combinar y eliminar duplicados
         const combined = [...new Set([...current, ...moduleIds])];
         this.selectedPermissions.set(combined);
     }
@@ -142,33 +138,40 @@ export class RolePermissionsComponent implements OnInit {
         );
     }
 
-    deselectAll() {
-        this.selectedPermissions.set([]);
-    }
-
     onSave() {
         const roleId = this.role()?.id;
         if (!roleId) return;
 
         this.isSaving.set(true);
-
         const request = { permissionIds: this.selectedPermissions() };
 
         this.roleService.replacePermissions(roleId, request).subscribe({
             next: () => {
                 this.isSaving.set(false);
-                alert('Permisos actualizados exitosamente');
-                this.router.navigate(['/settings/roles']);
+                this.showAlert('Éxito', 'Permisos actualizados correctamente', 'success');
+                setTimeout(() => this.router.navigate(['/settings/roles']), 1500);
             },
             error: (error) => {
                 console.error('Error updating permissions:', error);
                 this.isSaving.set(false);
-                alert('Error al actualizar permisos');
+                this.showAlert('Error', 'Ocurrió un error al guardar', 'danger');
             }
         });
     }
 
     cancel() {
         this.router.navigate(['/settings/roles']);
+    }
+
+    // Helpers UI
+    showAlert(title: string, message: string, type: string) {
+        this.alertTitle = title;
+        this.alertMessage = message;
+        this.alertType = type;
+        setTimeout(() => this.closeAlert(), 3000);
+    }
+
+    closeAlert() {
+        this.alertMessage = '';
     }
 }

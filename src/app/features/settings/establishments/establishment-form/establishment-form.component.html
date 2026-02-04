@@ -7,52 +7,73 @@
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()" class="p-fluid">
-            <div class="card border-0 bg-light-subtle mb-4">
-                <div class="card-body">
+        <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
                     <div class="row g-4">
-                        <!-- Nombre -->
-                        <div class="col-md-12">
-                            <label for="estName" class="form-label fw-semibold">Nombre del Establecimiento <span
-                                    class="text-danger">*</span></label>
-                            <input pInputText id="estName" formControlName="name"
-                                placeholder="Ej: Farmacia Principal, Sucursal Norte, etc."
-                                [class.p-invalid]="f['name'].invalid && f['name'].touched" />
-                            <small class="p-error d-block mt-1" *ngIf="f['name'].invalid && f['name'].touched">
-                                <span *ngIf="f['name'].errors?.['required']">El nombre es requerido</span>
-                                <span *ngIf="f['name'].errors?.['minlength']">Mínimo 3 caracteres</span>
-                            </small>
+
+                        <div class="col-12">
+                            <label for="estName" class="form-label fw-semibold">
+                                Nombre del Establecimiento <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-shop"></i>
+                                </span>
+                                <input type="text" id="estName" class="form-control border-start-0 ps-0"
+                                    formControlName="name" placeholder="Ej: Farmacia Principal, Sucursal Norte, etc."
+                                    [class.is-invalid]="f['name'].invalid && f['name'].touched">
+
+                                <div class="invalid-feedback">
+                                    <span *ngIf="f['name'].errors?.['required']">El nombre es requerido.</span>
+                                    <span *ngIf="f['name'].errors?.['minlength']">Mínimo 3 caracteres.</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Dirección -->
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <label for="estAddress" class="form-label fw-semibold">Dirección</label>
-                            <input pInputText id="estAddress" formControlName="address"
-                                placeholder="Dirección completa del establecimiento" />
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+                                <input type="text" id="estAddress" class="form-control border-start-0 ps-0"
+                                    formControlName="address" placeholder="Dirección completa del establecimiento">
+                            </div>
                         </div>
 
-                        <!-- Código SUNAT -->
                         <div class="col-md-6">
                             <label for="estCode" class="form-label fw-semibold">Código SUNAT</label>
-                            <input pInputText id="estCode" formControlName="codeSunat"
-                                placeholder="Ej: 0001, 0002, etc." />
-                            <small class="text-muted d-block mt-1">Código asignado por SUNAT (Ej: 0000 para
-                                principal)</small>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-upc-scan"></i>
+                                </span>
+                                <input type="text" id="estCode" class="form-control border-start-0 ps-0"
+                                    formControlName="codeSunat" placeholder="Ej: 0000">
+                            </div>
+                            <div class="form-text mt-1">
+                                Código asignado por SUNAT (Ej: 0000 para principal).
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- Acciones -->
-            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-                <p-button label="Cancelar" icon="bi bi-x-lg" [text]="true" severity="secondary" (onClick)="cancel()"
-                    [disabled]="isSaving()"></p-button>
+            <div class="d-flex justify-content-end gap-2 pt-2">
+                <button type="button" class="btn btn-outline-secondary px-4" (click)="cancel()" [disabled]="isSaving()">
+                    <i class="bi bi-x-lg me-1"></i> Cancelar
+                </button>
 
-                <p-button
-                    [label]="isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') + ' Establecimiento'"
-                    [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'bi bi-check-lg'" type="submit"
-                    [disabled]="isSaving() || establishmentForm.invalid" [raised]="true"></p-button>
+                <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving() || establishmentForm.invalid">
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
+                        aria-hidden="true"></span>
+                    <i *ngIf="!isSaving()" class="bi bi-check-lg me-1"></i>
+                    {{ isEditMode() ? 'Actualizar' : 'Crear' }} Establecimiento
+                </button>
             </div>
+
         </form>
     </ng-container>
 </div>
