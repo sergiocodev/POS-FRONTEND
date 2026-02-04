@@ -4,11 +4,31 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentResponse } from '../../../../core/models/maintenance.model';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 
 @Component({
     selector: 'app-establishments-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        TableModule,
+        ButtonModule,
+        InputTextModule,
+        SelectModule,
+        TagModule,
+        TooltipModule,
+        InputIconModule,
+        IconFieldModule
+    ],
     templateUrl: './establishments-list.component.html',
     styleUrl: './establishments-list.component.scss'
 })
@@ -23,9 +43,14 @@ export class EstablishmentsListComponent implements OnInit {
     filteredEstablishments = signal<EstablishmentResponse[]>([]);
     isLoading = signal(false);
 
-
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
+
+    statusOptions = [
+        { label: 'Todos', value: null },
+        { label: 'Activos', value: true },
+        { label: 'Inactivos', value: false }
+    ];
 
     ngOnInit() {
         this.loadData();
@@ -49,7 +74,6 @@ export class EstablishmentsListComponent implements OnInit {
     applyFilters() {
         let filtered = this.establishments();
 
-
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(est =>
@@ -58,7 +82,6 @@ export class EstablishmentsListComponent implements OnInit {
                 est.codeSunat.toLowerCase().includes(search)
             );
         }
-
 
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(est => est.active === this.selectedStatusFilter());
@@ -72,12 +95,8 @@ export class EstablishmentsListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: string) {
-        if (status === '') {
-            this.selectedStatusFilter.set(null);
-        } else {
-            this.selectedStatusFilter.set(status === 'true');
-        }
+    onStatusFilterChange(event: any) {
+        this.selectedStatusFilter.set(event.value);
         this.applyFilters();
     }
 
@@ -90,25 +109,21 @@ export class EstablishmentsListComponent implements OnInit {
     }
 
     toggleEstablishmentStatus(establishment: EstablishmentResponse) {
-        if (confirm(`¿Está seguro de ${establishment.active ? 'desactivar' : 'activar'} el establecimiento ${establishment.name}?`)) {
+        const request = {
+            name: establishment.name,
+            address: establishment.address,
+            codeSunat: establishment.codeSunat,
+            active: !establishment.active
+        };
 
-            const request = {
-                name: establishment.name,
-                address: establishment.address,
-                codeSunat: establishment.codeSunat,
-                active: !establishment.active
-            };
-
-            this.establishmentService.update(establishment.id, request).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error toggling establishment status:', error);
-                    alert('Error al cambiar el estado del establecimiento');
-                }
-            });
-        }
+        this.establishmentService.update(establishment.id, request).subscribe({
+            next: () => {
+                this.loadData();
+            },
+            error: (error) => {
+                console.error('Error toggling establishment status:', error);
+            }
+        });
     }
 
     deleteEstablishment(establishment: EstablishmentResponse) {
@@ -119,13 +134,8 @@ export class EstablishmentsListComponent implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error deleting establishment:', error);
-                    alert('Error al eliminar el establecimiento');
                 }
             });
         }
-    }
-
-    trackByEstablishmentId(index: number, establishment: EstablishmentResponse): number {
-        return establishment.id;
     }
 }

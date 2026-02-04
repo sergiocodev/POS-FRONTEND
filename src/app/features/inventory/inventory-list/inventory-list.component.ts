@@ -27,12 +27,12 @@ export class InventoryListComponent implements OnInit {
     filteredInventory = computed(() => {
         let result = this.inventory();
 
-        
+
         if (this.selectedEstablishmentId()) {
             result = result.filter(item => item.establishmentId === this.selectedEstablishmentId());
         }
 
-        
+
         const term = this.searchTerm().toLowerCase();
         if (term) {
             result = result.filter(item =>
@@ -45,7 +45,7 @@ export class InventoryListComponent implements OnInit {
     });
 
     constructor() {
-        
+
         effect(() => {
             if (this.selectedEstablishmentId()) {
                 this.loadInventory();
@@ -81,7 +81,7 @@ export class InventoryListComponent implements OnInit {
     }
 
     onExport(): void {
-        
+
         alert('Función de exportación próximamente');
     }
 }

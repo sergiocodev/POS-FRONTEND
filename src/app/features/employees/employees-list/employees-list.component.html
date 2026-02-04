@@ -1,19 +1,18 @@
-<div class="employees-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h2 class="page-title">
-                <i class="bi bi-people-fill me-2"></i>
-                Gestión de Personal
-            </h2>
-            <p class="page-description">Administra el personal y empleados de la empresa</p>
+<app-module-header title="Personal" iconClass="pi pi-id-card"></app-module-header>
+
+<div class="employees-container container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-end align-items-center">
+                <button class="btn btn-primary" (click)="createEmployee()">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Nuevo Empleado
+                </button>
+            </div>
         </div>
-        <button class="btn btn-primary" (click)="createEmployee()">
-            <i class="bi bi-plus-lg me-2"></i>
-            Nuevo Empleado
-        </button>
     </div>
 
-    
+
     <div class="filters-section card">
         <div class="card-body">
             <div class="row g-3">
@@ -39,7 +38,7 @@
         </div>
     </div>
 
-    
+
     <div class="card">
         <div class="card-body">
             <div *ngIf="isLoading()" class="text-center py-5">

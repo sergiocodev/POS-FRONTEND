@@ -4,11 +4,25 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { RoleRequest } from '../../../../core/models/maintenance.model';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-role-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        InputTextModule,
+        TextareaModule,
+        ToggleSwitchModule,
+        ButtonModule,
+        MessageModule
+    ],
     templateUrl: './role-form.component.html',
     styleUrl: './role-form.component.scss'
 })

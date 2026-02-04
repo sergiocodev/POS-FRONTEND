@@ -5,10 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { EmployeeResponse } from '../../../core/models/employee.model';
 
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+
 @Component({
     selector: 'app-employees-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, ModuleHeaderComponent],
     templateUrl: './employees-list.component.html',
     styleUrl: './employees-list.component.scss'
 })
@@ -20,7 +22,7 @@ export class EmployeesListComponent implements OnInit {
     filteredEmployees = signal<EmployeeResponse[]>([]);
     isLoading = signal(false);
 
-    
+
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
@@ -46,7 +48,7 @@ export class EmployeesListComponent implements OnInit {
     applyFilters() {
         let filtered = this.employees();
 
-        
+
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(emp =>
@@ -57,7 +59,7 @@ export class EmployeesListComponent implements OnInit {
             );
         }
 
-        
+
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(emp => emp.active === this.selectedStatusFilter());
         }

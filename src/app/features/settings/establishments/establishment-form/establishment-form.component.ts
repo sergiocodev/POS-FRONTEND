@@ -4,11 +4,21 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentRequest } from '../../../../core/models/maintenance.model';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-establishment-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        InputTextModule,
+        ButtonModule,
+        MessageModule
+    ],
     templateUrl: './establishment-form.component.html',
     styleUrl: './establishment-form.component.scss'
 })
@@ -37,7 +47,6 @@ export class EstablishmentFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditMode();
     }
 
     initForm() {
@@ -61,10 +70,6 @@ export class EstablishmentFormComponent implements OnInit {
         }
     }
 
-    checkEditMode() {
-
-    }
-
     loadEstablishment(id: number) {
         this.isLoading.set(true);
         this.establishmentService.getById(id).subscribe({
@@ -78,8 +83,7 @@ export class EstablishmentFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading establishment:', error);
-                alert('Error al cargar el establecimiento');
-                this.router.navigate(['/settings/establishments']);
+                this.isLoading.set(false);
             }
         });
     }
@@ -112,7 +116,6 @@ export class EstablishmentFormComponent implements OnInit {
             error: (error) => {
                 console.error('Error saving establishment:', error);
                 this.isSaving.set(false);
-                alert('Error al guardar el establecimiento');
             }
         });
     }

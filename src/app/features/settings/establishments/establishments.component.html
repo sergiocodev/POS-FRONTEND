@@ -1,10 +1,13 @@
+<app-module-header title="Establecimientos" iconClass="pi pi-building"></app-module-header>
+
 <div class="establishments-page">
     <app-establishments-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
     </app-establishments-list>
 
     <p-dialog [header]="isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento'" [(visible)]="displayForm"
-        [modal]="true" [style]="{ width: '50vw' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }"
-        [draggable]="false" [resizable]="false">
+        [modal]="true" [style]="{ width: '500px' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }"
+        [draggable]="false" [resizable]="false" styleClass="p-dialog-modern" [closeOnEscape]="true"
+        [dismissableMask]="true">
 
         @if (displayForm()) {
         <app-establishment-form [establishmentId]="selectedEstablishmentId()" (saved)="onFormSaved()"

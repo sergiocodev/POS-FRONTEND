@@ -4,10 +4,12 @@ import { DialogModule } from 'primeng/dialog';
 import { EstablishmentsListComponent } from './establishments-list/establishments-list.component';
 import { EstablishmentFormComponent } from './establishment-form/establishment-form.component';
 
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+
 @Component({
     selector: 'app-establishments',
     standalone: true,
-    imports: [CommonModule, DialogModule, EstablishmentsListComponent, EstablishmentFormComponent],
+    imports: [CommonModule, DialogModule, EstablishmentsListComponent, EstablishmentFormComponent, ModuleHeaderComponent],
     templateUrl: './establishments.component.html',
     styleUrl: './establishments.component.scss'
 })

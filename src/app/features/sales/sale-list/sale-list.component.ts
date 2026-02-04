@@ -62,7 +62,7 @@ export class SaleListComponent implements OnInit {
     }
 
     onViewDetails(id: number): void {
-        
+
         console.log('View sale details:', id);
     }
 

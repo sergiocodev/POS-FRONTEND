@@ -4,11 +4,31 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 
 @Component({
     selector: 'app-roles-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        TableModule,
+        ButtonModule,
+        InputTextModule,
+        SelectModule,
+        TagModule,
+        TooltipModule,
+        InputIconModule,
+        IconFieldModule
+    ],
     templateUrl: './roles-list.component.html',
     styleUrl: './roles-list.component.scss'
 })
@@ -26,6 +46,12 @@ export class RolesListComponent implements OnInit {
 
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
+
+    statusOptions = [
+        { label: 'Todos los estados', value: null },
+        { label: 'Activos', value: true },
+        { label: 'Inactivos', value: false }
+    ];
 
     ngOnInit() {
         this.loadData();
@@ -71,12 +97,8 @@ export class RolesListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: string) {
-        if (status === '') {
-            this.selectedStatusFilter.set(null);
-        } else {
-            this.selectedStatusFilter.set(status === 'true');
-        }
+    onStatusFilterChange(event: any) {
+        this.selectedStatusFilter.set(event.value);
         this.applyFilters();
     }
 

@@ -1,35 +1,32 @@
 .role-form-container {
-    padding: 2rem;
-    max-width: 900px;
-    margin: 0 auto;
-}
+    .form-label {
+        font-size: 0.9rem;
+        color: #495057;
+    }
 
-.page-header {
-    margin-bottom: 2rem;
-}
+    .card {
+        border-radius: 12px;
+    }
 
-.page-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
+    :host ::v-deep {
 
-.page-description {
-    color: var(--text-secondary);
-    margin-bottom: 0;
-}
+        .p-inputtext,
+        .p-textarea {
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            transition: all 0.2s;
 
-.card-title {
-    font-size: 1rem;
-    font-weight: 600;
-}
+            &:focus {
+                border-color: var(--p-primary-color);
+                box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
+            }
+        }
 
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
+        .p-toggleswitch {
+            .p-toggleswitch-slider {
+                border-radius: 20px;
+            }
+        }
+    }
 }

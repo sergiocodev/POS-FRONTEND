@@ -5,11 +5,31 @@ import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { RoleDetailResponse, PermissionResponse } from '../../../../core/models/maintenance.model';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 
 @Component({
     selector: 'app-role-permissions',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        CheckboxModule,
+        ButtonModule,
+        InputTextModule,
+        SelectModule,
+        IconFieldModule,
+        InputIconModule,
+        TooltipModule,
+        TagModule
+    ],
     templateUrl: './role-permissions.component.html',
     styleUrl: './role-permissions.component.scss'
 })
@@ -26,7 +46,7 @@ export class RolePermissionsComponent implements OnInit {
     isLoading = signal(false);
     isSaving = signal(false);
 
-    
+
     searchTerm = signal('');
     selectedModule = signal<string>('');
 
@@ -40,7 +60,7 @@ export class RolePermissionsComponent implements OnInit {
     loadData(roleId: number) {
         this.isLoading.set(true);
 
-        
+
         this.roleService.getById(roleId).subscribe({
             next: (role) => {
                 this.role.set(role);
@@ -53,7 +73,7 @@ export class RolePermissionsComponent implements OnInit {
             }
         });
 
-        
+
         this.permissionService.getGrouped().subscribe({
             next: (grouped) => {
                 this.groupedPermissions.set(grouped);

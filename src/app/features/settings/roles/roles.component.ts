@@ -4,10 +4,12 @@ import { DialogModule } from 'primeng/dialog';
 import { RolesListComponent } from './roles-list/roles-list.component';
 import { RoleFormComponent } from './role-form/role-form.component';
 
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+
 @Component({
     selector: 'app-roles',
     standalone: true,
-    imports: [CommonModule, DialogModule, RolesListComponent, RoleFormComponent],
+    imports: [CommonModule, DialogModule, RolesListComponent, RoleFormComponent, ModuleHeaderComponent],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
 })

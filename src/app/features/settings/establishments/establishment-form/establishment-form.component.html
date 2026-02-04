@@ -1,73 +1,58 @@
 <div class="establishment-form-container">
     <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border text-primary mb-3" role="status">
             <span class="visually-hidden">Cargando...</span>
         </div>
+        <p class="text-muted">Cargando datos del establecimiento...</p>
     </div>
 
-    <div *ngIf="!isLoading()" class="card">
-        <div class="card-body">
-            <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()">
-                <div class="row g-3">
+    <ng-container *ngIf="!isLoading()">
+        <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()" class="p-fluid">
+            <div class="card border-0 bg-light-subtle mb-4">
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Nombre -->
+                        <div class="col-md-12">
+                            <label for="estName" class="form-label fw-semibold">Nombre del Establecimiento <span
+                                    class="text-danger">*</span></label>
+                            <input pInputText id="estName" formControlName="name"
+                                placeholder="Ej: Farmacia Principal, Sucursal Norte, etc."
+                                [class.p-invalid]="f['name'].invalid && f['name'].touched" />
+                            <small class="p-error d-block mt-1" *ngIf="f['name'].invalid && f['name'].touched">
+                                <span *ngIf="f['name'].errors?.['required']">El nombre es requerido</span>
+                                <span *ngIf="f['name'].errors?.['minlength']">Mínimo 3 caracteres</span>
+                            </small>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">
-                            Nombre del Establecimiento <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="name" formControlName="name"
-                            [class.is-invalid]="f['name'].invalid && f['name'].touched"
-                            placeholder="Ej: Sede Principal, Sucursal Norte">
-                        <div *ngIf="f['name'].invalid && f['name'].touched" class="invalid-feedback">
-                            <div *ngIf="f['name'].errors?.['required']">
-                                El nombre es requerido
-                            </div>
-                            <div *ngIf="f['name'].errors?.['minlength']">
-                                El nombre debe tener al menos 3 caracteres
-                            </div>
+                        <!-- Dirección -->
+                        <div class="col-md-12">
+                            <label for="estAddress" class="form-label fw-semibold">Dirección</label>
+                            <input pInputText id="estAddress" formControlName="address"
+                                placeholder="Dirección completa del establecimiento" />
+                        </div>
+
+                        <!-- Código SUNAT -->
+                        <div class="col-md-6">
+                            <label for="estCode" class="form-label fw-semibold">Código SUNAT</label>
+                            <input pInputText id="estCode" formControlName="codeSunat"
+                                placeholder="Ej: 0001, 0002, etc." />
+                            <small class="text-muted d-block mt-1">Código asignado por SUNAT (Ej: 0000 para
+                                principal)</small>
                         </div>
                     </div>
-
-
-                    <div class="col-md-6">
-                        <label for="codeSunat" class="form-label">
-                            Código SUNAT
-                        </label>
-                        <input type="text" class="form-control" id="codeSunat" formControlName="codeSunat"
-                            [class.is-invalid]="f['codeSunat'].invalid && f['codeSunat'].touched" placeholder="0000"
-                            maxlength="10">
-                        <small class="form-text text-muted">
-                            Código de establecimiento según SUNAT (por defecto: 0000)
-                        </small>
-                        <div *ngIf="f['codeSunat'].invalid && f['codeSunat'].touched" class="invalid-feedback">
-                            <div *ngIf="f['codeSunat'].errors?.['maxlength']">
-                                El código no puede exceder 10 caracteres
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="col-12">
-                        <label for="address" class="form-label">
-                            Dirección
-                        </label>
-                        <textarea class="form-control" id="address" formControlName="address" rows="2"
-                            placeholder="Dirección completa del establecimiento"></textarea>
-                    </div>
                 </div>
+            </div>
 
+            <!-- Acciones -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <p-button label="Cancelar" icon="bi bi-x-lg" [text]="true" severity="secondary" (onClick)="cancel()"
+                    [disabled]="isSaving()"></p-button>
 
-                <div class="form-actions mt-4">
-                    <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
-                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"></span>
-                        <i class="bi bi-check-lg me-2"></i>
-                        {{ isEditMode() ? 'Actualizar' : 'Crear' }} Establecimiento
-                    </button>
-                    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSaving()">
-                        <i class="bi bi-x-lg me-2"></i>
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                <p-button
+                    [label]="isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') + ' Establecimiento'"
+                    [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'bi bi-check-lg'" type="submit"
+                    [disabled]="isSaving() || establishmentForm.invalid" [raised]="true"></p-button>
+            </div>
+        </form>
+    </ng-container>
 </div>

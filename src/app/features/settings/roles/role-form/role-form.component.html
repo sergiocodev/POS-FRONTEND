@@ -1,70 +1,48 @@
 <div class="role-form-container">
-
     <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border text-primary mb-3" role="status">
             <span class="visually-hidden">Cargando...</span>
         </div>
+        <p class="text-muted">Cargando datos del rol...</p>
     </div>
 
-
     <ng-container *ngIf="!isLoading()">
-        <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Información del Rol
-                    </h5>
-                </div>
+        <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="p-fluid">
+            <div class="card border-0 bg-light-subtle mb-4">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nombre del Rol <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="name"
-                                    placeholder="Ej: Administrador, Vendedor, etc." />
-                                <div *ngIf="f['name']?.invalid && f['name']?.touched" class="text-danger small mt-1">
-                                    <div *ngIf="f['name']?.errors?.['required']">El nombre es requerido</div>
-                                    <div *ngIf="f['name']?.errors?.['minlength']">Mínimo 3 caracteres</div>
-                                </div>
-                            </div>
+                    <div class="row g-4">
+                        <!-- Nombre del Rol -->
+                        <div class="col-md-8">
+                            <label for="roleName" class="form-label fw-semibold">Nombre del Rol <span
+                                    class="text-danger">*</span></label>
+                            <input pInputText id="roleName" formControlName="name"
+                                placeholder="Ej: Administrador, Vendedor, etc."
+                                [class.p-invalid]="f['name'].invalid && f['name'].touched" />
+                            <small class="p-error d-block mt-1" *ngIf="f['name'].invalid && f['name'].touched">
+                                <span *ngIf="f['name'].errors?.['required']">El nombre es requerido</span>
+                                <span *ngIf="f['name'].errors?.['minlength']">Mínimo 3 caracteres</span>
+                            </small>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado</label>
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" formControlName="active"
-                                        id="activeSwitch" />
-                                    <label class="form-check-label" for="activeSwitch">Rol Activo</label>
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Descripción -->
                         <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label">Descripción</label>
-                                <textarea class="form-control" formControlName="description" rows="3"
-                                    placeholder="Describe las responsabilidades y alcance de este rol..."></textarea>
-                            </div>
+                            <label for="roleDesc" class="form-label fw-semibold">Descripción</label>
+                            <textarea pTextarea id="roleDesc" formControlName="description" rows="3"
+                                placeholder="Describe las responsabilidades y alcance de este rol..."
+                                [autoResize]="true"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Acciones -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <p-button label="Cancelar" icon="bi bi-x-lg" [text]="true" severity="secondary" (onClick)="cancel()"
+                    [disabled]="isSaving()"></p-button>
 
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSaving()">
-                    <i class="bi bi-x-lg me-2"></i>
-                    Cancelar
-                </button>
-
-                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
-                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"
-                        aria-hidden="true"></span>
-                    <i class="bi bi-check-lg me-2"></i>
-                    {{ isEditMode() ? 'Actualizar' : 'Crear' }} Rol
-                </button>
+                <p-button [label]="isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') + ' Rol'"
+                    [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'bi bi-check-lg'" type="submit"
+                    [disabled]="isSaving() || roleForm.invalid" [raised]="true"></p-button>
             </div>
         </form>
     </ng-container>

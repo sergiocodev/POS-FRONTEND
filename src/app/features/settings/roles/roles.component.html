@@ -1,10 +1,12 @@
+<app-module-header title="Roles y Permisos" iconClass="pi pi-shield"></app-module-header>
+
 <div class="roles-page">
     <app-roles-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
     </app-roles-list>
 
     <p-dialog [header]="isEditMode() ? 'Editar Rol' : 'Nuevo Rol'" [(visible)]="displayForm" [modal]="true"
-        [style]="{ width: '40vw' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }" [draggable]="false"
-        [resizable]="false">
+        [style]="{ width: '450px' }" [breakpoints]="{ '960px': '75vw', '641px': '100vw' }" [draggable]="false"
+        [resizable]="false" styleClass="p-dialog-modern" [closeOnEscape]="true" [dismissableMask]="true">
 
         @if (displayForm()) {
         <app-role-form [roleId]="selectedRoleId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">

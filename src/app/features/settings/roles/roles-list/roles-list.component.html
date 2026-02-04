@@ -1,121 +1,97 @@
 <div class="roles-list-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h2 class="page-title">
-                <i class="bi bi-shield-lock me-2"></i>
-                Roles y Permisos
-            </h2>
-            <p class="page-description">Gestiona los roles del sistema y sus permisos</p>
-        </div>
-        <button class="btn btn-primary" (click)="createRole()">
-            <i class="bi bi-plus-lg me-2"></i>
-            Nuevo Rol
-        </button>
+    <div class="page-header d-flex justify-content-end align-items-center mb-4">
+        <p-button label="Nuevo Rol" icon="bi bi-plus-lg" (onClick)="createRole()" [raised]="true"></p-button>
     </div>
 
-    
-    <div class="card mb-4">
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
-            <div class="row g-3">
+            <div class="row g-3 align-items-center">
                 <div class="col-md-8">
-                    <div class="search-box">
-                        <i class="bi bi-search"></i>
-                        <input type="text" class="form-control" placeholder="Buscar por nombre o descripción..."
-                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)">
-                    </div>
+                    <p-iconfield iconPosition="left">
+                        <p-inputicon class="bi bi-search"></p-inputicon>
+                        <input type="text" pInputText class="w-100" placeholder="Buscar por nombre o descripción..."
+                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)" />
+                    </p-iconfield>
                 </div>
                 <div class="col-md-4">
-                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
-                        <option value="">Todos los estados</option>
-                        <option value="true">Activos</option>
-                        <option value="false">Inactivos</option>
-                    </select>
+                    <p-select [options]="statusOptions" [ngModel]="selectedStatusFilter()"
+                        (onChange)="onStatusFilterChange($event)" optionLabel="label" optionValue="value" class="w-100"
+                        placeholder="Filtrar por estado"></p-select>
                 </div>
             </div>
         </div>
     </div>
 
-    
-    <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-    </div>
+    <div class="card shadow-sm border-0">
+        <p-table [value]="filteredRoles()" [loading]="isLoading()" [rows]="10" [paginator]="true"
+            [responsiveLayout]="'scroll'" styleClass="p-datatable-striped p-datatable-sm" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} roles">
 
-    
-    <div *ngIf="!isLoading()" class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Rol</th>
-                            <th>Descripción</th>
-                            <th>Permisos</th>
-                            <th>Estado</th>
-                            <th>Fecha Creación</th>
-                            <th class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let role of filteredRoles()">
-                            <td>
-                                <div class="role-info">
-                                    <div class="role-icon">
-                                        <i class="bi bi-shield-fill"></i>
-                                    </div>
-                                    <strong>{{ role.name }}</strong>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="text-muted">{{ role.description || 'Sin descripción' }}</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info">
-                                    {{ getPermissionCount(role) }} permisos
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge" [class.bg-success]="role.active"
-                                    [class.bg-secondary]="!role.active">
-                                    {{ role.active ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ role.createdAt | date:'dd/MM/yyyy' }}</small>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-outline-primary" (click)="editRole(role.id)"
-                                        title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-info" (click)="managePermissions(role.id)"
-                                        title="Gestionar permisos">
-                                        <i class="bi bi-key"></i>
-                                    </button>
-                                    <button class="btn btn-sm" [class.btn-outline-success]="!role.active"
-                                        [class.btn-outline-warning]="role.active" (click)="toggleActive(role)"
-                                        [title]="role.active ? 'Desactivar' : 'Activar'">
-                                        <i class="bi" [class.bi-toggle-off]="!role.active"
-                                            [class.bi-toggle-on]="role.active"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" (click)="deleteRole(role)"
-                                        title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr *ngIf="filteredRoles().length === 0">
-                            <td colspan="6" class="text-center py-4">
-                                <i class="bi bi-inbox display-4 text-muted"></i>
-                                <p class="text-muted mt-2">No se encontraron roles</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="name">Rol <p-sortIcon field="name"></p-sortIcon></th>
+                    <th>Descripción</th>
+                    <th>Permisos</th>
+                    <th pSortableColumn="active">Estado <p-sortIcon field="active"></p-sortIcon></th>
+                    <th pSortableColumn="createdAt">Fecha Creación <p-sortIcon field="createdAt"></p-sortIcon></th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-role>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="role-icon-circle me-3">
+                                <i class="bi bi-shield-fill text-primary"></i>
+                            </div>
+                            <span class="fw-bold">{{ role.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-muted">{{ role.description || 'Sin descripción' }}</span>
+                    </td>
+                    <td>
+                        <p-tag [value]="getPermissionCount(role) + ' permisos'" severity="secondary"
+                            [rounded]="true"></p-tag>
+                    </td>
+                    <td>
+                        <p-tag [severity]="role.active ? 'success' : 'warn'"
+                            [value]="role.active ? 'Activo' : 'Inactivo'" [rounded]="true"></p-tag>
+                    </td>
+                    <td>
+                        <small class="text-muted">{{ role.createdAt | date:'dd/MM/yyyy' }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-end gap-2">
+                            <p-button icon="bi bi-pencil" [text]="true" [rounded]="true" severity="primary"
+                                (onClick)="editRole(role.id)" pTooltip="Editar"></p-button>
+
+                            <p-button icon="bi bi-key" [text]="true" [rounded]="true" severity="info"
+                                (onClick)="managePermissions(role.id)" pTooltip="Gestionar permisos"></p-button>
+
+                            <p-button [icon]="role.active ? 'bi bi-toggle-on' : 'bi bi-toggle-off'" [text]="true"
+                                [rounded]="true" [severity]="role.active ? 'warn' : 'success'"
+                                (onClick)="toggleActive(role)"
+                                [pTooltip]="role.active ? 'Desactivar' : 'Activar'"></p-button>
+
+                            <p-button icon="bi bi-trash" [text]="true" [rounded]="true" severity="danger"
+                                (onClick)="deleteRole(role)" pTooltip="Eliminar"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6">
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted mb-3"></i>
+                            <p class="text-muted">No se encontraron roles</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
     </div>
 </div>
