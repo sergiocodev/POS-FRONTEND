@@ -1,59 +1,83 @@
-<div class="auth-container">
-  <div class="auth-wrapper">
-    <p-card [style]="{ width: '100%', maxWidth: '450px' }" class="auth-card shadow-2">
-      <div class="auth-header">
-        <div class="logo-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-capsule"
-            viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-            <path
-              d="M1.828 8.9 8.9 1.827a4 4 0 1 1 5.657 5.657l-7.07 7.071A4 4 0 1 1 1.827 8.9m9.128.771 2.893-2.893a3 3 0 1 0-4.243-4.242L6.713 5.429z" />
-          </svg>
+<div class="login-container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="login-wrapper w-100" style="max-width: 450px;">
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="card-body p-5">
+
+        <div class="text-center mb-4">
+          <div
+            class="logo-circle d-inline-flex align-items-center justify-content-center rounded-circle mb-3 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M1.828 8.9 8.9 1.827a4 4 0 1 1 5.657 5.657l-7.07 7.071A4 4 0 1 1 1.827 8.9m9.128.771 2.893-2.893a3 3 0 1 0-4.243-4.242L6.713 5.429z" />
+            </svg>
+          </div>
+          <h2 class="fw-bold text-dark mb-1">Sistema de Farmacia</h2>
+          <p class="text-muted">Ingresa a tu cuenta</p>
         </div>
 
-        <h2 class="auth-title">Sistema de Farmacia</h2>
-        <p class="auth-subtitle">Ingresa a tu cuenta</p>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="username" placeholder="Usuario"
+              formControlName="usernameOrEmail" [class.is-invalid]="isInvalid('usernameOrEmail')">
+            <label for="username">Usuario o Email</label>
+
+            <div class="invalid-feedback">
+              El usuario es requerido.
+            </div>
+          </div>
+
+          <div class="input-group has-validation mb-3">
+            <div class="form-floating is-invalid"> <input [type]="showPassword() ? 'text' : 'password'"
+                class="form-control" id="password" placeholder="Contraseña" formControlName="password"
+                [class.is-invalid]="isInvalid('password')"
+                style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+              <label for="password">Contraseña</label>
+            </div>
+
+            <button class="btn btn-outline-secondary" type="button" (click)="togglePassword()"
+              style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+              <svg *ngIf="!showPassword()" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                viewBox="0 0 16 16">
+                <path
+                  d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+              </svg>
+              <svg *ngIf="showPassword()" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                viewBox="0 0 16 16">
+                <path
+                  d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z" />
+                <path
+                  d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z" />
+              </svg>
+            </button>
+
+            <div class="invalid-feedback" *ngIf="isInvalid('password')">
+              Mínimo 4 caracteres requeridos.
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage()" class="alert alert-danger d-flex align-items-center p-2 small" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="me-2 flex-shrink-0" viewBox="0 0 16 16">
+              <path
+                d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+            </svg>
+            <div>{{ errorMessage() }}</div>
+          </div>
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg custom-btn-gradient border-0"
+              [disabled]="loginForm.invalid || isLoading()">
+              <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2" role="status"
+                aria-hidden="true"></span>
+              <span *ngIf="!isLoading()">Iniciar Sesión</span>
+            </button>
+          </div>
+
+        </form>
       </div>
-
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
-
-        <div class="field">
-          <p-floatlabel>
-            <input pInputText id="usernameOrEmail" formControlName="usernameOrEmail" class="w-full"
-              [class.ng-invalid]="usernameOrEmail?.invalid && (usernameOrEmail?.touched || usernameOrEmail?.dirty)" />
-            <label for="usernameOrEmail">Usuario o Email</label>
-          </p-floatlabel>
-
-          <small class="error-message"
-            *ngIf="usernameOrEmail?.invalid && (usernameOrEmail?.touched || usernameOrEmail?.dirty)">
-            <span *ngIf="usernameOrEmail?.errors?.['required']">El usuario o email es requerido.</span>
-          </small>
-        </div>
-
-        <div class="field">
-          <p-floatlabel>
-            <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"
-              styleClass="w-full" inputStyleClass="w-full"
-              [class.ng-invalid]="password?.invalid && (password?.touched || password?.dirty)">
-            </p-password>
-            <label for="password">Contraseña</label>
-          </p-floatlabel>
-
-          <small class="error-message" *ngIf="password?.invalid && (password?.touched || password?.dirty)">
-            <span *ngIf="password?.errors?.['required']">La contraseña es requerida.</span>
-            <span *ngIf="password?.errors?.['minlength']">La contraseña debe tener al menos 4 caracteres.</span>
-          </small>
-        </div>
-
-        <p-message *ngIf="errorMessage()" severity="error" [text]="errorMessage()" styleClass="w-full mb-3">
-        </p-message>
-
-        <div class="d-flex justify-content-center mt-2">
-          <p-button type="submit" label="Iniciar Sesión" icon="pi pi-sign-in" [loading]="isLoading()"
-            [disabled]="loginForm.invalid || isLoading()" styleClass="p-button-lg">
-          </p-button>
-        </div>
-
-      </form>
-    </p-card>
+    </div>
   </div>
 </div>

@@ -3,44 +3,33 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        CardModule,
-        InputTextModule,
-        PasswordModule,
-        ButtonModule,
-        FloatLabelModule,
-        MessageModule
-    ],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })
 export class LoginComponent {
     private fb = inject(FormBuilder);
-    private authService = inject(AuthService);
+    private authService = inject(AuthService); // Tu servicio
     private router = inject(Router);
 
     loginForm: FormGroup;
     errorMessage = signal<string>('');
     isLoading = signal<boolean>(false);
+    showPassword = signal<boolean>(false); // Nuevo: Controlar visibilidad password
 
     constructor() {
         this.loginForm = this.fb.group({
             usernameOrEmail: ['', [Validators.required]],
             password: ['', [Validators.required, Validators.minLength(4)]]
         });
+    }
+
+    togglePassword(): void {
+        this.showPassword.update(value => !value);
     }
 
     onSubmit(): void {
@@ -53,26 +42,18 @@ export class LoginComponent {
         this.errorMessage.set('');
 
         this.authService.login(this.loginForm.value).subscribe({
-            next: () => {
-                this.router.navigate(['/home']);
-            },
-            error: (error) => {
+            next: () => this.router.navigate(['/home']),
+            error: (err) => {
                 this.isLoading.set(false);
-                this.errorMessage.set(
-                    error.error?.message || 'Error al iniciar sesión. Verifica tus credenciales.'
-                );
+                this.errorMessage.set(err.error?.message || 'Error de credenciales');
             },
-            complete: () => {
-                this.isLoading.set(false);
-            }
+            complete: () => this.isLoading.set(false)
         });
     }
 
-    get usernameOrEmail() {
-        return this.loginForm.get('usernameOrEmail');
-    }
-
-    get password() {
-        return this.loginForm.get('password');
+    // Helpers para la vista
+    isInvalid(fieldName: string): boolean {
+        const field = this.loginForm.get(fieldName);
+        return !!(field?.invalid && (field?.dirty || field?.touched));
     }
 }
