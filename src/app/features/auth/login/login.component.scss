@@ -1,6 +1,46 @@
-// Fondo con gradiente personalizado
+@keyframes zoomEffect {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
+}
+
 .login-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('/assets/bg-login.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -1;
+        animation: zoomEffect 12s infinite alternate linear;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.504); // Dark overlay with NO GRADIENT
+        z-index: -1;
+    }
 }
 
 // Estilo del círculo del logo (Bootstrap no tiene gradientes para elementos pequeños por defecto)
@@ -35,13 +75,15 @@
 
 // Ajuste suave para la tarjeta
 .card {
-
-    background: rgba(255, 255, 255, 0.40);
+    background: rgba(255, 255, 255, 0.50); // Increased opacity for better contrast
+    //backdrop-filter: blur(10px); // Glassmorphism blur
+    //-webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5); // Subtle border
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); // Glassmorphism shadow
 
     transition: transform 0.3s ease;
 
     &:hover {
         transform: translateY(-5px);
     }
-
 }
