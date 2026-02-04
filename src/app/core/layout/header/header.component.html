@@ -33,9 +33,14 @@
 
             <div class="profile-trigger" (click)="toggleProfileDropdown($event)"
                 [class.active]="isProfileDropdownOpen()">
-                <span class="user-name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}</span>
+                <span class="user-name">{{ authService.currentUser()?.fullName}}</span>
                 <div class="profile-avatar">
+                    @if (authService.currentUser()?.profilePicture && !imageError()) {
+                    <img [src]="authService.currentUser()?.profilePicture" class="avatar-image"
+                        (error)="imageError.set(true)">
+                    } @else {
                     <div class="avatar-content">{{ userInitials }}</div>
+                    }
                     <div class="status-indicator"></div>
                 </div>
                 <i class="bi bi-chevron-down chevron-icon" [class.rotated]="isProfileDropdownOpen()"></i>
@@ -47,8 +52,13 @@
                 <div class="menu-header">
                     <div class="header-content">
                         <div class="avatar-wrapper">
+                            @if (authService.currentUser()?.profilePicture && !imageError()) {
+                            <img [src]="authService.currentUser()?.profilePicture" alt="Profile"
+                                (error)="imageError.set(true)" />
+                            } @else {
                             <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.fullName || 'User' }}&background=0033cc&color=fff&bold=true&size=112"
                                 alt="Profile" />
+                            }
                         </div>
                         <div class="user-details">
                             <h4 class="name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}

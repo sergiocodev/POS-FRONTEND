@@ -57,8 +57,15 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="avatar-circle me-2">
-                                {{ user.username.charAt(0).toUpperCase() }}
+                            <div class="me-2" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                @if (user.profilePicture) {
+                                <img [src]="user.profilePicture" class="rounded-circle w-100 h-100"
+                                    style="object-fit: cover;" (error)="$any($event.target).style.display = 'none'">
+                                } @else {
+                                <div class="avatar-circle">
+                                    {{ user.username.charAt(0).toUpperCase() }}
+                                </div>
+                                }
                             </div>
                             <strong>{{ user.username }}</strong>
                         </div>

@@ -14,7 +14,7 @@ export class AuthService {
     private readonly TOKEN_KEY = 'auth_token';
     private readonly USER_KEY = 'current_user';
 
-    
+
     currentUser = signal<User | null>(this.getUserFromStorage());
 
     login(request: LoginRequest): Observable<LoginResponse> {
@@ -48,9 +48,9 @@ export class AuthService {
         return !!this.getToken();
     }
 
-    
 
-    
+
+
     hasPermission(permission: string): boolean {
         const user = this.currentUser();
         if (!user || !user.permissions) {
@@ -59,10 +59,10 @@ export class AuthService {
         return user.permissions.includes(permission);
     }
 
-    
+
     hasAnyPermission(permissions: string[]): boolean {
         if (!permissions || permissions.length === 0) {
-            return true; 
+            return true;
         }
         const user = this.currentUser();
         if (!user || !user.permissions) {
@@ -71,7 +71,7 @@ export class AuthService {
         return permissions.some(permission => user.permissions.includes(permission));
     }
 
-    
+
     hasAllPermissions(permissions: string[]): boolean {
         if (!permissions || permissions.length === 0) {
             return true;
@@ -83,19 +83,19 @@ export class AuthService {
         return permissions.every(permission => user.permissions.includes(permission));
     }
 
-    
+
     getUserPermissions(): string[] {
         const user = this.currentUser();
         return user?.permissions || [];
     }
 
-    
+
     getUserRoles(): string[] {
         const user = this.currentUser();
         return user?.roles || [];
     }
 
-    
+
     hasRole(role: string): boolean {
         const user = this.currentUser();
         if (!user || !user.roles) {
@@ -104,7 +104,7 @@ export class AuthService {
         return user.roles.includes(role);
     }
 
-    
+
     hasAnyRole(roles: string[]): boolean {
         if (!roles || roles.length === 0) {
             return true;
@@ -116,7 +116,7 @@ export class AuthService {
         return roles.some(role => user.roles.includes(role));
     }
 
-    
+
 
     private saveAuthData(response: LoginResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);
@@ -127,7 +127,8 @@ export class AuthService {
             email: response.email,
             fullName: response.fullName,
             roles: response.roles || [],
-            permissions: response.permissions || []
+            permissions: response.permissions || [],
+            profilePicture: response.profilePicture
         };
 
         localStorage.setItem(this.USER_KEY, JSON.stringify(user));
@@ -137,5 +138,10 @@ export class AuthService {
     private getUserFromStorage(): User | null {
         const userJson = localStorage.getItem(this.USER_KEY);
         return userJson ? JSON.parse(userJson) : null;
+    }
+
+    updateCurrentUser(user: User): void {
+        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        this.currentUser.set(user);
     }
 }

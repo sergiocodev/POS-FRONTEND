@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ProductService } from '../../../core/services/product.service';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
+import { UploadService } from '../../../core/services/upload.service';
 import {
     BrandResponse,
     CategoryResponse,
@@ -25,6 +26,7 @@ export class ProductFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private productService = inject(ProductService);
     private maintenanceService = inject(MaintenanceService);
+    private uploadService = inject(UploadService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -33,8 +35,9 @@ export class ProductFormComponent implements OnInit {
     productId = signal<number | null>(null);
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
+    imageError = signal<boolean>(false);
 
-    
+
     brands = signal<BrandResponse[]>([]);
     categories = signal<CategoryResponse[]>([]);
     laboratories = signal<LaboratoryResponse[]>([]);
@@ -61,7 +64,12 @@ export class ProductFormComponent implements OnInit {
             purchaseFactor: [1, [Validators.required, Validators.min(1)]],
             fractionLabel: [''],
             active: [true],
+            imageUrl: [''],
             ingredients: this.fb.array([])
+        });
+
+        this.productForm.get('imageUrl')?.valueChanges.subscribe(() => {
+            this.imageError.set(false);
         });
     }
 
@@ -135,10 +143,11 @@ export class ProductFormComponent implements OnInit {
                     unitType: product.unitType,
                     purchaseFactor: product.purchaseFactor,
                     fractionLabel: product.fractionLabel,
-                    active: product.active
+                    active: product.active,
+                    imageUrl: product.imageUrl
                 });
 
-                
+
                 if (product.ingredients) {
                     product.ingredients.forEach(i => {
                         this.ingredients.push(this.fb.group({
@@ -154,6 +163,25 @@ export class ProductFormComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    onFileSelected(event: any) {
+        const file: File = event.target.files[0];
+        if (file) {
+            this.isLoading.set(true);
+            this.uploadService.upload(file, 'productos').subscribe({
+                next: (res) => {
+                    this.productForm.patchValue({ imageUrl: res.url });
+                    this.imageError.set(false);
+                    this.isLoading.set(false);
+                },
+                error: (err) => {
+                    console.error('Error uploading file:', err);
+                    this.errorMessage.set('No se pudo subir la imagen del producto.');
+                    this.isLoading.set(false);
+                }
+            });
+        }
     }
 
     onSubmit(): void {

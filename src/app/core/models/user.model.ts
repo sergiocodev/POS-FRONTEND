@@ -9,6 +9,7 @@ export interface UserRequest {
     roleIds: number[];
     establishmentIds?: number[];
     active?: boolean;
+    profilePicture?: string;
 }
 
 export interface UserResponse {
@@ -19,6 +20,7 @@ export interface UserResponse {
     active: boolean;
     roles: RoleResponse[];
     establishments: EstablishmentResponse[];
+    profilePicture?: string;
     lastLogin?: string;
     createdAt: string;
     updatedAt: string;

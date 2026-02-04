@@ -20,6 +20,7 @@ export interface LoginResponse {
     fullName: string;
     roles: string[];
     permissions: string[];
+    profilePicture?: string;
 }
 
 export interface User {
@@ -29,4 +30,5 @@ export interface User {
     fullName: string;
     roles: string[];
     permissions: string[];
+    profilePicture?: string;
 }

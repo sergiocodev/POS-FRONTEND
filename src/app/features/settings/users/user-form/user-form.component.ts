@@ -4,6 +4,8 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
 import { RoleService } from '../../../../core/services/role.service';
+import { UploadService } from '../../../../core/services/upload.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { UserRequest, UserResponse } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
 
@@ -49,6 +51,8 @@ export class UserFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private userService = inject(UserService);
     private roleService = inject(RoleService);
+    private uploadService = inject(UploadService);
+    private authService = inject(AuthService);
 
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -71,6 +75,7 @@ export class UserFormComponent implements OnInit {
     isLoading = signal(false);
     isSaving = signal(false);
     isSearching = signal(false);
+    imageError = signal(false);
 
     roles = signal<RoleResponse[]>([]);
     selectedRoles = signal<number[]>([]);
@@ -86,10 +91,15 @@ export class UserFormComponent implements OnInit {
             username: ['', [Validators.required, Validators.minLength(3)]],
             email: ['', [Validators.required, Validators.email]],
             fullName: ['', [Validators.required]],
-            document: [null],
+            document: [''],
             password: ['', [Validators.minLength(8)]],
             active: [true],
-            roleIds: [[], [Validators.required, Validators.minLength(1)]]
+            roleIds: [[], [Validators.required, Validators.minLength(1)]],
+            profilePicture: ['']
+        });
+
+        this.userForm.get('profilePicture')?.valueChanges.subscribe(() => {
+            this.imageError.set(false);
         });
     }
 
@@ -140,7 +150,8 @@ export class UserFormComponent implements OnInit {
                     email: user.email,
                     fullName: user.fullName,
                     active: user.active,
-                    roleIds: user.roles?.map(r => r.id) || []
+                    roleIds: user.roles?.map(r => r.id) || [],
+                    profilePicture: user.profilePicture || ''
                 });
                 this.selectedRoles.set(user.roles?.map(r => r.id) || []);
 
@@ -216,6 +227,29 @@ export class UserFormComponent implements OnInit {
         });
     }
 
+    onFileSelected(event: any) {
+        const file: File = event.target.files[0];
+        if (file) {
+            this.isSaving.set(true);
+            this.uploadService.upload(file, 'usuarios').subscribe({
+                next: (res) => {
+                    this.userForm.patchValue({ profilePicture: res.url });
+                    this.imageError.set(false);
+                    this.isSaving.set(false);
+                },
+                error: (err) => {
+                    console.error('Error uploading file:', err);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se pudo subir la imagen'
+                    });
+                    this.isSaving.set(false);
+                }
+            });
+        }
+    }
+
     onSubmit() {
         if (this.userForm.invalid) {
             this.userForm.markAllAsTouched();
@@ -238,7 +272,8 @@ export class UserFormComponent implements OnInit {
             email: formValue.email,
             fullName: formValue.fullName,
             roleIds: this.selectedRoles(),
-            active: formValue.active
+            active: formValue.active,
+            profilePicture: formValue.profilePicture
         };
 
 
@@ -251,8 +286,18 @@ export class UserFormComponent implements OnInit {
             : this.userService.create(request);
 
         operation.subscribe({
-            next: () => {
+            next: (response) => {
                 this.isSaving.set(false);
+
+                // Update auth session if editing own profile
+                const currentUser = this.authService.currentUser();
+                if (currentUser && currentUser.id === this.userId) {
+                    const updatedUser: any = { ...currentUser, ...request };
+                    // Ensure ID and other critical fields are preserved
+                    updatedUser.id = currentUser.id;
+                    this.authService.updateCurrentUser(updatedUser);
+                }
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Éxito',

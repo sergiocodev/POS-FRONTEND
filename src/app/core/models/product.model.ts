@@ -63,6 +63,7 @@ export interface ProductRequest {
     purchaseFactor: number;
     fractionLabel?: string;
     active: boolean;
+    imageUrl?: string;
     ingredients?: ProductIngredientRequest[];
 }
 
@@ -83,5 +84,6 @@ export interface ProductResponse {
     purchaseFactor: number;
     fractionLabel?: string;
     active: boolean;
+    imageUrl?: string;
     ingredients?: ProductIngredientResponse[];
 }

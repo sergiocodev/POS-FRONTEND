@@ -92,10 +92,21 @@
                                 <small class="text-info" *ngIf="product.digemidCode">{{ product.digemidCode }}</small>
                             </td>
                             <td>
-                                <div class="fw-bold">{{ product.name }}</div>
-                                <div class="small text-muted text-truncate" style="max-width: 200px;">{{
-                                    product.description }}</div>
-                                <div class="mt-1">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3 border rounded bg-light d-flex align-items-center justify-content-center"
+                                        style="width: 48px; height: 48px; flex-shrink: 0; overflow: hidden;">
+                                        <img *ngIf="product.imageUrl" [src]="product.imageUrl"
+                                            class="img-fluid h-100 w-100" style="object-fit: cover;"
+                                            (error)="$any($event.target).style.display = 'none'">
+                                        <i *ngIf="!product.imageUrl" class="bi bi-image text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ product.name }}</div>
+                                        <div class="small text-muted text-truncate" style="max-width: 200px;">{{
+                                            product.description }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-1 ms-5 ps-3">
                                     <span class="badge bg-info me-1" *ngIf="product.isGeneric">Genérico</span>
                                     <span class="badge bg-warning text-dark me-1"
                                         *ngIf="product.requiresPrescription">Receta</span>

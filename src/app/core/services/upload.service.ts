@@ -1,0 +1,19 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class UploadService {
+    private http = inject(HttpClient);
+    private apiUrl = '/api/v1/uploads';
+
+    upload(file: File, folder: string): Observable<{ url: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', folder);
+
+        return this.http.post<{ url: string }>(this.apiUrl, formData);
+    }
+}

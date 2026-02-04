@@ -1,5 +1,5 @@
 <div class="container-fluid py-4">
-    
+
     <div class="row mb-4">
         <div class="col-12">
             <nav aria-label="breadcrumb">
@@ -25,7 +25,7 @@
 
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
         <div class="row g-4">
-            
+
             <div class="col-12 col-xl-8">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3">
@@ -61,7 +61,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 text-start">
                         <h5 class="card-title mb-0 fw-bold text-primary">Clasificación</h5>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-primary">Principios Activos</h5>
@@ -147,8 +147,43 @@
                 </div>
             </div>
 
-            
+
             <div class="col-12 col-xl-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 text-start">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Imagen del Producto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-semibold">Imagen del Producto</label>
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" class="form-control" formControlName="imageUrl"
+                                    placeholder="/uploads/productos/aspirina.jpg" (input)="imageError.set(false)">
+                                <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/*">
+                                <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()"
+                                    [disabled]="isLoading()" title="Subir Imagen">
+                                    <i class="bi bi-upload"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-1">Ingrese la ruta o use el botón para subir una
+                                foto.</small>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <label class="form-label fw-semibold d-block">Vista Previa</label>
+                            <div class="border rounded bg-light d-flex align-items-center justify-content-center"
+                                style="height: 100px; overflow: hidden;">
+                                <ng-container *ngIf="productForm.get('imageUrl')?.value && !imageError(); else noImage">
+                                    <img [src]="productForm.get('imageUrl')?.value" alt="Preview"
+                                        class="img-fluid h-100" style="object-fit: contain;"
+                                        (error)="imageError.set(true)">
+                                </ng-container>
+                                <ng-template #noImage>
+                                    <i class="bi bi-image text-muted fs-2"></i>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 text-start">
                         <h5 class="card-title mb-0 fw-bold text-primary">Configuración Comercial</h5>
@@ -198,7 +233,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="card shadow-sm border-0 py-3 px-3 position-sticky" style="top: 1rem;">
                     <button type="submit" class="btn btn-primary btn-lg w-100 mb-2"
                         [disabled]="isLoading() || productForm.invalid">

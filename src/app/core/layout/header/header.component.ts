@@ -1,4 +1,4 @@
-import { Component, inject, signal, Output, EventEmitter, Input, HostListener, OnInit } from '@angular/core';
+import { Component, inject, signal, Output, EventEmitter, Input, HostListener, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../services/auth.service';
@@ -38,9 +38,18 @@ export class HeaderComponent implements OnInit {
     private establishmentStateService = inject(EstablishmentStateService);
     currentLanguage = signal('Español');
     isProfileDropdownOpen = signal(false);
+    imageError = signal(false);
 
     get isDarkMode() {
         return this.themeService.isDarkMode();
+    }
+
+    constructor() {
+        effect(() => {
+            // Accessing currentUser to track changes
+            this.authService.currentUser();
+            this.imageError.set(false);
+        });
     }
 
 

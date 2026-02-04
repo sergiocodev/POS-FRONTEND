@@ -27,14 +27,14 @@
                             <div class="grid">
 
                                 <div class="col-12 field" *ngIf="!isEditMode()">
-                                    <label>Verificación de Identidad</label>
+                                    <label>Número de documento</label>
                                     <div class="document-search-group">
-                                        <p-inputNumber formControlName="document" [useGrouping]="false"
-                                            placeholder="N° de Documento (DNI/CEX)" styleClass="w-full"></p-inputNumber>
+                                        <input type="text" pInputText formControlName="document"
+                                            placeholder="N° de Documento (DNI/CEX)" class="w-full" />
                                         <p-button icon="pi pi-search" severity="info" type="button" class="search-btn"
                                             (onClick)="searchDocument()" [loading]="isSearching()"></p-button>
                                     </div>
-                                    <small class="text-muted">Use la búsqueda para autocompletar el nombre</small>
+                                    <small class="text-muted">Use la búsqueda para autocompletar datos</small>
                                 </div>
 
                                 <div class="col-12 field">
@@ -76,19 +76,61 @@
                                 </div>
 
                                 <div class="col-12 field">
-                                    <label>
-                                        Seguridad
-                                        <small *ngIf="isEditMode()" class="text-muted font-normal ms-2">
-                                            (dejar vacío para no cambiar)
-                                        </small>
-                                    </label>
-                                    <p-password formControlName="password" [toggleMask]="true" [feedback]="false"
-                                        placeholder="Contraseña segura (min 8 car.)" styleClass="w-full"
-                                        [inputStyleClass]="'w-full'"></p-password>
-                                    <small *ngIf="f['password']?.invalid && f['password']?.touched" class="text-danger">
-                                        {{ f['password']?.errors?.['required'] ? 'La contraseña es obligatoria' :
-                                        'Mínimo 8 caracteres' }}
-                                    </small>
+                                    <label>Seguridad</label>
+                                    <div class="grid align-items-center">
+                                        <div class="col-12 md:col-8">
+                                            <p-password formControlName="password" [toggleMask]="true"
+                                                [feedback]="false" placeholder="Contraseña segura (min 8 car.)"
+                                                styleClass="w-full" [inputStyleClass]="'w-full'"></p-password>
+                                            <small *ngIf="isEditMode()" class="text-muted block mt-1">
+                                                (dejar vacío para no cambiar)
+                                            </small>
+                                            <small *ngIf="f['password']?.invalid && f['password']?.touched"
+                                                class="text-danger block mt-1">
+                                                {{ f['password']?.errors?.['required'] ? 'La contraseña es obligatoria'
+                                                :
+                                                'Mínimo 8 caracteres' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- profilePicture Field -->
+                                <div class="col-12 field border-top-1 surface-border pt-4 mt-4">
+                                    <label class="font-bold text-primary mb-3 block">Foto de Perfil</label>
+                                    <div class="grid align-items-center">
+                                        <div class="col-12 md:col-8">
+                                            <div class="flex gap-2 mb-2">
+                                                <span class="p-input-icon-left flex-grow-1">
+                                                    <i class="pi pi-image text-primary"></i>
+                                                    <input type="text" pInputText formControlName="profilePicture"
+                                                        placeholder="/uploads/usuarios/nombre.png" class="w-full" />
+                                                </span>
+                                                <input type="file" #fileInput hidden (change)="onFileSelected($event)"
+                                                    accept="image/*">
+                                                <p-button icon="pi pi-upload" (onClick)="fileInput.click()"
+                                                    [loading]="isSaving()" severity="info" pTooltip="Subir Foto"
+                                                    tooltipPosition="top"></p-button>
+                                            </div>
+                                            <small class="text-muted block">Ingrese la ruta o use el botón para subir
+                                                una
+                                                foto (ej: /uploads/usuarios/admin.png)</small>
+                                        </div>
+                                        <div class="col-12 md:col-4 flex justify-content-center">
+                                            <div class="avatar-preview-container border-2 border-circle surface-border surface-50 flex align-items-center justify-content-center overflow-hidden"
+                                                style="width: 100px; height: 100px; transition: all 0.3s ease;">
+                                                @if (userForm.get('profilePicture')?.value && !imageError()) {
+                                                <img [src]="userForm.get('profilePicture')?.value" alt="Preview"
+                                                    class="preview-image" (error)="imageError.set(true)">
+                                                } @else {
+                                                <div class="flex flex-column align-items-center text-muted">
+                                                    <i class="pi pi-user text-3xl mb-1"></i>
+                                                    <span class="text-xs">Sin foto</span>
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </p-card>
