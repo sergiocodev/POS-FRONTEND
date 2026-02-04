@@ -1,0 +1,104 @@
+<app-module-header title="Personal" iconClass="pi pi-users"></app-module-header>
+
+<div class="employees-container container-fluid py-4 animate-fade-in">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <p-toolbar styleClass="bg-transparent border-0 px-4 py-3">
+            <ng-template pTemplate="left">
+                <div class="d-flex align-items-center gap-2">
+                    <p-iconField iconPosition="left">
+                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                        <input type="text" pInputText placeholder="Buscar empleado..." [value]="searchTerm()"
+                            (input)="onSearchChange($any($event.target).value)" class="w-100 w-md-300px" />
+                    </p-iconField>
+
+                    <button pButton icon="pi pi-filter-slash" class="p-button-outlined p-button-secondary"
+                        [disabled]="!searchTerm() && selectedStatusFilter() === null"
+                        (click)="searchTerm.set(''); selectedStatusFilter.set(null); applyFilters()"
+                        pTooltip="Limpiar filtros">
+                    </button>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="right">
+                <button pButton label="Nuevo Personal" icon="pi pi-plus" class="p-button-primary shadow-sm"
+                    (click)="createEmployee()">
+                </button>
+            </ng-template>
+        </p-toolbar>
+
+        <p-table [value]="filteredEmployees()" [loading]="isLoading()" [rows]="10" [paginator]="true"
+            [rowsPerPageOptions]="[5, 10, 20]" [tableStyle]="{ 'min-width': '60rem' }"
+            styleClass="p-datatable-sm p-datatable-striped" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados" [rowHover]="true">
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="firstName">Nombre <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th>Documento</th>
+                    <th>Usuario</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center" style="width: 15%">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-employee>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <p-avatar [label]="employee.firstName.charAt(0).toUpperCase()" shape="circle"
+                                styleClass="me-2 bg-primary text-white" [style]="{ width: '32px', height: '32px' }">
+                            </p-avatar>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold">{{ getFullName(employee) }}</span>
+                                <small class="text-muted">{{ employee.email || 'Sin correo' }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <i class="pi pi-id-card me-1 text-muted small"></i>
+                        <span>{{ employee.documentNumber || '---' }}</span>
+                    </td>
+                    <td>
+                        <p-tag *ngIf="employee.username" icon="pi pi-user" [value]="employee.username" severity="info">
+                        </p-tag>
+                        <span *ngIf="!employee.username" class="text-muted italic small">Sin cuenta</span>
+                    </td>
+                    <td class="text-center">
+                        <p-tag [severity]="employee.active ? 'success' : 'danger'"
+                            [value]="employee.active ? 'Activo' : 'Inactivo'" [rounded]="true">
+                        </p-tag>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <button pButton icon="pi pi-pencil" class="p-button-text p-button-info p-button-rounded"
+                                (click)="editEmployee(employee.id)" pTooltip="Editar">
+                            </button>
+                            <button pButton [icon]="employee.active ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                                [class]="employee.active ? 'p-button-text p-button-warning p-button-rounded' : 'p-button-text p-button-success p-button-rounded'"
+                                (click)="toggleEmployeeStatus(employee)"
+                                [pTooltip]="employee.active ? 'Desactivar' : 'Activar'">
+                            </button>
+                            <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-rounded"
+                                (click)="deleteEmployee(employee)" pTooltip="Eliminar">
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="pi pi-inbox text-muted" style="font-size: 3rem"></i>
+                            <span class="mt-2 text-muted">No se encontraron empleados</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

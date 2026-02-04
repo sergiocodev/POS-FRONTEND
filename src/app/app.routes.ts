@@ -56,18 +56,6 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/products/product-form/product-form.component').then(m => m.ProductFormComponent)
             },
             {
-                path: 'employees',
-                loadComponent: () => import('./features/employees/employees-list/employees-list.component').then(m => m.EmployeesListComponent)
-            },
-            {
-                path: 'employees/new',
-                loadComponent: () => import('./features/employees/employee-form/employee-form.component').then(m => m.EmployeeFormComponent)
-            },
-            {
-                path: 'employees/:id/edit',
-                loadComponent: () => import('./features/employees/employee-form/employee-form.component').then(m => m.EmployeeFormComponent)
-            },
-            {
                 path: 'sales',
                 loadComponent: () => import('./features/sales/sale-list/sale-list.component').then(m => m.SaleListComponent)
             },
@@ -150,6 +138,10 @@ export const routes: Routes = [
             {
                 path: 'settings/establishments',
                 loadComponent: () => import('./features/settings/establishments/establishments.component').then(m => m.EstablishmentsComponent)
+            },
+            {
+                path: 'settings/employees',
+                loadComponent: () => import('./features/settings/employees/employees.component').then(m => m.EmployeesComponent)
             },
 
             {

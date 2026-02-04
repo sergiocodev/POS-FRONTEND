@@ -138,7 +138,7 @@ export class SidebarComponent {
                 { label: 'Usuarios', route: '/settings/users', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
                 { label: 'Roles y permisos', route: '/settings/roles', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
                 { label: 'Establecimientos', route: '/settings/establishments', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
-                { label: 'Personal', route: '/employees', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
+                { label: 'Personal', route: '/settings/employees', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
                 { label: 'Impuestos', route: '/settings/taxes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] }
             ]
         }

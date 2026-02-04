@@ -1,16 +1,31 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { EmployeeService } from '../../../core/services/employee.service';
-import { EmployeeRequest } from '../../../core/models/employee.model';
-import { UserService } from '../../../core/services/user.service';
-import { UserResponse } from '../../../core/models/user.model';
+import { EmployeeService } from '../../../../core/services/employee.service';
+import { EmployeeRequest } from '../../../../core/models/employee.model';
+import { UserService } from '../../../../core/services/user.service';
+import { UserResponse } from '../../../../core/models/user.model';
+
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { InputMaskModule } from 'primeng/inputmask';
+import { MessageModule } from 'primeng/message';
 
 @Component({
     selector: 'app-employee-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        InputTextModule,
+        SelectModule,
+        ButtonModule,
+        InputMaskModule,
+        MessageModule
+    ],
     templateUrl: './employee-form.component.html',
     styleUrl: './employee-form.component.scss'
 })
@@ -18,12 +33,21 @@ export class EmployeeFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private employeeService = inject(EmployeeService);
     private userService = inject(UserService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+
+    @Input() set employeeId(value: number | null) {
+        this._employeeId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get employeeId(): number | null {
+        return this._employeeId();
+    }
+    private _employeeId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
 
     employeeForm!: FormGroup;
     isEditMode = signal(false);
-    employeeId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
     users = signal<UserResponse[]>([]);
@@ -31,7 +55,6 @@ export class EmployeeFormComponent implements OnInit {
     ngOnInit() {
         this.initForm();
         this.loadUsers();
-        this.checkEditMode();
     }
 
     initForm() {
@@ -54,12 +77,16 @@ export class EmployeeFormComponent implements OnInit {
         });
     }
 
-    checkEditMode() {
-        const id = this.route.snapshot.paramMap.get('id');
+    checkEditModeFromInput() {
+        const id = this.employeeId;
         if (id) {
             this.isEditMode.set(true);
-            this.employeeId.set(+id);
-            this.loadEmployee(+id);
+            this.loadEmployee(id);
+        } else {
+            this.isEditMode.set(false);
+            if (this.employeeForm) {
+                this.employeeForm.reset();
+            }
         }
     }
 
@@ -71,14 +98,14 @@ export class EmployeeFormComponent implements OnInit {
                     firstName: employee.firstName,
                     lastName: employee.lastName,
                     documentNumber: employee.documentNumber,
-                    userId: null 
+                    userId: null // We don't have the userId in the response currently, but keep placeholder
                 });
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading employee:', error);
                 alert('Error al cargar el empleado');
-                this.router.navigate(['/employees']);
+                this.cancelled.emit();
             }
         });
     }
@@ -97,18 +124,17 @@ export class EmployeeFormComponent implements OnInit {
             lastName: formValue.lastName || undefined,
             documentNumber: formValue.documentNumber || undefined,
             userId: formValue.userId || undefined,
-            active: true 
+            active: true
         };
 
         const operation = this.isEditMode()
-            ? this.employeeService.update(this.employeeId()!, request)
+            ? this.employeeService.update(this.employeeId!, request)
             : this.employeeService.create(request);
 
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
-                alert(`Empleado ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente`);
-                this.router.navigate(['/employees']);
+                this.saved.emit();
             },
             error: (error) => {
                 console.error('Error saving employee:', error);
@@ -119,7 +145,7 @@ export class EmployeeFormComponent implements OnInit {
     }
 
     cancel() {
-        this.router.navigate(['/employees']);
+        this.cancelled.emit();
     }
 
     get f() {
