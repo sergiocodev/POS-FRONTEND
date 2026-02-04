@@ -31,3 +31,18 @@ export interface UserAssignRolesRequest {
 export interface UserAssignEstablishmentsRequest {
     establishmentIds: number[];
 }
+
+export interface ExternalLookupResponse {
+    nombres?: string;
+    apellidoPaterno?: string;
+    apellidoMaterno?: string;
+    tipoDocumento?: string;
+    numeroDocumento?: string;
+    razonSocial?: string;
+    estado?: string;
+    condicion?: string;
+    direccion?: string;
+    distrito?: string;
+    provincia?: string;
+    departamento?: string;
+}

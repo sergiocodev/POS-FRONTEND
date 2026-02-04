@@ -1,137 +1,107 @@
+<app-module-header title="Gestión de Usuarios" iconClass="pi pi-users"></app-module-header>
+
 <div class="users-container">
-    <div class="page-header">
-        <div class="header-content">
-            <h2 class="page-title">
-                <i class="bi bi-people-fill me-2"></i>
-                Gestión de Usuarios
-            </h2>
-            <p class="page-description">Administra los usuarios del sistema, roles y permisos</p>
-        </div>
-        <button class="btn btn-primary" (click)="createUser()">
-            <i class="bi bi-plus-lg me-2"></i>
-            Nuevo Usuario
-        </button>
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div class="d-flex justify-content-end mb-3">
+        <p-button label="Nuevo Usuario" icon="pi pi-plus" (onClick)="createUser()" severity="primary"></p-button>
     </div>
 
-    
-    <div class="filters-section card">
+    <!-- Filters Section -->
+    <div class="filters-section card mb-4">
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" class="form-control" placeholder="Nombre, usuario o email..."
-                            [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)">
-                    </div>
+                    <label class="form-label d-block">Buscar</label>
+                    <p-iconField iconPosition="left">
+                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                        <input type="text" pInputText placeholder="Nombre, usuario o email..." class="w-full"
+                            [ngModel]="searchTerm()" (ngModelChange)="onSearchChange($event)" />
+                    </p-iconField>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Filtrar por Rol</label>
-                    <select class="form-select" (change)="onRoleFilterChange($any($event.target).value)">
-                        <option value="">Todos los roles</option>
-                        @for (role of roles(); track role.id) {
-                        <option [value]="role.id">{{ role.name }}</option>
-                        }
-                    </select>
+                    <label class="form-label d-block">Filtrar por Rol</label>
+                    <p-select [options]="roles()" [ngModel]="selectedRoleFilter()" optionLabel="name" optionValue="id"
+                        placeholder="Todos los roles" class="w-full" [showClear]="true"
+                        (ngModelChange)="onRoleFilterChange($event)"></p-select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
-                        <option value="">Todos</option>
-                        <option value="true">Activos</option>
-                        <option value="false">Inactivos</option>
-                    </select>
+                    <label class="form-label d-block">Estado</label>
+                    <p-select [options]="[
+                        {label: 'Activos', value: true},
+                        {label: 'Inactivos', value: false}
+                    ]" [ngModel]="selectedStatusFilter()" optionLabel="label" optionValue="value" placeholder="Todos"
+                        class="w-full" [showClear]="true" (ngModelChange)="onStatusFilterChange($event)"></p-select>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <!-- Table Section -->
     <div class="card">
-        <div class="card-body">
-            @if (isLoading()) {
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-            } @else {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Nombre Completo</th>
-                            <th>Email</th>
-                            <th>Roles</th>
-                            <th>Estado</th>
-                            <th>Último Acceso</th>
-                            <th class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (filteredUsers().length === 0) {
-                        <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                No se encontraron usuarios
-                            </td>
-                        </tr>
-                        }
-                        @for (user of filteredUsers(); track user.id) {
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-2">
-                                        {{ user.username.charAt(0).toUpperCase() }}
-                                    </div>
-                                    <strong>{{ user.username }}</strong>
-                                </div>
-                            </td>
-                            <td>{{ user.fullName }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                <div class="roles-badges">
-                                    @for (role of user.roles; track role.id) {
-                                    <span class="badge bg-primary me-1">{{ role.name }}</span>
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                @if (user.active) {
-                                <span class="badge bg-success">Activo</span>
-                                } @else {
-                                <span class="badge bg-secondary">Inactivo</span>
-                                }
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    {{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}
-                                </small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button class="btn btn-outline-primary" (click)="editUser(user.id)" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-warning" (click)="toggleUserStatus(user)"
-                                        [title]="user.active ? 'Desactivar' : 'Activar'">
-                                        <i class="bi" [class.bi-toggle-on]="user.active"
-                                            [class.bi-toggle-off]="!user.active"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger" (click)="deleteUser(user)" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            }
-        </div>
+        <p-table [value]="filteredUsers()" [loading]="isLoading()" [rows]="10" [paginator]="true"
+            [responsiveLayout]="'scroll'" styleClass="p-datatable-striped" [rowsPerPageOptions]="[5, 10, 25, 50]">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Estado</th>
+                    <th>Último Acceso</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-2">
+                                {{ user.username.charAt(0).toUpperCase() }}
+                            </div>
+                            <strong>{{ user.username }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ user.fullName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <div class="roles-badges">
+                            @for (role of user.roles; track role.id) {
+                            <p-tag [value]="role.name" severity="info" class="me-1"></p-tag>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="user.active ? 'Activo' : 'Inactivo'"
+                            [severity]="user.active ? 'success' : 'secondary'"></p-tag>
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                            {{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}
+                        </small>
+                    </td>
+                    <td class="text-end">
+                        <div class="action-buttons">
+                            <p-button icon="pi pi-pencil" [text]="true" severity="info" (onClick)="editUser(user.id)"
+                                pTooltip="Editar" tooltipPosition="top"></p-button>
+                            <p-button [icon]="user.active ? 'pi pi-user-minus' : 'pi pi-user-plus'" [text]="true"
+                                [severity]="user.active ? 'warn' : 'success'" (onClick)="toggleUserStatus(user)"
+                                [pTooltip]="user.active ? 'Desactivar' : 'Activar'" tooltipPosition="top"></p-button>
+                            <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="deleteUser(user)"
+                                pTooltip="Eliminar" tooltipPosition="top"></p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <i class="pi pi-inbox fs-1 d-block mb-2 text-muted"></i>
+                        <span class="text-muted">No se encontraron usuarios</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
     </div>
 </div>

@@ -44,23 +44,35 @@
     gap: 0.25rem;
 }
 
-.table {
-    margin-bottom: 0;
-
-    th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        color: var(--text-secondary);
-        border-bottom: 2px solid var(--border-color);
-    }
-
-    td {
-        vertical-align: middle;
-    }
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
 }
 
-.btn-group-sm .btn {
-    padding: 0.25rem 0.5rem;
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+:host ::v-deep {
+    .p-datatable {
+        .p-datatable-header {
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+    }
+
+    .p-tag {
+        font-weight: 500;
+    }
 }

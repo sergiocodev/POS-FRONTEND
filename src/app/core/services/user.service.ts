@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UserRequest, UserResponse, UserAssignRolesRequest, UserAssignEstablishmentsRequest } from '../models/user.model';
+import { UserRequest, UserResponse, UserAssignRolesRequest, UserAssignEstablishmentsRequest, ExternalLookupResponse } from '../models/user.model';
 
 
 export interface User {
@@ -50,5 +50,9 @@ export class UserService {
 
     toggleActive(id: number): Observable<UserResponse> {
         return this.http.patch<UserResponse>(`${this.apiUrl}/${id}/toggle-active`, {});
+    }
+
+    searchByDocument(documentNumber: string): Observable<ExternalLookupResponse> {
+        return this.http.get<ExternalLookupResponse>(`${this.apiUrl}/search/${documentNumber}`);
     }
 }

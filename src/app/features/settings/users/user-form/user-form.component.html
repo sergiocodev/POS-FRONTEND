@@ -1,130 +1,153 @@
 <div class="user-form-container">
+    <p-toast></p-toast>
 
     <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
+        <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
     </div>
 
-
     <ng-container *ngIf="!isLoading()">
+        <div class="form-header">
+            <div class="header-content">
+                <h2>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Usuario</h2>
+                <p>Complete la información detallada para la gestión del perfil.</p>
+            </div>
+        </div>
+
         <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-
-                <div class="col-lg-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-info-circle me-2"></i>
-                                Información Básica
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">Usuario <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="username"
-                                    placeholder="Nombre de usuario" />
-                                <div *ngIf="f['username']?.invalid && f['username']?.touched"
-                                    class="text-danger small mt-1">
-                                    <div *ngIf="f['username']?.errors?.['required']">El usuario es requerido</div>
-                                    <div *ngIf="f['username']?.errors?.['minlength']">Mínimo 3 caracteres</div>
-                                </div>
+            <div class="grid">
+                <!-- Columna Izquierda: Información Principal -->
+                <div class="col-12 lg:col-7">
+                    <div class="glass-card mb-4 min-h-full">
+                        <p-card header="Información de Cuenta">
+                            <div class="section-subtitle">
+                                <i class="pi pi-user-edit"></i>
+                                <span>Credenciales y datos personales obligatorios</span>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" formControlName="email"
-                                    placeholder="correo@ejemplo.com" />
-                                <div *ngIf="f['email']?.invalid && f['email']?.touched" class="text-danger small mt-1">
-                                    <div *ngIf="f['email']?.errors?.['required']">El email es requerido</div>
-                                    <div *ngIf="f['email']?.errors?.['email']">Email inválido</div>
-                                </div>
-                            </div>
+                            <div class="grid">
 
-                            <div class="mb-3">
-                                <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="fullName"
-                                    placeholder="Nombre completo del usuario" />
-                                <div *ngIf="f['fullName']?.invalid && f['fullName']?.touched"
-                                    class="text-danger small mt-1">
-                                    El nombre completo es requerido
+                                <div class="col-12 field" *ngIf="!isEditMode()">
+                                    <label>Verificación de Identidad</label>
+                                    <div class="document-search-group">
+                                        <p-inputNumber formControlName="document" [useGrouping]="false"
+                                            placeholder="N° de Documento (DNI/CEX)" styleClass="w-full"></p-inputNumber>
+                                        <p-button icon="pi pi-search" severity="info" type="button" class="search-btn"
+                                            (onClick)="searchDocument()" [loading]="isSearching()"></p-button>
+                                    </div>
+                                    <small class="text-muted">Use la búsqueda para autocompletar el nombre</small>
                                 </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">
-                                    Contraseña
-                                    <span *ngIf="!isEditMode()" class="text-danger">*</span>
-                                    <small *ngIf="isEditMode()" class="text-muted">(dejar en blanco para mantener la
-                                        actual)</small>
-                                </label>
-                                <input type="password" class="form-control" formControlName="password"
-                                    placeholder="Mínimo 8 caracteres" />
-                                <div *ngIf="f['password']?.invalid && f['password']?.touched"
-                                    class="text-danger small mt-1">
-                                    <div *ngIf="f['password']?.errors?.['required']">La contraseña es requerida</div>
-                                    <div *ngIf="f['password']?.errors?.['minlength']">Mínimo 8 caracteres</div>
+                                <div class="col-12 field">
+                                    <label>Nombre Completo <span class="text-danger">*</span></label>
+                                    <span class="p-input-icon-left w-full">
+                                        <i class="pi pi-id-card"></i>
+                                        <input type="text" pInputText formControlName="fullName"
+                                            placeholder="Ej: Juan Pérez García" />
+                                    </span>
+                                    <small *ngIf="f['fullName']?.invalid && f['fullName']?.touched" class="text-danger">
+                                        El nombre es requerido para el registro
+                                    </small>
+                                </div>
+
+                                <div class="col-12 md:col-6 field">
+                                    <label>Email <span class="text-danger">*</span></label>
+                                    <span class="p-input-icon-left w-full">
+                                        <i class="pi pi-envelope"></i>
+                                        <input type="email" pInputText formControlName="email"
+                                            placeholder="correo@corporativo.com" />
+                                    </span>
+                                    <small *ngIf="f['email']?.invalid && f['email']?.touched" class="text-danger">
+                                        {{ f['email']?.errors?.['required'] ? 'El email es requerido' : 'Email inválido'
+                                        }}
+                                    </small>
+                                </div>
+
+                                <div class="col-12 md:col-6 field">
+                                    <label>Usuario <span class="text-danger">*</span></label>
+                                    <span class="p-input-icon-left w-full">
+                                        <i class="pi pi-user"></i>
+                                        <input type="text" pInputText formControlName="username"
+                                            placeholder="Identificador de ingreso" />
+                                    </span>
+                                    <small *ngIf="f['username']?.invalid && f['username']?.touched" class="text-danger">
+                                        {{ f['username']?.errors?.['required'] ? 'El usuario es requerido' : 'Mínimo 3
+                                        caracteres' }}
+                                    </small>
+                                </div>
+
+                                <div class="col-12 field">
+                                    <label>
+                                        Seguridad
+                                        <small *ngIf="isEditMode()" class="text-muted font-normal ms-2">
+                                            (dejar vacío para no cambiar)
+                                        </small>
+                                    </label>
+                                    <p-password formControlName="password" [toggleMask]="true" [feedback]="false"
+                                        placeholder="Contraseña segura (min 8 car.)" styleClass="w-full"
+                                        [inputStyleClass]="'w-full'"></p-password>
+                                    <small *ngIf="f['password']?.invalid && f['password']?.touched" class="text-danger">
+                                        {{ f['password']?.errors?.['required'] ? 'La contraseña es obligatoria' :
+                                        'Mínimo 8 caracteres' }}
+                                    </small>
                                 </div>
                             </div>
-                        </div>
+                        </p-card>
                     </div>
                 </div>
 
+                <!-- Columna Derecha: Roles y Configuración -->
+                <div class="col-12 lg:col-5">
+                    <div class="glass-card min-h-full">
+                        <p-card header="Nivel de Acceso">
+                            <div class="section-subtitle">
+                                <i class="pi pi-shield"></i>
+                                <span>Permisos y privilegios del sistema</span>
+                            </div>
 
-                <div class="col-lg-6">
-
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-shield-lock me-2"></i>
-                                Roles <span class="text-danger">*</span>
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="roles-selection">
-                                <div *ngIf="roles().length === 0">
-                                    <p class="text-muted">No hay roles disponibles</p>
+                            <div class="roles-grid">
+                                <div *ngIf="roles().length === 0" class="text-center py-4 border-round-xl surface-50">
+                                    <i class="pi pi-exclamation-circle text-2xl text-muted mb-2"></i>
+                                    <p class="text-muted m-0">No se encontraron roles activos</p>
                                 </div>
 
-                                <ng-container *ngIf="roles().length > 0">
-                                    <div *ngFor="let role of roles(); let i = index">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" [id]="'role-' + role.id"
-                                                [checked]="isRoleSelected(role.id)" (change)="toggleRole(role.id)" />
-                                            <label class="form-check-label" [for]="'role-' + role.id">
-                                                <strong>{{ role.name }}</strong>
-                                                <ng-container *ngIf="role.description">
-                                                    <br />
-                                                    <small class="text-muted">{{ role.description }}</small>
-                                                </ng-container>
-                                            </label>
-                                        </div>
+                                <div *ngFor="let role of roles()" class="role-card"
+                                    [class.selected]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
+                                    <div class="role-icon-box">
+                                        <i [class]="isRoleSelected(role.id) ? 'pi pi-check' : 'pi pi-lock'"></i>
                                     </div>
-                                </ng-container>
+                                    <div class="role-details">
+                                        <span class="role-name">{{ role.name }}</span>
+                                        <span class="role-desc">{{ role.description || 'Sin descripción asignada'
+                                            }}</span>
+                                    </div>
+                                    <p-checkbox [binary]="true" [ngModel]="isRoleSelected(role.id)"
+                                        [ngModelOptions]="{standalone: true}"
+                                        (click)="$event.stopPropagation()"></p-checkbox>
+                                </div>
                             </div>
 
-                            <div *ngIf="selectedRoles().length === 0" class="alert alert-warning mt-3 mb-0">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                Debe seleccionar al menos un rol
+                            <div class="mt-3 p-3 surface-50 border-round-xl" *ngIf="selectedRoles().length > 0">
+                                <small
+                                    class="text-muted d-block mb-2 uppercase font-bold text-xs">Seleccionados:</small>
+                                <div class="flex flex-wrap gap-2">
+                                    <ng-container *ngFor="let role of roles()">
+                                        <p-chip *ngIf="isRoleSelected(role.id)" [style]="{'font-size': '12px'}"
+                                            [label]="role.name" icon="pi pi-tag"></p-chip>
+                                    </ng-container>
+                                </div>
                             </div>
-                        </div>
+                        </p-card>
                     </div>
                 </div>
             </div>
 
-
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSaving()">
-                    <i class="bi bi-x-lg me-2"></i>
-                    Cancelar
-                </button>
+                <p-button label="Descartar" icon="pi pi-arrow-left" (onClick)="cancel()" severity="secondary"
+                    [text]="true" [disabled]="isSaving()" class="btn-action"></p-button>
 
-                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
-                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"
-                        aria-hidden="true"></span>
-                    <i class="bi bi-check-lg me-2"></i>
-                    {{ isEditMode() ? 'Actualizar' : 'Crear' }} Usuario
-                </button>
+                <p-button [label]="isEditMode() ? 'Guardar Cambios' : 'Registrar Usuario'" icon="pi pi-check-circle"
+                    type="submit" [loading]="isSaving()" severity="primary" [disabled]="isSaving()"
+                    class="btn-action"></p-button>
             </div>
         </form>
     </ng-container>
