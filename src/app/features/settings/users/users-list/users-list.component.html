@@ -65,125 +65,9 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th (click)="sortData('username')" class="cursor-pointer">
-                            Usuario <i class="bi" [ngClass]="getSortIcon('username')"></i>
-                        </th>
-                        <th (click)="sortData('fullName')" class="cursor-pointer">
-                            Nombre Completo <i class="bi" [ngClass]="getSortIcon('fullName')"></i>
-                        </th>
-                        <th>Email</th>
-                        <th>Roles</th>
-                        <th class="text-center">Estado</th>
-                        <th>Último Acceso</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngIf="isLoading()">
-                        <td colspan="7" class="text-center py-5">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando...</span>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr *ngIf="!isLoading() && paginatedUsers.length === 0">
-                        <td colspan="7" class="text-center py-5">
-                            <div class="d-flex flex-column align-items-center text-muted">
-                                <i class="bi bi-inbox fs-1 mb-2"></i>
-                                <span>No se encontraron usuarios</span>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr *ngFor="let user of paginatedUsers; trackBy: trackByUserId">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="me-3" style="width: 32px; height: 32px; flex-shrink: 0;">
-                                    <img *ngIf="user.profilePicture" [src]="user.profilePicture"
-                                        class="rounded-circle w-100 h-100 object-fit-cover"
-                                        (error)="$any($event.target).style.display = 'none'">
-
-                                    <div *ngIf="!user.profilePicture" class="avatar-circle">
-                                        {{ user.username.charAt(0).toUpperCase() }}
-                                    </div>
-                                </div>
-                                <span class="fw-bold text-dark">{{ user.username }}</span>
-                            </div>
-                        </td>
-                        <td>{{ user.fullName }}</td>
-                        <td class="text-muted small">{{ user.email }}</td>
-                        <td>
-                            <div class="d-flex flex-wrap gap-1">
-                                <span *ngFor="let role of user.roles" class="badge bg-light text-dark border">
-                                    {{ role.name }}
-                                </span>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge rounded-pill"
-                                [ngClass]="user.active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                                {{ user.active ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </td>
-                        <td>
-                            <small class="text-muted">
-                                <i class="bi bi-clock me-1"></i>
-                                {{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}
-                            </small>
-                        </td>
-                        <td class="text-end">
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-light text-primary" (click)="editUser(user.id)"
-                                    title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-light"
-                                    [ngClass]="user.active ? 'text-warning' : 'text-success'"
-                                    (click)="confirmToggleStatus(user)"
-                                    [title]="user.active ? 'Desactivar' : 'Activar'">
-                                    <i class="bi" [ngClass]="user.active ? 'bi-person-dash' : 'bi-person-check'"></i>
-                                </button>
-                                <button class="btn btn-sm btn-light text-danger" (click)="confirmDelete(user)"
-                                    title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="card-footer bg-white py-3 border-top-0" *ngIf="filteredUsers().length > 0">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <small class="text-muted">
-                    Mostrando {{ (currentPage - 1) * pageSize + 1 }} a
-                    {{ min(currentPage * pageSize, filteredUsers().length) }}
-                    de {{ filteredUsers().length }} usuarios
-                </small>
-
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item" [class.disabled]="currentPage === 1">
-                            <button class="page-link" (click)="changePage(currentPage - 1)">Anterior</button>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link border-0 text-dark fw-bold">Página {{currentPage}}</span>
-                        </li>
-                        <li class="page-item" [class.disabled]="currentPage * pageSize >= filteredUsers().length">
-                            <button class="page-link" (click)="changePage(currentPage + 1)">Siguiente</button>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </div>
+    <app-custom-table [columns]="cols" [data]="filteredUsers()" [pageSize]="pageSize"
+        (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+    </app-custom-table>
 
     <div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'"
         tabindex="-1">
@@ -208,5 +92,12 @@
         </div>
     </div>
     <div *ngIf="showConfirmModal" class="modal-backdrop fade show"></div>
+
+    <!-- Modal para Crear/Editar Usuario -->
+    <app-modal-generic [isVisible]="showUserModal()" [title]="selectedUserId() ? 'Editar Usuario' : 'Nuevo Usuario'"
+        size="lg" (close)="onUserCancelled()">
+        <app-user-form [userId]="selectedUserId()" (saved)="onUserSaved()" (cancelled)="onUserCancelled()">
+        </app-user-form>
+    </app-modal-generic>
 
 </div>

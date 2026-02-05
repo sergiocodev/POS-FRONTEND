@@ -1,0 +1,196 @@
+/* Variables de Color "Enterprise" (Indigo/Slate Theme) */
+$primary-color: #4f46e5;
+/* Indigo moderno */
+$text-primary: #1e293b;
+/* Slate 800 - Casi negro pero más suave */
+$text-secondary: #64748b;
+/* Slate 500 - Gris azulado para subtítulos */
+$bg-hover: #f8fafc;
+/* Slate 50 - Fondo muy claro al pasar el mouse */
+$border-color: #e2e8f0;
+/* Slate 200 - Borsdes sutiles */
+$font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+
+:host {
+    display: block;
+    font-family: $font-family-base;
+}
+
+/* --- Tarjeta Contenedora --- */
+.card {
+    border: 1px solid $border-color;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important; // Sombra suave estilo Tailwind
+    border-radius: 12px;
+    overflow: hidden; // Para que las esquinas de la tabla no se salgan
+}
+
+/* --- Tabla --- */
+.table-responsive {
+
+    /* Scrollbar personalizado fino */
+    &::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+}
+
+.table {
+    margin-bottom: 0;
+
+    thead {
+        th {
+            background-color: #f1f5f9;
+            /* Fondo gris muy suave */
+            color: $text-secondary;
+            font-size: 0.75rem;
+            /* 12px */
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            /* Espaciado entre letras elegante */
+            text-transform: uppercase;
+            padding: 1rem 1rem;
+            border-bottom: 1px solid $border-color;
+            border-top: none;
+            white-space: nowrap;
+        }
+
+        /* Input de filtros */
+        input.form-control {
+            background-color: #ffffff;
+            border: 1px solid $border-color;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            padding: 0.4rem 0.75rem;
+            transition: all 0.2s ease;
+
+            &:focus {
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+            }
+
+            &::placeholder {
+                color: #94a3b8;
+            }
+        }
+    }
+
+    tbody {
+        td {
+            padding: 1rem 1rem;
+            /* Más aire vertical */
+            color: $text-primary;
+            font-size: 0.875rem;
+            /* 14px */
+            border-bottom: 1px solid $border-color;
+            vertical-align: middle;
+            transition: background-color 0.15s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Efecto Hover en filas */
+        tr:hover td {
+            background-color: $bg-hover;
+        }
+    }
+}
+
+/* --- Componentes Internos --- */
+
+/* Imágenes / Avatars */
+img.rounded-circle {
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Button (Upload) */
+.btn-upload {
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(2px);
+
+    &:hover {
+        background: #fff;
+        color: $primary-color;
+    }
+}
+
+div:hover>label.btn-upload {
+    opacity: 1;
+    /* Mostrar botón solo al pasar el mouse por la celda */
+}
+
+/* Toggle Switch Personalizado */
+.form-check-input:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
+}
+
+/* Botones de Acción */
+.btn-action {
+    color: $text-secondary;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: #eff6ff;
+        color: $primary-color;
+        border-color: rgba($primary-color, 0.2);
+    }
+
+    &.btn-delete:hover {
+        background-color: #fef2f2;
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+}
+
+/* --- Footer & Paginación --- */
+.card-footer {
+    background-color: #fff;
+    border-top: 1px solid $border-color;
+    padding: 1rem 1.5rem;
+}
+
+.pagination {
+    .page-item {
+        margin: 0 2px;
+
+        .page-link {
+            border: none;
+            border-radius: 6px;
+            color: $text-secondary;
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            transition: all 0.2s;
+
+            &:hover {
+                background-color: $bg-hover;
+                color: $primary-color;
+            }
+        }
+
+        &.active .page-link {
+            background-color: $primary-color;
+            color: white;
+            box-shadow: 0 2px 4px rgba($primary-color, 0.3);
+        }
+
+        &.disabled .page-link {
+            color: #cbd5e1;
+            background: transparent;
+        }
+    }
+}

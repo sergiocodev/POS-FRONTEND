@@ -14,29 +14,11 @@
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <div class="row mb-4 align-items-center">
-            <div class="col">
-                <h2 class="fw-bold mb-1">{{ isEditMode() ? 'Editar' : 'Nuevo' }} Usuario</h2>
-                <p class="text-muted mb-0">Complete la información detallada para la gestión del perfil.</p>
-            </div>
-        </div>
-
         <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
             <div class="row g-4">
 
                 <div class="col-12 col-lg-7">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
-                            <div
-                                class="d-flex align-items-center mb-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
-                                <i class="bi bi-person-gear fs-4 text-primary me-3"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Información de Cuenta</h6>
-                                    <small class="text-muted">Credenciales y datos personales obligatorios</small>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="card-body px-4 pb-4">
                             <div class="row g-3">
 
@@ -69,7 +51,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-6">
+                                <div class="col-12">
                                     <label class="form-label fw-semibold">Email <span
                                             class="text-danger">*</span></label>
                                     <div class="input-group has-validation">
@@ -99,50 +81,47 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">Seguridad</label>
-                                    <div class="row align-items-center">
-                                        <div class="col-12 col-md-8">
-                                            <div class="input-group has-validation">
-                                                <input [type]="showPassword() ? 'text' : 'password'"
-                                                    class="form-control" formControlName="password"
-                                                    placeholder="Contraseña segura (min 8 car.)"
-                                                    [class.is-invalid]="f['password'].invalid && f['password'].touched">
-                                                <button class="btn btn-outline-secondary" type="button"
-                                                    (click)="togglePassword()">
-                                                    <i class="bi"
-                                                        [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
-                                                </button>
-                                                <div class="invalid-feedback">
-                                                    {{ f['password'].errors?.['required'] ? 'Obligatoria' : 'Mínimo 8
-                                                    caracteres' }}
-                                                </div>
-                                            </div>
-                                            <div *ngIf="isEditMode()" class="form-text mt-1">
-                                                (dejar vacío para no cambiar)
-                                            </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Contraseña</label>
+
+                                    <div class="input-group has-validation">
+                                        <input [type]="showPassword() ? 'text' : 'password'" class="form-control"
+                                            formControlName="password" placeholder="Mín. 8 carácteres"
+                                            [class.is-invalid]="f['password'].invalid && f['password'].touched">
+
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            (click)="togglePassword()">
+                                            <i class="bi" [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        </button>
+
+                                        <div class="invalid-feedback">
+                                            {{ f['password'].errors?.['required'] ? 'Obligatoria' : 'Mínimo 8
+                                            caracteres' }}
                                         </div>
                                     </div>
+
+                                    <div *ngIf="isEditMode()" class="form-text mt-1">
+                                        (dejar vacío para no cambiar)
+                                    </div>
                                 </div>
+
 
                                 <div class="col-12 border-top pt-4 mt-2">
                                     <label class="form-label fw-bold text-primary mb-3">Foto de Perfil</label>
                                     <div class="row align-items-center">
                                         <div class="col-12 col-md-8 mb-3 mb-md-0">
                                             <div class="input-group mb-2">
-                                                <span class="input-group-text bg-light"><i
-                                                        class="bi bi-image"></i></span>
-                                                <input type="text" class="form-control" formControlName="profilePicture"
-                                                    placeholder="/uploads/usuarios/nombre.png">
+                                                <input type="text" class="form-control"
+                                                    formControlName="profilePicture">
                                                 <input type="file" #fileInput hidden (change)="onFileSelected($event)"
                                                     accept="image/*">
                                                 <button class="btn btn-outline-primary" type="button"
                                                     (click)="fileInput.click()" [disabled]="isSaving()"
                                                     title="Subir Foto">
-                                                    <i class="bi bi-cloud-upload"></i>
+                                                    <i class="bi bi-image"></i>
                                                 </button>
                                             </div>
-                                            <small class="text-muted">Ingrese ruta o suba un archivo.</small>
+                                            <small class="text-muted">Suba una imagen.</small>
                                         </div>
                                         <div class="col-12 col-md-4 d-flex justify-content-center">
                                             <div class="avatar-preview rounded-circle border d-flex align-items-center justify-content-center overflow-hidden bg-light"
@@ -168,17 +147,6 @@
 
                 <div class="col-12 col-lg-5">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
-                            <div
-                                class="d-flex align-items-center mb-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
-                                <i class="bi bi-shield-lock fs-4 text-primary me-3"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Nivel de Acceso</h6>
-                                    <small class="text-muted">Permisos y privilegios del sistema</small>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="card-body px-4 pb-4">
                             <div class="roles-container custom-scrollbar mb-3">
                                 <div *ngIf="roles().length === 0" class="text-center py-4 bg-light rounded">
@@ -191,9 +159,9 @@
                                     [class.border-primary]="isRoleSelected(role.id)"
                                     [class.bg-primary-subtle]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
 
-                                    <div class="role-icon d-flex align-items-center justify-content-center rounded bg-white border"
+                                    <div class="role-icon d-flex align-items-center justify-content-center rounded bg-white border flex-shrink-0"
                                         style="width: 40px; height: 40px;">
-                                        <i class="bi"
+                                        <i class="bi fs-4"
                                             [ngClass]="isRoleSelected(role.id) ? 'bi-check-lg text-primary' : 'bi-lock text-muted'"></i>
                                     </div>
 
@@ -204,16 +172,15 @@
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox"
-                                            [checked]="isRoleSelected(role.id)" (click)="$event.stopPropagation()"
-                                            readonly>
+                                        <input class="form-check-input" type="radio" [checked]="isRoleSelected(role.id)"
+                                            (click)="$event.stopPropagation()" readonly>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="p-3 bg-light rounded" *ngIf="selectedRoles().length > 0">
                                 <small class="text-uppercase fw-bold text-muted d-block mb-2"
-                                    style="font-size: 0.75rem;">Seleccionados:</small>
+                                    style="font-size: 0.75rem;">Seleccionado:</small>
                                 <div class="d-flex flex-wrap gap-2">
                                     <ng-container *ngFor="let role of roles()">
                                         <span *ngIf="isRoleSelected(role.id)"

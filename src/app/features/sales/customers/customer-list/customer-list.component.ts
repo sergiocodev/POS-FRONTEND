@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CustomerService } from '../../../../core/services/customer.service';
 import { CustomerResponse } from '../../../../core/models/customer.model';
-import { ModalGenericComponent } from '../../../../shared/modal-generic/modal-generic.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
 import { CustomerFormComponent } from '../customer-form/customer-form.component';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 

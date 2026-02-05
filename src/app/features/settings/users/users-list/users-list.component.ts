@@ -8,6 +8,11 @@ import { UserResponse } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { DatePipe } from '@angular/common';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { UserFormComponent } from '../user-form/user-form.component';
+
 @Component({
     selector: 'app-users-list',
     standalone: true,
@@ -15,17 +20,34 @@ import { ModuleHeaderComponent } from '../../../../shared/components/module-head
         CommonModule,
         RouterModule,
         FormsModule,
-        ModuleHeaderComponent
+        ModuleHeaderComponent,
+        CustomTableComponent,
+        ModalGenericComponent,
+        UserFormComponent
     ],
+    providers: [DatePipe],
     templateUrl: './users-list.component.html',
     styleUrl: './users-list.component.scss'
 })
 export class UsersListComponent implements OnInit {
     private userService = inject(UserService);
     private roleService = inject(RoleService);
+    private datePipe = inject(DatePipe);
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
+
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'profilePicture', label: 'Perfil', type: 'image' },
+        { key: 'username', label: 'Usuario', type: 'text', filterable: true },
+        { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true },
+        { key: 'email', label: 'Email', type: 'text', filterable: true },
+        { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', ') },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'short') || 'N/A' : 'Nunca' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
 
     // Datos
     users = signal<UserResponse[]>([]);
@@ -38,11 +60,8 @@ export class UsersListComponent implements OnInit {
     selectedRoleFilter = signal<number | null>(null);
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Paginación y Ordenamiento
     currentPage = 1;
     pageSize = 10;
-    sortColumn: keyof UserResponse | '' = '';
-    sortDirection: 'asc' | 'desc' = 'asc';
 
     // Modal y Alertas (Reemplazo de PrimeNG)
     showConfirmModal = false;
@@ -53,6 +72,10 @@ export class UsersListComponent implements OnInit {
     alertMessage = '';
     alertTitle = '';
     alertType = 'success';
+
+    // Modal de Formulario de Usuario
+    showUserModal = signal(false);
+    selectedUserId = signal<number | null>(null);
 
     ngOnInit() {
         this.loadData();
@@ -110,7 +133,6 @@ export class UsersListComponent implements OnInit {
 
         this.filteredUsers.set(filtered);
         this.currentPage = 1; // Resetear a página 1 al filtrar
-        this.sortData(this.sortColumn as any, false); // Re-aplicar orden si existe
     }
 
     onSearchChange(value: string) {
@@ -142,63 +164,39 @@ export class UsersListComponent implements OnInit {
         this.applyFilters();
     }
 
-    // --- Paginación y Ordenamiento Manual ---
+    // --- Acciones de la Tabla ---
 
-    get paginatedUsers(): UserResponse[] {
-        const startIndex = (this.currentPage - 1) * this.pageSize;
-        return this.filteredUsers().slice(startIndex, startIndex + this.pageSize);
-    }
-
-    changePage(newPage: number) {
-        if (newPage >= 1 && newPage <= Math.ceil(this.filteredUsers().length / this.pageSize)) {
-            this.currentPage = newPage;
+    handleTableAction(e: { action: string, row: UserResponse }) {
+        if (e.action === 'edit') {
+            this.editUser(e.row.id);
+        } else if (e.action === 'delete') {
+            this.confirmDelete(e.row);
         }
     }
 
-    min(a: number, b: number): number {
-        return Math.min(a, b);
-    }
-
-    sortData(column: keyof UserResponse, toggleDirection = true) {
-        if (!column) return;
-
-        if (toggleDirection) {
-            if (this.sortColumn === column) {
-                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.sortColumn = column;
-                this.sortDirection = 'asc';
-            }
-        }
-
-        const sorted = [...this.filteredUsers()].sort((a, b) => {
-            const valA = a[column];
-            const valB = b[column];
-
-            // Manejo básico de strings y nulls
-            if (valA == null) return 1;
-            if (valB == null) return -1;
-
-            const comparison = valA.toString().localeCompare(valB.toString());
-            return this.sortDirection === 'asc' ? comparison : -comparison;
-        });
-
-        this.filteredUsers.set(sorted);
-    }
-
-    getSortIcon(column: string): string {
-        if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted opacity-25';
-        return this.sortDirection === 'asc' ? 'bi-arrow-up text-primary' : 'bi-arrow-down text-primary';
+    handleStatusToggle(e: { row: UserResponse, key: string, checked: boolean }) {
+        this.confirmToggleStatus(e.row);
     }
 
     // --- Acciones ---
 
     createUser() {
-        this.create.emit();
+        this.selectedUserId.set(null);
+        this.showUserModal.set(true);
     }
 
     editUser(id: number) {
-        this.edit.emit(id);
+        this.selectedUserId.set(id);
+        this.showUserModal.set(true);
+    }
+
+    onUserSaved() {
+        this.showUserModal.set(false);
+        this.loadData();
+    }
+
+    onUserCancelled() {
+        this.showUserModal.set(false);
     }
 
     // --- Modal y Alertas (Reemplazo de ConfirmationService) ---

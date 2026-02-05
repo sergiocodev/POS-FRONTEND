@@ -132,13 +132,8 @@ export class UserFormComponent implements OnInit {
     }
 
     toggleRole(roleId: number) {
-        const current = this.selectedRoles();
-        let updated: number[];
-        if (current.includes(roleId)) {
-            updated = current.filter(id => id !== roleId);
-        } else {
-            updated = [...current, roleId];
-        }
+        // Solo permitir un rol a la vez
+        const updated = [roleId];
 
         this.selectedRoles.set(updated);
         this.userForm.get('roleIds')?.setValue(updated);
