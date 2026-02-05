@@ -160,3 +160,9 @@
         </div>
     </div>
 </div>
+
+<app-modal-generic title="Nuevo Cliente" [isVisible]="isModalOpen()" (close)="closeModal()" size="lg">
+    <app-customer-form *ngIf="isModalOpen()" [isModal]="true" (saveSuccess)="handleSaveSuccess()"
+        (cancel)="closeModal()">
+    </app-customer-form>
+</app-modal-generic>

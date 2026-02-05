@@ -1,18 +1,21 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SaleService } from '../../../core/services/sale.service';
-import { ProductService } from '../../../core/services/product.service';
-import { CustomerService } from '../../../core/services/customer.service';
-import { CashSessionService } from '../../../core/services/cash-session.service';
-import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
-import { ProductResponse } from '../../../core/models/product.model';
-import { CustomerResponse } from '../../../core/models/customer.model';
-import { CashSessionResponse } from '../../../core/models/cash.model';
-import { SaleRequest, SaleItemRequest, PaymentMethod, SaleDocumentType } from '../../../core/models/sale.model';
-import { AuthService } from '../../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
+
+// Services & Models (Asegúrate de que las rutas sean correctas)
+import { SaleService } from '../../../../core/services/sale.service';
+import { ProductService } from '../../../../core/services/product.service';
+import { CustomerService } from '../../../../core/services/customer.service';
+import { CashSessionService } from '../../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { ProductResponse } from '../../../../core/models/product.model';
+import { CustomerResponse } from '../../../../core/models/customer.model';
+import { CashSessionResponse } from '../../../../core/models/cash.model';
+import { SaleRequest, PaymentMethod, SaleDocumentType } from '../../../../core/models/sale.model';
 
 interface CartItem {
     product: ProductResponse;
@@ -24,7 +27,7 @@ interface CartItem {
 @Component({
     selector: 'app-pos',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModuleHeaderComponent],
     templateUrl: './pos.component.html',
     styleUrl: './pos.component.scss'
 })
@@ -38,25 +41,29 @@ export class PosComponent implements OnInit {
     private establishmentStateService = inject(EstablishmentStateService);
     public router = inject(Router);
 
-
+    // Data Signals
     products = signal<ProductResponse[]>([]);
     customers = signal<CustomerResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
+    filteredProducts = signal<ProductResponse[]>([]);
 
-
+    // Cart Signals
     cart = signal<CartItem[]>([]);
     selectedCustomer = signal<CustomerResponse | null>(null);
 
-
+    // Computed Values
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
     tax = computed(() => this.subtotal() * 0.18);
     total = computed(() => this.subtotal());
 
-
     posForm: FormGroup;
     isLoading = signal<boolean>(false);
     productSearchTerm = '';
-    filteredProducts = signal<ProductResponse[]>([]);
+
+    // Alert System
+    alertMessage = '';
+    alertTitle = '';
+    alertType = 'success';
 
     constructor() {
         this.posForm = this.fb.group({
@@ -82,15 +89,13 @@ export class PosComponent implements OnInit {
                 this.filteredProducts.set(data.products);
                 this.customers.set(data.customers);
                 this.activeSession.set(data.activeSession);
-
                 this.isLoading.set(false);
             },
             error: (err) => {
                 console.error('Error loading POS data:', err);
                 this.isLoading.set(false);
-
-                alert('Debe abrir una caja antes de realizar ventas.');
-                this.router.navigate(['/cash']);
+                this.showAlert('Error', 'Debe abrir una caja antes de realizar ventas.', 'danger');
+                setTimeout(() => this.router.navigate(['/cash']), 2000);
             }
         });
     }
@@ -111,7 +116,7 @@ export class PosComponent implements OnInit {
 
     addToCart(product: ProductResponse): void {
         const existing = this.cart().find(item => item.product.id === product.id);
-        const price = 10.0;
+        const price = 10.0; // TODO: Usar product.price cuando esté disponible en el modelo
 
         if (existing) {
             this.cart.update(items => items.map(item =>
@@ -141,8 +146,12 @@ export class PosComponent implements OnInit {
     onSubmitSale(): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
 
-        if (this.cart().length === 0 || !establishmentId) {
-            alert('Carrito vacío o sin establecimiento seleccionado');
+        if (this.cart().length === 0) {
+            this.showAlert('Atención', 'El carrito está vacío', 'warning');
+            return;
+        }
+        if (!establishmentId) {
+            this.showAlert('Error', 'No hay un establecimiento seleccionado', 'danger');
             return;
         }
 
@@ -171,14 +180,31 @@ export class PosComponent implements OnInit {
         this.saleService.create(request, userId).subscribe({
             next: (res) => {
                 this.isLoading.set(false);
-                alert(`Venta realizada con éxito! Comprobante: ${res.series}-${res.number}`);
-                this.router.navigate(['/sales']);
+                this.showAlert('Éxito', `Venta registrada! Comprobante: ${res.series}-${res.number}`, 'success');
+                this.cart.set([]);
+                this.posForm.reset({
+                    documentType: SaleDocumentType.BOLETA,
+                    paymentMethod: PaymentMethod.EFECTIVO,
+                    receivedAmount: 0
+                });
             },
             error: (err) => {
                 console.error('Sale error:', err);
                 this.isLoading.set(false);
-                alert('Error al realizar la venta. Verifique stock e intentos.');
+                this.showAlert('Error', 'No se pudo procesar la venta. Verifique el stock.', 'danger');
             }
         });
+    }
+
+    // Helpers UI
+    showAlert(title: string, message: string, type: string) {
+        this.alertTitle = title;
+        this.alertMessage = message;
+        this.alertType = type;
+        setTimeout(() => this.closeAlert(), 4000);
+    }
+
+    closeAlert() {
+        this.alertMessage = '';
     }
 }

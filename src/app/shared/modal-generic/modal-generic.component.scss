@@ -1,0 +1,59 @@
+/* ... Estilos base anteriores (overlay, header, footer, etc.) se mantienen igual ... */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center; // Centrado vertical y horizontal
+    z-index: 1000;
+}
+
+.modal-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    // CRÍTICO: Ancho base responsive
+    width: 90%;
+
+    // 1. Tamaño Pequeño (Alertas, confirmaciones simples)
+    &.modal-sm {
+        max-width: 300px;
+    }
+
+    // 2. Tamaño Mediano (Estándar)
+    &.modal-md {
+        max-width: 500px;
+    }
+
+    // 3. Tamaño Grande (Formularios amplios)
+    &.modal-lg {
+        max-width: 800px;
+    }
+
+    // 4. Extra Grande (Tablas complejas, dashboards)
+    &.modal-xl {
+        max-width: 1140px;
+    }
+
+    // 5. Pantalla Completa (Visualización de documentos/videos)
+    &.modal-full {
+        max-width: 98%;
+        height: 95%; // Ocupa casi toda la altura
+    }
+}
+
+.modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    // Asegura que si el contenido es muy largo, no rompa el modal
+    max-height: calc(100vh - 150px);
+}

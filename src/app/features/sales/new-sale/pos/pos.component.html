@@ -1,0 +1,221 @@
+<div class="pos-container bg-light min-vh-100 d-flex flex-column">
+
+    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
+        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1080; max-width: 400px; left: auto; right: 20px;">
+        <div class="d-flex align-items-center">
+            <i class="bi"
+                [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+            <div class="ms-2">
+                <strong>{{ alertTitle }}</strong><br>
+                <small>{{ alertMessage }}</small>
+            </div>
+            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
+        </div>
+    </div>
+
+    <!-- Header integrado -->
+    <div>
+        <app-module-header title="Punto de Venta" iconClass="bi-cart"></app-module-header>
+    </div>
+
+    <div class="container-fluid px-4 py-4 flex-grow-1">
+        <div class="row g-4 h-100">
+
+            <div class="col-lg-7 col-xl-8 d-flex flex-column">
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-2">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control border-0 shadow-none"
+                                placeholder="Buscar producto por nombre o código..." [(ngModel)]="productSearchTerm"
+                                (input)="onProductSearch()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-grow-1 position-relative" style="min-height: 500px;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-auto scrollable-content pe-2">
+
+                        <div *ngIf="isLoading()" class="d-flex justify-content-center align-items-center h-100">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                            </div>
+                        </div>
+
+                        <div *ngIf="!isLoading()" class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                            <div class="col" *ngFor="let prod of filteredProducts()">
+                                <button
+                                    class="card h-100 w-100 border-0 shadow-sm product-card text-start p-3 position-relative"
+                                    (click)="addToCart(prod)">
+                                    <div class="d-flex justify-content-center mb-3">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-primary"
+                                            style="width: 64px; height: 64px;">
+                                            <i class="bi bi-box-seam fs-2"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="card-title fw-bold text-dark mb-1 text-truncate w-100">{{ prod.name }}
+                                    </h6>
+                                    <p class="card-text text-muted small mb-3">{{ prod.brandName || 'Generico' }}</p>
+
+                                    <div class="mt-auto w-100">
+                                        <span class="badge bg-primary w-100 py-2 fs-6 fw-normal">S/ 10.00</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!isLoading() && filteredProducts().length === 0" class="text-center py-5 mt-5">
+                            <i class="bi bi-search display-1 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">No se encontraron productos</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-xl-4">
+                <div class="card border-0 shadow-sm h-100 d-flex flex-column sticky-lg-top"
+                    style="top: 1rem; max-height: calc(100vh - 2rem);">
+
+                    <div
+                        class="card-header bg-white border-bottom-0 pt-3 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-receipt me-2"></i>Detalle de Venta</h5>
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3" (click)="cart.set([])"
+                            [disabled]="cart().length === 0">
+                            <i class="bi bi-trash me-1"></i> Limpiar
+                        </button>
+                    </div>
+
+                    <div class="card-body px-4 d-flex flex-column overflow-hidden">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Cliente</label>
+                            <div class="input-group">
+                                <select class="form-select bg-light border-0"
+                                    (change)="selectedCustomer.set($any($event.target).value)">
+                                    <option [ngValue]="null">Publico General</option>
+                                    <option *ngFor="let c of customers()" [ngValue]="c">
+                                        {{ c.name }} ({{ c.documentNumber }})
+                                    </option>
+                                </select>
+                                <button class="btn btn-primary" type="button" title="Nuevo Cliente">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 overflow-auto scrollable-content border rounded-3 bg-light mb-3">
+                            <table class="table table-borderless table-striped mb-0 align-middle">
+                                <thead class="sticky-top bg-white border-bottom">
+                                    <tr class="small text-muted text-uppercase">
+                                        <th class="ps-3">Producto</th>
+                                        <th class="text-center">Cant.</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="pe-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of cart(); let i = index">
+                                        <td class="ps-3">
+                                            <div class="fw-semibold text-truncate" style="max-width: 140px;"
+                                                [title]="item.product.name">
+                                                {{ item.product.name }}
+                                            </div>
+                                            <div class="small text-muted">S/ {{ item.price | number:'1.2-2' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm bg-white border rounded">
+                                                <button class="btn btn-link text-decoration-none text-dark py-0 px-2"
+                                                    (click)="updateQuantity(i, item.quantity - 1)">-</button>
+                                                <span class="px-2 d-flex align-items-center fw-bold">{{ item.quantity
+                                                    }}</span>
+                                                <button class="btn btn-link text-decoration-none text-dark py-0 px-2"
+                                                    (click)="updateQuantity(i, item.quantity + 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="text-end fw-bold text-dark">
+                                            S/ {{ item.total | number:'1.2-2' }}
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <button class="btn btn-link text-danger p-0" (click)="removeFromCart(i)">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="cart().length === 0">
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="bi bi-basket display-6 d-block mb-2 opacity-50"></i>
+                                            Agregue productos para comenzar
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3 mb-3">
+                            <div class="d-flex justify-content-between mb-1 small text-muted">
+                                <span>Subtotal</span>
+                                <span>S/ {{ subtotal() | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small text-muted">
+                                <span>IGV (18%)</span>
+                                <span>S/ {{ tax() | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="border-top border-primary border-opacity-25 my-2"></div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0 fw-bold text-primary">TOTAL</span>
+                                <span class="h3 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
+                            </div>
+                        </div>
+
+                        <form [formGroup]="posForm" (ngSubmit)="onSubmitSale()">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Documento</label>
+                                    <select class="form-select" formControlName="documentType">
+                                        <option value="BOLETA">Boleta</option>
+                                        <option value="FACTURA">Factura</option>
+                                        <option value="TICKET">Ticket</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Pago</label>
+                                    <select class="form-select" formControlName="paymentMethod">
+                                        <option value="EFECTIVO">Efectivo</option>
+                                        <option value="VISA">Visa</option>
+                                        <option value="YAPE">Yape</option>
+                                        <option value="PLIN">Plin</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3" *ngIf="posForm.value.paymentMethod === 'EFECTIVO'">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">Recibido S/</span>
+                                    <input type="number" class="form-control border-start-0 ps-1"
+                                        formControlName="receivedAmount" placeholder="0.00">
+                                </div>
+                                <div class="mt-2 text-end" *ngIf="posForm.value.receivedAmount > total()">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 fs-6">
+                                        Vuelto: S/ {{ (posForm.value.receivedAmount - total()) | number:'1.2-2' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow-sm"
+                                [disabled]="isLoading() || cart().length === 0">
+                                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                                <i *ngIf="!isLoading()" class="bi bi-check2-circle me-2"></i>
+                                PROCESAR VENTA
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

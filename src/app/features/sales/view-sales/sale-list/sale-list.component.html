@@ -1,0 +1,143 @@
+<div class="module-header">
+    <app-module-header title="Ver ventas" iconClass="bi-receipt"></app-module-header>
+</div>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-end align-items-center flex-wrap gap-3 mb-4">
+        <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" (click)="onNewSale()">
+            <i class="bi bi-cart-plus"></i>
+            <span>Nueva Venta (POS)</span>
+        </button>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por número o cliente..."
+                    (input)="onSearch($event)">
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage() }}
+        <button type="button" class="btn-close" (click)="errorMessage.set('')" aria-label="Close"></button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary small text-uppercase">
+                        <tr>
+                            <th class="px-4 py-3 fw-semibold">Fecha/Hora</th>
+                            <th class="py-3 fw-semibold">Comprobante</th>
+                            <th class="py-3 fw-semibold">Cliente</th>
+                            <th class="py-3 text-end fw-semibold">Total</th>
+                            <th class="py-3 text-center fw-semibold">Estado</th>
+                            <th class="py-3 text-center fw-semibold">SUNAT</th>
+                            <th class="py-3 text-center fw-semibold" style="width: 100px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading()">
+                            <td colspan="7" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2 text-muted small">Cargando registros...</p>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="!isLoading() && filteredSales().length === 0">
+                            <td colspan="7" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="bi bi-receipt text-muted opacity-25" style="font-size: 2.5rem;"></i>
+                                    <p class="text-muted mb-0 mt-2">No se encontraron ventas.</p>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr *ngFor="let sale of filteredSales(); trackBy: trackById">
+                            <td class="px-4">
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">{{ sale.date | date:'dd/MM/yyyy' }}</span>
+                                    <small class="text-muted">{{ sale.date | date:'shortTime' }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-light text-dark border me-2">{{ sale.documentType }}</span>
+                                    <span class="fw-medium font-monospace">{{ sale.series }}-{{ sale.number }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="text-dark">{{ sale.customerName }}</span>
+                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                        <i class="bi bi-person-fill me-1"></i>{{ sale.username }}
+                                    </small>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold text-primary">{{ sale.total | currency:'PEN':'S/ ' }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(sale.status)">
+                                    {{ sale.status === 'COMPLETED' ? 'Completada' : 'Anulada' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill" [ngClass]="getSunatBadgeClass(sale.sunatStatus)">
+                                    {{ sale.sunatStatus }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-link text-muted p-0" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical fs-5"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                        <li>
+                                            <button class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                (click)="onViewDetails(sale.id)">
+                                                <i class="bi bi-eye"></i> Ver Detalle
+                                            </button>
+                                        </li>
+                                        <li *ngIf="sale.pdfUrl">
+                                            <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                                [href]="sale.pdfUrl" target="_blank">
+                                                <i class="bi bi-file-earmark-pdf"></i> Imprimir PDF
+                                            </a>
+                                        </li>
+                                        <li *ngIf="sale.status === 'COMPLETED'">
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li *ngIf="sale.status === 'COMPLETED'">
+                                            <button
+                                                class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger"
+                                                (click)="onCancel(sale.id)">
+                                                <i class="bi bi-x-circle"></i> Anular Venta
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 py-3" *ngIf="filteredSales().length > 0">
+            <div class="small text-muted">
+                Mostrando {{ filteredSales().length }} registros
+            </div>
+        </div>
+    </div>
+</div>

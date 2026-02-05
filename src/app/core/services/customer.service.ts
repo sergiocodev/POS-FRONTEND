@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CustomerRequest, CustomerResponse } from '../models/customer.model';
+import { CustomerRequest, CustomerResponse, ExternalLookupResponse } from '../models/customer.model';
 
 @Injectable({
     providedIn: 'root'
@@ -28,5 +28,9 @@ export class CustomerService {
 
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    searchByDocument(documentNumber: string): Observable<ExternalLookupResponse> {
+        return this.http.get<ExternalLookupResponse>(`/api/v1/users/search/${documentNumber}`);
     }
 }

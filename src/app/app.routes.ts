@@ -17,15 +17,15 @@ export const routes: Routes = [
             },
             {
                 path: 'customers',
-                loadComponent: () => import('./features/customers/customer-list/customer-list.component').then(m => m.CustomerListComponent)
+                loadComponent: () => import('./features/sales/customers/customer-list/customer-list.component').then(m => m.CustomerListComponent)
             },
             {
                 path: 'customers/new',
-                loadComponent: () => import('./features/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
+                loadComponent: () => import('./features/sales/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
             },
             {
                 path: 'customers/edit/:id',
-                loadComponent: () => import('./features/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
+                loadComponent: () => import('./features/sales/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
             },
             {
                 path: 'suppliers',
@@ -53,11 +53,11 @@ export const routes: Routes = [
             },
             {
                 path: 'sales',
-                loadComponent: () => import('./features/sales/sale-list/sale-list.component').then(m => m.SaleListComponent)
+                loadComponent: () => import('./features/sales/view-sales/sale-list/sale-list.component').then(m => m.SaleListComponent)
             },
             {
                 path: 'sales/pos',
-                loadComponent: () => import('./features/sales/pos/pos.component').then(m => m.PosComponent)
+                loadComponent: () => import('./features/sales/new-sale/pos/pos.component').then(m => m.PosComponent)
             },
             {
                 path: 'inventory',
@@ -109,7 +109,7 @@ export const routes: Routes = [
             },
             {
                 path: 'reports/sales',
-                loadComponent: () => import('./features/reports/sales-report/sales-report.component').then(m => m.SalesReportComponent)
+                loadComponent: () => import('./features/sales/view-reports/sales-report/sales-report.component').then(m => m.SalesReportComponent)
             },
             {
                 path: 'reports/purchases',

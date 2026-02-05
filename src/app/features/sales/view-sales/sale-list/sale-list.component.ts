@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 import { RouterModule, Router } from '@angular/router';
-import { SaleService } from '../../../core/services/sale.service';
-import { SaleResponse, SaleStatus, SunatStatus } from '../../../core/models/sale.model';
+import { SaleService } from '../../../../core/services/sale.service';
+import { SaleResponse } from '../../../../core/models/sale.model';
 
 @Component({
     selector: 'app-sale-list',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, ModuleHeaderComponent],
     templateUrl: './sale-list.component.html',
     styleUrl: './sale-list.component.scss'
 })
@@ -26,6 +27,8 @@ export class SaleListComponent implements OnInit {
 
     loadSales(): void {
         this.isLoading.set(true);
+        this.errorMessage.set(''); // Reset error
+
         this.saleService.getAll().subscribe({
             next: (data) => {
                 this.sales.set(data);
@@ -33,7 +36,7 @@ export class SaleListComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: (error) => {
-                this.errorMessage.set('Error al cargar ventas. Intenta de nuevo.');
+                this.errorMessage.set('No se pudieron cargar los datos. Por favor, intente nuevamente.');
                 this.isLoading.set(false);
                 console.error('Error loading sales:', error);
             }
@@ -42,7 +45,7 @@ export class SaleListComponent implements OnInit {
 
     onSearch(event: Event): void {
         const input = event.target as HTMLInputElement;
-        const term = input.value.toLowerCase();
+        const term = input.value.toLowerCase().trim();
 
         if (!term) {
             this.filteredSales.set(this.sales());
@@ -62,24 +65,31 @@ export class SaleListComponent implements OnInit {
     }
 
     onViewDetails(id: number): void {
-
+        // Implement navigation to details or open modal
         console.log('View sale details:', id);
     }
 
     onCancel(id: number): void {
         if (confirm('¿Estás seguro de anular esta venta? Esta acción no se puede deshacer.')) {
             this.saleService.cancel(id).subscribe({
-                next: () => this.loadSales(),
-                error: (err) => this.errorMessage.set('Error al anular la venta.')
+                next: () => {
+                    this.loadSales(); // Reload to see status change
+                },
+                error: (err) => {
+                    this.errorMessage.set('Error al anular la venta.');
+                    console.error(err);
+                }
             });
         }
     }
 
+    // --- Helpers for UI Classes ---
+
     getStatusBadgeClass(status: string): string {
         switch (status) {
-            case 'COMPLETED': return 'bg-success';
-            case 'CANCELED': return 'bg-danger';
-            default: return 'bg-secondary';
+            case 'COMPLETED': return 'bg-success-subtle text-success border border-success-subtle'; // Modern Bootstrap look
+            case 'CANCELED': return 'bg-danger-subtle text-danger border border-danger-subtle';
+            default: return 'bg-secondary-subtle text-secondary';
         }
     }
 
@@ -90,5 +100,9 @@ export class SaleListComponent implements OnInit {
             case 'REJECTED': return 'bg-danger';
             default: return 'bg-info text-dark';
         }
+    }
+
+    trackById(index: number, item: SaleResponse): number {
+        return item.id;
     }
 }

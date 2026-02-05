@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CustomerService } from '../../../core/services/customer.service';
-import { DocumentType } from '../../../core/models/customer.model';
+import { CustomerService } from '../../../../core/services/customer.service';
+
 
 @Component({
     selector: 'app-customer-form',
@@ -18,16 +18,25 @@ export class CustomerFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() isModal: boolean = false;
+    @Output() saveSuccess = new EventEmitter<void>();
+    @Output() cancel = new EventEmitter<void>();
+
     customerForm: FormGroup;
     isEditMode = signal<boolean>(false);
     customerId = signal<number | null>(null);
+    isSearching = signal<boolean>(false);
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
-    documentTypes = Object.values(DocumentType);
+
+    documentTypes = [
+        { value: 'DNI', label: 'DNI' },
+        { value: 'RUC', label: 'RUC' }
+    ];
 
     constructor() {
         this.customerForm = this.fb.group({
-            documentType: [DocumentType.DNI, [Validators.required]],
+            documentType: ['DNI', Validators.required],
             documentNumber: ['', [
                 Validators.required,
                 Validators.maxLength(20),
@@ -45,12 +54,40 @@ export class CustomerFormComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.setupDocumentTypeListener();
+
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
             this.isEditMode.set(true);
             this.customerId.set(+id);
             this.loadCustomer(+id);
+        } else {
+            // Set initial validation for DNI
+            this.updateDocumentValidators('DNI');
         }
+    }
+
+    setupDocumentTypeListener(): void {
+        this.customerForm.get('documentType')?.valueChanges.subscribe(type => {
+            this.customerForm.patchValue({ documentNumber: '' });
+            this.updateDocumentValidators(type);
+        });
+    }
+
+    updateDocumentValidators(type: string): void {
+        const documentControl = this.customerForm.get('documentNumber');
+        if (type === 'DNI') {
+            documentControl?.setValidators([
+                Validators.required,
+                Validators.pattern('^[0-9]{8}$')
+            ]);
+        } else if (type === 'RUC') {
+            documentControl?.setValidators([
+                Validators.required,
+                Validators.pattern('^[0-9]{11}$')
+            ]);
+        }
+        documentControl?.updateValueAndValidity();
     }
 
     loadCustomer(id: number): void {
@@ -58,19 +95,66 @@ export class CustomerFormComponent implements OnInit {
         this.customerService.getById(id).subscribe({
             next: (customer) => {
                 this.customerForm.patchValue({
-                    documentType: customer.documentType,
                     documentNumber: customer.documentNumber,
+                    documentType: customer.documentNumber.length === 11 ? 'RUC' : 'DNI',
                     name: customer.name,
                     phone: customer.phone || '',
                     email: customer.email || '',
                     address: customer.address || ''
                 });
+                // Update validators based on the loaded document
+                this.updateDocumentValidators(customer.documentNumber.length === 11 ? 'RUC' : 'DNI');
+
                 this.isLoading.set(false);
             },
             error: (error) => {
                 this.errorMessage.set('Error al cargar el cliente. Intenta de nuevo.');
                 this.isLoading.set(false);
                 console.error('Error loading customer:', error);
+            }
+        });
+    }
+
+    searchDocument() {
+        const document = this.customerForm.get('documentNumber')?.value;
+        if (!document) {
+            this.errorMessage.set('Ingrese un número de documento para buscar.');
+            return;
+        }
+
+        this.isSearching.set(true);
+        this.errorMessage.set('');
+
+        this.customerService.searchByDocument(document).subscribe({
+            next: (data) => {
+                this.isSearching.set(false);
+
+                let fullName = '';
+                if (data.razonSocial) {
+                    fullName = data.razonSocial;
+                } else if (data.nombres) {
+                    fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+                }
+
+                let fullAddress = data.direccion || '';
+                const ubigeo = [data.departamento, data.provincia, data.distrito].filter(Boolean).join(' - ');
+                if (ubigeo) {
+                    fullAddress = fullAddress ? `${fullAddress}, ${ubigeo}` : ubigeo;
+                }
+
+                if (fullName) {
+                    this.customerForm.patchValue({
+                        name: fullName,
+                        address: fullAddress
+                    });
+                } else {
+                    this.errorMessage.set('No se encontraron datos (nombre/razón social) para este documento.');
+                }
+            },
+            error: (error) => {
+                this.isSearching.set(false);
+                this.errorMessage.set('No se encontraron datos para este documento o ocurrió un error.');
+                console.error('Search error:', error);
             }
         });
     }
@@ -92,7 +176,11 @@ export class CustomerFormComponent implements OnInit {
 
         request$.subscribe({
             next: () => {
-                this.router.navigate(['/customers']);
+                if (this.isModal) {
+                    this.saveSuccess.emit();
+                } else {
+                    this.router.navigate(['/customers']);
+                }
             },
             error: (error) => {
                 this.isLoading.set(false);
@@ -107,11 +195,15 @@ export class CustomerFormComponent implements OnInit {
     }
 
     onCancel(): void {
-        this.router.navigate(['/customers']);
+        if (this.isModal) {
+            this.cancel.emit();
+        } else {
+            this.router.navigate(['/customers']);
+        }
     }
 
-    
-    get documentType() { return this.customerForm.get('documentType'); }
+
+
     get documentNumber() { return this.customerForm.get('documentNumber'); }
     get name() { return this.customerForm.get('name'); }
     get phone() { return this.customerForm.get('phone'); }

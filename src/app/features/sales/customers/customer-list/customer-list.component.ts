@@ -1,13 +1,15 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { CustomerService } from '../../../core/services/customer.service';
-import { CustomerResponse } from '../../../core/models/customer.model';
+import { CustomerService } from '../../../../core/services/customer.service';
+import { CustomerResponse } from '../../../../core/models/customer.model';
+import { ModalGenericComponent } from '../../../../shared/modal-generic/modal-generic.component';
+import { CustomerFormComponent } from '../customer-form/customer-form.component';
 
 @Component({
     selector: 'app-customer-list',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, ModalGenericComponent, CustomerFormComponent],
     templateUrl: './customer-list.component.html',
     styleUrl: './customer-list.component.scss'
 })
@@ -20,6 +22,7 @@ export class CustomerListComponent implements OnInit {
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
     searchTerm = signal<string>('');
+    isModalOpen = signal<boolean>(false);
 
     ngOnInit(): void {
         this.loadCustomers();
@@ -81,6 +84,15 @@ export class CustomerListComponent implements OnInit {
     }
 
     onNew(): void {
-        this.router.navigate(['/customers/new']);
+        this.isModalOpen.set(true);
+    }
+
+    closeModal(): void {
+        this.isModalOpen.set(false);
+    }
+
+    handleSaveSuccess(): void {
+        this.closeModal();
+        this.loadCustomers();
     }
 }
