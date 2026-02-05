@@ -19,12 +19,26 @@ export class CustomerFormComponent implements OnInit {
     private route = inject(ActivatedRoute);
 
     @Input() isModal: boolean = false;
+    @Input() customerId: number | null = null;
     @Output() saveSuccess = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
 
     customerForm: FormGroup;
     isEditMode = signal<boolean>(false);
-    customerId = signal<number | null>(null);
+    // Remove local customerId signal if it conflicts, or sync it. 
+    // Actually, the component has `customerId = signal<number | null>(null);` property.
+    // I should probably use a different name for the Input or update the property to not be a signal if it's just local state, 
+    // OR just set the signal value from the input. 
+    // Let's rename the internal signal to `currentCustomerId` to avoid conflict, or just use the input. 
+    // Wait, the existing code has `customerId = signal<number | null>(null);`.
+    // I will rename the *Input* to `id` to match common patterns, OR keep `customerId` and remove the signal.
+    // Let's keep the signal for internal consistency and set it from Input.
+
+    // Changing approach: keep `customerId` as Input, remove the signal property `customerId` and use a standard property or just rely on the Input.
+    // But `onSubmit` uses `this.customerId()`. 
+    // Let's change the internal signal to `activeCustomerId`.
+
+    activeCustomerId = signal<number | null>(null);
     isSearching = signal<boolean>(false);
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
@@ -56,11 +70,14 @@ export class CustomerFormComponent implements OnInit {
     ngOnInit(): void {
         this.setupDocumentTypeListener();
 
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
+        // Check Input first, then Route
+        const routeId = this.route.snapshot.paramMap.get('id');
+        const idToLoad = this.customerId || (routeId ? +routeId : null);
+
+        if (idToLoad) {
             this.isEditMode.set(true);
-            this.customerId.set(+id);
-            this.loadCustomer(+id);
+            this.activeCustomerId.set(idToLoad);
+            this.loadCustomer(idToLoad);
         } else {
             // Set initial validation for DNI
             this.updateDocumentValidators('DNI');
@@ -69,7 +86,9 @@ export class CustomerFormComponent implements OnInit {
 
     setupDocumentTypeListener(): void {
         this.customerForm.get('documentType')?.valueChanges.subscribe(type => {
-            this.customerForm.patchValue({ documentNumber: '' });
+            if (!this.isLoading()) {
+                this.customerForm.patchValue({ documentNumber: '' });
+            }
             this.updateDocumentValidators(type);
         });
     }
@@ -171,7 +190,7 @@ export class CustomerFormComponent implements OnInit {
         const customerData = this.customerForm.value;
 
         const request$ = this.isEditMode()
-            ? this.customerService.update(this.customerId()!, customerData)
+            ? this.customerService.update(this.activeCustomerId()!, customerData)
             : this.customerService.create(customerData);
 
         request$.subscribe({

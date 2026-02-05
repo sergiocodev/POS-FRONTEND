@@ -3,8 +3,8 @@
     <div class="modal-container" [ngClass]="'modal-' + size">
 
         <div class="modal-header">
-            <h3>{{ title }}</h3>
-            <button class="close-btn" (click)="closeModal()">&times;</button>
+            <h5 class="modal-title fw-bold">{{ title }}</h5>
+            <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">

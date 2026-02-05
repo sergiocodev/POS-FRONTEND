@@ -5,11 +5,12 @@ import { CustomerService } from '../../../../core/services/customer.service';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { ModalGenericComponent } from '../../../../shared/modal-generic/modal-generic.component';
 import { CustomerFormComponent } from '../customer-form/customer-form.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-customer-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, ModalGenericComponent, CustomerFormComponent],
+    imports: [CommonModule, RouterModule, ModalGenericComponent, CustomerFormComponent, ModuleHeaderComponent],
     templateUrl: './customer-list.component.html',
     styleUrl: './customer-list.component.scss'
 })
@@ -23,6 +24,7 @@ export class CustomerListComponent implements OnInit {
     errorMessage = signal<string>('');
     searchTerm = signal<string>('');
     isModalOpen = signal<boolean>(false);
+    selectedCustomerId = signal<number | null>(null);
 
     ngOnInit(): void {
         this.loadCustomers();
@@ -66,7 +68,8 @@ export class CustomerListComponent implements OnInit {
     }
 
     onEdit(id: number): void {
-        this.router.navigate(['/customers/edit', id]);
+        this.selectedCustomerId.set(id);
+        this.isModalOpen.set(true);
     }
 
     onDelete(customer: CustomerResponse): void {
@@ -84,11 +87,13 @@ export class CustomerListComponent implements OnInit {
     }
 
     onNew(): void {
+        this.selectedCustomerId.set(null);
         this.isModalOpen.set(true);
     }
 
     closeModal(): void {
         this.isModalOpen.set(false);
+        this.selectedCustomerId.set(null);
     }
 
     handleSaveSuccess(): void {
