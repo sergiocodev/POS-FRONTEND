@@ -9,6 +9,7 @@ import {
     TopProductDashboard,
     EmployeePerformanceDashboard
 } from '../models/dashboard.model';
+import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
     providedIn: 'root'
@@ -17,29 +18,29 @@ export class DashboardService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/dashboard';
 
-    getSummaryCards(establishmentId: number): Observable<DashboardSummaryResponse> {
-        return this.http.get<DashboardSummaryResponse>(`${this.apiUrl}/summary-cards?establishmentId=${establishmentId}`);
+    getSummaryCards(establishmentId: number): Observable<ResponseApi<DashboardSummaryResponse>> {
+        return this.http.get<ResponseApi<DashboardSummaryResponse>>(`${this.apiUrl}/summary-cards?establishmentId=${establishmentId}`);
     }
 
-    getSalesChart(range: string, establishmentId: number): Observable<SalesChartResponse[]> {
-        return this.http.get<SalesChartResponse[]>(`${this.apiUrl}/sales-chart?range=${range}&establishmentId=${establishmentId}`);
+    getSalesChart(range: string, establishmentId: number): Observable<ResponseApi<SalesChartResponse[]>> {
+        return this.http.get<ResponseApi<SalesChartResponse[]>>(`${this.apiUrl}/sales-chart?range=${range}&establishmentId=${establishmentId}`);
     }
 
-    getAlerts(establishmentId: number): Observable<DashboardAlertsResponse> {
-        return this.http.get<DashboardAlertsResponse>(`${this.apiUrl}/alerts?establishmentId=${establishmentId}`);
+    getAlerts(establishmentId: number): Observable<ResponseApi<DashboardAlertsResponse>> {
+        return this.http.get<ResponseApi<DashboardAlertsResponse>>(`${this.apiUrl}/alerts?establishmentId=${establishmentId}`);
     }
 
-    getPaymentMethods(date: string | null, establishmentId: number): Observable<PaymentMethodDistribution[]> {
+    getPaymentMethods(date: string | null, establishmentId: number): Observable<ResponseApi<PaymentMethodDistribution[]>> {
         const dateParam = date ? `&date=${date}` : '';
-        return this.http.get<PaymentMethodDistribution[]>(`${this.apiUrl}/payment-methods?establishmentId=${establishmentId}${dateParam}`);
+        return this.http.get<ResponseApi<PaymentMethodDistribution[]>>(`${this.apiUrl}/payment-methods?establishmentId=${establishmentId}${dateParam}`);
     }
 
-    getTopProducts(limit: number, establishmentId: number): Observable<TopProductDashboard[]> {
-        return this.http.get<TopProductDashboard[]>(`${this.apiUrl}/top-products?limit=${limit}&establishmentId=${establishmentId}`);
+    getTopProducts(limit: number, establishmentId: number): Observable<ResponseApi<TopProductDashboard[]>> {
+        return this.http.get<ResponseApi<TopProductDashboard[]>>(`${this.apiUrl}/top-products?limit=${limit}&establishmentId=${establishmentId}`);
     }
 
-    getEmployeePerformance(date: string | null, establishmentId: number): Observable<EmployeePerformanceDashboard[]> {
+    getEmployeePerformance(date: string | null, establishmentId: number): Observable<ResponseApi<EmployeePerformanceDashboard[]>> {
         const dateParam = date ? `&date=${date}` : '';
-        return this.http.get<EmployeePerformanceDashboard[]>(`${this.apiUrl}/employee-performance?establishmentId=${establishmentId}${dateParam}`);
+        return this.http.get<ResponseApi<EmployeePerformanceDashboard[]>>(`${this.apiUrl}/employee-performance?establishmentId=${establishmentId}${dateParam}`);
     }
 }

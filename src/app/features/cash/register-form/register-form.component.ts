@@ -49,15 +49,15 @@ export class RegisterFormComponent implements OnInit {
 
     loadEstablishments(): void {
         this.establishmentService.getAll().subscribe({
-            next: (data) => this.establishments.set(data)
+            next: (response) => this.establishments.set(response.data)
         });
     }
 
     loadRegister(id: number): void {
         this.isLoading.set(true);
         this.cashService.getRegisterById(id).subscribe({
-            next: (data) => {
-                this.registerForm.patchValue(data);
+            next: (response) => {
+                this.registerForm.patchValue(response.data);
                 this.isLoading.set(false);
             },
             error: () => this.isLoading.set(false)

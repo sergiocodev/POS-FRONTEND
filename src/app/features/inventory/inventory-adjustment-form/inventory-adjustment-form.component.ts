@@ -52,7 +52,8 @@ export class InventoryAdjustmentFormComponent implements OnInit {
     loadInventoryItem(id: number) {
         this.isLoading.set(true);
         this.inventoryService.getById(id).subscribe({
-            next: (item) => {
+            next: (response) => {
+                const item = response.data;
                 this.inventoryItem.set(item);
                 this.adjustmentForm.patchValue({
                     quantity: item.quantity,

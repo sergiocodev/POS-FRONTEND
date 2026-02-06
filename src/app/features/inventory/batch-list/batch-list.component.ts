@@ -36,8 +36,8 @@ export class BatchListComponent implements OnInit {
     loadLots() {
         this.isLoading.set(true);
         this.inventoryService.getAllLots().subscribe({
-            next: (data) => {
-                this.lots.set(data);
+            next: (response) => {
+                this.lots.set(response.data);
                 this.isLoading.set(false);
             },
             error: (err) => {

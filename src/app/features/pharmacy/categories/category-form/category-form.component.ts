@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,15 +18,26 @@ export class CategoryFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() set idCategory(value: number | null) {
+        this._categoryId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get idCategory(): number | null {
+        return this._categoryId();
+    }
+    private _categoryId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
+
     form!: FormGroup;
     isEditMode = signal(false);
-    categoryId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
 
     ngOnInit() {
         this.initForm();
-        this.checkEditMode();
+        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -36,20 +47,33 @@ export class CategoryFormComponent implements OnInit {
         });
     }
 
-    checkEditMode() {
+    checkEditModeFromRoute() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
             this.isEditMode.set(true);
-            this.categoryId.set(+id);
+            this._categoryId.set(+id);
             this.loadCategory(+id);
+        }
+    }
+
+    checkEditModeFromInput() {
+        const id = this.idCategory;
+        if (id) {
+            this.isEditMode.set(true);
+            this.loadCategory(id);
+        } else {
+            this.isEditMode.set(false);
+            if (this.form) {
+                this.form.reset({ active: true });
+            }
         }
     }
 
     loadCategory(id: number) {
         this.isLoading.set(true);
         this.maintenanceService.getCategories().subscribe({
-            next: (categories) => {
-                const category = categories.find(c => c.id === id);
+            next: (response) => {
+                const category = response.data.find(c => c.id === id);
                 if (category) {
                     this.form.patchValue({
                         name: category.name,
@@ -80,12 +104,17 @@ export class CategoryFormComponent implements OnInit {
         const request: CategoryRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateCategory(this.categoryId()!, request.name, request.active)
+            ? this.maintenanceService.updateCategory(this._categoryId()!, request.name, request.active)
             : this.maintenanceService.createCategory(request.name, request.active);
 
         operation.subscribe({
             next: () => {
-                this.router.navigate(['/pharmacy/categories']);
+                this.isSaving.set(false);
+                this.saved.emit();
+                // Si aún estamos en modo ruta (no modal), navegar
+                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
+                    this.router.navigate(['/pharmacy/categories']);
+                }
             },
             error: (error) => {
                 console.error('Error saving category:', error);
@@ -96,7 +125,10 @@ export class CategoryFormComponent implements OnInit {
     }
 
     onCancel() {
-        this.router.navigate(['/pharmacy/categories']);
+        this.cancelled.emit();
+        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
+            this.router.navigate(['/pharmacy/categories']);
+        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

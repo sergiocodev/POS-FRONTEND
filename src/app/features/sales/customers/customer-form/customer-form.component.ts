@@ -112,7 +112,8 @@ export class CustomerFormComponent implements OnInit {
     loadCustomer(id: number): void {
         this.isLoading.set(true);
         this.customerService.getById(id).subscribe({
-            next: (customer) => {
+            next: (response) => {
+                const customer = response.data;
                 this.customerForm.patchValue({
                     documentNumber: customer.documentNumber,
                     documentType: customer.documentNumber.length === 11 ? 'RUC' : 'DNI',
@@ -145,8 +146,9 @@ export class CustomerFormComponent implements OnInit {
         this.errorMessage.set('');
 
         this.customerService.searchByDocument(document).subscribe({
-            next: (data) => {
+            next: (response) => {
                 this.isSearching.set(false);
+                const data = response.data;
 
                 let fullName = '';
                 if (data.razonSocial) {

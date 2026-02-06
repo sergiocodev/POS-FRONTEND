@@ -4,6 +4,9 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentResponse } from '../../../../core/models/maintenance.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { EstablishmentFormComponent } from '../establishment-form/establishment-form.component';
 
 @Component({
     selector: 'app-establishments-list',
@@ -11,7 +14,10 @@ import { EstablishmentResponse } from '../../../../core/models/maintenance.model
     imports: [
         CommonModule,
         RouterModule,
-        FormsModule
+        FormsModule,
+        CustomTableComponent,
+        ModalGenericComponent,
+        EstablishmentFormComponent
     ],
     templateUrl: './establishments-list.component.html',
     styleUrl: './establishments-list.component.scss'
@@ -23,20 +29,30 @@ export class EstablishmentsListComponent implements OnInit {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
 
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'name', label: 'Establecimiento', type: 'text' },
+        { key: 'address', label: 'Dirección', type: 'text', format: (v: string) => v || 'Sin dirección' },
+        { key: 'codeSunat', label: 'Cód. SUNAT', type: 'text' },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
+
     // Data Signals
     establishments = signal<EstablishmentResponse[]>([]);
     filteredEstablishments = signal<EstablishmentResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters
+    // Filtros
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Pagination & Sorting
-    currentPage = 1;
+    // Modal de Formulario de Establecimiento
+    showEstablishmentModal = signal(false);
+    selectedEstablishmentId = signal<number | null>(null);
+
+    // Pagination & Sorting (Handled by CustomTable)
     pageSize = 10;
-    sortColumn: keyof EstablishmentResponse | '' = '';
-    sortDirection: 'asc' | 'desc' = 'asc';
 
     // Modal & Alerts
     showConfirmModal = false;
@@ -55,8 +71,8 @@ export class EstablishmentsListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.establishmentService.getAll().subscribe({
-            next: (establishments) => {
-                this.establishments.set(establishments);
+            next: (response) => {
+                this.establishments.set(response.data);
                 this.applyFilters();
                 this.isLoading.set(false);
             },
@@ -87,8 +103,6 @@ export class EstablishmentsListComponent implements OnInit {
         }
 
         this.filteredEstablishments.set(filtered);
-        this.currentPage = 1;
-        this.sortData(this.sortColumn as any, false);
     }
 
     onSearchChange(value: string) {
@@ -102,61 +116,37 @@ export class EstablishmentsListComponent implements OnInit {
         this.applyFilters();
     }
 
-    // --- Pagination & Sorting ---
-
-    get paginatedEstablishments(): EstablishmentResponse[] {
-        const startIndex = (this.currentPage - 1) * this.pageSize;
-        return this.filteredEstablishments().slice(startIndex, startIndex + this.pageSize);
-    }
-
-    changePage(newPage: number) {
-        if (newPage >= 1 && newPage <= Math.ceil(this.filteredEstablishments().length / this.pageSize)) {
-            this.currentPage = newPage;
-        }
-    }
-
-    min(a: number, b: number): number {
-        return Math.min(a, b);
-    }
-
-    sortData(column: keyof EstablishmentResponse, toggle = true) {
-        if (!column) return;
-
-        if (toggle) {
-            if (this.sortColumn === column) {
-                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.sortColumn = column;
-                this.sortDirection = 'asc';
-            }
-        }
-
-        const sorted = [...this.filteredEstablishments()].sort((a, b) => {
-            const valA = a[column];
-            const valB = b[column];
-            if (valA == null) return 1;
-            if (valB == null) return -1;
-
-            const comparison = valA.toString().localeCompare(valB.toString());
-            return this.sortDirection === 'asc' ? comparison : -comparison;
-        });
-
-        this.filteredEstablishments.set(sorted);
-    }
-
-    getSortIcon(column: string): string {
-        if (this.sortColumn !== column) return 'bi-arrow-down-up opacity-25';
-        return this.sortDirection === 'asc' ? 'bi-arrow-up text-primary' : 'bi-arrow-down text-primary';
-    }
-
     // --- Actions ---
 
+    handleTableAction(e: { action: string, row: EstablishmentResponse }) {
+        if (e.action === 'edit') {
+            this.editEstablishment(e.row.id);
+        } else if (e.action === 'delete') {
+            this.confirmDelete(e.row);
+        }
+    }
+
+    handleStatusToggle(e: { row: EstablishmentResponse, key: string, checked: boolean }) {
+        this.confirmToggleStatus(e.row);
+    }
+
     createEstablishment() {
-        this.create.emit();
+        this.selectedEstablishmentId.set(null);
+        this.showEstablishmentModal.set(true);
     }
 
     editEstablishment(id: number) {
-        this.edit.emit(id);
+        this.selectedEstablishmentId.set(id);
+        this.showEstablishmentModal.set(true);
+    }
+
+    onEstablishmentSaved() {
+        this.showEstablishmentModal.set(false);
+        this.loadData();
+    }
+
+    onEstablishmentCancelled() {
+        this.showEstablishmentModal.set(false);
     }
 
     // --- Modal Logic ---

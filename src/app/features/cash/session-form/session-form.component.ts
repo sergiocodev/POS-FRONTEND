@@ -32,7 +32,7 @@ export class SessionFormComponent implements OnInit {
     errorMessage = signal<string>('');
     sessionData = signal<CashSessionResponse | null>(null);
 
-    
+
     closingBalanceValue = toSignal(
         this.sessionForm.get('closingBalance')!.valueChanges.pipe(
             startWith(this.sessionForm.get('closingBalance')?.value || 0),
@@ -61,8 +61,8 @@ export class SessionFormComponent implements OnInit {
 
     loadRegisters(): void {
         this.cashService.getRegisters().subscribe({
-            next: (data: CashRegisterResponse[]) => {
-                this.registers.set(data.filter((r: CashRegisterResponse) => r.active));
+            next: (response) => {
+                this.registers.set(response.data.filter((r: CashRegisterResponse) => r.active));
             }
         });
     }
@@ -70,8 +70,8 @@ export class SessionFormComponent implements OnInit {
     loadSessionData(id: number): void {
         this.isLoading.set(true);
         this.cashService.getById(id).subscribe({
-            next: (data) => {
-                this.sessionData.set(data);
+            next: (response) => {
+                this.sessionData.set(response.data);
                 this.isLoading.set(false);
             },
             error: () => {

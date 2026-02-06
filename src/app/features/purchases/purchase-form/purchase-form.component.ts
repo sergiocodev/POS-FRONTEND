@@ -63,7 +63,7 @@ export class PurchaseFormComponent implements OnInit {
             this.isEditMode.set(true);
             this.loadPurchase(id);
         } else {
-            this.addItem(); 
+            this.addItem();
         }
     }
 
@@ -75,9 +75,14 @@ export class PurchaseFormComponent implements OnInit {
             establishments: this.saleService.getEstablishments()
         }).subscribe({
             next: (data) => {
-                this.products.set(data.products.filter(p => p.active));
-                this.suppliers.set(data.suppliers.filter(s => s.active));
-                this.establishments.set(data.establishments.filter(e => e.active));
+                const products = data.products.data;
+                const suppliers = data.suppliers.data;
+                // saleService is now refactored
+                const establishments = data.establishments.data;
+
+                this.products.set(products.filter(p => p.active));
+                this.suppliers.set(suppliers.filter(s => s.active));
+                this.establishments.set(establishments.filter(e => e.active));
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -90,7 +95,8 @@ export class PurchaseFormComponent implements OnInit {
     loadPurchase(id: number): void {
         this.isLoading.set(true);
         this.purchaseService.getById(id).subscribe({
-            next: (purchase) => {
+            next: (response) => {
+                const purchase = response.data;
                 this.purchaseForm.patchValue({
                     supplierId: this.suppliers().find(s => s.name === purchase.supplierName)?.id,
                     establishmentId: this.establishments().find(e => e.name === purchase.establishmentName)?.id,
@@ -101,7 +107,7 @@ export class PurchaseFormComponent implements OnInit {
                     notes: purchase.notes
                 });
 
-                
+
                 this.items.clear();
                 purchase.items.forEach(item => {
                     const product = this.products().find(p => p.name === item.productName);
@@ -115,7 +121,7 @@ export class PurchaseFormComponent implements OnInit {
                     }));
                 });
 
-                this.purchaseForm.disable(); 
+                this.purchaseForm.disable();
                 this.isLoading.set(false);
             },
             error: (err) => {

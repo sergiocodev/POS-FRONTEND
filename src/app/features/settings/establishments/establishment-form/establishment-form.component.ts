@@ -71,7 +71,8 @@ export class EstablishmentFormComponent implements OnInit {
     loadEstablishment(id: number) {
         this.isLoading.set(true);
         this.establishmentService.getById(id).subscribe({
-            next: (establishment) => {
+            next: (response) => {
+                const establishment = response.data;
                 this.establishmentForm.patchValue({
                     name: establishment.name,
                     address: establishment.address,

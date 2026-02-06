@@ -67,7 +67,8 @@ export class RoleFormComponent implements OnInit {
     loadRole(id: number) {
         this.isLoading.set(true);
         this.roleService.getById(id).subscribe({
-            next: (role) => {
+            next: (response) => {
+                const role = response.data;
                 this.roleForm.patchValue({
                     name: role.name,
                     description: role.description,

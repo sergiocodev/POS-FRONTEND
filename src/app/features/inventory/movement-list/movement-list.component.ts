@@ -43,8 +43,8 @@ export class MovementListComponent implements OnInit {
 
         this.isLoading.set(true);
         this.inventoryService.getMovementsByEstablishment(estId).subscribe({
-            next: (data) => {
-                this.movements.set(data);
+            next: (response) => {
+                this.movements.set(response.data);
                 this.applyFilters();
                 this.isLoading.set(false);
             },

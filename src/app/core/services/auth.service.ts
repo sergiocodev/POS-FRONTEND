@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/auth.model';
+import { ResponseApi } from '../models/response-api.model';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -17,18 +18,22 @@ export class AuthService {
 
     currentUser = signal<User | null>(this.getUserFromStorage());
 
-    login(request: LoginRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>('/api/v1/auth/login', request).pipe(
+    login(request: LoginRequest): Observable<ResponseApi<LoginResponse>> {
+        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/login', request).pipe(
             tap(response => {
-                this.saveAuthData(response);
+                if (response.status === 200 && response.data) {
+                    this.saveAuthData(response.data);
+                }
             })
         );
     }
 
-    register(request: RegisterRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>('/api/v1/auth/register', request).pipe(
+    register(request: RegisterRequest): Observable<ResponseApi<LoginResponse>> {
+        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/register', request).pipe(
             tap(response => {
-                this.saveAuthData(response);
+                if (response.status === 201 && response.data) { // Assuming 201 for register based on controller
+                    this.saveAuthData(response.data);
+                }
             })
         );
     }

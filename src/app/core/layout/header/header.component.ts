@@ -62,7 +62,8 @@ export class HeaderComponent implements OnInit {
 
     loadEstablishments() {
         this.establishmentService.getAll().subscribe({
-            next: (establishments) => {
+            next: (response) => {
+                const establishments = response.data;
 
                 const activeEstablishments = establishments.filter(e => e.active);
                 this.availableServiceCenters.set(activeEstablishments);

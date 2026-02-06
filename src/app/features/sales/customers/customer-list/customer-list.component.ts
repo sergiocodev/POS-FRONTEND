@@ -35,7 +35,8 @@ export class CustomerListComponent implements OnInit {
         this.errorMessage.set('');
 
         this.customerService.getAll().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.customers.set(data);
                 this.filteredCustomers.set(data);
                 this.isLoading.set(false);

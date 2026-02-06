@@ -4,17 +4,37 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { LaboratoryResponse } from '../../../../core/models/laboratory.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { LaboratoryFormComponent } from '../laboratory-form/laboratory-form.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-laboratories-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        CustomTableComponent,
+        ModalGenericComponent,
+        LaboratoryFormComponent,
+        ModuleHeaderComponent
+    ],
     templateUrl: './laboratories-list.component.html',
     styleUrl: './laboratories-list.component.scss'
 })
 export class LaboratoriesListComponent implements OnInit {
     private maintenanceService = inject(MaintenanceService);
     private router = inject(Router);
+
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'id', label: 'ID', type: 'text' },
+        { key: 'name', label: 'Laboratorio', type: 'text' },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
 
     laboratories = signal<LaboratoryResponse[]>([]);
     filteredLaboratories = signal<LaboratoryResponse[]>([]);
@@ -23,6 +43,13 @@ export class LaboratoriesListComponent implements OnInit {
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
+    // Modal de Formulario
+    showLaboratoryModal = signal(false);
+    selectedLaboratoryId = signal<number | null>(null);
+
+    // Pagination
+    pageSize = 10;
+
     ngOnInit() {
         this.loadData();
     }
@@ -30,7 +57,8 @@ export class LaboratoriesListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.maintenanceService.getLaboratories().subscribe({
-            next: (laboratories) => {
+            next: (response) => {
+                const laboratories = response.data;
                 this.laboratories.set(laboratories);
                 this.filteredLaboratories.set(laboratories);
                 this.isLoading.set(false);
@@ -64,21 +92,43 @@ export class LaboratoriesListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: string) {
-        if (status === '') {
-            this.selectedStatusFilter.set(null);
-        } else {
-            this.selectedStatusFilter.set(status === 'true');
-        }
+    onStatusFilterChange(event: any) {
+        const value = event === 'true' ? true : event === 'false' ? false : null;
+        this.selectedStatusFilter.set(value);
         this.applyFilters();
     }
 
+    // --- Actions ---
+
+    handleTableAction(e: { action: string, row: LaboratoryResponse }) {
+        if (e.action === 'edit') {
+            this.editLaboratory(e.row.id);
+        } else if (e.action === 'delete') {
+            this.deleteLaboratory(e.row);
+        }
+    }
+
+    handleStatusToggle(e: { row: LaboratoryResponse, key: string, checked: boolean }) {
+        this.toggleLaboratoryStatus(e.row);
+    }
+
     createLaboratory() {
-        this.router.navigate(['/pharmacy/labs/new']);
+        this.selectedLaboratoryId.set(null);
+        this.showLaboratoryModal.set(true);
     }
 
     editLaboratory(id: number) {
-        this.router.navigate(['/pharmacy/labs', id, 'edit']);
+        this.selectedLaboratoryId.set(id);
+        this.showLaboratoryModal.set(true);
+    }
+
+    onLaboratorySaved() {
+        this.showLaboratoryModal.set(false);
+        this.loadData();
+    }
+
+    onLaboratoryCancelled() {
+        this.showLaboratoryModal.set(false);
     }
 
     toggleLaboratoryStatus(laboratory: LaboratoryResponse) {

@@ -30,7 +30,8 @@ export class SaleListComponent implements OnInit {
         this.errorMessage.set(''); // Reset error
 
         this.saleService.getAll().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.sales.set(data);
                 this.filteredSales.set(data);
                 this.isLoading.set(false);

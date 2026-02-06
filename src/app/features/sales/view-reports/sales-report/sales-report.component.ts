@@ -50,8 +50,8 @@ export class SalesReportComponent implements OnInit {
         const establishmentId = this.selectedEstablishmentId() || undefined;
 
         this.reportService.getSalesReport(this.startDate, this.endDate, establishmentId).subscribe({
-            next: (data) => {
-                this.sales.set(data);
+            next: (response) => {
+                this.sales.set(response.data);
                 this.loadSummary();
             },
             error: (err) => {
@@ -64,8 +64,8 @@ export class SalesReportComponent implements OnInit {
     loadSummary(): void {
         const establishmentId = this.selectedEstablishmentId() || undefined;
         this.reportService.getSalesSummary(this.startDate, this.endDate, establishmentId).subscribe({
-            next: (data) => {
-                this.summary.set(data);
+            next: (response) => {
+                this.summary.set(response.data);
                 this.isLoading.set(false);
             },
             error: (err) => {

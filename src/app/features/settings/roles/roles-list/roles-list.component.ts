@@ -1,9 +1,12 @@
 import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { RoleFormComponent } from '../role-form/role-form.component';
 
 @Component({
     selector: 'app-roles-list',
@@ -11,17 +14,32 @@ import { RoleResponse } from '../../../../core/models/maintenance.model';
     imports: [
         CommonModule,
         RouterModule,
-        FormsModule
+        FormsModule,
+        CustomTableComponent,
+        ModalGenericComponent,
+        RoleFormComponent
     ],
+    providers: [DatePipe],
     templateUrl: './roles-list.component.html',
     styleUrl: './roles-list.component.scss'
 })
 export class RolesListComponent implements OnInit {
     private roleService = inject(RoleService);
     private router = inject(Router);
+    private datePipe = inject(DatePipe);
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
+
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'name', label: 'Rol', type: 'text' },
+        { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || 'Sin descripción' },
+        { key: 'permissionCount', label: 'Permisos', type: 'text', format: (v: number) => `${v || 0} permisos` },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'createdAt', label: 'Fecha Creación', type: 'text', format: (v: any) => this.datePipe.transform(v, 'dd/MM/yyyy') || '' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
 
     // Data Signals
     roles = signal<RoleResponse[]>([]);
@@ -32,13 +50,17 @@ export class RolesListComponent implements OnInit {
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Pagination & Sorting
+    // Pagination & Sorting (Table defaults)
     currentPage = 1;
     pageSize = 10;
     sortColumn: keyof RoleResponse | '' = '';
     sortDirection: 'asc' | 'desc' = 'asc';
 
-    // Modal & Alerts
+    // Modal de Formulario de Rol
+    showRoleModal = signal(false);
+    selectedRoleId = signal<number | null>(null);
+
+    // Modal & Alerts (Confirmaciones)
     showConfirmModal = false;
     modalMessage = '';
     modalActionType: 'delete' | 'status' = 'status';
@@ -55,8 +77,8 @@ export class RolesListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.roleService.getAll().subscribe({
-            next: (roles) => {
-                this.roles.set(roles);
+            next: (response) => {
+                this.roles.set(response.data);
                 this.applyFilters();
                 this.isLoading.set(false);
             },
@@ -86,8 +108,6 @@ export class RolesListComponent implements OnInit {
         }
 
         this.filteredRoles.set(filtered);
-        this.currentPage = 1;
-        this.sortData(this.sortColumn as any, false);
     }
 
     onSearchChange(value: string) {
@@ -102,61 +122,39 @@ export class RolesListComponent implements OnInit {
         this.applyFilters();
     }
 
-    // --- Pagination & Sorting ---
-
-    get paginatedRoles(): RoleResponse[] {
-        const startIndex = (this.currentPage - 1) * this.pageSize;
-        return this.filteredRoles().slice(startIndex, startIndex + this.pageSize);
-    }
-
-    changePage(newPage: number) {
-        if (newPage >= 1 && newPage <= Math.ceil(this.filteredRoles().length / this.pageSize)) {
-            this.currentPage = newPage;
-        }
-    }
-
-    min(a: number, b: number): number {
-        return Math.min(a, b);
-    }
-
-    sortData(column: keyof RoleResponse, toggle = true) {
-        if (!column) return;
-
-        if (toggle) {
-            if (this.sortColumn === column) {
-                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.sortColumn = column;
-                this.sortDirection = 'asc';
-            }
-        }
-
-        const sorted = [...this.filteredRoles()].sort((a, b) => {
-            const valA = a[column];
-            const valB = b[column];
-            if (valA == null) return 1;
-            if (valB == null) return -1;
-
-            const comparison = valA.toString().localeCompare(valB.toString());
-            return this.sortDirection === 'asc' ? comparison : -comparison;
-        });
-
-        this.filteredRoles.set(sorted);
-    }
-
-    getSortIcon(column: string): string {
-        if (this.sortColumn !== column) return 'bi-arrow-down-up opacity-25';
-        return this.sortDirection === 'asc' ? 'bi-arrow-up text-primary' : 'bi-arrow-down text-primary';
-    }
-
     // --- Actions ---
 
+    handleTableAction(e: { action: string, row: RoleResponse }) {
+        if (e.action === 'edit') {
+            this.editRole(e.row.id);
+        } else if (e.action === 'delete') {
+            this.confirmDelete(e.row);
+        } else if (e.action === 'permissions') {
+            this.managePermissions(e.row.id);
+        }
+    }
+
+    handleStatusToggle(e: { row: RoleResponse, key: string, checked: boolean }) {
+        this.confirmToggleActive(e.row);
+    }
+
     createRole() {
-        this.create.emit();
+        this.selectedRoleId.set(null);
+        this.showRoleModal.set(true);
     }
 
     editRole(id: number) {
-        this.edit.emit(id);
+        this.selectedRoleId.set(id);
+        this.showRoleModal.set(true);
+    }
+
+    onRoleSaved() {
+        this.showRoleModal.set(false);
+        this.loadData();
+    }
+
+    onRoleCancelled() {
+        this.showRoleModal.set(false);
     }
 
     managePermissions(id: number) {

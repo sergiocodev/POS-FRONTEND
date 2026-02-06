@@ -85,10 +85,10 @@ export class PosComponent implements OnInit {
             activeSession: this.cashSessionService.getActiveSession()
         }).subscribe({
             next: (data) => {
-                this.products.set(data.products);
-                this.filteredProducts.set(data.products);
-                this.customers.set(data.customers);
-                this.activeSession.set(data.activeSession);
+                this.products.set(data.products.data);
+                this.filteredProducts.set(data.products.data);
+                this.customers.set(data.customers.data);
+                this.activeSession.set(data.activeSession.data);
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -178,7 +178,8 @@ export class PosComponent implements OnInit {
         const userId = this.authService.currentUser()?.id || 1;
 
         this.saleService.create(request, userId).subscribe({
-            next: (res) => {
+            next: (response) => {
+                const res = response.data;
                 this.isLoading.set(false);
                 this.showAlert('Éxito', `Venta registrada! Comprobante: ${res.series}-${res.number}`, 'success');
                 this.cart.set([]);

@@ -27,7 +27,8 @@ export class PurchaseListComponent implements OnInit {
     loadPurchases(): void {
         this.isLoading.set(true);
         this.purchaseService.getAll().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.purchases.set(data);
                 this.filteredPurchases.set(data);
                 this.isLoading.set(false);

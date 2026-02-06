@@ -110,12 +110,12 @@ export class ProductFormComponent implements OnInit {
             activeIngredients: this.maintenanceService.getActiveIngredients()
         }).subscribe({
             next: (data) => {
-                this.brands.set(data.brands);
-                this.categories.set(data.categories);
-                this.laboratories.set(data.laboratories);
-                this.presentations.set(data.presentations);
-                this.taxTypes.set(data.taxTypes);
-                this.activeIngredients.set(data.activeIngredients);
+                this.brands.set(data.brands.data);
+                this.categories.set(data.categories.data);
+                this.laboratories.set(data.laboratories.data);
+                this.presentations.set(data.presentations.data);
+                this.taxTypes.set(data.taxTypes.data);
+                this.activeIngredients.set(data.activeIngredients.data);
                 if (!this.isEditMode()) this.isLoading.set(false);
             },
             error: (error) => {
@@ -127,7 +127,8 @@ export class ProductFormComponent implements OnInit {
 
     loadProduct(id: number): void {
         this.productService.getById(id).subscribe({
-            next: (product) => {
+            next: (response) => {
+                const product = response.data;
                 this.productForm.patchValue({
                     code: product.code,
                     digemidCode: product.digemidCode,
@@ -171,7 +172,7 @@ export class ProductFormComponent implements OnInit {
             this.isLoading.set(true);
             this.uploadService.upload(file, 'productos').subscribe({
                 next: (res) => {
-                    this.productForm.patchValue({ imageUrl: res.url });
+                    this.productForm.patchValue({ imageUrl: res.data.url });
                     this.imageError.set(false);
                     this.isLoading.set(false);
                 },

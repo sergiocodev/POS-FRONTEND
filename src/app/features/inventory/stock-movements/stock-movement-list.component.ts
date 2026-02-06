@@ -36,8 +36,8 @@ export class StockMovementListComponent implements OnInit {
     loadMovements(): void {
         this.isLoading.set(true);
         this.inventoryService.getMovements().subscribe({
-            next: (data) => {
-                this.movements.set(data);
+            next: (response) => {
+                this.movements.set(response.data);
                 this.isLoading.set(false);
             },
             error: (err) => {

@@ -4,11 +4,24 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { ActiveIngredientResponse } from '../../../../core/models/active-ingredient.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { ActiveIngredientFormComponent } from '../active-ingredient-form/active-ingredient-form.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-active-ingredients-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        CustomTableComponent,
+        ModalGenericComponent,
+        ActiveIngredientFormComponent,
+        ModuleHeaderComponent
+    ],
+
     templateUrl: './active-ingredients-list.component.html',
     styleUrl: './active-ingredients-list.component.scss'
 })
@@ -16,13 +29,28 @@ export class ActiveIngredientsListComponent implements OnInit {
     private maintenanceService = inject(MaintenanceService);
     private router = inject(Router);
 
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'id', label: 'ID', type: 'text' },
+        { key: 'name', label: 'Nombre', type: 'text' },
+        { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || '-' },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
+
     activeIngredients = signal<ActiveIngredientResponse[]>([]);
     filteredActiveIngredients = signal<ActiveIngredientResponse[]>([]);
     isLoading = signal(false);
 
-    
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
+
+    // Modal de Formulario
+    showIngredientModal = signal(false);
+    selectedIngredientId = signal<number | null>(null);
+
+    // Pagination
+    pageSize = 10;
 
     ngOnInit() {
         this.loadData();
@@ -31,7 +59,8 @@ export class ActiveIngredientsListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.maintenanceService.getActiveIngredients().subscribe({
-            next: (ingredients) => {
+            next: (response) => {
+                const ingredients = response.data;
                 this.activeIngredients.set(ingredients);
                 this.filteredActiveIngredients.set(ingredients);
                 this.isLoading.set(false);
@@ -46,7 +75,7 @@ export class ActiveIngredientsListComponent implements OnInit {
     applyFilters() {
         let filtered = this.activeIngredients();
 
-        
+
         const search = this.searchTerm().toLowerCase();
         if (search) {
             filtered = filtered.filter(ingredient =>
@@ -55,7 +84,7 @@ export class ActiveIngredientsListComponent implements OnInit {
             );
         }
 
-        
+
         if (this.selectedStatusFilter() !== null) {
             filtered = filtered.filter(ingredient => ingredient.active === this.selectedStatusFilter());
         }
@@ -68,21 +97,43 @@ export class ActiveIngredientsListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: string) {
-        if (status === '') {
-            this.selectedStatusFilter.set(null);
-        } else {
-            this.selectedStatusFilter.set(status === 'true');
-        }
+    onStatusFilterChange(event: any) {
+        const value = event === 'true' ? true : event === 'false' ? false : null;
+        this.selectedStatusFilter.set(value);
         this.applyFilters();
     }
 
+    // --- Actions ---
+
+    handleTableAction(e: { action: string, row: ActiveIngredientResponse }) {
+        if (e.action === 'edit') {
+            this.editActiveIngredient(e.row.id);
+        } else if (e.action === 'delete') {
+            this.deleteActiveIngredient(e.row);
+        }
+    }
+
+    handleStatusToggle(e: { row: ActiveIngredientResponse, key: string, checked: boolean }) {
+        this.toggleActiveIngredientStatus(e.row);
+    }
+
     createActiveIngredient() {
-        this.router.navigate(['/pharmacy/active-ingredients/new']);
+        this.selectedIngredientId.set(null);
+        this.showIngredientModal.set(true);
     }
 
     editActiveIngredient(id: number) {
-        this.router.navigate(['/pharmacy/active-ingredients', id, 'edit']);
+        this.selectedIngredientId.set(id);
+        this.showIngredientModal.set(true);
+    }
+
+    onIngredientSaved() {
+        this.showIngredientModal.set(false);
+        this.loadData();
+    }
+
+    onIngredientCancelled() {
+        this.showIngredientModal.set(false);
     }
 
     toggleActiveIngredientStatus(ingredient: ActiveIngredientResponse) {

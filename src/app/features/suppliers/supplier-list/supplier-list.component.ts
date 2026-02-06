@@ -30,7 +30,8 @@ export class SupplierListComponent implements OnInit {
         this.errorMessage.set('');
 
         this.supplierService.getAll().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.suppliers.set(data);
                 this.filteredSuppliers.set(data);
                 this.isLoading.set(false);

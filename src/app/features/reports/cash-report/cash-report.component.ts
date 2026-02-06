@@ -43,17 +43,18 @@ export class CashReportComponent implements OnInit {
 
     loadReport(): void {
         this.isLoading.set(true);
-        
-        
+
+
         this.cashService.getAllSessions().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 const estId = this.selectedEstablishmentId();
                 const filtered = data.filter(s => {
                     const sessionDate = s.openedAt.split('T')[0];
                     const matchesDate = sessionDate >= this.startDate && sessionDate <= this.endDate;
-                    
-                    
-                    
+
+
+
                     return matchesDate;
                 });
                 this.sessions.set(filtered);

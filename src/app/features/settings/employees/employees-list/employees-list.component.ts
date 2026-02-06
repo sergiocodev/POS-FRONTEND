@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../../../core/services/employee.service';
 import { EmployeeResponse } from '../../../../core/models/employee.model';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 
 @Component({
     selector: 'app-employees-list',
@@ -13,7 +16,10 @@ import { ModuleHeaderComponent } from '../../../../shared/components/module-head
         CommonModule,
         RouterModule,
         FormsModule,
-        ModuleHeaderComponent
+        ModuleHeaderComponent,
+        CustomTableComponent,
+        ModalGenericComponent,
+        EmployeeFormComponent
     ],
     templateUrl: './employees-list.component.html',
     styleUrl: './employees-list.component.scss'
@@ -24,18 +30,35 @@ export class EmployeesListComponent implements OnInit {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
 
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'fullName', label: 'Nombre', type: 'text' },
+        { key: 'documentNumber', label: 'Documento', type: 'text' },
+        {
+            key: 'username',
+            label: 'Usuario',
+            type: 'text',
+            format: (v: any) => v || 'Sin cuenta'
+        },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
+
     // Data Signals
     employees = signal<EmployeeResponse[]>([]);
     filteredEmployees = signal<EmployeeResponse[]>([]);
     isLoading = signal(false);
 
-    // Filters & Pagination
+    // Filtros
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
-    currentPage = 1;
+
+    // Modal de Formulario de Empleado
+    showEmployeeModal = signal(false);
+    selectedEmployeeId = signal<number | null>(null);
+
+    // Pagination (Handled by CustomTable)
     pageSize = 10;
-    sortColumn: keyof EmployeeResponse | '' = '';
-    sortDirection: 'asc' | 'desc' = 'asc';
 
     // Modal & Alerts State
     showModal = false;
@@ -54,9 +77,15 @@ export class EmployeesListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.employeeService.getAll().subscribe({
-            next: (employees) => {
-                this.employees.set(employees);
-                this.applyFilters(); // Apply initial filter logic
+            next: (response) => {
+                const employees = response.data;
+                // Mapear para tener fullName disponible para la tabla
+                const mapped = employees.map(emp => ({
+                    ...emp,
+                    fullName: `${emp.firstName} ${emp.lastName || ''}`.trim()
+                }));
+                this.employees.set(mapped);
+                this.applyFilters();
                 this.isLoading.set(false);
             },
             error: (error) => {
@@ -67,45 +96,7 @@ export class EmployeesListComponent implements OnInit {
         });
     }
 
-    // --- Logic for Pagination & Sorting ---
-
-    get paginatedEmployees(): EmployeeResponse[] {
-        const startIndex = (this.currentPage - 1) * this.pageSize;
-        return this.filteredEmployees().slice(startIndex, startIndex + this.pageSize);
-    }
-
-    changePage(newPage: number) {
-        if (newPage >= 1 && newPage <= Math.ceil(this.filteredEmployees().length / this.pageSize)) {
-            this.currentPage = newPage;
-        }
-    }
-
-    min(a: number, b: number): number {
-        return Math.min(a, b);
-    }
-
-    sortData(column: keyof EmployeeResponse) {
-        if (this.sortColumn === column) {
-            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.sortColumn = column;
-            this.sortDirection = 'asc';
-        }
-
-        const sorted = [...this.filteredEmployees()].sort((a, b) => {
-            const res = a[column]! > b[column]! ? 1 : a[column]! < b[column]! ? -1 : 0;
-            return this.sortDirection === 'asc' ? res : -res;
-        });
-
-        this.filteredEmployees.set(sorted);
-    }
-
-    getSortIcon(column: string): string {
-        if (this.sortColumn !== column) return 'bi-arrow-down-up text-muted opacity-25';
-        return this.sortDirection === 'asc' ? 'bi-arrow-up text-primary' : 'bi-arrow-down text-primary';
-    }
-
-    // --- Logic for Filtering ---
+    // --- Filter Logic ---
 
     applyFilters() {
         let filtered = this.employees();
@@ -124,7 +115,6 @@ export class EmployeesListComponent implements OnInit {
         }
 
         this.filteredEmployees.set(filtered);
-        this.currentPage = 1; // Reset to page 1 on filter change
     }
 
     onSearchChange(value: string) {
@@ -132,20 +122,43 @@ export class EmployeesListComponent implements OnInit {
         this.applyFilters();
     }
 
-    clearFilters() {
-        this.searchTerm.set('');
-        this.selectedStatusFilter.set(null);
+    onStatusFilterChange(event: any) {
+        const value = event === 'true' ? true : event === 'false' ? false : null;
+        this.selectedStatusFilter.set(value);
         this.applyFilters();
     }
 
     // --- Actions ---
 
+    handleTableAction(e: { action: string, row: EmployeeResponse }) {
+        if (e.action === 'edit') {
+            this.editEmployee(e.row.id);
+        } else if (e.action === 'delete') {
+            this.confirmDelete(e.row);
+        }
+    }
+
+    handleStatusToggle(e: { row: EmployeeResponse, key: string, checked: boolean }) {
+        this.toggleEmployeeStatus(e.row);
+    }
+
     createEmployee() {
-        this.create.emit();
+        this.selectedEmployeeId.set(null);
+        this.showEmployeeModal.set(true);
     }
 
     editEmployee(id: number) {
-        this.edit.emit(id);
+        this.selectedEmployeeId.set(id);
+        this.showEmployeeModal.set(true);
+    }
+
+    onEmployeeSaved() {
+        this.showEmployeeModal.set(false);
+        this.loadData();
+    }
+
+    onEmployeeCancelled() {
+        this.showEmployeeModal.set(false);
     }
 
     getFullName(employee: EmployeeResponse): string {

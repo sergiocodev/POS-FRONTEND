@@ -52,6 +52,11 @@
                             </div>
 
                             <div *ngSwitchCase="'action'" class="d-flex gap-1">
+                                <button *ngIf="row['permissionCount'] !== undefined" class="btn-action"
+                                    (click)="onAction.emit({action: 'permissions', row: row})"
+                                    title="Gestionar permisos">
+                                    <i class="bi bi-key"></i>
+                                </button>
                                 <button class="btn-action" (click)="onAction.emit({action: 'edit', row: row})"
                                     title="Editar">
                                     <i class="bi bi-pencil-square"></i>

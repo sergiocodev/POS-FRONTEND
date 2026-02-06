@@ -4,17 +4,37 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { BrandResponse } from '../../../../core/models/brand.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { BrandFormComponent } from '../brand-form/brand-form.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-brands-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        CustomTableComponent,
+        ModalGenericComponent,
+        BrandFormComponent,
+        ModuleHeaderComponent
+    ],
     templateUrl: './brands-list.component.html',
     styleUrl: './brands-list.component.scss'
 })
 export class BrandsListComponent implements OnInit {
     private maintenanceService = inject(MaintenanceService);
     private router = inject(Router);
+
+    // Configuración de la tabla
+    cols: TableColumn[] = [
+        { key: 'id', label: 'ID', type: 'text' },
+        { key: 'name', label: 'Marca', type: 'text' },
+        { key: 'active', label: 'Estado', type: 'toggle' },
+        { key: 'actions', label: 'Acciones', type: 'action' }
+    ];
 
     brands = signal<BrandResponse[]>([]);
     filteredBrands = signal<BrandResponse[]>([]);
@@ -23,6 +43,13 @@ export class BrandsListComponent implements OnInit {
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
+    // Modal de Formulario
+    showBrandModal = signal(false);
+    selectedBrandId = signal<number | null>(null);
+
+    // Pagination
+    pageSize = 10;
+
     ngOnInit() {
         this.loadData();
     }
@@ -30,7 +57,8 @@ export class BrandsListComponent implements OnInit {
     loadData() {
         this.isLoading.set(true);
         this.maintenanceService.getBrands().subscribe({
-            next: (brands) => {
+            next: (response) => {
+                const brands = response.data;
                 this.brands.set(brands);
                 this.filteredBrands.set(brands);
                 this.isLoading.set(false);
@@ -64,21 +92,43 @@ export class BrandsListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: string) {
-        if (status === '') {
-            this.selectedStatusFilter.set(null);
-        } else {
-            this.selectedStatusFilter.set(status === 'true');
-        }
+    onStatusFilterChange(event: any) {
+        const value = event === 'true' ? true : event === 'false' ? false : null;
+        this.selectedStatusFilter.set(value);
         this.applyFilters();
     }
 
+    // --- Actions ---
+
+    handleTableAction(e: { action: string, row: BrandResponse }) {
+        if (e.action === 'edit') {
+            this.editBrand(e.row.id);
+        } else if (e.action === 'delete') {
+            this.deleteBrand(e.row);
+        }
+    }
+
+    handleStatusToggle(e: { row: BrandResponse, key: string, checked: boolean }) {
+        this.toggleBrandStatus(e.row);
+    }
+
     createBrand() {
-        this.router.navigate(['/pharmacy/brands/new']);
+        this.selectedBrandId.set(null);
+        this.showBrandModal.set(true);
     }
 
     editBrand(id: number) {
-        this.router.navigate(['/pharmacy/brands', id, 'edit']);
+        this.selectedBrandId.set(id);
+        this.showBrandModal.set(true);
+    }
+
+    onBrandSaved() {
+        this.showBrandModal.set(false);
+        this.loadData();
+    }
+
+    onBrandCancelled() {
+        this.showBrandModal.set(false);
     }
 
     toggleBrandStatus(brand: BrandResponse) {

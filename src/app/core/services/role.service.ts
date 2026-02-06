@@ -8,6 +8,7 @@ import {
     PermissionResponse,
     AssignPermissionsRequest
 } from '../models/maintenance.model';
+import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
     providedIn: 'root'
@@ -16,49 +17,49 @@ export class RoleService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/roles';
 
-    getAll(): Observable<RoleResponse[]> {
-        return this.http.get<RoleResponse[]>(this.apiUrl);
+    getAll(): Observable<ResponseApi<RoleResponse[]>> {
+        return this.http.get<ResponseApi<RoleResponse[]>>(this.apiUrl);
     }
 
-    getById(id: number): Observable<RoleDetailResponse> {
-        return this.http.get<RoleDetailResponse>(`${this.apiUrl}/${id}`);
+    getById(id: number): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.get<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${id}`);
     }
 
-    create(request: RoleRequest): Observable<RoleDetailResponse> {
-        return this.http.post<RoleDetailResponse>(this.apiUrl, request);
+    create(request: RoleRequest): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.post<ResponseApi<RoleDetailResponse>>(this.apiUrl, request);
     }
 
-    update(id: number, request: RoleRequest): Observable<RoleDetailResponse> {
-        return this.http.put<RoleDetailResponse>(`${this.apiUrl}/${id}`, request);
+    update(id: number, request: RoleRequest): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.put<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${id}`, request);
     }
 
-    delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    delete(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
     }
 
-    toggleActive(id: number): Observable<RoleResponse> {
-        return this.http.patch<RoleResponse>(`${this.apiUrl}/${id}/toggle-active`, {});
+    toggleActive(id: number): Observable<ResponseApi<RoleResponse>> {
+        return this.http.patch<ResponseApi<RoleResponse>>(`${this.apiUrl}/${id}/toggle-active`, {});
     }
 
-    
 
-    getPermissions(roleId: number): Observable<PermissionResponse[]> {
-        return this.http.get<PermissionResponse[]>(`${this.apiUrl}/${roleId}/permissions`);
+
+    getPermissions(roleId: number): Observable<ResponseApi<PermissionResponse[]>> {
+        return this.http.get<ResponseApi<PermissionResponse[]>>(`${this.apiUrl}/${roleId}/permissions`);
     }
 
-    assignPermissions(roleId: number, request: AssignPermissionsRequest): Observable<RoleDetailResponse> {
-        return this.http.post<RoleDetailResponse>(`${this.apiUrl}/${roleId}/permissions`, request);
+    assignPermissions(roleId: number, request: AssignPermissionsRequest): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.post<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${roleId}/permissions`, request);
     }
 
-    replacePermissions(roleId: number, request: AssignPermissionsRequest): Observable<RoleDetailResponse> {
-        return this.http.put<RoleDetailResponse>(`${this.apiUrl}/${roleId}/permissions`, request);
+    replacePermissions(roleId: number, request: AssignPermissionsRequest): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.put<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${roleId}/permissions`, request);
     }
 
-    removePermission(roleId: number, permissionId: number): Observable<RoleDetailResponse> {
-        return this.http.delete<RoleDetailResponse>(`${this.apiUrl}/${roleId}/permissions/${permissionId}`);
+    removePermission(roleId: number, permissionId: number): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.delete<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${roleId}/permissions/${permissionId}`);
     }
 
-    removePermissions(roleId: number, request: AssignPermissionsRequest): Observable<RoleDetailResponse> {
-        return this.http.post<RoleDetailResponse>(`${this.apiUrl}/${roleId}/permissions/batch-remove`, request);
+    removePermissions(roleId: number, request: AssignPermissionsRequest): Observable<ResponseApi<RoleDetailResponse>> {
+        return this.http.post<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${roleId}/permissions/batch-remove`, request);
     }
 }

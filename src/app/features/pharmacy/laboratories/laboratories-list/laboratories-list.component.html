@@ -1,93 +1,56 @@
-<div class="container-fluid">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="bi bi-building me-2"></i>
-            Laboratorios
-        </h1>
-        <button class="btn btn-primary" (click)="createLaboratory()">
-            <i class="bi bi-plus-circle me-2"></i>
-            Nuevo Laboratorio
+<app-module-header title="Laboratorios" iconClass="bi bi-building"></app-module-header>
+
+<div class="laboratories-container container-fluid py-4 animate-fade-in">
+
+    <div class="d-flex justify-content-end align-items-center mb-4">
+        <button class="btn btn-primary shadow-sm" (click)="createLaboratory()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Laboratorio
         </button>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Buscar por nombre..." [value]="searchTerm()"
-                        (input)="onSearchChange($any($event.target).value)">
+    <div class="card border-0 shadow-sm overflow-hidden mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 bg-light"
+                            placeholder="Buscar por nombre..." [value]="searchTerm()"
+                            (input)="onSearchChange($any($event.target).value)">
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" (change)="onStatusFilterChange($any($event.target).value)">
-                        <option value="">Todos</option>
-                        <option value="true">Activos</option>
-                        <option value="false">Inactivos</option>
+                <div class="col-12 col-md-4">
+                    <select class="form-select bg-light" [ngModel]="selectedStatusFilter()"
+                        (ngModelChange)="onStatusFilterChange($event)">
+                        <option [ngValue]="null">Todos los estados</option>
+                        <option [ngValue]="true">Activos</option>
+                        <option [ngValue]="false">Inactivos</option>
                     </select>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            @if (isLoading()) {
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <app-custom-table [columns]="cols" [data]="filteredLaboratories()" [pageSize]="pageSize"
+            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+        </app-custom-table>
+
+        <div *ngIf="isLoading()" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
             </div>
-            } @else if (filteredLaboratories().length === 0) {
-            <div class="text-center py-5">
-                <i class="bi bi-inbox display-1 text-muted"></i>
-                <p class="text-muted mt-3">No se encontraron laboratorios</p>
-            </div>
-            } @else {
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Estado</th>
-                            <th class="text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (laboratory of filteredLaboratories(); track trackByLaboratoryId($index, laboratory)) {
-                        <tr>
-                            <td>{{ laboratory.id }}</td>
-                            <td>{{ laboratory.name }}</td>
-                            <td>
-                                <span class="badge" [class.bg-success]="laboratory.active"
-                                    [class.bg-danger]="!laboratory.active">
-                                    {{ laboratory.active ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" (click)="editLaboratory(laboratory.id)"
-                                        title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-outline-warning" (click)="toggleLaboratoryStatus(laboratory)"
-                                        title="{{ laboratory.active ? 'Desactivar' : 'Activar' }}">
-                                        <i class="bi" [class.bi-toggle-on]="laboratory.active"
-                                            [class.bi-toggle-off]="!laboratory.active"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger" (click)="deleteLaboratory(laboratory)"
-                                        title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            }
         </div>
     </div>
+
 </div>
+
+<!-- Modal de Formulario de Laboratorio -->
+<app-modal-generic [title]="selectedLaboratoryId() ? 'Editar Laboratorio' : 'Nuevo Laboratorio'"
+    [isVisible]="showLaboratoryModal()" (close)="onLaboratoryCancelled()">
+    <app-laboratory-form *ngIf="showLaboratoryModal()" [idLaboratory]="selectedLaboratoryId()"
+        (saved)="onLaboratorySaved()" (cancelled)="onLaboratoryCancelled()">
+    </app-laboratory-form>
+</app-modal-generic>

@@ -81,8 +81,8 @@ export class UserFormComponent implements OnInit {
 
     loadLookupData() {
         this.roleService.getAll().subscribe({
-            next: (roles) => {
-                this.roles.set(roles.filter(r => r.active));
+            next: (response) => {
+                this.roles.set(response.data.filter(r => r.active));
             },
             error: (error) => console.error('Error loading roles:', error)
         });
@@ -111,7 +111,8 @@ export class UserFormComponent implements OnInit {
     loadUser(id: number) {
         this.isLoading.set(true);
         this.userService.getById(id).subscribe({
-            next: (user) => {
+            next: (response) => {
+                const user = response.data;
                 this.userForm.patchValue({
                     username: user.username,
                     email: user.email,
@@ -157,7 +158,8 @@ export class UserFormComponent implements OnInit {
 
         this.isSearching.set(true);
         this.userService.searchByDocument(document.toString()).subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.isSearching.set(false);
                 if (data.razonSocial) {
                     this.userForm.patchValue({ fullName: data.razonSocial });
@@ -179,8 +181,8 @@ export class UserFormComponent implements OnInit {
         if (file) {
             this.isSaving.set(true);
             this.uploadService.upload(file, 'usuarios').subscribe({
-                next: (res) => {
-                    this.userForm.patchValue({ profilePicture: res.url });
+                next: (response) => {
+                    this.userForm.patchValue({ profilePicture: response.data.url });
                     this.imageError.set(false);
                     this.isSaving.set(false);
                 },

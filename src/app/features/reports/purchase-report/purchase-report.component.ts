@@ -20,12 +20,12 @@ export class PurchaseReportComponent implements OnInit {
     isLoading = signal<boolean>(false);
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
-    
+
     startDate = '';
     endDate = '';
 
     constructor() {
-        
+
         effect(() => {
             if (this.selectedEstablishmentId()) {
                 this.loadReport();
@@ -40,7 +40,7 @@ export class PurchaseReportComponent implements OnInit {
         this.startDate = firstDay.toISOString().split('T')[0];
         this.endDate = today.toISOString().split('T')[0];
 
-        
+
         if (this.selectedEstablishmentId()) {
             this.loadReport();
         }
@@ -50,8 +50,8 @@ export class PurchaseReportComponent implements OnInit {
         this.isLoading.set(true);
         const establishmentId = this.selectedEstablishmentId() || undefined;
         this.reportService.getPurchaseReport(this.startDate, this.endDate, establishmentId).subscribe({
-            next: (data) => {
-                this.purchases.set(data);
+            next: (response) => {
+                this.purchases.set(response.data);
                 this.isLoading.set(false);
             },
             error: (err) => {

@@ -42,10 +42,10 @@ export class SessionListComponent implements OnInit {
         if (!userId) return;
 
         this.isLoading.set(true);
-        
+
         this.cashService.getHistory(userId).subscribe({
-            next: (data) => {
-                this.sessions.set(data);
+            next: (response) => {
+                this.sessions.set(response.data);
                 this.applyFilter();
                 this.isLoading.set(false);
             },
@@ -55,10 +55,10 @@ export class SessionListComponent implements OnInit {
             }
         });
 
-        
+
         this.cashService.getActiveSession().subscribe({
-            next: (session) => {
-                this.activeSession.set(session);
+            next: (response) => {
+                this.activeSession.set(response.data);
             },
             error: () => {
                 this.activeSession.set(null);

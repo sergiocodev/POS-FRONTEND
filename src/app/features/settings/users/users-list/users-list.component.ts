@@ -85,14 +85,14 @@ export class UsersListComponent implements OnInit {
         this.isLoading.set(true);
         // Cargar Roles
         this.roleService.getAll().subscribe({
-            next: (roles) => this.roles.set(roles),
+            next: (response) => this.roles.set(response.data),
             error: (err) => console.error(err)
         });
 
         // Cargar Usuarios
         this.userService.getAll().subscribe({
-            next: (users) => {
-                this.users.set(users);
+            next: (response) => {
+                this.users.set(response.data);
                 this.applyFilters();
                 this.isLoading.set(false);
             },

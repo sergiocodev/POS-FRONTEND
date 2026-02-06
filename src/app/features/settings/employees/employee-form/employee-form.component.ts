@@ -59,8 +59,8 @@ export class EmployeeFormComponent implements OnInit {
 
     loadUsers() {
         this.userService.getAll().subscribe({
-            next: (users) => {
-                this.users.set(users);
+            next: (response) => {
+                this.users.set(response.data);
             },
             error: (error) => {
                 console.error('Error loading users:', error);
@@ -86,7 +86,8 @@ export class EmployeeFormComponent implements OnInit {
     loadEmployee(id: number) {
         this.isLoading.set(true);
         this.employeeService.getById(id).subscribe({
-            next: (employee) => {
+            next: (response) => {
+                const employee = response.data;
                 this.employeeForm.patchValue({
                     firstName: employee.firstName,
                     lastName: employee.lastName,

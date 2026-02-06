@@ -52,7 +52,8 @@ export class RolePermissionsComponent implements OnInit {
 
         // Cargar Rol
         this.roleService.getById(roleId).subscribe({
-            next: (role) => {
+            next: (response) => {
+                const role = response.data;
                 this.role.set(role);
                 this.selectedPermissions.set(role.permissions?.map(p => p.id) || []);
             },
@@ -65,7 +66,8 @@ export class RolePermissionsComponent implements OnInit {
 
         // Cargar Permisos
         this.permissionService.getGrouped().subscribe({
-            next: (grouped) => {
+            next: (response) => {
+                const grouped = response.data;
                 this.groupedPermissions.set(grouped);
                 this.modules.set(Object.keys(grouped));
                 this.isLoading.set(false);

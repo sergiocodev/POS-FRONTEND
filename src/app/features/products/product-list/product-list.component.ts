@@ -30,7 +30,8 @@ export class ProductListComponent implements OnInit {
         this.errorMessage.set('');
 
         this.productService.getAll().subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response.data;
                 this.products.set(data);
                 this.filteredProducts.set(data);
                 this.isLoading.set(false);

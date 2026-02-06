@@ -40,8 +40,8 @@ export class BatchFormComponent implements OnInit {
     loadProducts() {
         this.isLoadingProducts.set(true);
         this.productService.getAll().subscribe({
-            next: (data) => {
-                this.products.set(data);
+            next: (response) => {
+                this.products.set(response.data);
                 this.isLoadingProducts.set(false);
             },
             error: (err) => {

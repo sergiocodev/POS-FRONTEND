@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,15 +18,26 @@ export class ActiveIngredientFormComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
+    @Input() set ingredientId(value: number | null) {
+        this._ingredientId.set(value);
+        this.checkEditModeFromInput();
+    }
+    get ingredientId(): number | null {
+        return this._ingredientId();
+    }
+    private _ingredientId = signal<number | null>(null);
+
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
+
     form!: FormGroup;
     isEditMode = signal(false);
-    ingredientId = signal<number | null>(null);
     isLoading = signal(false);
     isSaving = signal(false);
 
     ngOnInit() {
         this.initForm();
-        this.checkEditMode();
+        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -37,20 +48,33 @@ export class ActiveIngredientFormComponent implements OnInit {
         });
     }
 
-    checkEditMode() {
+    checkEditModeFromRoute() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
             this.isEditMode.set(true);
-            this.ingredientId.set(+id);
+            this._ingredientId.set(+id);
             this.loadActiveIngredient(+id);
+        }
+    }
+
+    checkEditModeFromInput() {
+        const id = this.ingredientId;
+        if (id) {
+            this.isEditMode.set(true);
+            this.loadActiveIngredient(id);
+        } else {
+            this.isEditMode.set(false);
+            if (this.form) {
+                this.form.reset({ active: true });
+            }
         }
     }
 
     loadActiveIngredient(id: number) {
         this.isLoading.set(true);
         this.maintenanceService.getActiveIngredients().subscribe({
-            next: (ingredients) => {
-                const ingredient = ingredients.find(i => i.id === id);
+            next: (response) => {
+                const ingredient = response.data.find(i => i.id === id);
                 if (ingredient) {
                     this.form.patchValue({
                         name: ingredient.name,
@@ -83,7 +107,7 @@ export class ActiveIngredientFormComponent implements OnInit {
 
         const operation = this.isEditMode()
             ? this.maintenanceService.updateActiveIngredient(
-                this.ingredientId()!,
+                this.ingredientId!,
                 request.name,
                 request.description,
                 request.active
@@ -96,7 +120,12 @@ export class ActiveIngredientFormComponent implements OnInit {
 
         operation.subscribe({
             next: () => {
-                this.router.navigate(['/pharmacy/active-ingredients']);
+                this.isSaving.set(false);
+                this.saved.emit();
+                // Si aún estamos en modo ruta (no modal), navegar
+                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
+                    this.router.navigate(['/pharmacy/active-ingredients']);
+                }
             },
             error: (error) => {
                 console.error('Error saving active ingredient:', error);
@@ -107,7 +136,10 @@ export class ActiveIngredientFormComponent implements OnInit {
     }
 
     onCancel() {
-        this.router.navigate(['/pharmacy/active-ingredients']);
+        this.cancelled.emit();
+        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
+            this.router.navigate(['/pharmacy/active-ingredients']);
+        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

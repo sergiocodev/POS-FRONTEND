@@ -65,8 +65,8 @@ export class InventoryListComponent implements OnInit {
 
         this.isLoading.set(true);
         this.inventoryService.getStockByEstablishment(estId).subscribe({
-            next: (data) => {
-                this.inventory.set(data);
+            next: (response) => {
+                this.inventory.set(response.data);
                 this.isLoading.set(false);
             },
             error: (err) => {

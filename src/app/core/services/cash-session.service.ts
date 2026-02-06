@@ -6,6 +6,7 @@ import {
     CashRegisterResponse, CashRegisterRequest
 } from '../models/cash.model';
 import { AuthService } from './auth.service';
+import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
     providedIn: 'root'
@@ -17,70 +18,70 @@ export class CashSessionService {
     private sessionUrl = '/api/v1/cash-sessions';
     private registerUrl = '/api/v1/cash-registers';
 
-    
-    getRegisters(): Observable<CashRegisterResponse[]> {
-        return this.http.get<CashRegisterResponse[]>(this.registerUrl);
+
+    getRegisters(): Observable<ResponseApi<CashRegisterResponse[]>> {
+        return this.http.get<ResponseApi<CashRegisterResponse[]>>(this.registerUrl);
     }
 
-    getRegisterById(id: number): Observable<CashRegisterResponse> {
-        return this.http.get<CashRegisterResponse>(`${this.registerUrl}/${id}`);
+    getRegisterById(id: number): Observable<ResponseApi<CashRegisterResponse>> {
+        return this.http.get<ResponseApi<CashRegisterResponse>>(`${this.registerUrl}/${id}`);
     }
 
-    createRegister(request: CashRegisterRequest): Observable<CashRegisterResponse> {
-        return this.http.post<CashRegisterResponse>(this.registerUrl, request);
+    createRegister(request: CashRegisterRequest): Observable<ResponseApi<CashRegisterResponse>> {
+        return this.http.post<ResponseApi<CashRegisterResponse>>(this.registerUrl, request);
     }
 
-    updateRegister(id: number, request: CashRegisterRequest): Observable<CashRegisterResponse> {
-        return this.http.put<CashRegisterResponse>(`${this.registerUrl}/${id}`, request);
+    updateRegister(id: number, request: CashRegisterRequest): Observable<ResponseApi<CashRegisterResponse>> {
+        return this.http.put<ResponseApi<CashRegisterResponse>>(`${this.registerUrl}/${id}`, request);
     }
 
-    deleteRegister(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.registerUrl}/${id}`);
+    deleteRegister(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`${this.registerUrl}/${id}`);
     }
 
-    
-    getAllSessions(): Observable<CashSessionResponse[]> {
-        return this.http.get<CashSessionResponse[]>(this.sessionUrl);
+
+    getAllSessions(): Observable<ResponseApi<CashSessionResponse[]>> {
+        return this.http.get<ResponseApi<CashSessionResponse[]>>(this.sessionUrl);
     }
 
-    getById(id: number): Observable<CashSessionResponse> {
-        return this.http.get<CashSessionResponse>(`${this.sessionUrl}/${id}`);
+    getById(id: number): Observable<ResponseApi<CashSessionResponse>> {
+        return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/${id}`);
     }
 
-    getActiveSession(): Observable<CashSessionResponse> {
+    getActiveSession(): Observable<ResponseApi<CashSessionResponse>> {
         const userId = this.authService.currentUser()?.id;
         const params = new HttpParams().set('userId', userId?.toString() || '');
-        return this.http.get<CashSessionResponse>(`${this.sessionUrl}/active`, { params });
+        return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/active`, { params });
     }
 
-    openSession(request: CashSessionRequest): Observable<CashSessionResponse> {
+    openSession(request: CashSessionRequest): Observable<ResponseApi<CashSessionResponse>> {
         const userId = this.authService.currentUser()?.id;
         const params = new HttpParams().set('userId', userId?.toString() || '');
-        return this.http.post<CashSessionResponse>(`${this.sessionUrl}/open`, request, { params });
+        return this.http.post<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/open`, request, { params });
     }
 
-    closeSession(id: number, closingBalance: number, diffAmount: number): Observable<CashSessionResponse> {
+    closeSession(id: number, closingBalance: number, diffAmount: number): Observable<ResponseApi<CashSessionResponse>> {
         const params = new HttpParams()
             .set('closingBalance', closingBalance.toString())
             .set('diffAmount', diffAmount.toString());
-        return this.http.post<CashSessionResponse>(`${this.sessionUrl}/${id}/close`, {}, { params });
+        return this.http.post<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/${id}/close`, {}, { params });
     }
 
-    getStatus(userId: number): Observable<CashSessionResponse> {
+    getStatus(userId: number): Observable<ResponseApi<CashSessionResponse>> {
         const params = new HttpParams().set('userId', userId.toString());
-        return this.http.get<CashSessionResponse>(`${this.sessionUrl}/status`, { params });
+        return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/status`, { params });
     }
 
-    closeActiveSession(userId: number, closingBalance: number, diffAmount: number): Observable<CashSessionResponse> {
+    closeActiveSession(userId: number, closingBalance: number, diffAmount: number): Observable<ResponseApi<CashSessionResponse>> {
         const params = new HttpParams()
             .set('userId', userId.toString())
             .set('closingBalance', closingBalance.toString())
             .set('diffAmount', diffAmount.toString());
-        return this.http.post<CashSessionResponse>(`${this.sessionUrl}/close`, {}, { params });
+        return this.http.post<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/close`, {}, { params });
     }
 
-    getHistory(userId: number): Observable<CashSessionResponse[]> {
+    getHistory(userId: number): Observable<ResponseApi<CashSessionResponse[]>> {
         const params = new HttpParams().set('userId', userId.toString());
-        return this.http.get<CashSessionResponse[]>(`${this.sessionUrl}/history`, { params });
+        return this.http.get<ResponseApi<CashSessionResponse[]>>(`${this.sessionUrl}/history`, { params });
     }
 }

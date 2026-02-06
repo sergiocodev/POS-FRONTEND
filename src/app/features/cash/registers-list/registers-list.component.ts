@@ -36,8 +36,8 @@ export class RegistersListComponent implements OnInit {
     loadRegisters(): void {
         this.isLoading.set(true);
         this.cashService.getRegisters().subscribe({
-            next: (data) => {
-                this.registers.set(data);
+            next: (response) => {
+                this.registers.set(response.data);
                 this.applyFilter();
                 this.isLoading.set(false);
             },
@@ -58,7 +58,7 @@ export class RegistersListComponent implements OnInit {
     }
 
     onToggleStatus(register: CashRegisterResponse): void {
-        
+
         this.cashService.updateRegister(register.id, {
             name: register.name,
             establishmentId: register.establishmentId,
