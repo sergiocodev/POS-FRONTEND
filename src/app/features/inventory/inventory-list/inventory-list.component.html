@@ -79,20 +79,23 @@
                         </tr>
                         <tr *ngFor="let item of filteredInventory()">
                             <td class="px-4">
-                                <span class="badge bg-info text-dark">{{ item.establishmentName }}</span>
+                                <span class="badge bg-light text-dark border">{{ item.establishmentName }}</span>
                             </td>
                             <td class="fw-bold">{{ item.productName }}</td>
                             <td>
-                                <span class="text-muted d-block small">Código:</span>
-                                <span class="fw-medium">{{ item.lotCode }}</span>
+                                <div class="fw-medium">{{ item.lotCode }}</div>
+                                <div class="small text-muted" *ngIf="item.locationShelf">
+                                    <i class="bi bi-geo-alt"></i> {{ item.locationShelf }}
+                                </div>
                             </td>
                             <td class="text-center">
                                 <span class="badge rounded-pill fs-6 px-3"
-                                    [ngClass]="item.quantity > 50 ? 'bg-success' : (item.quantity > 10 ? 'bg-warning text-dark' : 'bg-danger')">
+                                    [ngClass]="item.quantity > (item.minStock || 10) ? 'bg-success' : 'bg-danger'">
                                     {{ item.quantity }}
                                 </span>
-                                <small class="d-block text-muted mt-1">Últ. Mov: {{ item.lastMovement | date:'shortDate'
-                                    }}</small>
+                                <div class="small text-muted mt-1" *ngIf="item.minStock">Min: {{ item.minStock }}</div>
+                                <small class="d-block text-muted" style="font-size: 0.7rem;">Últ. Mov: {{
+                                    item.lastMovement | date:'shortDate' }}</small>
                             </td>
                             <td class="text-end fw-medium text-muted">
                                 {{ item.costPrice | currency:'PEN':'S/ ' }}

@@ -1,19 +1,12 @@
 <div class="establishments-list-container container-fluid animate-fade-in position-relative">
 
-    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
-        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
-        <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-        <strong class="mx-2">{{ alertTitle }}</strong> {{ alertMessage }}
-        <button type="button" class="btn-close" (click)="closeAlert()"></button>
-    </div>
-
     <div class="d-flex justify-content-end align-items-center my-3">
         <button class="btn btn-primary" (click)="createEstablishment()">
             <i class="bi bi-plus-lg me-1"></i> Nuevo Establecimiento
         </button>
     </div>
 
-    <!-- Filtros (Opcional, si deseas mantenerlos fuera de la tabla) -->
+    <!-- Filtros -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-center">
@@ -45,44 +38,10 @@
             (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
         </app-custom-table>
 
-        <div *ngIf="isLoading()" class="text-center py-5">
+        <div *ngIf="isLoading" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
     </div>
-
-    <!-- Modal de Confirmación (Eliminación/Estado) -->
-    <div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Acción</h5>
-                    <button type="button" class="btn-close" (click)="closeModal()"></button>
-                </div>
-                <div class="modal-body">
-                    <p [innerHTML]="modalMessage"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-                    <button type="button" class="btn"
-                        [ngClass]="modalActionType === 'delete' ? 'btn-danger' : 'btn-warning'"
-                        (click)="executePendingAction()">
-                        {{ modalActionType === 'delete' ? 'Eliminar' : 'Confirmar' }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div *ngIf="showConfirmModal" class="modal-backdrop fade show"></div>
-
-    <!-- Modal de Formulario de Establecimiento -->
-    <app-modal-generic [title]="selectedEstablishmentId() ? 'Editar Establecimiento' : 'Nuevo Establecimiento'"
-        [isVisible]="showEstablishmentModal()" (close)="onEstablishmentCancelled()">
-        <app-establishment-form *ngIf="showEstablishmentModal()" [establishmentId]="selectedEstablishmentId()"
-            (saved)="onEstablishmentSaved()" (cancelled)="onEstablishmentCancelled()">
-        </app-establishment-form>
-    </app-modal-generic>
-
 </div>

@@ -88,8 +88,9 @@ export class SaleListComponent implements OnInit {
 
     getStatusBadgeClass(status: string): string {
         switch (status) {
-            case 'COMPLETED': return 'bg-success-subtle text-success border border-success-subtle'; // Modern Bootstrap look
-            case 'CANCELED': return 'bg-danger-subtle text-danger border border-danger-subtle';
+            case 'COMPLETED': return 'bg-success-subtle text-success border border-success-subtle';
+            case 'CANCELED':
+            case 'VOIDED': return 'bg-danger-subtle text-danger border border-danger-subtle';
             default: return 'bg-secondary-subtle text-secondary';
         }
     }

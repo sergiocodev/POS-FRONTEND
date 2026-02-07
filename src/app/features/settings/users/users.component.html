@@ -1,20 +1,17 @@
-<div class="users-page animate-fade-in">
-    <app-users-list (create)="onOpenForm()" (edit)="onOpenForm($event)"></app-users-list>
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Gestión de Usuarios" iconClass="bi bi-people-fill"></app-module-header>
 
-    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
-        tabindex="-1" (click)="onFormCancelled()">
-        <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold">{{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
-                    <button type="button" class="btn-close" (click)="onFormCancelled()"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <app-user-form *ngIf="displayForm()" [userId]="selectedUserId()" (saved)="onFormSaved()"
-                        (cancelled)="onFormCancelled()"></app-user-form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div *ngIf="displayForm()" class="modal-backdrop fade show"></div>
+<div class="users-page animate-fade-in">
+    <app-users-list [users]="users()" [roles]="roles()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteUser($event)" (toggleStatus)="onToggleStatus($event)">
+    </app-users-list>
+
+    <!-- Modal para Crear/Editar Usuario -->
+    <app-modal-generic [isVisible]="showUserForm()" [title]="selectedUserId() ? 'Editar Usuario' : 'Nuevo Usuario'"
+        size="lg" (close)="onFormCancelled()">
+        <app-user-form *ngIf="showUserForm()" [userId]="selectedUserId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-user-form>
+    </app-modal-generic>
 </div>

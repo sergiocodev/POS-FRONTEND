@@ -8,6 +8,7 @@ import { UploadService } from '../../../../core/services/upload.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserRequest } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-user-form',
@@ -28,6 +29,7 @@ export class UserFormComponent implements OnInit {
     private uploadService = inject(UploadService);
     private authService = inject(AuthService);
     private router = inject(Router);
+    private modalService = inject(ModalService);
 
     @Input() set userId(value: number | null) {
         this._userId.set(value);
@@ -48,11 +50,6 @@ export class UserFormComponent implements OnInit {
     isSearching = signal(false);
     imageError = signal(false);
     showPassword = signal(false);
-
-    // Alert State
-    alertMessage = '';
-    alertTitle = '';
-    alertType = 'success';
 
     roles = signal<RoleResponse[]>([]);
     selectedRoles = signal<number[]>([]);
@@ -126,7 +123,11 @@ export class UserFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading user:', error);
-                this.showAlert('Error', 'Error al cargar el usuario', 'danger');
+                this.modalService.alert({
+                    title: 'Error',
+                    message: 'Error al cargar el usuario',
+                    type: 'error'
+                });
                 this.cancel();
             }
         });
@@ -152,7 +153,11 @@ export class UserFormComponent implements OnInit {
     searchDocument() {
         const document = this.userForm.get('document')?.value;
         if (!document) {
-            this.showAlert('Atención', 'Ingrese un número de documento', 'warning');
+            this.modalService.alert({
+                title: 'Atención',
+                message: 'Ingrese un número de documento',
+                type: 'warning'
+            });
             return;
         }
 
@@ -167,11 +172,11 @@ export class UserFormComponent implements OnInit {
                     const fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     this.userForm.patchValue({ fullName: fullName });
                 }
-                this.showAlert('Éxito', 'Datos encontrados', 'success');
+                this.modalService.alert({ title: 'Éxito', message: 'Datos encontrados', type: 'success' });
             },
             error: (error) => {
                 this.isSearching.set(false);
-                this.showAlert('Error', 'No se encontraron datos', 'danger');
+                this.modalService.alert({ title: 'Error', message: 'No se encontraron datos', type: 'error' });
             }
         });
     }
@@ -187,7 +192,7 @@ export class UserFormComponent implements OnInit {
                     this.isSaving.set(false);
                 },
                 error: (err) => {
-                    this.showAlert('Error', 'No se pudo subir la imagen', 'danger');
+                    this.modalService.alert({ title: 'Error', message: 'No se pudo subir la imagen', type: 'error' });
                     this.isSaving.set(false);
                 }
             });
@@ -198,7 +203,7 @@ export class UserFormComponent implements OnInit {
         if (this.userForm.invalid) {
             this.userForm.markAllAsTouched();
             if (this.userForm.get('roleIds')?.invalid) {
-                this.showAlert('Atención', 'Debe seleccionar al menos un rol', 'warning');
+                this.modalService.alert({ title: 'Atención', message: 'Debe seleccionar al menos un rol', type: 'warning' });
             }
             return;
         }
@@ -230,13 +235,17 @@ export class UserFormComponent implements OnInit {
                 if (currentUser && currentUser.id === this.userId) {
                     this.authService.updateCurrentUser({ ...currentUser, ...request, id: currentUser.id });
                 }
-                this.showAlert('Éxito', `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`, 'success');
-                setTimeout(() => this.saved.emit(), 1000); // Pequeño delay para ver la alerta
+                this.modalService.alert({
+                    title: 'Éxito',
+                    message: `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`,
+                    type: 'success'
+                });
+                this.saved.emit();
             },
             error: (error) => {
                 console.error('Error saving user:', error);
                 this.isSaving.set(false);
-                this.showAlert('Error', 'Error al guardar el usuario', 'danger');
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar el usuario', type: 'error' });
             }
         });
     }
@@ -247,17 +256,5 @@ export class UserFormComponent implements OnInit {
 
     get f() {
         return this.userForm.controls;
-    }
-
-    // Alert Helpers
-    showAlert(title: string, message: string, type: string) {
-        this.alertTitle = title;
-        this.alertMessage = message;
-        this.alertType = type;
-        setTimeout(() => this.closeAlert(), 4000);
-    }
-
-    closeAlert() {
-        this.alertMessage = '';
     }
 }

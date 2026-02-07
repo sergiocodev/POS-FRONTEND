@@ -15,10 +15,10 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ProductResponse } from '../../../../core/models/product.model';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { CashSessionResponse } from '../../../../core/models/cash.model';
-import { SaleRequest, PaymentMethod, SaleDocumentType } from '../../../../core/models/sale.model';
+import { SaleRequest, PaymentMethod, SaleDocumentType, ProductForSaleResponse } from '../../../../core/models/sale.model';
 
 interface CartItem {
-    product: ProductResponse;
+    product: ProductForSaleResponse;
     quantity: number;
     price: number;
     total: number;
@@ -42,10 +42,10 @@ export class PosComponent implements OnInit {
     public router = inject(Router);
 
     // Data Signals
-    products = signal<ProductResponse[]>([]);
+    products = signal<ProductForSaleResponse[]>([]);
     customers = signal<CustomerResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
-    filteredProducts = signal<ProductResponse[]>([]);
+    filteredProducts = signal<ProductForSaleResponse[]>([]);
 
     // Cart Signals
     cart = signal<CartItem[]>([]);
@@ -78,9 +78,15 @@ export class PosComponent implements OnInit {
     }
 
     loadInitialData(): void {
+        const establishmentId = this.establishmentStateService.getSelectedEstablishment();
+        if (!establishmentId) {
+            this.showAlert('Error', 'Establecimiento no seleccionado.', 'danger');
+            return;
+        }
+
         this.isLoading.set(true);
         forkJoin({
-            products: this.productService.getAll(),
+            products: this.saleService.listProductsForSale(establishmentId),
             customers: this.customerService.getAll(),
             activeSession: this.cashSessionService.getActiveSession()
         }).subscribe({
@@ -108,15 +114,15 @@ export class PosComponent implements OnInit {
         }
         this.filteredProducts.set(
             this.products().filter(p =>
-                p.name.toLowerCase().includes(term) ||
-                p.code.toLowerCase().includes(term)
+                p.tradeName.toLowerCase().includes(term) ||
+                (p.genericName && p.genericName.toLowerCase().includes(term))
             )
         );
     }
 
-    addToCart(product: ProductResponse): void {
+    addToCart(product: ProductForSaleResponse): void {
         const existing = this.cart().find(item => item.product.id === product.id);
-        const price = 10.0; // TODO: Usar product.price cuando esté disponible en el modelo
+        const price = product.salesPrice;
 
         if (existing) {
             this.cart.update(items => items.map(item =>
@@ -163,7 +169,8 @@ export class PosComponent implements OnInit {
             customerId: this.selectedCustomer()?.id,
             documentType: this.posForm.value.documentType,
             items: this.cart().map(item => ({
-                productId: item.product.id,
+                productId: item.product.productId,
+                lotId: item.product.lotId,
                 quantity: item.quantity,
                 unitPrice: item.price
             })),

@@ -1,28 +1,20 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+
+<app-module-header title="Personal" iconClass="bi bi-people-fill"></app-module-header>
+
 <div class="employees-page animate-fade-in">
-    <app-employees-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
+    <app-employees-list [employees]="employees()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteEmployee($any($event))"
+        (toggleStatus)="onToggleStatus($any($event))">
     </app-employees-list>
 
-    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
-        tabindex="-1" role="dialog" aria-hidden="true" (click)="onFormCancelled()">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" (click)="$event.stopPropagation()">
-            <div class="modal-content">
+    <!-- Modal para Crear/Editar Personal -->
+    <app-modal-generic [isVisible]="displayForm()" [title]="selectedEmployeeId() ? 'Editar Personal' : 'Nuevo Personal'"
+        (close)="onFormCancelled()">
 
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        {{ isEditMode() ? 'Editar Personal' : 'Nuevo Personal' }}
-                    </h5>
-                    <button type="button" class="btn-close" aria-label="Close" (click)="onFormCancelled()"></button>
-                </div>
-
-                <div class="modal-body p-0">
-                    <app-employee-form *ngIf="displayForm()" [employeeId]="selectedEmployeeId()" (saved)="onFormSaved()"
-                        (cancelled)="onFormCancelled()">
-                    </app-employee-form>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div *ngIf="displayForm()" class="modal-backdrop fade show"></div>
+        <app-employee-form *ngIf="displayForm()" [employeeId]="selectedEmployeeId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-employee-form>
+    </app-modal-generic>
 </div>

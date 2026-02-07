@@ -44,4 +44,8 @@ export class ProductService {
     getLots(id: number): Observable<ResponseApi<any[]>> {
         return this.http.get<ResponseApi<any[]>>(`${this.apiUrl}/${id}/lots`);
     }
+
+    updateStatus(id: number, active: boolean): Observable<ResponseApi<void>> {
+        return this.http.patch<ResponseApi<void>>(`${this.apiUrl}/${id}/status`, { active });
+    }
 }

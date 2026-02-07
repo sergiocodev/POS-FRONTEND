@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SaleRequest, SaleResponse, EstablishmentResponse } from '../models/sale.model';
+import { SaleRequest, SaleResponse, EstablishmentResponse, ProductForSaleResponse } from '../models/sale.model';
 import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
@@ -53,5 +53,11 @@ export class SaleService {
 
     getEstablishments(): Observable<ResponseApi<EstablishmentResponse[]>> {
         return this.http.get<ResponseApi<EstablishmentResponse[]>>('/api/v1/establishments');
+    }
+
+    listProductsForSale(establishmentId: number): Observable<ResponseApi<ProductForSaleResponse[]>> {
+        return this.http.get<ResponseApi<ProductForSaleResponse[]>>(`${this.apiUrl}/ListProductsForSale`, {
+            params: { establishmentId: establishmentId.toString() }
+        });
     }
 }

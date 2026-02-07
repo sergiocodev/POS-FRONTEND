@@ -41,11 +41,14 @@ export class CustomerFormComponent implements OnInit {
     activeCustomerId = signal<number | null>(null);
     isSearching = signal<boolean>(false);
     isLoading = signal<boolean>(false);
+    accumulatedPoints = signal<number>(0);
     errorMessage = signal<string>('');
 
     documentTypes = [
         { value: 'DNI', label: 'DNI' },
-        { value: 'RUC', label: 'RUC' }
+        { value: 'RUC', label: 'RUC' },
+        { value: 'PASSPORT', label: 'Pasaporte' },
+        { value: 'CE', label: 'Carnet Ext.' }
     ];
 
     constructor() {
@@ -122,6 +125,8 @@ export class CustomerFormComponent implements OnInit {
                     email: customer.email || '',
                     address: customer.address || ''
                 });
+                this.accumulatedPoints.set(customer.accumulatedPoints || 0);
+
                 // Update validators based on the loaded document
                 this.updateDocumentValidators(customer.documentNumber.length === 11 ? 'RUC' : 'DNI');
 

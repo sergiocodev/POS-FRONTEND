@@ -1,13 +1,4 @@
-<app-module-header title="Personal" iconClass="bi bi-people-fill"></app-module-header>
-
 <div class="employees-container container-fluid py-4 animate-fade-in">
-
-    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
-        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto;">
-        <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-        <strong class="mx-2">{{ alertTitle }}</strong> {{ alertMessage }}
-        <button type="button" class="btn-close" (click)="closeAlert()"></button>
-    </div>
 
     <div class="d-flex justify-content-end align-items-center mb-4">
         <button class="btn btn-primary shadow-sm" (click)="createEmployee()">
@@ -45,7 +36,7 @@
             (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
         </app-custom-table>
 
-        <div *ngIf="isLoading()" class="text-center py-5">
+        <div *ngIf="isLoading" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
@@ -53,35 +44,3 @@
     </div>
 
 </div>
-
-<!-- Modal de Confirmación (Eliminación/Estado) -->
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1"
-    role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom-0">
-                <h5 class="modal-title fw-bold">Confirmar Acción</h5>
-                <button type="button" class="btn-close" (click)="closeModal()"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="mb-0" [innerHTML]="modalMessage"></p>
-            </div>
-            <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-light" (click)="closeModal()">Cancelar</button>
-                <button type="button" class="btn" [ngClass]="modalType === 'delete' ? 'btn-danger' : 'btn-warning'"
-                    (click)="confirmAction()">
-                    {{ modalType === 'delete' ? 'Eliminar' : 'Confirmar' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<div *ngIf="showModal" class="modal-backdrop fade show"></div>
-
-<!-- Modal de Formulario de Empleado -->
-<app-modal-generic [title]="selectedEmployeeId() ? 'Editar Personal' : 'Nuevo Personal'"
-    [isVisible]="showEmployeeModal()" (close)="onEmployeeCancelled()">
-    <app-employee-form *ngIf="showEmployeeModal()" [employeeId]="selectedEmployeeId()" (saved)="onEmployeeSaved()"
-        (cancelled)="onEmployeeCancelled()">
-    </app-employee-form>
-</app-modal-generic>

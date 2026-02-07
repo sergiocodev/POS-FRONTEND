@@ -1,103 +1,47 @@
-<app-module-header title="Gestión de Usuarios" iconClass="bi bi-people-fill"></app-module-header>
+<div class="users-container container-fluid py-4 animate-fade-in position-relative">
 
-<div class="users-container container-fluid animate-fade-in position-relative">
 
-    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
-        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
-        <div class="d-flex align-items-center">
-            <i class="bi"
-                [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-            <div class="ms-2">
-                <strong>{{ alertTitle }}</strong><br>
-                <small>{{ alertMessage }}</small>
-            </div>
-            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
-        </div>
-    </div>
 
-    <div class="d-flex justify-content-end my-3">
+    <div class="d-flex justify-content-end">
         <button class="btn btn-primary" (click)="createUser()">
             <i class="bi bi-plus-lg me-1"></i> Nuevo Usuario
         </button>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Buscar</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0 ps-0 bg-light"
-                            placeholder="Nombre, usuario o email..." [ngModel]="searchTerm()"
-                            (ngModelChange)="onSearchChange($event)">
-                    </div>
-                </div>
+    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Usuario, nombre o email'"
+        [disableClear]="!searchTerm() && selectedRoleFilter() === null && selectedStatusFilter() === null"
+        (clear)="resetFilters()">
 
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Filtrar por Rol</label>
-                    <select class="form-select" [ngModel]="selectedRoleFilter()"
-                        (ngModelChange)="onRoleFilterChange($event)">
-                        <option [ngValue]="null">Todos los roles</option>
-                        <option *ngFor="let role of roles()" [ngValue]="role.id">{{ role.name }}</option>
-                    </select>
-                </div>
+        <div class="w-50">
+            <label class="form-label fw-semibold">Filtrar por Rol</label>
+            <select class="form-select" [ngModel]="selectedRoleFilter()"
+                (ngModelChange)="selectedRoleFilter.set($event)">
+                <option [ngValue]="null">Todos los roles</option>
+                <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
+            </select>
+        </div>
 
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Estado</label>
-                    <select class="form-select" [ngModel]="selectedStatusFilter()"
-                        (ngModelChange)="onStatusFilterChange($event)">
-                        <option [ngValue]="null">Todos</option>
-                        <option [ngValue]="true">Activos</option>
-                        <option [ngValue]="false">Inactivos</option>
-                    </select>
-                </div>
+        <div class="w-50">
+            <label class="form-label fw-semibold">Estado</label>
+            <select class="form-select" [ngModel]="selectedStatusFilter()"
+                (ngModelChange)="selectedStatusFilter.set($event)">
+                <option [ngValue]="null">Todos</option>
+                <option [ngValue]="true">Activos</option>
+                <option [ngValue]="false">Inactivos</option>
+            </select>
+        </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-outline-secondary w-100" (click)="clearFilters()"
-                        [disabled]="!searchTerm() && selectedRoleFilter() === null && selectedStatusFilter() === null">
-                        <i class="bi bi-funnel me-1"></i> Limpiar
-                    </button>
-                </div>
+    </app-table-filter>
+
+    <div class="card border-0 shadow-sm overflow-hidden mb-4">
+        <app-custom-table [columns]="cols" [data]="filteredUsers()" [pageSize]="pageSize"
+            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+        </app-custom-table>
+
+        <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
     </div>
-
-    <app-custom-table [columns]="cols" [data]="filteredUsers()" [pageSize]="pageSize"
-        (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
-    </app-custom-table>
-
-    <div class="modal fade" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmación</h5>
-                    <button type="button" class="btn-close" (click)="closeModal()"></button>
-                </div>
-                <div class="modal-body">
-                    <p [innerHTML]="modalMessage"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-                    <button type="button" class="btn"
-                        [ngClass]="modalActionType === 'delete' ? 'btn-danger' : 'btn-warning'"
-                        (click)="executePendingAction()">
-                        {{ modalActionType === 'delete' ? 'Eliminar' : 'Confirmar' }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div *ngIf="showConfirmModal" class="modal-backdrop fade show"></div>
-
-    <!-- Modal para Crear/Editar Usuario -->
-    <app-modal-generic [isVisible]="showUserModal()" [title]="selectedUserId() ? 'Editar Usuario' : 'Nuevo Usuario'"
-        size="lg" (close)="onUserCancelled()">
-        <app-user-form [userId]="selectedUserId()" (saved)="onUserSaved()" (cancelled)="onUserCancelled()">
-        </app-user-form>
-    </app-modal-generic>
-
 </div>

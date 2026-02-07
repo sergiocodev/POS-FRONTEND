@@ -1,6 +1,6 @@
-<div class="container-fluid py-4">
+<div [ngClass]="isModal ? '' : 'container-fluid py-4'">
 
-    <div class="row mb-4">
+    <div class="row mb-4" *ngIf="!isModal">
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1">
@@ -41,16 +41,27 @@
                                 <div class="invalid-feedback">El código es obligatorio</div>
                             </div>
                             <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Código de Barras</label>
+                                <input type="text" class="form-control" formControlName="barcode" placeholder="775..."
+                                    [class.is-invalid]="productForm.get('barcode')?.touched && productForm.get('barcode')?.invalid">
+                            </div>
+                            <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Código DIGEMID</label>
                                 <input type="text" class="form-control" formControlName="digemidCode"
                                     placeholder="RSA-XXX">
                             </div>
-                            <div class="col-12 text-start">
-                                <label class="form-label fw-semibold">Nombre del Producto <span
+                            <div class="col-md-12 text-start">
+                                <label class="form-label fw-semibold">Nombre Comercial <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="name"
-                                    placeholder="Nombre completo"
-                                    [class.is-invalid]="productForm.get('name')?.touched && productForm.get('name')?.invalid">
+                                <input type="text" class="form-control" formControlName="tradeName"
+                                    placeholder="Nombre comercial (Ej: Aspirina)"
+                                    [class.is-invalid]="productForm.get('tradeName')?.touched && productForm.get('tradeName')?.invalid">
+                                <div class="invalid-feedback">El nombre comercial es obligatorio</div>
+                            </div>
+                            <div class="col-md-12 text-start">
+                                <label class="form-label fw-semibold">Nombre Genérico</label>
+                                <input type="text" class="form-control" formControlName="genericName"
+                                    placeholder="Nombre genérico (Ej: Ácido Acetilsalicílico)">
                             </div>
                             <div class="col-12 text-start">
                                 <label class="form-label fw-semibold">Descripción / Indicaciones</label>
@@ -102,7 +113,38 @@
                                         }}</option>
                                 </select>
                             </div>
+                            <div class="col-md-6 text-start">
+                                <label class="form-label fw-semibold">Forma Farmacéutica <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="pharmaceuticalFormId">
+                                    <option [ngValue]="null">Seleccionar...</option>
+                                    <option *ngFor="let item of pharmaceuticalForms()" [value]="item.id">{{ item.name
+                                        }}</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Acción Terapéutica</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                            <div *ngFor="let item of therapeuticActions()" class="form-check">
+                                <input class="form-check-input" type="checkbox" [id]="'action-' + item.id"
+                                    [checked]="isActionChecked(item.id)" (change)="onActionChange($event, item.id)">
+                                <label class="form-check-label" [for]="'action-' + item.id">
+                                    {{ item.name }}
+                                </label>
+                            </div>
+                            <div *ngIf="therapeuticActions().length === 0" class="text-muted small">
+                                No hay acciones terapéuticas disponibles.
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">Seleccione una o más acciones terapéuticas.</div>
                     </div>
                 </div>
 
@@ -234,7 +276,7 @@
                 </div>
 
 
-                <div class="card shadow-sm border-0 py-3 px-3 position-sticky" style="top: 1rem;">
+                <div class="card shadow-sm border-0 py-3 px-3 position-sticky bg-white" style="top: 1rem; z-index: 10;">
                     <button type="submit" class="btn btn-primary btn-lg w-100 mb-2"
                         [disabled]="isLoading() || productForm.invalid">
                         <span *ngIf="!isLoading()">{{ isEditMode() ? 'Actualizar Producto' : 'Guardar Producto'

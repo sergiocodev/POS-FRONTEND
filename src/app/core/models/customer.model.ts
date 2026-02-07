@@ -22,6 +22,7 @@ export interface CustomerResponse {
     phone?: string;
     email?: string;
     address?: string;
+    accumulatedPoints: number;
     createdAt: Date;
 }
 

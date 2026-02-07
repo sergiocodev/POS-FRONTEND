@@ -201,6 +201,30 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
             },
             {
+                path: 'pharmacy/pharmaceutical-forms',
+                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-list/pharmaceutical-form-list.component').then(m => m.PharmaceuticalFormListComponent)
+            },
+            {
+                path: 'pharmacy/pharmaceutical-forms/new',
+                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-form/pharmaceutical-form-form.component').then(m => m.PharmaceuticalFormFormComponent)
+            },
+            {
+                path: 'pharmacy/pharmaceutical-forms/:id/edit',
+                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-form/pharmaceutical-form-form.component').then(m => m.PharmaceuticalFormFormComponent)
+            },
+            {
+                path: 'pharmacy/therapeutic-actions',
+                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-list/therapeutic-action-list.component').then(m => m.TherapeuticActionListComponent)
+            },
+            {
+                path: 'pharmacy/therapeutic-actions/new',
+                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-form/therapeutic-action-form.component').then(m => m.TherapeuticActionFormComponent)
+            },
+            {
+                path: 'pharmacy/therapeutic-actions/:id/edit',
+                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-form/therapeutic-action-form.component').then(m => m.TherapeuticActionFormComponent)
+            },
+            {
                 path: 'inventory',
                 loadComponent: () => import('./features/inventory/inventory-list/inventory-list.component').then(m => m.InventoryListComponent)
             },

@@ -1,35 +1,20 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+
 <app-module-header title="Establecimientos" iconClass="bi bi-shop"></app-module-header>
 
 <div class="establishments-page animate-fade-in">
-    <app-establishments-list (create)="onOpenForm()" (edit)="onOpenForm($event)">
+    <app-establishments-list [establishments]="establishments()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteEstablishment($event)" (toggleStatus)="onToggleStatus($event)">
     </app-establishments-list>
 
-    <div class="modal fade" [class.show]="displayForm()" [style.display]="displayForm() ? 'block' : 'none'"
-        tabindex="-1" role="dialog" aria-hidden="true" (click)="onFormCancelled()">
+    <!-- Modal para Crear/Editar Establecimiento -->
+    <app-modal-generic [isVisible]="displayForm()"
+        [title]="selectedEstablishmentId() ? 'Editar Establecimiento' : 'Nuevo Establecimiento'"
+        (close)="onFormCancelled()">
 
-        <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-            <div class="modal-content border-0 shadow-lg">
-
-                <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-dark">
-                        {{ isEditMode() ? 'Editar Establecimiento' : 'Nuevo Establecimiento' }}
-                    </h5>
-                    <button type="button" class="btn-close" aria-label="Close" (click)="onFormCancelled()"></button>
-                </div>
-
-                <div class="modal-body p-0">
-                    @if (displayForm()) {
-                    <app-establishment-form [establishmentId]="selectedEstablishmentId()" (saved)="onFormSaved()"
-                        (cancelled)="onFormCancelled()">
-                    </app-establishment-form>
-                    }
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    @if (displayForm()) {
-    <div class="modal-backdrop fade show"></div>
-    }
+        <app-establishment-form *ngIf="displayForm()" [establishmentId]="selectedEstablishmentId()"
+            (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-establishment-form>
+    </app-modal-generic>
 </div>

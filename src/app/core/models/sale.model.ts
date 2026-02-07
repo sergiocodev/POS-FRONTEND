@@ -7,8 +7,10 @@ export enum SaleDocumentType {
 }
 
 export enum SaleStatus {
+    IN_PROGRESS = 'IN_PROGRESS',
     COMPLETED = 'COMPLETED',
-    CANCELED = 'CANCELED'
+    CANCELED = 'CANCELED',
+    VOIDED = 'VOIDED'
 }
 
 export enum SunatStatus {
@@ -43,6 +45,9 @@ export interface SaleItemResponse {
     quantity: number;
     unitPrice: number;
     amount: number;
+    appliedTaxRate: number;
+    discountAmount: number;
+    discountReason?: string;
 }
 
 export interface SalePaymentRequest {
@@ -57,6 +62,23 @@ export interface SalePaymentResponse {
     amount: number;
     reference?: string;
     createdAt: string;
+}
+
+export interface ProductForSaleResponse {
+    id: number;
+    productId: number;
+    tradeName: string;
+    genericName?: string;
+    description: string;
+    presentation: string;
+    concentration: string;
+    category: string;
+    laboratory: string;
+    salesPrice: number;
+    stock: number;
+    expirationDate: string;
+    lotCode: string;
+    lotId: number;
 }
 
 export interface SaleRequest {
@@ -87,10 +109,12 @@ export interface SaleResponse {
     sunatStatus: SunatStatus;
     pdfUrl?: string;
     cdrUrl?: string;
+    sunatResponseJson?: string;
+    sunatErrorCode?: string;
     relatedSaleId?: number;
     noteCode?: string;
     noteReason?: string;
-    isVoided: boolean;
+    voided: boolean;
     voidedAt?: string;
     voidReason?: string;
     items: SaleItemResponse[];

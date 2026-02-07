@@ -79,16 +79,16 @@
                             </td>
                             <td class="text-center">
                                 <span class="fs-6 fw-bold"
-                                    [ngClass]="m.type === 'SALIDA' ? 'text-danger' : 'text-success'">
-                                    {{ m.type === 'SALIDA' ? '-' : '+' }}{{ m.quantity }}
+                                    [ngClass]="isOutput(m.type) ? 'text-danger' : 'text-success'">
+                                    {{ isOutput(m.type) ? '-' : '+' }}{{ m.quantity }}
                                 </span>
                             </td>
                             <td class="pe-4">
                                 <span class="d-block text-truncate" style="max-width: 250px;" [title]="m.reason">
                                     {{ m.reason }}
                                 </span>
-                                <small *ngIf="m.referenceType" class="text-muted">
-                                    {{ m.referenceType }}: #{{ m.referenceId }}
+                                <small *ngIf="m.referenceTable" class="text-muted">
+                                    {{ m.referenceTable }}: #{{ m.referenceId }}
                                 </small>
                             </td>
                         </tr>

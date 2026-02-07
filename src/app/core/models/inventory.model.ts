@@ -1,7 +1,12 @@
 export enum MovementType {
-    ENTRADA = 'ENTRADA',
-    SALIDA = 'SALIDA',
-    AJUSTE = 'AJUSTE'
+    SALE = 'SALE',
+    PURCHASE = 'PURCHASE',
+    ADJUSTMENT_IN = 'ADJUSTMENT_IN',
+    ADJUSTMENT_OUT = 'ADJUSTMENT_OUT',
+    TRANSFER_IN = 'TRANSFER_IN',
+    TRANSFER_OUT = 'TRANSFER_OUT',
+    SALE_RETURN = 'SALE_RETURN',
+    VOID_RETURN = 'VOID_RETURN'
 }
 
 export enum ReferenceType {
@@ -34,7 +39,7 @@ export interface InventoryRequest {
     quantity: number;
     costPrice?: number;
     salesPrice?: number;
-    movementType?: string; 
+    movementType?: string;
     notes?: string;
 }
 
@@ -46,6 +51,9 @@ export interface InventoryResponse {
     lotCode: string;
     productName: string;
     quantity: number;
+    minStock?: number;
+    maxStock?: number;
+    locationShelf?: string;
     costPrice: number;
     salesPrice: number;
     lastMovement: string;
@@ -71,7 +79,9 @@ export interface StockMovementResponse {
     type: MovementType;
     quantity: number;
     reason: string;
+    balanceAfter: number;
+    referenceTable?: string;
     referenceId?: number;
-    referenceType?: ReferenceType;
+    userName?: string;
     createdAt: string;
 }

@@ -43,7 +43,7 @@ export class SessionListComponent implements OnInit {
 
         this.isLoading.set(true);
 
-        this.cashService.getHistory(userId).subscribe({
+        this.cashService.getAllSessions().subscribe({
             next: (response) => {
                 this.sessions.set(response.data);
                 this.applyFilter();

@@ -1,33 +1,28 @@
-import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentResponse } from '../../../../core/models/maintenance.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { EstablishmentFormComponent } from '../establishment-form/establishment-form.component';
 
 @Component({
     selector: 'app-establishments-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        CustomTableComponent,
-        ModalGenericComponent,
-        EstablishmentFormComponent
+        CustomTableComponent
     ],
     templateUrl: './establishments-list.component.html',
     styleUrl: './establishments-list.component.scss'
 })
-export class EstablishmentsListComponent implements OnInit {
-    private establishmentService = inject(EstablishmentService);
-    private router = inject(Router);
+export class EstablishmentsListComponent implements OnInit, OnChanges {
+    @Input() establishments: EstablishmentResponse[] = [];
+    @Input() isLoading = false;
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<EstablishmentResponse>();
+    @Output() toggleStatus = new EventEmitter<EstablishmentResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -39,55 +34,36 @@ export class EstablishmentsListComponent implements OnInit {
     ];
 
     // Data Signals
-    establishments = signal<EstablishmentResponse[]>([]);
+    localEstablishments = signal<EstablishmentResponse[]>([]);
     filteredEstablishments = signal<EstablishmentResponse[]>([]);
-    isLoading = signal(false);
 
     // Filtros
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Modal de Formulario de Establecimiento
-    showEstablishmentModal = signal(false);
-    selectedEstablishmentId = signal<number | null>(null);
-
-    // Pagination & Sorting (Handled by CustomTable)
     pageSize = 10;
 
-    // Modal & Alerts
-    showConfirmModal = false;
-    modalMessage = '';
-    modalActionType: 'delete' | 'status' = 'status';
-    pendingAction: (() => void) | null = null;
-
-    alertMessage = '';
-    alertTitle = '';
-    alertType = 'success';
+    constructor() { }
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        this.establishmentService.getAll().subscribe({
-            next: (response) => {
-                this.establishments.set(response.data);
-                this.applyFilters();
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading establishments:', error);
-                this.showAlert('Error', 'No se pudieron cargar los datos', 'danger');
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['establishments']) {
+            this.updateLocalData();
+        }
+    }
+
+    updateLocalData() {
+        this.localEstablishments.set(this.establishments);
+        this.applyFilters();
     }
 
     // --- Filter Logic ---
 
     applyFilters() {
-        let filtered = this.establishments();
+        let filtered = this.localEstablishments();
         const search = this.searchTerm().toLowerCase();
 
         if (search) {
@@ -111,7 +87,10 @@ export class EstablishmentsListComponent implements OnInit {
     }
 
     onStatusFilterChange(event: any) {
-        const value = event === 'true' ? true : event === 'false' ? false : null;
+        let value: boolean | null = null;
+        if (event === 'true' || event === true) value = true;
+        else if (event === 'false' || event === false) value = false;
+
         this.selectedStatusFilter.set(value);
         this.applyFilters();
     }
@@ -120,104 +99,21 @@ export class EstablishmentsListComponent implements OnInit {
 
     handleTableAction(e: { action: string, row: EstablishmentResponse }) {
         if (e.action === 'edit') {
-            this.editEstablishment(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.confirmDelete(e.row);
+            this.delete.emit(e.row);
         }
     }
 
     handleStatusToggle(e: { row: EstablishmentResponse, key: string, checked: boolean }) {
-        this.confirmToggleStatus(e.row);
+        this.toggleStatus.emit(e.row);
     }
 
     createEstablishment() {
-        this.selectedEstablishmentId.set(null);
-        this.showEstablishmentModal.set(true);
+        this.create.emit();
     }
 
-    editEstablishment(id: number) {
-        this.selectedEstablishmentId.set(id);
-        this.showEstablishmentModal.set(true);
-    }
 
-    onEstablishmentSaved() {
-        this.showEstablishmentModal.set(false);
-        this.loadData();
-    }
-
-    onEstablishmentCancelled() {
-        this.showEstablishmentModal.set(false);
-    }
-
-    // --- Modal Logic ---
-
-    confirmToggleStatus(est: EstablishmentResponse) {
-        this.modalActionType = 'status';
-        this.modalMessage = `¿Está seguro de ${est.active ? 'desactivar' : 'activar'} el establecimiento <b>${est.name}</b>?`;
-        this.showConfirmModal = true;
-
-        this.pendingAction = () => {
-            const request = {
-                name: est.name,
-                address: est.address,
-                codeSunat: est.codeSunat,
-                active: !est.active
-            };
-
-            this.establishmentService.update(est.id, request).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.showAlert('Éxito', `Establecimiento ${est.active ? 'desactivado' : 'activado'} correctamente`, 'success');
-                },
-                error: (error) => {
-                    console.error('Error toggling status:', error);
-                    this.showAlert('Error', 'No se pudo cambiar el estado', 'danger');
-                }
-            });
-        };
-    }
-
-    confirmDelete(est: EstablishmentResponse) {
-        this.modalActionType = 'delete';
-        this.modalMessage = `¿Está seguro de eliminar el establecimiento <b>${est.name}</b>? Esta acción no se puede deshacer.`;
-        this.showConfirmModal = true;
-
-        this.pendingAction = () => {
-            this.establishmentService.delete(est.id).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.showAlert('Eliminado', 'Establecimiento eliminado correctamente', 'success');
-                },
-                error: (error) => {
-                    console.error('Error deleting establishment:', error);
-                    this.showAlert('Error', 'No se pudo eliminar el establecimiento', 'danger');
-                }
-            });
-        };
-    }
-
-    closeModal() {
-        this.showConfirmModal = false;
-        this.pendingAction = null;
-    }
-
-    executePendingAction() {
-        if (this.pendingAction) this.pendingAction();
-        this.closeModal();
-    }
-
-    // --- Alert Logic ---
-
-    showAlert(title: string, message: string, type: string) {
-        this.alertTitle = title;
-        this.alertMessage = message;
-        this.alertType = type;
-        setTimeout(() => this.closeAlert(), 3000);
-    }
-
-    closeAlert() {
-        this.alertMessage = '';
-    }
 
     trackById(index: number, est: EstablishmentResponse): number {
         return est.id;

@@ -1,0 +1,31 @@
+<div class="modal-backdrop fade show" *ngIf="modalService.isVisible"></div>
+
+<div class="modal fade" [class.show]="modalService.isVisible"
+    [style.display]="modalService.isVisible ? 'block' : 'none'" tabindex="-1" role="dialog">
+
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">{{ modalService.config.title }}</h5>
+                <button type="button" class="btn-close" (click)="onAction(false)"></button>
+            </div>
+
+            <div class="modal-body">
+                <p [innerHTML]="modalService.config.message"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="onAction(false)">
+                    {{ modalService.config.cancelText || 'Cancelar' }}
+                </button>
+
+                <button type="button" class="btn" [ngClass]="'btn-' + (modalService.config.btnColor || 'primary')"
+                    (click)="onAction(true)">
+                    {{ modalService.config.confirmText || 'Confirmar' }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

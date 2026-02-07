@@ -9,6 +9,8 @@ import {
     TaxTypeResponse,
     ActiveIngredientResponse
 } from '../models/product.model';
+import { PharmaceuticalFormResponse } from '../models/pharmaceutical-form.model';
+import { TherapeuticActionResponse } from '../models/therapeutic-action.model';
 import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
@@ -111,5 +113,37 @@ export class MaintenanceService {
 
     deleteActiveIngredient(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`/api/v1/active-ingredients/${id}`);
+    }
+
+    getPharmaceuticalForms(): Observable<ResponseApi<PharmaceuticalFormResponse[]>> {
+        return this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms');
+    }
+
+    createPharmaceuticalForm(name: string, description?: string, active: boolean = true): Observable<ResponseApi<PharmaceuticalFormResponse>> {
+        return this.http.post<ResponseApi<PharmaceuticalFormResponse>>('/api/v1/pharmaceutical-forms', { name, description, active });
+    }
+
+    updatePharmaceuticalForm(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<PharmaceuticalFormResponse>> {
+        return this.http.put<ResponseApi<PharmaceuticalFormResponse>>(`/api/v1/pharmaceutical-forms/${id}`, { name, description, active });
+    }
+
+    getTherapeuticActions(): Observable<ResponseApi<TherapeuticActionResponse[]>> {
+        return this.http.get<ResponseApi<TherapeuticActionResponse[]>>('/api/v1/therapeutic-actions');
+    }
+
+    createTherapeuticAction(name: string, description?: string, active: boolean = true): Observable<ResponseApi<TherapeuticActionResponse>> {
+        return this.http.post<ResponseApi<TherapeuticActionResponse>>('/api/v1/therapeutic-actions', { name, description, active });
+    }
+
+    updateTherapeuticAction(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<TherapeuticActionResponse>> {
+        return this.http.put<ResponseApi<TherapeuticActionResponse>>(`/api/v1/therapeutic-actions/${id}`, { name, description, active });
+    }
+
+    deleteTherapeuticAction(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/therapeutic-actions/${id}`);
+    }
+
+    deletePharmaceuticalForm(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/pharmaceutical-forms/${id}`);
     }
 }

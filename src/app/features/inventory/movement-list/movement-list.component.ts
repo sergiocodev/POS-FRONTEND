@@ -75,13 +75,29 @@ export class MovementListComponent implements OnInit {
         this.applyFilters();
     }
 
-    getTypeClass(type: string): string {
+    getTypeClass(type: MovementType): string {
         switch (type) {
-            case 'ENTRADA': return 'bg-success';
-            case 'SALIDA': return 'bg-danger';
-            case 'AJUSTE': return 'bg-warning text-dark';
+            case MovementType.PURCHASE:
+            case MovementType.ADJUSTMENT_IN:
+            case MovementType.TRANSFER_IN:
+            case MovementType.SALE_RETURN:
+                return 'bg-success';
+            case MovementType.SALE:
+            case MovementType.ADJUSTMENT_OUT:
+            case MovementType.TRANSFER_OUT:
+            case MovementType.VOID_RETURN:
+                return 'bg-danger';
             default: return 'bg-info';
         }
+    }
+
+    isOutput(type: MovementType): boolean {
+        return [
+            MovementType.SALE,
+            MovementType.ADJUSTMENT_OUT,
+            MovementType.TRANSFER_OUT,
+            MovementType.VOID_RETURN
+        ].includes(type);
     }
 
     trackById(index: number, item: StockMovementResponse) {

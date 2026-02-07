@@ -1,41 +1,37 @@
-import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, effect, OnChanges, SimpleChanges } from '@angular/core';
+import { TableFilterComponent } from '../../../../shared/components/table-filter/table-filter.component';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../../../core/services/user.service';
-import { RoleService } from '../../../../core/services/role.service';
 import { UserResponse } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
 import { DatePipe } from '@angular/common';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { UserFormComponent } from '../user-form/user-form.component';
 
 @Component({
     selector: 'app-users-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        ModuleHeaderComponent,
         CustomTableComponent,
-        ModalGenericComponent,
-        UserFormComponent
+        TableFilterComponent
     ],
     providers: [DatePipe],
     templateUrl: './users-list.component.html',
     styleUrl: './users-list.component.scss'
 })
-export class UsersListComponent implements OnInit {
-    private userService = inject(UserService);
-    private roleService = inject(RoleService);
+export class UsersListComponent implements OnInit, OnChanges {
     private datePipe = inject(DatePipe);
+
+    @Input() users: UserResponse[] = [];
+    @Input() roles: RoleResponse[] = [];
+    @Input() isLoading = false;
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<UserResponse>();
+    @Output() toggleStatus = new EventEmitter<UserResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -49,11 +45,9 @@ export class UsersListComponent implements OnInit {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    // Datos
-    users = signal<UserResponse[]>([]);
+    // Datos Locales y Filtrados
+    localUsers = signal<UserResponse[]>([]);
     filteredUsers = signal<UserResponse[]>([]);
-    roles = signal<RoleResponse[]>([]);
-    isLoading = signal(false);
 
     // Filtros
     searchTerm = signal('');
@@ -63,51 +57,31 @@ export class UsersListComponent implements OnInit {
     currentPage = 1;
     pageSize = 10;
 
-    // Modal y Alertas (Reemplazo de PrimeNG)
-    showConfirmModal = false;
-    modalMessage = '';
-    modalActionType: 'delete' | 'status' = 'status';
-    pendingAction: (() => void) | null = null;
 
-    alertMessage = '';
-    alertTitle = '';
-    alertType = 'success';
 
-    // Modal de Formulario de Usuario
-    showUserModal = signal(false);
-    selectedUserId = signal<number | null>(null);
+    constructor() { }
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        // Cargar Roles
-        this.roleService.getAll().subscribe({
-            next: (response) => this.roles.set(response.data),
-            error: (err) => console.error(err)
-        });
-
-        // Cargar Usuarios
-        this.userService.getAll().subscribe({
-            next: (response) => {
-                this.users.set(response.data);
-                this.applyFilters();
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading users:', error);
-                this.showAlert('Error', 'No se pudieron cargar los usuarios', 'danger');
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['users']) {
+            this.updateLocalData();
+        }
     }
+
+    updateLocalData() {
+        this.localUsers.set(this.users);
+        this.applyFilters();
+    }
+
+    // No loadData() anymore
 
     // --- Lógica de Filtrado ---
 
     applyFilters() {
-        let filtered = this.users();
+        let filtered = this.localUsers();
         const search = this.searchTerm().toLowerCase();
 
         // Filtro Texto
@@ -121,9 +95,10 @@ export class UsersListComponent implements OnInit {
 
         // Filtro Rol
         if (this.selectedRoleFilter() !== null) {
-            filtered = filtered.filter(user =>
-                user.roles.some(role => role.id === this.selectedRoleFilter())
-            );
+            const role = this.roles.find(r => r.id === this.selectedRoleFilter());
+            if (role) {
+                filtered = filtered.filter(user => user.roles.some(r => r.name === role.name));
+            }
         }
 
         // Filtro Estado
@@ -157,110 +132,37 @@ export class UsersListComponent implements OnInit {
         this.applyFilters();
     }
 
-    clearFilters() {
-        this.searchTerm.set('');
+    resetFilters() {
         this.selectedRoleFilter.set(null);
         this.selectedStatusFilter.set(null);
-        this.applyFilters();
+        // searchTerm se limpia via model() en el TableFilterComponent
     }
 
     // --- Acciones de la Tabla ---
 
     handleTableAction(e: { action: string, row: UserResponse }) {
         if (e.action === 'edit') {
-            this.editUser(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.confirmDelete(e.row);
+            this.delete.emit(e.row);
         }
     }
 
     handleStatusToggle(e: { row: UserResponse, key: string, checked: boolean }) {
-        this.confirmToggleStatus(e.row);
+        this.toggleStatus.emit(e.row);
+        // Optimistic toggle reversion to wait for parent reload
+        e.row.active = !e.checked;
     }
 
     // --- Acciones ---
 
     createUser() {
-        this.selectedUserId.set(null);
-        this.showUserModal.set(true);
+        this.create.emit();
     }
 
-    editUser(id: number) {
-        this.selectedUserId.set(id);
-        this.showUserModal.set(true);
-    }
 
-    onUserSaved() {
-        this.showUserModal.set(false);
-        this.loadData();
-    }
-
-    onUserCancelled() {
-        this.showUserModal.set(false);
-    }
-
-    // --- Modal y Alertas (Reemplazo de ConfirmationService) ---
-
-    confirmToggleStatus(user: UserResponse) {
-        this.modalActionType = 'status';
-        this.modalMessage = `¿Está seguro de <b>${user.active ? 'desactivar' : 'activar'}</b> al usuario ${user.username}?`;
-        this.showConfirmModal = true;
-
-        this.pendingAction = () => {
-            this.userService.toggleActive(user.id).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.showAlert('Éxito', `Usuario ${user.active ? 'desactivado' : 'activado'} correctamente`, 'success');
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.showAlert('Error', 'No se pudo cambiar el estado', 'danger');
-                }
-            });
-        };
-    }
-
-    confirmDelete(user: UserResponse) {
-        this.modalActionType = 'delete';
-        this.modalMessage = `¿Está seguro de eliminar al usuario <b>${user.username}</b>? Esta acción no se puede deshacer.`;
-        this.showConfirmModal = true;
-
-        this.pendingAction = () => {
-            this.userService.delete(user.id).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.showAlert('Eliminado', 'Usuario eliminado correctamente', 'success');
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.showAlert('Error', 'Error al eliminar el usuario', 'danger');
-                }
-            });
-        };
-    }
-
-    closeModal() {
-        this.showConfirmModal = false;
-        this.pendingAction = null;
-    }
-
-    executePendingAction() {
-        if (this.pendingAction) this.pendingAction();
-        this.closeModal();
-    }
 
     // --- Helpers de UI ---
-
-    showAlert(title: string, message: string, type: string) {
-        this.alertTitle = title;
-        this.alertMessage = message;
-        this.alertType = type;
-        setTimeout(() => this.closeAlert(), 3000);
-    }
-
-    closeAlert() {
-        this.alertMessage = '';
-    }
 
     trackByUserId(index: number, user: UserResponse): number {
         return user.id;

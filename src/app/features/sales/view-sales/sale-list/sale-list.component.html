@@ -88,7 +88,8 @@
                             </td>
                             <td class="text-center">
                                 <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(sale.status)">
-                                    {{ sale.status === 'COMPLETED' ? 'Completada' : 'Anulada' }}
+                                    {{ sale.status === 'COMPLETED' ? 'Completada' : (sale.status === 'VOIDED' ?
+                                    'Anulada' : sale.status) }}
                                 </span>
                             </td>
                             <td class="text-center">

@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EstablishmentService } from '../../../../core/services/establishment.service';
 import { EstablishmentRequest } from '../../../../core/models/maintenance.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-establishment-form',
@@ -20,6 +21,7 @@ import { EstablishmentRequest } from '../../../../core/models/maintenance.model'
 export class EstablishmentFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private establishmentService = inject(EstablishmentService);
+    private modalService = inject(ModalService);
 
     // Eliminados Router y ActivatedRoute si no se usan explícitamente en el código lógico, 
     // pero los dejo por si los necesitas para navegación futura.
@@ -82,9 +84,13 @@ export class EstablishmentFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading establishment:', error);
+                this.modalService.alert({
+                    title: 'Error',
+                    message: 'No se pudo cargar la información del establecimiento',
+                    type: 'error'
+                });
                 this.isLoading.set(false);
-                // Opcional: Emitir cancelación si falla la carga
-                // this.cancelled.emit(); 
+                this.cancelled.emit();
             }
         });
     }
@@ -117,7 +123,11 @@ export class EstablishmentFormComponent implements OnInit {
             error: (error) => {
                 console.error('Error saving establishment:', error);
                 this.isSaving.set(false);
-                // Aquí podrías agregar una lógica de alerta visual si lo deseas
+                this.modalService.alert({
+                    title: 'Error',
+                    message: 'No se pudo guardar el establecimiento',
+                    type: 'error'
+                });
             }
         });
     }

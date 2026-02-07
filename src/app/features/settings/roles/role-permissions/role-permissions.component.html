@@ -1,17 +1,4 @@
-<div class="role-permissions-container container-fluid animate-fade-in position-relative">
-
-    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
-        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1060; max-width: 400px; left: auto; right: 20px;">
-        <div class="d-flex align-items-center">
-            <i class="bi"
-                [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-            <div class="ms-2">
-                <strong>{{ alertTitle }}</strong><br>
-                <small>{{ alertMessage }}</small>
-            </div>
-            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
-        </div>
-    </div>
+<div class="role-permissions-container container-fluid py-4 animate-fade-in">
 
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
         <div>

@@ -21,7 +21,7 @@
     </div>
 
     <form [formGroup]="purchaseForm" (ngSubmit)="onSubmit()">
-        
+
         <div class="card shadow-sm border-0 rounded-3 mb-4">
             <div class="card-header bg-white border-bottom py-3">
                 <h5 class="card-title h6 fw-bold mb-0">Información del Documento</h5>
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        
+
         <div class="card shadow-sm border-0 rounded-3 mb-4">
             <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                 <h5 class="card-title h6 fw-bold mb-0">Detalle de Productos (Ingreso a Almacén)</h5>
@@ -109,7 +109,7 @@
                                     <select class="form-select form-select-sm border-0 bg-transparent fw-bold"
                                         formControlName="productId">
                                         <option [ngValue]="null">Seleccione...</option>
-                                        <option *ngFor="let p of products()" [value]="p.id">{{ p.name }}</option>
+                                        <option *ngFor="let p of products()" [value]="p.id">{{ p.tradeName }}</option>
                                     </select>
                                 </td>
                                 <td>
@@ -166,7 +166,7 @@
             </div>
         </div>
 
-        
+
         <div class="d-flex justify-content-end gap-3 mb-5" *ngIf="!isEditMode()">
             <button type="button" class="btn btn-light px-4" routerLink="/purchases">Cancelar</button>
             <button type="submit" class="btn btn-primary px-5 fw-bold" [disabled]="isLoading() || purchaseForm.invalid">

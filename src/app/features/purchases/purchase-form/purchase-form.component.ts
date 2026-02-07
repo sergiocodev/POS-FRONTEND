@@ -110,7 +110,7 @@ export class PurchaseFormComponent implements OnInit {
 
                 this.items.clear();
                 purchase.items.forEach(item => {
-                    const product = this.products().find(p => p.name === item.productName);
+                    const product = this.products().find(p => p.tradeName === item.productName);
                     this.items.push(this.fb.group({
                         productId: [product?.id, Validators.required],
                         lotCode: [item.lotCode, Validators.required],

@@ -7,6 +7,7 @@ import { EmployeeService } from '../../../../core/services/employee.service';
 import { EmployeeRequest } from '../../../../core/models/employee.model';
 import { UserService } from '../../../../core/services/user.service';
 import { UserResponse } from '../../../../core/models/user.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-employee-form',
@@ -24,6 +25,7 @@ export class EmployeeFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private employeeService = inject(EmployeeService);
     private userService = inject(UserService);
+    private modalService = inject(ModalService);
 
     @Input() set employeeId(value: number | null) {
         this._employeeId.set(value);
@@ -98,7 +100,11 @@ export class EmployeeFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading employee:', error);
-                alert('Error al cargar el empleado');
+                this.modalService.alert({
+                    title: 'Error',
+                    message: 'No se pudo cargar la información del empleado',
+                    type: 'error'
+                });
                 this.cancelled.emit();
             }
         });
@@ -134,7 +140,11 @@ export class EmployeeFormComponent implements OnInit {
             error: (error) => {
                 console.error('Error saving employee:', error);
                 this.isSaving.set(false);
-                alert('Error al guardar el empleado');
+                this.modalService.alert({
+                    title: 'Error',
+                    message: 'No se pudo guardar la información del empleado',
+                    type: 'error'
+                });
             }
         });
     }

@@ -49,14 +49,17 @@ export interface ProductIngredientResponse {
 
 export interface ProductRequest {
     code: string;
+    barcode?: string;
     digemidCode?: string;
-    name: string;
+    tradeName: string;
+    genericName?: string;
     description?: string;
     brandId: number;
     categoryId: number;
     laboratoryId: number;
     presentationId: number;
     taxTypeId: number;
+    pharmaceuticalFormId: number;
     requiresPrescription: boolean;
     isGeneric: boolean;
     unitType: string;
@@ -65,18 +68,22 @@ export interface ProductRequest {
     active: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientRequest[];
+    therapeuticActionIds?: number[];
 }
 
 export interface ProductResponse {
     id: number;
     code: string;
+    barcode?: string;
     digemidCode?: string;
-    name: string;
+    tradeName: string;
+    genericName?: string;
     description?: string;
     brandName?: string;
     categoryName?: string;
     laboratoryName?: string;
     presentationDescription?: string;
+    pharmaceuticalFormName?: string;
     taxTypeName?: string;
     requiresPrescription: boolean;
     isGeneric: boolean;
@@ -86,4 +93,6 @@ export interface ProductResponse {
     active: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientResponse[];
+    therapeuticActionNames?: string[];
+    therapeuticActionIds?: number[];
 }

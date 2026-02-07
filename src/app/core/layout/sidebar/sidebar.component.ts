@@ -126,7 +126,9 @@ export class SidebarComponent {
                 { label: 'Laboratorios', route: '/pharmacy/labs', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
                 { label: 'Marcas', route: '/pharmacy/brands', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
                 { label: 'Categorias', route: '/pharmacy/categories', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Presentaciones', route: '/pharmacy/presentations', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] }
+                { label: 'Presentaciones', route: '/pharmacy/presentations', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
+                { label: 'Formas farmacéuticas', route: '/pharmacy/pharmaceutical-forms', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
+                { label: 'Acciones terapéuticas', route: '/pharmacy/therapeutic-actions', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] }
             ]
         },
         {

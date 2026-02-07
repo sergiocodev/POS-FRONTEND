@@ -1,11 +1,4 @@
-<div class="user-form-container container fade-in">
-
-    <div *ngIf="alertMessage" class="alert alert-dismissible fade show fixed-top m-3 shadow"
-        [ngClass]="'alert-' + alertType" role="alert" style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
-        <i class="bi" [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-        <strong class="mx-2">{{ alertTitle }}</strong> {{ alertMessage }}
-        <button type="button" class="btn-close" (click)="closeAlert()"></button>
-    </div>
+<div class="user-form animate-fade-in p-4">
 
     <div *ngIf="isLoading()" class="d-flex justify-content-center py-5">
         <div class="spinner-border text-primary" role="status">

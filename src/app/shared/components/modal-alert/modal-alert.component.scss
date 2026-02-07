@@ -1,0 +1,21 @@
+// Aseguramos que el modal tenga un índice Z muy alto para estar sobre todo
+:host {
+    z-index: 1060;
+    position: relative;
+}
+
+.modal-content {
+    // Fuerza bordes muy redondeados (más que el estándar de Bootstrap)
+    border-radius: 1.5rem !important;
+}
+
+// Ajuste opcional para el botón azul para que coincida exactamente con el tono de la imagen si el 'primary' de tu tema es diferente
+.btn-primary {
+    background-color: #0099ff; // Tono azul brillante de la imagen
+    border-color: #0099ff;
+
+    &:hover {
+        background-color: #007acc;
+        border-color: #007acc;
+    }
+}

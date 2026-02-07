@@ -25,7 +25,7 @@ export class StockMovementListComponent implements OnInit {
         return this.movements().filter(m =>
             m.productName.toLowerCase().includes(term) ||
             (m.lotCode && m.lotCode.toLowerCase().includes(term)) ||
-            m.reason.toLowerCase().includes(term)
+            (m.referenceTable && m.referenceTable.toLowerCase().includes(term))
         );
     });
 
@@ -49,18 +49,28 @@ export class StockMovementListComponent implements OnInit {
 
     getMovementBadgeClass(type: MovementType): string {
         switch (type) {
-            case 'ENTRADA': return 'bg-success-subtle text-success border border-success';
-            case 'SALIDA': return 'bg-danger-subtle text-danger border border-danger';
-            case 'AJUSTE': return 'bg-warning-subtle text-warning-emphasis border border-warning';
-            default: return 'bg-secondary';
+            case 'PURCHASE':
+            case 'ADJUSTMENT_IN':
+            case 'TRANSFER_IN':
+            case 'SALE_RETURN': return 'bg-success-subtle text-success border border-success';
+            case 'SALE':
+            case 'ADJUSTMENT_OUT':
+            case 'TRANSFER_OUT':
+            case 'VOID_RETURN': return 'bg-danger-subtle text-danger border border-danger';
+            default: return 'bg-secondary-subtle text-secondary';
         }
     }
 
     getMovementIcon(type: MovementType): string {
         switch (type) {
-            case 'ENTRADA': return 'bi-arrow-down-left-circle-fill';
-            case 'SALIDA': return 'bi-arrow-up-right-circle-fill';
-            case 'AJUSTE': return 'bi-sliders';
+            case 'PURCHASE':
+            case 'ADJUSTMENT_IN':
+            case 'TRANSFER_IN':
+            case 'SALE_RETURN': return 'bi-arrow-down-left-circle-fill';
+            case 'SALE':
+            case 'ADJUSTMENT_OUT':
+            case 'TRANSFER_OUT':
+            case 'VOID_RETURN': return 'bi-arrow-up-right-circle-fill';
             default: return 'bi-dot';
         }
     }

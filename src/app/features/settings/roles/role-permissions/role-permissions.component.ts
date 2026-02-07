@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../../core/services/role.service';
 import { PermissionService } from '../../../../core/services/permission.service';
 import { RoleDetailResponse, PermissionResponse } from '../../../../core/models/maintenance.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-role-permissions',
@@ -23,6 +24,13 @@ export class RolePermissionsComponent implements OnInit {
     private permissionService = inject(PermissionService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
+
+    // Inputs/Outputs for Modal Mode
+    @Input() roleId: number | null = null;
+    @Input() roleName: string = '';
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
 
     role = signal<RoleDetailResponse | null>(null);
     groupedPermissions = signal<{ [module: string]: PermissionResponse[] }>({});
@@ -35,15 +43,11 @@ export class RolePermissionsComponent implements OnInit {
     searchTerm = signal('');
     selectedModule = signal<string>('');
 
-    // Estado para Alertas
-    alertMessage = '';
-    alertTitle = '';
-    alertType = 'success';
-
     ngOnInit() {
-        const roleId = this.route.snapshot.paramMap.get('id');
-        if (roleId) {
-            this.loadData(+roleId);
+        // Prioritize Input roleId (Modal mode), otherwise check route (Page mode)
+        const id = this.roleId || Number(this.route.snapshot.paramMap.get('id'));
+        if (id) {
+            this.loadData(id);
         }
     }
 
@@ -59,8 +63,10 @@ export class RolePermissionsComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading role:', error);
-                this.showAlert('Error', 'No se pudo cargar el rol', 'danger');
-                setTimeout(() => this.router.navigate(['/settings/roles']), 2000);
+                this.modalService.alert({ title: 'Error', message: 'No se pudo cargar el rol', type: 'error' });
+                if (!this.roleId) { // Only navigate if not in modal mode
+                    setTimeout(() => this.router.navigate(['/settings/roles']), 2000);
+                }
             }
         });
 
@@ -74,7 +80,7 @@ export class RolePermissionsComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading permissions:', error);
-                this.showAlert('Error', 'No se pudieron cargar los permisos', 'danger');
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los permisos', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -150,30 +156,29 @@ export class RolePermissionsComponent implements OnInit {
         this.roleService.replacePermissions(roleId, request).subscribe({
             next: () => {
                 this.isSaving.set(false);
-                this.showAlert('Éxito', 'Permisos actualizados correctamente', 'success');
-                setTimeout(() => this.router.navigate(['/settings/roles']), 1500);
+                this.modalService.alert({ title: 'Éxito', message: 'Permisos actualizados correctamente', type: 'success' });
+
+                if (this.roleId) {
+                    // Modal Mode
+                    setTimeout(() => this.saved.emit(), 1500);
+                } else {
+                    // Page Mode
+                    setTimeout(() => this.router.navigate(['/settings/roles']), 1500);
+                }
             },
             error: (error) => {
                 console.error('Error updating permissions:', error);
                 this.isSaving.set(false);
-                this.showAlert('Error', 'Ocurrió un error al guardar', 'danger');
+                this.modalService.alert({ title: 'Error', message: 'Ocurrió un error al guardar', type: 'error' });
             }
         });
     }
 
     cancel() {
-        this.router.navigate(['/settings/roles']);
-    }
-
-    // Helpers UI
-    showAlert(title: string, message: string, type: string) {
-        this.alertTitle = title;
-        this.alertMessage = message;
-        this.alertType = type;
-        setTimeout(() => this.closeAlert(), 3000);
-    }
-
-    closeAlert() {
-        this.alertMessage = '';
+        if (this.roleId) {
+            this.cancelled.emit();
+        } else {
+            this.router.navigate(['/settings/roles']);
+        }
     }
 }

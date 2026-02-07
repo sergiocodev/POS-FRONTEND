@@ -1,0 +1,24 @@
+<div class="card h-100 shadow-sm">
+
+    <img *ngIf="imgUrl" [src]="imgUrl" [alt]="imgAlt" class="card-img-top"
+        style="object-fit: cover; max-height: 200px;">
+
+    <div class="card-header" [ngClass]="headerClass" *ngIf="title">
+        <h5 class="mb-0">{{ title }}</h5>
+    </div>
+
+    <div class="card-body" [ngClass]="bodyClass">
+        <h6 class="card-subtitle mb-2 text-muted" *ngIf="subtitle">
+            {{ subtitle }}
+        </h6>
+
+        <div class="card-text">
+            <ng-content></ng-content>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent border-top-0">
+        <ng-content select="[card-footer]"></ng-content>
+    </div>
+
+</div>

@@ -19,6 +19,11 @@
                 {{ isEditMode() ? 'Actualiza la información del cliente' : 'Completa el formulario para registrar un
                 nuevo cliente' }}
             </p>
+            <div *ngIf="isEditMode()" class="mt-2">
+                <span class="badge bg-primary rounded-pill px-3 py-2">
+                    <i class="bi bi-star-fill me-1"></i> Puntos Acumulados: {{ accumulatedPoints() }}
+                </span>
+            </div>
         </div>
     </div>
 
