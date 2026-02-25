@@ -1,9 +1,8 @@
-
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 import { TherapeuticActionRequest } from '../../../../core/models/therapeutic-action.model';
 
 @Component({
@@ -13,20 +12,12 @@ import { TherapeuticActionRequest } from '../../../../core/models/therapeutic-ac
     templateUrl: './therapeutic-action-form.component.html',
     styleUrl: './therapeutic-action-form.component.scss'
 })
-export class TherapeuticActionFormComponent implements OnInit {
+export class TherapeuticActionFormComponent implements OnInit, OnChanges {
     private fb = inject(FormBuilder);
     private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
-    @Input() set formId(value: number | null) {
-        this._formId.set(value);
-        this.checkEditModeFromInput();
-    }
-    get formId(): number | null {
-        return this._formId();
-    }
-    private _formId = signal<number | null>(null);
+    @Input() actionId: number | null = null;
 
     @Output() saved = new EventEmitter<void>();
     @Output() cancelled = new EventEmitter<void>();
@@ -38,7 +29,13 @@ export class TherapeuticActionFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditModeFromRoute();
+        this.checkEditMode();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['actionId'] && !changes['actionId'].firstChange) {
+            this.checkEditMode();
+        }
     }
 
     initForm() {
@@ -49,20 +46,10 @@ export class TherapeuticActionFormComponent implements OnInit {
         });
     }
 
-    checkEditModeFromRoute() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
+    checkEditMode() {
+        if (this.actionId) {
             this.isEditMode.set(true);
-            this._formId.set(+id);
-            this.loadForm(+id);
-        }
-    }
-
-    checkEditModeFromInput() {
-        const id = this.formId;
-        if (id) {
-            this.isEditMode.set(true);
-            this.loadForm(id);
+            this.loadAction(this.actionId);
         } else {
             this.isEditMode.set(false);
             if (this.form) {
@@ -71,27 +58,26 @@ export class TherapeuticActionFormComponent implements OnInit {
         }
     }
 
-    loadForm(id: number) {
+    loadAction(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getTherapeuticActions().subscribe({
+        this.maintenanceService.getAllTherapeuticActions().subscribe({
             next: (response) => {
-                const form = response.data.find(i => i.id === id);
-                if (form) {
+                const action = response.data.find(a => a.id === id);
+                if (action) {
                     this.form.patchValue({
-                        name: form.name,
-                        description: form.description || '',
-                        active: form.active
+                        name: action.name,
+                        description: action.description || '',
+                        active: action.active
                     });
                 } else {
-                    alert('Acción terapéutica no encontrada');
-                    this.router.navigate(['/pharmacy/therapeutic-actions']);
+                    this.modalService.alert({ title: 'Error', message: 'Acción terapéutica no encontrada', type: 'error' });
+                    this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
-                console.error('Error loading form:', error);
-                alert('Error al cargar el registro');
-                this.router.navigate(['/pharmacy/therapeutic-actions']);
+                console.error('Error loading action:', error);
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar el registro', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -107,13 +93,13 @@ export class TherapeuticActionFormComponent implements OnInit {
         const request: TherapeuticActionRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateTherapeuticAction(
-                this.formId!,
+            ? this.maintenanceService.updateTherapeuticActionById(
+                this.actionId!,
                 request.name,
                 request.description,
                 request.active
             )
-            : this.maintenanceService.createTherapeuticAction(
+            : this.maintenanceService.createNewTherapeuticAction(
                 request.name,
                 request.description,
                 request.active
@@ -123,13 +109,10 @@ export class TherapeuticActionFormComponent implements OnInit {
             next: () => {
                 this.isSaving.set(false);
                 this.saved.emit();
-                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-                    this.router.navigate(['/pharmacy/therapeutic-actions']);
-                }
             },
             error: (error) => {
-                console.error('Error saving form:', error);
-                alert('Error al guardar el registro');
+                console.error('Error saving action:', error);
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar el registro', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -137,9 +120,6 @@ export class TherapeuticActionFormComponent implements OnInit {
 
     onCancel() {
         this.cancelled.emit();
-        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-            this.router.navigate(['/pharmacy/therapeutic-actions']);
-        }
     }
 
     isFieldInvalid(fieldName: string): boolean {
@@ -152,7 +132,8 @@ export class TherapeuticActionFormComponent implements OnInit {
         if (field?.errors) {
             if (field.errors['required']) return 'Este campo es requerido';
             if (field.errors['maxlength']) {
-                return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
+                const requiredLength = field.errors['maxlength'].requiredLength;
+                return `Máximo ${requiredLength} caracteres`;
             }
         }
         return '';

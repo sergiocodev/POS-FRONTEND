@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { ActiveIngredientRequest } from '../../../../core/models/active-ingredient.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-active-ingredient-form',
@@ -15,8 +15,7 @@ import { ActiveIngredientRequest } from '../../../../core/models/active-ingredie
 export class ActiveIngredientFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
     @Input() set ingredientId(value: number | null) {
         this._ingredientId.set(value);
@@ -37,7 +36,6 @@ export class ActiveIngredientFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -46,15 +44,6 @@ export class ActiveIngredientFormComponent implements OnInit {
             description: ['', [Validators.maxLength(255)]],
             active: [true]
         });
-    }
-
-    checkEditModeFromRoute() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.isEditMode.set(true);
-            this._ingredientId.set(+id);
-            this.loadActiveIngredient(+id);
-        }
     }
 
     checkEditModeFromInput() {
@@ -72,7 +61,7 @@ export class ActiveIngredientFormComponent implements OnInit {
 
     loadActiveIngredient(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getActiveIngredients().subscribe({
+        this.maintenanceService.getAllActiveIngredients().subscribe({
             next: (response) => {
                 const ingredient = response.data.find(i => i.id === id);
                 if (ingredient) {
@@ -82,15 +71,15 @@ export class ActiveIngredientFormComponent implements OnInit {
                         active: ingredient.active
                     });
                 } else {
-                    alert('Principio activo no encontrado');
-                    this.router.navigate(['/pharmacy/active-ingredients']);
+                    this.modalService.alert({ title: 'Error', message: 'Principio activo no encontrado', type: 'error' });
+                    this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading active ingredient:', error);
-                alert('Error al cargar el principio activo');
-                this.router.navigate(['/pharmacy/active-ingredients']);
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar el principio activo', type: 'error' });
+                this.cancelled.emit();
                 this.isLoading.set(false);
             }
         });
@@ -106,13 +95,13 @@ export class ActiveIngredientFormComponent implements OnInit {
         const request: ActiveIngredientRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateActiveIngredient(
+            ? this.maintenanceService.updateActiveIngredientById(
                 this.ingredientId!,
                 request.name,
                 request.description,
                 request.active
             )
-            : this.maintenanceService.createActiveIngredient(
+            : this.maintenanceService.createNewActiveIngredient(
                 request.name,
                 request.description,
                 request.active
@@ -121,15 +110,16 @@ export class ActiveIngredientFormComponent implements OnInit {
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
+                this.modalService.alert({
+                    title: 'Éxito',
+                    message: `Principio activo ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`,
+                    type: 'success'
+                });
                 this.saved.emit();
-                // Si aún estamos en modo ruta (no modal), navegar
-                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-                    this.router.navigate(['/pharmacy/active-ingredients']);
-                }
             },
             error: (error) => {
                 console.error('Error saving active ingredient:', error);
-                alert('Error al guardar el principio activo');
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar el principio activo', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -137,9 +127,6 @@ export class ActiveIngredientFormComponent implements OnInit {
 
     onCancel() {
         this.cancelled.emit();
-        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-            this.router.navigate(['/pharmacy/active-ingredients']);
-        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

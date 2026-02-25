@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { LaboratoryRequest } from '../../../../core/models/laboratory.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-laboratory-form',
@@ -15,14 +15,13 @@ import { LaboratoryRequest } from '../../../../core/models/laboratory.model';
 export class LaboratoryFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
-    @Input() set idLaboratory(value: number | null) {
+    @Input() set laboratoryId(value: number | null) {
         this._laboratoryId.set(value);
         this.checkEditModeFromInput();
     }
-    get idLaboratory(): number | null {
+    get laboratoryId(): number | null {
         return this._laboratoryId();
     }
     private _laboratoryId = signal<number | null>(null);
@@ -37,7 +36,6 @@ export class LaboratoryFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -47,17 +45,8 @@ export class LaboratoryFormComponent implements OnInit {
         });
     }
 
-    checkEditModeFromRoute() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.isEditMode.set(true);
-            this._laboratoryId.set(+id);
-            this.loadLaboratory(+id);
-        }
-    }
-
     checkEditModeFromInput() {
-        const id = this.idLaboratory;
+        const id = this.laboratoryId;
         if (id) {
             this.isEditMode.set(true);
             this.loadLaboratory(id);
@@ -71,7 +60,7 @@ export class LaboratoryFormComponent implements OnInit {
 
     loadLaboratory(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getLaboratories().subscribe({
+        this.maintenanceService.getAllLaboratory().subscribe({
             next: (response) => {
                 const laboratory = response.data.find(l => l.id === id);
                 if (laboratory) {
@@ -80,15 +69,14 @@ export class LaboratoryFormComponent implements OnInit {
                         active: laboratory.active
                     });
                 } else {
-                    alert('Laboratorio no encontrado');
-                    this.router.navigate(['/pharmacy/labs']);
+                    this.modalService.alert({ title: 'Error', message: 'Laboratorio no encontrado', type: 'error' });
+                    this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading laboratory:', error);
-                alert('Error al cargar el laboratorio');
-                this.router.navigate(['/pharmacy/labs']);
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar el laboratorio', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -104,12 +92,12 @@ export class LaboratoryFormComponent implements OnInit {
         const request: LaboratoryRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateLaboratory(
+            ? this.maintenanceService.updateLaboratoryById(
                 this._laboratoryId()!,
                 request.name,
                 request.active
             )
-            : this.maintenanceService.createLaboratory(
+            : this.maintenanceService.createNewLaboratory(
                 request.name,
                 request.active
             );
@@ -118,14 +106,10 @@ export class LaboratoryFormComponent implements OnInit {
             next: () => {
                 this.isSaving.set(false);
                 this.saved.emit();
-                // Si aún estamos en modo ruta (no modal), navegar
-                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-                    this.router.navigate(['/pharmacy/labs']);
-                }
             },
             error: (error) => {
                 console.error('Error saving laboratory:', error);
-                alert('Error al guardar el laboratorio');
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar el laboratorio', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -133,9 +117,6 @@ export class LaboratoryFormComponent implements OnInit {
 
     onCancel() {
         this.cancelled.emit();
-        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-            this.router.navigate(['/pharmacy/labs']);
-        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

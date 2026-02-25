@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { PharmaceuticalFormRequest } from '../../../../core/models/pharmaceutical-form.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-pharmaceutical-form-form',
@@ -15,8 +15,7 @@ import { PharmaceuticalFormRequest } from '../../../../core/models/pharmaceutica
 export class PharmaceuticalFormFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
     @Input() set formId(value: number | null) {
         this._formId.set(value);
@@ -37,7 +36,6 @@ export class PharmaceuticalFormFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -46,15 +44,6 @@ export class PharmaceuticalFormFormComponent implements OnInit {
             description: ['', [Validators.maxLength(255)]],
             active: [true]
         });
-    }
-
-    checkEditModeFromRoute() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.isEditMode.set(true);
-            this._formId.set(+id);
-            this.loadForm(+id);
-        }
     }
 
     checkEditModeFromInput() {
@@ -72,7 +61,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
 
     loadForm(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getPharmaceuticalForms().subscribe({
+        this.maintenanceService.getAllPharmaceuticalForms().subscribe({
             next: (response) => {
                 const form = response.data.find(i => i.id === id);
                 if (form) {
@@ -82,15 +71,14 @@ export class PharmaceuticalFormFormComponent implements OnInit {
                         active: form.active
                     });
                 } else {
-                    alert('Forma farmacéutica no encontrada');
-                    this.router.navigate(['/pharmacy/pharmaceutical-forms']);
+                    this.modalService.alert({ title: 'Error', message: 'Forma farmacéutica no encontrada', type: 'error' });
+                    this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading form:', error);
-                alert('Error al cargar el registro');
-                this.router.navigate(['/pharmacy/pharmaceutical-forms']);
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar el registro', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -106,13 +94,13 @@ export class PharmaceuticalFormFormComponent implements OnInit {
         const request: PharmaceuticalFormRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updatePharmaceuticalForm(
+            ? this.maintenanceService.updatePharmaceuticalFormById(
                 this.formId!,
                 request.name,
                 request.description,
                 request.active
             )
-            : this.maintenanceService.createPharmaceuticalForm(
+            : this.maintenanceService.createNewPharmaceuticalForm(
                 request.name,
                 request.description,
                 request.active
@@ -122,13 +110,10 @@ export class PharmaceuticalFormFormComponent implements OnInit {
             next: () => {
                 this.isSaving.set(false);
                 this.saved.emit();
-                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-                    this.router.navigate(['/pharmacy/pharmaceutical-forms']);
-                }
             },
             error: (error) => {
                 console.error('Error saving form:', error);
-                alert('Error al guardar el registro');
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar el registro', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -136,9 +121,6 @@ export class PharmaceuticalFormFormComponent implements OnInit {
 
     onCancel() {
         this.cancelled.emit();
-        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-            this.router.navigate(['/pharmacy/pharmaceutical-forms']);
-        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

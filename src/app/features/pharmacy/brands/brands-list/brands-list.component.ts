@@ -1,32 +1,28 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { BrandResponse } from '../../../../core/models/brand.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { BrandFormComponent } from '../brand-form/brand-form.component';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-brands-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        CustomTableComponent,
-        ModalGenericComponent,
-        BrandFormComponent,
-        ModuleHeaderComponent
+        CustomTableComponent
     ],
     templateUrl: './brands-list.component.html',
     styleUrl: './brands-list.component.scss'
 })
-export class BrandsListComponent implements OnInit {
-    private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
+export class BrandsListComponent implements OnInit, OnChanges {
+    @Input() brands: BrandResponse[] = [];
+    @Input() isLoading = false;
+
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<BrandResponse>();
+    @Output() toggleStatus = new EventEmitter<BrandResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -36,42 +32,33 @@ export class BrandsListComponent implements OnInit {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    brands = signal<BrandResponse[]>([]);
+    localBrands = signal<BrandResponse[]>([]);
     filteredBrands = signal<BrandResponse[]>([]);
-    isLoading = signal(false);
 
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Modal de Formulario
-    showBrandModal = signal(false);
-    selectedBrandId = signal<number | null>(null);
-
     // Pagination
     pageSize = 10;
+    currentPage = 1;
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        this.maintenanceService.getBrands().subscribe({
-            next: (response) => {
-                const brands = response.data;
-                this.brands.set(brands);
-                this.filteredBrands.set(brands);
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading brands:', error);
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['brands']) {
+            this.updateLocalData();
+        }
+    }
+
+    updateLocalData() {
+        this.localBrands.set(this.brands);
+        this.applyFilters();
     }
 
     applyFilters() {
-        let filtered = this.brands();
+        let filtered = this.localBrands();
 
         const search = this.searchTerm().toLowerCase();
         if (search) {
@@ -85,6 +72,7 @@ export class BrandsListComponent implements OnInit {
         }
 
         this.filteredBrands.set(filtered);
+        this.currentPage = 1;
     }
 
     onSearchChange(value: string) {
@@ -102,61 +90,19 @@ export class BrandsListComponent implements OnInit {
 
     handleTableAction(e: { action: string, row: BrandResponse }) {
         if (e.action === 'edit') {
-            this.editBrand(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.deleteBrand(e.row);
+            this.delete.emit(e.row);
         }
     }
 
     handleStatusToggle(e: { row: BrandResponse, key: string, checked: boolean }) {
-        this.toggleBrandStatus(e.row);
+        this.toggleStatus.emit(e.row);
+        e.row.active = !e.checked; // Optimistic toggle reversion
     }
 
     createBrand() {
-        this.selectedBrandId.set(null);
-        this.showBrandModal.set(true);
-    }
-
-    editBrand(id: number) {
-        this.selectedBrandId.set(id);
-        this.showBrandModal.set(true);
-    }
-
-    onBrandSaved() {
-        this.showBrandModal.set(false);
-        this.loadData();
-    }
-
-    onBrandCancelled() {
-        this.showBrandModal.set(false);
-    }
-
-    toggleBrandStatus(brand: BrandResponse) {
-        if (confirm(`¿Está seguro de ${brand.active ? 'desactivar' : 'activar'} la marca "${brand.name}"?`)) {
-            this.maintenanceService.updateBrand(brand.id, brand.name, !brand.active).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error toggling brand status:', error);
-                    alert('Error al cambiar el estado de la marca');
-                }
-            });
-        }
-    }
-
-    deleteBrand(brand: BrandResponse) {
-        if (confirm(`¿Está seguro de eliminar la marca "${brand.name}"? Esta acción no se puede deshacer.`)) {
-            this.maintenanceService.deleteBrand(brand.id).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error deleting brand:', error);
-                    alert('Error al eliminar la marca');
-                }
-            });
-        }
+        this.create.emit();
     }
 
     trackByBrandId(index: number, brand: BrandResponse): number {

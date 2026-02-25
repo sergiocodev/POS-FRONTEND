@@ -1,0 +1,17 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Marcas" iconClass="bi bi-tag-fill"></app-module-header>
+
+<div class="brands-page animate-fade-in">
+    <app-brands-list [brands]="brands()" [isLoading]="isLoading()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
+        (delete)="onDeleteBrand($event)" (toggleStatus)="onToggleStatus($event)">
+    </app-brands-list>
+
+    <!-- Modal para Crear/Editar Marca -->
+    <app-modal-generic [isVisible]="showBrandForm()" [title]="selectedBrandId() ? 'Editar Marca' : 'Nueva Marca'"
+        size="md" (close)="onFormCancelled()">
+        <app-brand-form *ngIf="showBrandForm()" [brandId]="selectedBrandId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-brand-form>
+    </app-modal-generic>
+</div>

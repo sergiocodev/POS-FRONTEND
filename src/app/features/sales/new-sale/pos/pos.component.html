@@ -103,7 +103,7 @@
                             <label class="form-label small fw-bold text-muted text-uppercase">Cliente</label>
                             <div class="input-group">
                                 <select class="form-select bg-light border-0"
-                                    (change)="selectedCustomer.set($any($event.target).value)">
+                                    (change)="selectedCustomer.set($any($event.target).value); $any($event.target).value ? null : null">
                                     <option [ngValue]="null">Publico General</option>
                                     <option *ngFor="let c of customers()" [ngValue]="c">
                                         {{ c.name }} ({{ c.documentNumber }})
@@ -113,6 +113,10 @@
                                     <i class="bi bi-person-plus-fill"></i>
                                 </button>
                             </div>
+                            <div *ngIf="selectedCustomer()" class="mt-1 small text-info fw-bold">
+                                <i class="bi bi-star-fill text-warning me-1"></i>
+                                Puntos Acumulados: {{ selectedCustomer()?.accumulatedPoints || 0 }}
+                            </div>
                         </div>
 
                         <div class="flex-grow-1 overflow-auto scrollable-content border rounded-3 bg-light mb-3">
@@ -121,6 +125,7 @@
                                     <tr class="small text-muted text-uppercase">
                                         <th class="ps-3">Producto</th>
                                         <th class="text-center">Cant.</th>
+                                        <th class="text-center" style="width: 80px;">Desc.</th>
                                         <th class="text-end">Total</th>
                                         <th class="pe-3"></th>
                                     </tr>
@@ -128,7 +133,7 @@
                                 <tbody>
                                     <tr *ngFor="let item of cart(); let i = index">
                                         <td class="ps-3">
-                                            <div class="fw-semibold text-truncate" style="max-width: 140px;"
+                                            <div class="fw-semibold text-truncate" style="max-width: 120px;"
                                                 [title]="item.product.tradeName">
                                                 {{ item.product.tradeName }}
                                             </div>
@@ -143,6 +148,11 @@
                                                 <button class="btn btn-link text-decoration-none text-dark py-0 px-2"
                                                     (click)="updateQuantity(i, item.quantity + 1)">+</button>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="number" class="form-control form-control-sm text-center px-1"
+                                                [ngModel]="item.discount" (ngModelChange)="updateDiscount(i, $event)"
+                                                placeholder="0" min="0" style="font-size: 0.85rem;">
                                         </td>
                                         <td class="text-end fw-bold text-dark">
                                             S/ {{ item.total | number:'1.2-2' }}

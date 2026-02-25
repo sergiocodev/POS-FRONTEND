@@ -128,9 +128,9 @@ export class ProductListComponent implements OnInit {
     }
 
     loadMasterData(): void {
-        this.maintenanceService.getCategories().subscribe(res => this.categories.set(res.data));
-        this.maintenanceService.getBrands().subscribe(res => this.brands.set(res.data));
-        this.maintenanceService.getTherapeuticActions().subscribe(res => this.therapeuticActions.set(res.data));
+        this.maintenanceService.getAllCategory().subscribe((res) => this.categories.set(res.data));
+        this.maintenanceService.getAllBrands().subscribe(res => this.brands.set(res.data));
+        this.maintenanceService.getAllTherapeuticActions().subscribe(res => this.therapeuticActions.set(res.data));
     }
 
     // --- LÓGICA DE BÚSQUEDA ---
@@ -141,8 +141,8 @@ export class ProductListComponent implements OnInit {
         // Filter by Search Term
         if (term) {
             filtered = filtered.filter(product =>
-                product.tradeName.toLowerCase().includes(term) ||
-                product.genericName?.toLowerCase().includes(term) ||
+                product.barcode?.toLowerCase().includes(term) ||
+                product.digemidCode?.toLowerCase().includes(term) ||
                 product.code.toLowerCase().includes(term)
             );
         }

@@ -19,131 +19,133 @@ import { ResponseApi } from '../models/response-api.model';
 export class MaintenanceService {
     private http = inject(HttpClient);
 
-    getBrands(): Observable<ResponseApi<BrandResponse[]>> {
-        return this.http.get<ResponseApi<BrandResponse[]>>('/api/v1/brands');
+    getAllBrands(): Observable<ResponseApi<BrandResponse[]>> {
+        return this.http.get<ResponseApi<BrandResponse[]>>('/api/v1/brands/GetAllBrands');
     }
 
-    createBrand(name: string, active: boolean = true): Observable<ResponseApi<BrandResponse>> {
-        return this.http.post<ResponseApi<BrandResponse>>('/api/v1/brands', { name, active });
+    createNewBrand(name: string, active: boolean = true): Observable<ResponseApi<BrandResponse>> {
+        return this.http.post<ResponseApi<BrandResponse>>('/api/v1/brands/CreateNewBrand', { name, active });
     }
 
-    updateBrand(id: number, name: string, active: boolean): Observable<ResponseApi<BrandResponse>> {
-        return this.http.put<ResponseApi<BrandResponse>>(`/api/v1/brands/${id}`, { name, active });
+    updateBrandById(id: number, name: string, active: boolean): Observable<ResponseApi<BrandResponse>> {
+        return this.http.put<ResponseApi<BrandResponse>>(`/api/v1/brands/UpdateBrandById/${id}`, { name, active });
     }
 
-    deleteBrand(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/brands/${id}`);
+    deleteBrandById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/brands/DeleteBrandById/${id}`);
     }
 
-    getCategories(): Observable<ResponseApi<CategoryResponse[]>> {
-        return this.http.get<ResponseApi<CategoryResponse[]>>('/api/v1/categories');
+    getAllCategory(): Observable<ResponseApi<CategoryResponse[]>> {
+        return this.http.get<ResponseApi<CategoryResponse[]>>('/api/v1/category/GetAllCategory');
     }
 
-    createCategory(name: string, active: boolean = true): Observable<ResponseApi<CategoryResponse>> {
-        return this.http.post<ResponseApi<CategoryResponse>>('/api/v1/categories', { name, active });
+    createNewCategory(name: string, active: boolean = true): Observable<ResponseApi<CategoryResponse>> {
+        return this.http.post<ResponseApi<CategoryResponse>>('/api/v1/category/CreateNewCategory', { name, active });
     }
 
-    updateCategory(id: number, name: string, active: boolean): Observable<ResponseApi<CategoryResponse>> {
-        return this.http.put<ResponseApi<CategoryResponse>>(`/api/v1/categories/${id}`, { name, active });
+    updateCategoryById(id: number, name: string, active: boolean): Observable<ResponseApi<CategoryResponse>> {
+        return this.http.put<ResponseApi<CategoryResponse>>(`/api/v1/category/UpdateCategoryById/${id}`, { name, active });
     }
 
-    deleteCategory(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/categories/${id}`);
+    deleteCategoryById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/category/DeleteCategoryById/${id}`);
     }
 
-    getLaboratories(): Observable<ResponseApi<LaboratoryResponse[]>> {
-        return this.http.get<ResponseApi<LaboratoryResponse[]>>('/api/v1/laboratories');
+    getAllLaboratory(): Observable<ResponseApi<LaboratoryResponse[]>> {
+        return this.http.get<ResponseApi<LaboratoryResponse[]>>('/api/v1/laboratory/GetAllLaboratory');
     }
 
-    createLaboratory(name: string, active: boolean = true): Observable<ResponseApi<LaboratoryResponse>> {
-        return this.http.post<ResponseApi<LaboratoryResponse>>('/api/v1/laboratories', { name, active });
+    createNewLaboratory(name: string, active: boolean = true): Observable<ResponseApi<LaboratoryResponse>> {
+        return this.http.post<ResponseApi<LaboratoryResponse>>('/api/v1/laboratory/CreateNewLaboratory', { name, active });
     }
 
-    updateLaboratory(id: number, name: string, active: boolean): Observable<ResponseApi<LaboratoryResponse>> {
-        return this.http.put<ResponseApi<LaboratoryResponse>>(`/api/v1/laboratories/${id}`, { name, active });
+    updateLaboratoryById(id: number, name: string, active: boolean): Observable<ResponseApi<LaboratoryResponse>> {
+        return this.http.put<ResponseApi<LaboratoryResponse>>(`/api/v1/laboratory/UpdateLaboratoryById/${id}`, { name, active });
     }
 
-    deleteLaboratory(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/laboratories/${id}`);
+    deleteLaboratoryById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/laboratory/DeleteLaboratoryById/${id}`);
     }
 
-    getPresentations(): Observable<ResponseApi<PresentationResponse[]>> {
-        return this.http.get<ResponseApi<PresentationResponse[]>>('/api/v1/presentations');
+    getAllPresentations(): Observable<ResponseApi<PresentationResponse[]>> {
+        return this.http.get<ResponseApi<PresentationResponse[]>>('/api/v1/presentations/GetAllPresentations');
     }
 
-    createPresentation(description: string): Observable<ResponseApi<PresentationResponse>> {
-        return this.http.post<ResponseApi<PresentationResponse>>('/api/v1/presentations', { description });
+    createNewPresentation(description: string): Observable<ResponseApi<PresentationResponse>> {
+        return this.http.post<ResponseApi<PresentationResponse>>('/api/v1/presentations/CreateNewPresentation', { description });
     }
 
-    updatePresentation(id: number, description: string): Observable<ResponseApi<PresentationResponse>> {
-        return this.http.put<ResponseApi<PresentationResponse>>(`/api/v1/presentations/${id}`, { description });
+    updatePresentationById(id: number, description: string): Observable<ResponseApi<PresentationResponse>> {
+        return this.http.put<ResponseApi<PresentationResponse>>(`/api/v1/presentations/UpdatePresentationById/${id}`, { description });
     }
 
-    deletePresentation(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/presentations/${id}`);
+    deletePresentationById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/presentations/DeletePresentationById/${id}`);
     }
 
-    getTaxTypes(): Observable<ResponseApi<TaxTypeResponse[]>> {
-        return this.http.get<ResponseApi<TaxTypeResponse[]>>('/api/v1/tax-types');
+    getAllTaxTypes(): Observable<ResponseApi<TaxTypeResponse[]>> {
+        return this.http.get<ResponseApi<TaxTypeResponse[]>>('/api/v1/tax-types/GetAllTaxTypes');
     }
 
-    createTaxType(name: string, rate: number, codeSunat?: string, active: boolean = true): Observable<ResponseApi<TaxTypeResponse>> {
-        return this.http.post<ResponseApi<TaxTypeResponse>>('/api/v1/tax-types', { name, rate, codeSunat, active });
+    createNewTaxType(name: string, rate: number, codeSunat?: string, active: boolean = true): Observable<ResponseApi<TaxTypeResponse>> {
+        return this.http.post<ResponseApi<TaxTypeResponse>>('/api/v1/tax-types/CreateNewTaxType', { name, rate, codeSunat, active });
     }
 
-    updateTaxType(id: number, name: string, rate: number, codeSunat?: string, active?: boolean): Observable<ResponseApi<TaxTypeResponse>> {
-        return this.http.put<ResponseApi<TaxTypeResponse>>(`/api/v1/tax-types/${id}`, { name, rate, codeSunat, active });
+    updateTaxTypeById(id: number, name: string, rate: number, codeSunat?: string, active?: boolean): Observable<ResponseApi<TaxTypeResponse>> {
+        return this.http.put<ResponseApi<TaxTypeResponse>>(`/api/v1/tax-types/UpdateTaxTypeById/${id}`, { name, rate, codeSunat, active });
     }
 
-    deleteTaxType(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/tax-types/${id}`);
+    deleteTaxTypeById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/tax-types/DeleteTaxTypeById/${id}`);
     }
 
-    getActiveIngredients(): Observable<ResponseApi<ActiveIngredientResponse[]>> {
-        return this.http.get<ResponseApi<ActiveIngredientResponse[]>>('/api/v1/active-ingredients');
+    getAllActiveIngredients(): Observable<ResponseApi<ActiveIngredientResponse[]>> {
+        return this.http.get<ResponseApi<ActiveIngredientResponse[]>>('/api/v1/active-ingredients/GetAllActiveIngredients');
     }
 
-    createActiveIngredient(name: string, description?: string, active: boolean = true): Observable<ResponseApi<ActiveIngredientResponse>> {
-        return this.http.post<ResponseApi<ActiveIngredientResponse>>('/api/v1/active-ingredients', { name, description, active });
+    createNewActiveIngredient(name: string, description?: string, active: boolean = true): Observable<ResponseApi<ActiveIngredientResponse>> {
+        return this.http.post<ResponseApi<ActiveIngredientResponse>>('/api/v1/active-ingredients/CreateNewActiveIngredient', { name, description, active });
     }
 
-    updateActiveIngredient(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<ActiveIngredientResponse>> {
-        return this.http.put<ResponseApi<ActiveIngredientResponse>>(`/api/v1/active-ingredients/${id}`, { name, description, active });
+    updateActiveIngredientById(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<ActiveIngredientResponse>> {
+        return this.http.put<ResponseApi<ActiveIngredientResponse>>(`/api/v1/active-ingredients/UpdateActiveIngredientById/${id}`, { name, description, active });
     }
 
-    deleteActiveIngredient(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/active-ingredients/${id}`);
+    deleteActiveIngredientById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/active-ingredients/DeleteActiveIngredientById/${id}`);
     }
 
-    getPharmaceuticalForms(): Observable<ResponseApi<PharmaceuticalFormResponse[]>> {
-        return this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms');
+    getAllPharmaceuticalForms(): Observable<ResponseApi<PharmaceuticalFormResponse[]>> {
+        return this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms/GetAllPharmaceuticalForms');
     }
 
-    createPharmaceuticalForm(name: string, description?: string, active: boolean = true): Observable<ResponseApi<PharmaceuticalFormResponse>> {
-        return this.http.post<ResponseApi<PharmaceuticalFormResponse>>('/api/v1/pharmaceutical-forms', { name, description, active });
+    createNewPharmaceuticalForm(name: string, description?: string, active: boolean = true): Observable<ResponseApi<PharmaceuticalFormResponse>> {
+        return this.http.post<ResponseApi<PharmaceuticalFormResponse>>('/api/v1/pharmaceutical-forms/CreateNewPharmaceuticalForm', { name, description, active });
     }
 
-    updatePharmaceuticalForm(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<PharmaceuticalFormResponse>> {
-        return this.http.put<ResponseApi<PharmaceuticalFormResponse>>(`/api/v1/pharmaceutical-forms/${id}`, { name, description, active });
+    updatePharmaceuticalFormById(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<PharmaceuticalFormResponse>> {
+        return this.http.put<ResponseApi<PharmaceuticalFormResponse>>(`/api/v1/pharmaceutical-forms/UpdatePharmaceuticalFormById/${id}`, { name, description, active });
     }
 
-    getTherapeuticActions(): Observable<ResponseApi<TherapeuticActionResponse[]>> {
-        return this.http.get<ResponseApi<TherapeuticActionResponse[]>>('/api/v1/therapeutic-actions');
+    deletePharmaceuticalFormById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/pharmaceutical-forms/DeletePharmaceuticalFormById/${id}`);
     }
 
-    createTherapeuticAction(name: string, description?: string, active: boolean = true): Observable<ResponseApi<TherapeuticActionResponse>> {
-        return this.http.post<ResponseApi<TherapeuticActionResponse>>('/api/v1/therapeutic-actions', { name, description, active });
+    getAllTherapeuticActions(): Observable<ResponseApi<TherapeuticActionResponse[]>> {
+        return this.http.get<ResponseApi<TherapeuticActionResponse[]>>('/api/v1/therapeutic-actions/GetAllTherapeuticActions');
     }
 
-    updateTherapeuticAction(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<TherapeuticActionResponse>> {
-        return this.http.put<ResponseApi<TherapeuticActionResponse>>(`/api/v1/therapeutic-actions/${id}`, { name, description, active });
+    createNewTherapeuticAction(name: string, description?: string, active: boolean = true): Observable<ResponseApi<TherapeuticActionResponse>> {
+        return this.http.post<ResponseApi<TherapeuticActionResponse>>('/api/v1/therapeutic-actions/CreateNewTherapeuticAction', { name, description, active });
     }
 
-    deleteTherapeuticAction(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/therapeutic-actions/${id}`);
+    updateTherapeuticActionById(id: number, name: string, description?: string, active?: boolean): Observable<ResponseApi<TherapeuticActionResponse>> {
+        return this.http.put<ResponseApi<TherapeuticActionResponse>>(`/api/v1/therapeutic-actions/UpdateTherapeuticActionById/${id}`, { name, description, active });
     }
 
-    deletePharmaceuticalForm(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`/api/v1/pharmaceutical-forms/${id}`);
+    deleteTherapeuticActionById(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`/api/v1/therapeutic-actions/DeleteTherapeuticActionById/${id}`);
     }
+
+
 }

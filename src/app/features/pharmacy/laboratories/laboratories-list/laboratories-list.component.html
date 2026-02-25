@@ -1,6 +1,4 @@
-<app-module-header title="Laboratorios" iconClass="bi bi-building"></app-module-header>
-
-<div class="laboratories-container container-fluid py-4 animate-fade-in">
+<div class="laboratories-list-container container-fluid py-4 animate-fade-in position-relative">
 
     <div class="d-flex justify-content-end align-items-center mb-4">
         <button class="btn btn-primary shadow-sm" (click)="createLaboratory()">
@@ -35,22 +33,16 @@
 
     <div class="card border-0 shadow-sm overflow-hidden">
         <app-custom-table [columns]="cols" [data]="filteredLaboratories()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event.row)">
         </app-custom-table>
 
-        <div *ngIf="isLoading()" class="text-center py-5">
+        @if (isLoading) {
+        <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
+        }
     </div>
 
 </div>
-
-<!-- Modal de Formulario de Laboratorio -->
-<app-modal-generic [title]="selectedLaboratoryId() ? 'Editar Laboratorio' : 'Nuevo Laboratorio'"
-    [isVisible]="showLaboratoryModal()" (close)="onLaboratoryCancelled()">
-    <app-laboratory-form *ngIf="showLaboratoryModal()" [idLaboratory]="selectedLaboratoryId()"
-        (saved)="onLaboratorySaved()" (cancelled)="onLaboratoryCancelled()">
-    </app-laboratory-form>
-</app-modal-generic>

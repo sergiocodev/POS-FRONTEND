@@ -1,0 +1,17 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Categorías" iconClass="bi bi-grid-fill"></app-module-header>
+
+<div class="categories-page animate-fade-in">
+    <app-categories-list [categories]="categories()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteCategory($event)" (toggleStatus)="onToggleStatus($event)">
+    </app-categories-list>
+
+    <!-- Modal para Crear/Editar Categoría -->
+    <app-modal-generic [isVisible]="showCategoryForm()"
+        [title]="selectedCategoryId() ? 'Editar Categoría' : 'Nueva Categoría'" size="md" (close)="onFormCancelled()">
+        <app-category-form *ngIf="showCategoryForm()" [categoryId]="selectedCategoryId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-category-form>
+    </app-modal-generic>
+</div>

@@ -142,87 +142,31 @@ export const routes: Routes = [
 
             {
                 path: 'pharmacy/active-ingredients',
-                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients-list/active-ingredients-list.component').then(m => m.ActiveIngredientsListComponent)
-            },
-            {
-                path: 'pharmacy/active-ingredients/new',
-                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredient-form/active-ingredient-form.component').then(m => m.ActiveIngredientFormComponent)
-            },
-            {
-                path: 'pharmacy/active-ingredients/:id/edit',
-                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredient-form/active-ingredient-form.component').then(m => m.ActiveIngredientFormComponent)
+                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients.component').then(m => m.ActiveIngredientsComponent)
             },
             {
                 path: 'pharmacy/labs',
-                loadComponent: () => import('./features/pharmacy/laboratories/laboratories-list/laboratories-list.component').then(m => m.LaboratoriesListComponent)
-            },
-            {
-                path: 'pharmacy/labs/new',
-                loadComponent: () => import('./features/pharmacy/laboratories/laboratory-form/laboratory-form.component').then(m => m.LaboratoryFormComponent)
-            },
-            {
-                path: 'pharmacy/labs/:id/edit',
-                loadComponent: () => import('./features/pharmacy/laboratories/laboratory-form/laboratory-form.component').then(m => m.LaboratoryFormComponent)
+                loadComponent: () => import('./features/pharmacy/laboratories/laboratories.component').then(m => m.LaboratoriesComponent)
             },
             {
                 path: 'pharmacy/brands',
-                loadComponent: () => import('./features/pharmacy/brands/brands-list/brands-list.component').then(m => m.BrandsListComponent)
-            },
-            {
-                path: 'pharmacy/brands/new',
-                loadComponent: () => import('./features/pharmacy/brands/brand-form/brand-form.component').then(m => m.BrandFormComponent)
-            },
-            {
-                path: 'pharmacy/brands/:id/edit',
-                loadComponent: () => import('./features/pharmacy/brands/brand-form/brand-form.component').then(m => m.BrandFormComponent)
+                loadComponent: () => import('./features/pharmacy/brands/brands.component').then(m => m.BrandsComponent)
             },
             {
                 path: 'pharmacy/categories',
-                loadComponent: () => import('./features/pharmacy/categories/categories-list/categories-list.component').then(m => m.CategoriesListComponent)
-            },
-            {
-                path: 'pharmacy/categories/new',
-                loadComponent: () => import('./features/pharmacy/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
-            },
-            {
-                path: 'pharmacy/categories/:id/edit',
-                loadComponent: () => import('./features/pharmacy/categories/category-form/category-form.component').then(m => m.CategoryFormComponent)
+                loadComponent: () => import('./features/pharmacy/categories/categories.component').then(m => m.CategoriesComponent)
             },
             {
                 path: 'pharmacy/presentations',
-                loadComponent: () => import('./features/pharmacy/presentations/presentations-list/presentations-list.component').then(m => m.PresentationsListComponent)
-            },
-            {
-                path: 'pharmacy/presentations/new',
-                loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
-            },
-            {
-                path: 'pharmacy/presentations/:id/edit',
-                loadComponent: () => import('./features/pharmacy/presentations/presentation-form/presentation-form.component').then(m => m.PresentationFormComponent)
+                loadComponent: () => import('./features/pharmacy/presentations/presentations.component').then(m => m.PresentationsComponent)
             },
             {
                 path: 'pharmacy/pharmaceutical-forms',
-                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-list/pharmaceutical-form-list.component').then(m => m.PharmaceuticalFormListComponent)
-            },
-            {
-                path: 'pharmacy/pharmaceutical-forms/new',
-                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-form/pharmaceutical-form-form.component').then(m => m.PharmaceuticalFormFormComponent)
-            },
-            {
-                path: 'pharmacy/pharmaceutical-forms/:id/edit',
-                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-form-form/pharmaceutical-form-form.component').then(m => m.PharmaceuticalFormFormComponent)
+                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-forms.component').then(m => m.PharmaceuticalFormsComponent)
             },
             {
                 path: 'pharmacy/therapeutic-actions',
-                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-list/therapeutic-action-list.component').then(m => m.TherapeuticActionListComponent)
-            },
-            {
-                path: 'pharmacy/therapeutic-actions/new',
-                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-form/therapeutic-action-form.component').then(m => m.TherapeuticActionFormComponent)
-            },
-            {
-                path: 'pharmacy/therapeutic-actions/:id/edit',
-                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-action-form/therapeutic-action-form.component').then(m => m.TherapeuticActionFormComponent)
+                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-actions.component').then(m => m.TherapeuticActionsComponent)
             },
             {
                 path: 'inventory',

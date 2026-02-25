@@ -1,0 +1,20 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Acciones Terapéuticas" iconClass="bi bi-shield-check"></app-module-header>
+
+<div class="therapeutic-actions-page animate-fade-in">
+    <app-therapeutic-action-list [therapeuticActions]="therapeuticActions()" [isLoading]="isLoading()"
+        (create)="onOpenForm()" (edit)="onOpenForm($event)" (delete)="onDelete($event)"
+        (toggleStatus)="onToggleStatus($event)">
+    </app-therapeutic-action-list>
+
+    @if (showForm()) {
+    <app-modal-generic [isVisible]="showForm()"
+        [title]="selectedTherapeuticActionId() ? 'Editar Acción Terapéutica' : 'Nueva Acción Terapéutica'" size="md"
+        (close)="onFormCancelled()">
+        <app-therapeutic-action-form [actionId]="selectedTherapeuticActionId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-therapeutic-action-form>
+    </app-modal-generic>
+    }
+</div>

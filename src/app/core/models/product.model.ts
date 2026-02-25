@@ -29,6 +29,13 @@ export interface TaxTypeResponse {
     active: boolean;
 }
 
+export interface TaxTypeRequest {
+    name: string;
+    rate: number;
+    codeSunat?: string;
+    active?: boolean;
+}
+
 export interface ActiveIngredientResponse {
     id: number;
     name: string;

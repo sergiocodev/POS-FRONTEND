@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por nombre, código...'"
+    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por barcode, digemid, código...'"
         [disableClear]="!searchTerm() && selectedCategory() === null && selectedBrand() === null && selectedTherapeuticAction() === null"
         (clear)="resetFilters()">
 

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductRequest, ProductResponse } from '../models/product.model';
+import { ProductLotResponse } from '../models/inventory.model';
 import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
@@ -41,8 +42,8 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/search?query=${encodeURIComponent(query)}`);
     }
 
-    getLots(id: number): Observable<ResponseApi<any[]>> {
-        return this.http.get<ResponseApi<any[]>>(`${this.apiUrl}/${id}/lots`);
+    getLots(id: number): Observable<ResponseApi<ProductLotResponse[]>> {
+        return this.http.get<ResponseApi<ProductLotResponse[]>>(`${this.apiUrl}/${id}/lots`);
     }
 
     updateStatus(id: number, active: boolean): Observable<ResponseApi<void>> {

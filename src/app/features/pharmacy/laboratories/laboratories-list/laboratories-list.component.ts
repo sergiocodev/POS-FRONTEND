@@ -1,32 +1,28 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { LaboratoryResponse } from '../../../../core/models/laboratory.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { LaboratoryFormComponent } from '../laboratory-form/laboratory-form.component';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-laboratories-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        CustomTableComponent,
-        ModalGenericComponent,
-        LaboratoryFormComponent,
-        ModuleHeaderComponent
+        CustomTableComponent
     ],
     templateUrl: './laboratories-list.component.html',
     styleUrl: './laboratories-list.component.scss'
 })
-export class LaboratoriesListComponent implements OnInit {
-    private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
+export class LaboratoriesListComponent implements OnInit, OnChanges {
+    @Input() laboratories: LaboratoryResponse[] = [];
+    @Input() isLoading = false;
+
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<LaboratoryResponse>();
+    @Output() toggleStatus = new EventEmitter<LaboratoryResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -36,42 +32,33 @@ export class LaboratoriesListComponent implements OnInit {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    laboratories = signal<LaboratoryResponse[]>([]);
+    localLaboratories = signal<LaboratoryResponse[]>([]);
     filteredLaboratories = signal<LaboratoryResponse[]>([]);
-    isLoading = signal(false);
 
     searchTerm = signal('');
     selectedStatusFilter = signal<boolean | null>(null);
 
-    // Modal de Formulario
-    showLaboratoryModal = signal(false);
-    selectedLaboratoryId = signal<number | null>(null);
-
     // Pagination
     pageSize = 10;
+    currentPage = 1;
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        this.maintenanceService.getLaboratories().subscribe({
-            next: (response) => {
-                const laboratories = response.data;
-                this.laboratories.set(laboratories);
-                this.filteredLaboratories.set(laboratories);
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading laboratories:', error);
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['laboratories']) {
+            this.updateLocalData();
+        }
+    }
+
+    updateLocalData() {
+        this.localLaboratories.set(this.laboratories);
+        this.applyFilters();
     }
 
     applyFilters() {
-        let filtered = this.laboratories();
+        let filtered = this.localLaboratories();
 
         const search = this.searchTerm().toLowerCase();
         if (search) {
@@ -85,6 +72,7 @@ export class LaboratoriesListComponent implements OnInit {
         }
 
         this.filteredLaboratories.set(filtered);
+        this.currentPage = 1;
     }
 
     onSearchChange(value: string) {
@@ -102,65 +90,19 @@ export class LaboratoriesListComponent implements OnInit {
 
     handleTableAction(e: { action: string, row: LaboratoryResponse }) {
         if (e.action === 'edit') {
-            this.editLaboratory(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.deleteLaboratory(e.row);
+            this.delete.emit(e.row);
         }
     }
 
     handleStatusToggle(e: { row: LaboratoryResponse, key: string, checked: boolean }) {
-        this.toggleLaboratoryStatus(e.row);
+        this.toggleStatus.emit(e.row);
+        e.row.active = !e.checked; // Optimistic toggle reversion
     }
 
     createLaboratory() {
-        this.selectedLaboratoryId.set(null);
-        this.showLaboratoryModal.set(true);
-    }
-
-    editLaboratory(id: number) {
-        this.selectedLaboratoryId.set(id);
-        this.showLaboratoryModal.set(true);
-    }
-
-    onLaboratorySaved() {
-        this.showLaboratoryModal.set(false);
-        this.loadData();
-    }
-
-    onLaboratoryCancelled() {
-        this.showLaboratoryModal.set(false);
-    }
-
-    toggleLaboratoryStatus(laboratory: LaboratoryResponse) {
-        if (confirm(`¿Está seguro de ${laboratory.active ? 'desactivar' : 'activar'} el laboratorio "${laboratory.name}"?`)) {
-            this.maintenanceService.updateLaboratory(
-                laboratory.id,
-                laboratory.name,
-                !laboratory.active
-            ).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error toggling laboratory status:', error);
-                    alert('Error al cambiar el estado del laboratorio');
-                }
-            });
-        }
-    }
-
-    deleteLaboratory(laboratory: LaboratoryResponse) {
-        if (confirm(`¿Está seguro de eliminar el laboratorio "${laboratory.name}"? Esta acción no se puede deshacer.`)) {
-            this.maintenanceService.deleteLaboratory(laboratory.id).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error deleting laboratory:', error);
-                    alert('Error al eliminar el laboratorio');
-                }
-            });
-        }
+        this.create.emit();
     }
 
     trackByLaboratoryId(index: number, laboratory: LaboratoryResponse): number {

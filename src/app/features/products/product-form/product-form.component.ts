@@ -153,14 +153,14 @@ export class ProductFormComponent implements OnInit {
     loadLookupData(): void {
         this.isLoading.set(true);
         forkJoin({
-            brands: this.maintenanceService.getBrands(),
-            categories: this.maintenanceService.getCategories(),
-            laboratories: this.maintenanceService.getLaboratories(),
-            presentations: this.maintenanceService.getPresentations(),
-            taxTypes: this.maintenanceService.getTaxTypes(),
-            activeIngredients: this.maintenanceService.getActiveIngredients(),
-            pharmaceuticalForms: this.maintenanceService.getPharmaceuticalForms(),
-            therapeuticActions: this.maintenanceService.getTherapeuticActions()
+            brands: this.maintenanceService.getAllBrands(),
+            categories: this.maintenanceService.getAllCategory(),
+            laboratories: this.maintenanceService.getAllLaboratory(),
+            presentations: this.maintenanceService.getAllPresentations(),
+            taxTypes: this.maintenanceService.getAllTaxTypes(),
+            activeIngredients: this.maintenanceService.getAllActiveIngredients(),
+            pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms(),
+            therapeuticActions: this.maintenanceService.getAllTherapeuticActions()
         }).subscribe({
             next: (data) => {
                 this.brands.set(data.brands.data);

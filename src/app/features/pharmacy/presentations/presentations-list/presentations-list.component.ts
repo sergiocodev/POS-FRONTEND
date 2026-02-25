@@ -1,32 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MaintenanceService } from '../../../../core/services/maintenance.service';
-import { PresentationResponse } from '../../../../core/models/presentation.model';
+import { PresentationResponse } from '../../../../core/models/product.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { PresentationFormComponent } from '../presentation-form/presentation-form.component';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-presentations-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        CustomTableComponent,
-        ModalGenericComponent,
-        PresentationFormComponent,
-        ModuleHeaderComponent
+        CustomTableComponent
     ],
     templateUrl: './presentations-list.component.html',
     styleUrl: './presentations-list.component.scss'
 })
-export class PresentationsListComponent implements OnInit {
-    private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
+export class PresentationsListComponent implements OnInit, OnChanges {
+    @Input() presentations: PresentationResponse[] = [];
+    @Input() isLoading = false;
+
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<PresentationResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -35,50 +30,42 @@ export class PresentationsListComponent implements OnInit {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    presentations = signal<PresentationResponse[]>([]);
+    localPresentations = signal<PresentationResponse[]>([]);
     filteredPresentations = signal<PresentationResponse[]>([]);
-    isLoading = signal(false);
 
     searchTerm = signal('');
 
-    // Modal de Formulario
-    showPresentationModal = signal(false);
-    selectedPresentationId = signal<number | null>(null);
-
     // Pagination
     pageSize = 10;
+    currentPage = 1;
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        this.maintenanceService.getPresentations().subscribe({
-            next: (response) => {
-                const presentations = response.data;
-                this.presentations.set(presentations);
-                this.filteredPresentations.set(presentations);
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading presentations:', error);
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['presentations']) {
+            this.updateLocalData();
+        }
+    }
+
+    updateLocalData() {
+        this.localPresentations.set(this.presentations);
+        this.applyFilters();
     }
 
     applyFilters() {
-        let filtered = this.presentations();
+        let filtered = this.localPresentations();
 
         const search = this.searchTerm().toLowerCase();
         if (search) {
-            filtered = filtered.filter(pres =>
-                pres.description.toLowerCase().includes(search)
+            filtered = filtered.filter(p =>
+                p.description.toLowerCase().includes(search)
             );
         }
 
         this.filteredPresentations.set(filtered);
+        this.currentPage = 1;
     }
 
     onSearchChange(value: string) {
@@ -90,43 +77,14 @@ export class PresentationsListComponent implements OnInit {
 
     handleTableAction(e: { action: string, row: PresentationResponse }) {
         if (e.action === 'edit') {
-            this.editPresentation(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.deletePresentation(e.row);
+            this.delete.emit(e.row);
         }
     }
 
     createPresentation() {
-        this.selectedPresentationId.set(null);
-        this.showPresentationModal.set(true);
-    }
-
-    editPresentation(id: number) {
-        this.selectedPresentationId.set(id);
-        this.showPresentationModal.set(true);
-    }
-
-    onPresentationSaved() {
-        this.showPresentationModal.set(false);
-        this.loadData();
-    }
-
-    onPresentationCancelled() {
-        this.showPresentationModal.set(false);
-    }
-
-    deletePresentation(presentation: PresentationResponse) {
-        if (confirm(`¿Está seguro de eliminar la presentación "${presentation.description}"? Esta acción no se puede deshacer.`)) {
-            this.maintenanceService.deletePresentation(presentation.id).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error deleting presentation:', error);
-                    alert('Error al eliminar la presentación');
-                }
-            });
-        }
+        this.create.emit();
     }
 
     trackByPresentationId(index: number, presentation: PresentationResponse): number {

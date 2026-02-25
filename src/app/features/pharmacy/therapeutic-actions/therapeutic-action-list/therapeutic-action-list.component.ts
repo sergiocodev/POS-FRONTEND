@@ -1,91 +1,75 @@
-
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { TherapeuticActionFormComponent } from '../therapeutic-action-form/therapeutic-action-form.component';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-therapeutic-action-list',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
         FormsModule,
-        CustomTableComponent,
-        ModalGenericComponent,
-        TherapeuticActionFormComponent,
-        ModuleHeaderComponent
+        CustomTableComponent
     ],
     templateUrl: './therapeutic-action-list.component.html',
     styleUrl: './therapeutic-action-list.component.scss'
 })
-export class TherapeuticActionListComponent implements OnInit {
-    private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
+export class TherapeuticActionListComponent implements OnInit, OnChanges {
+    @Input() therapeuticActions: TherapeuticActionResponse[] = [];
+    @Input() isLoading = false;
 
+    @Output() create = new EventEmitter<void>();
+    @Output() edit = new EventEmitter<number>();
+    @Output() delete = new EventEmitter<TherapeuticActionResponse>();
+    @Output() toggleStatus = new EventEmitter<TherapeuticActionResponse>();
+
+    // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'id', label: 'ID', type: 'text' },
-        { key: 'name', label: 'Nombre', type: 'text' },
-        { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || '-' },
+        { key: 'name', label: 'Acción Terapéutica', type: 'text' },
+        { key: 'description', label: 'Descripción', type: 'text' },
         { key: 'active', label: 'Estado', type: 'toggle' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    therapeuticActions = signal<TherapeuticActionResponse[]>([]);
-    filteredTherapeuticActions = signal<TherapeuticActionResponse[]>([]);
-    isLoading = signal(false);
+    localActions = signal<TherapeuticActionResponse[]>([]);
+    filteredActions = signal<TherapeuticActionResponse[]>([]);
 
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
-    // Modal
-    showFormModal = signal(false);
-    selectedFormId = signal<number | null>(null);
-
+    // Pagination
     pageSize = 10;
+    currentPage = 1;
 
     ngOnInit() {
-        this.loadData();
+        this.updateLocalData();
     }
 
-    loadData() {
-        this.isLoading.set(true);
-        this.maintenanceService.getTherapeuticActions().subscribe({
-            next: (response) => {
-                const actions = response.data;
-                this.therapeuticActions.set(actions);
-                this.filteredTherapeuticActions.set(actions);
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                console.error('Error loading therapeutic actions:', error);
-                this.isLoading.set(false);
-            }
-        });
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['therapeuticActions']) {
+            this.updateLocalData();
+        }
+    }
+
+    updateLocalData() {
+        this.localActions.set(this.therapeuticActions);
+        this.applyFilters();
     }
 
     applyFilters() {
-        let filtered = this.therapeuticActions();
+        let filtered = this.localActions();
 
         const search = this.searchTerm().toLowerCase();
         if (search) {
-            filtered = filtered.filter(item =>
-                item.name.toLowerCase().includes(search) ||
-                (item.description && item.description.toLowerCase().includes(search))
+            filtered = filtered.filter(a =>
+                a.name.toLowerCase().includes(search) ||
+                (a.description && a.description.toLowerCase().includes(search))
             );
         }
 
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(item => item.active === this.selectedStatusFilter());
-        }
-
-        this.filteredTherapeuticActions.set(filtered);
+        this.filteredActions.set(filtered);
+        this.currentPage = 1;
     }
 
     onSearchChange(value: string) {
@@ -93,73 +77,25 @@ export class TherapeuticActionListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        const value = event === 'true' ? true : event === 'false' ? false : null;
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
+    // --- Actions ---
 
     handleTableAction(e: { action: string, row: TherapeuticActionResponse }) {
         if (e.action === 'edit') {
-            this.editForm(e.row.id);
+            this.edit.emit(e.row.id);
         } else if (e.action === 'delete') {
-            this.deleteForm(e.row);
+            this.delete.emit(e.row);
         }
     }
 
-    handleStatusToggle(e: { row: TherapeuticActionResponse, key: string, checked: boolean }) {
-        this.toggleFormStatus(e.row);
+    handleStatusToggle(row: TherapeuticActionResponse) {
+        this.toggleStatus.emit(row);
     }
 
-    createForm() {
-        this.selectedFormId.set(null);
-        this.showFormModal.set(true);
+    createTherapeuticAction() {
+        this.create.emit();
     }
 
-    editForm(id: number) {
-        this.selectedFormId.set(id);
-        this.showFormModal.set(true);
-    }
-
-    onFormSaved() {
-        this.showFormModal.set(false);
-        this.loadData();
-    }
-
-    onFormCancelled() {
-        this.showFormModal.set(false);
-    }
-
-    toggleFormStatus(item: TherapeuticActionResponse) {
-        if (confirm(`¿Está seguro de ${item.active ? 'desactivar' : 'activar'} la acción terapéutica "${item.name}"?`)) {
-            this.maintenanceService.updateTherapeuticAction(
-                item.id,
-                item.name,
-                item.description,
-                !item.active
-            ).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error toggling status:', error);
-                    alert('Error al cambiar el estado');
-                }
-            });
-        }
-    }
-
-    deleteForm(item: TherapeuticActionResponse) {
-        if (confirm(`¿Está seguro de eliminar la acción terapéutica "${item.name}"? Esta acción no se puede deshacer.`)) {
-            this.maintenanceService.deleteTherapeuticAction(item.id).subscribe({
-                next: () => {
-                    this.loadData();
-                },
-                error: (error) => {
-                    console.error('Error deleting action:', error);
-                    alert('Error al eliminar el registro');
-                }
-            });
-        }
+    trackByActionId(index: number, action: TherapeuticActionResponse): number {
+        return action.id;
     }
 }

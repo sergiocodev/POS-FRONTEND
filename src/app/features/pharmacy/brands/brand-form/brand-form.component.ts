@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { BrandRequest } from '../../../../core/models/brand.model';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-brand-form',
@@ -15,14 +15,13 @@ import { BrandRequest } from '../../../../core/models/brand.model';
 export class BrandFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private maintenanceService = inject(MaintenanceService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
-    @Input() set idBrand(value: number | null) {
+    @Input() set brandId(value: number | null) {
         this._brandId.set(value);
         this.checkEditModeFromInput();
     }
-    get idBrand(): number | null {
+    get brandId(): number | null {
         return this._brandId();
     }
     private _brandId = signal<number | null>(null);
@@ -37,7 +36,6 @@ export class BrandFormComponent implements OnInit {
 
     ngOnInit() {
         this.initForm();
-        this.checkEditModeFromRoute();
     }
 
     initForm() {
@@ -47,17 +45,8 @@ export class BrandFormComponent implements OnInit {
         });
     }
 
-    checkEditModeFromRoute() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.isEditMode.set(true);
-            this._brandId.set(+id);
-            this.loadBrand(+id);
-        }
-    }
-
     checkEditModeFromInput() {
-        const id = this.idBrand;
+        const id = this.brandId;
         if (id) {
             this.isEditMode.set(true);
             this.loadBrand(id);
@@ -71,7 +60,7 @@ export class BrandFormComponent implements OnInit {
 
     loadBrand(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getBrands().subscribe({
+        this.maintenanceService.getAllBrands().subscribe({
             next: (response) => {
                 const brand = response.data.find(b => b.id === id);
                 if (brand) {
@@ -80,15 +69,14 @@ export class BrandFormComponent implements OnInit {
                         active: brand.active
                     });
                 } else {
-                    alert('Marca no encontrada');
-                    this.router.navigate(['/pharmacy/brands']);
+                    this.modalService.alert({ title: 'Error', message: 'Marca no encontrada', type: 'error' });
+                    this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading brand:', error);
-                alert('Error al cargar la marca');
-                this.router.navigate(['/pharmacy/brands']);
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar la marca', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -104,21 +92,17 @@ export class BrandFormComponent implements OnInit {
         const request: BrandRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateBrand(this._brandId()!, request.name, request.active)
-            : this.maintenanceService.createBrand(request.name, request.active);
+            ? this.maintenanceService.updateBrandById(this._brandId()!, request.name, request.active)
+            : this.maintenanceService.createNewBrand(request.name, request.active);
 
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
                 this.saved.emit();
-                // Si aún estamos en modo ruta (no modal), navegar
-                if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-                    this.router.navigate(['/pharmacy/brands']);
-                }
             },
             error: (error) => {
                 console.error('Error saving brand:', error);
-                alert('Error al guardar la marca');
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar la marca', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -126,9 +110,6 @@ export class BrandFormComponent implements OnInit {
 
     onCancel() {
         this.cancelled.emit();
-        if (this.route.snapshot.paramMap.get('id') || this.router.url.includes('/new')) {
-            this.router.navigate(['/pharmacy/brands']);
-        }
     }
 
     isFieldInvalid(fieldName: string): boolean {

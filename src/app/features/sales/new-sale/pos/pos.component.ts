@@ -21,6 +21,7 @@ interface CartItem {
     product: ProductForSaleResponse;
     quantity: number;
     price: number;
+    discount: number;
     total: number;
 }
 
@@ -127,11 +128,11 @@ export class PosComponent implements OnInit {
         if (existing) {
             this.cart.update(items => items.map(item =>
                 item.product.id === product.id
-                    ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * price }
+                    ? { ...item, quantity: item.quantity + 1, total: ((item.quantity + 1) * price) - item.discount }
                     : item
             ));
         } else {
-            this.cart.update(items => [...items, { product, quantity: 1, price, total: price }]);
+            this.cart.update(items => [...items, { product, quantity: 1, price, discount: 0, total: price }]);
         }
     }
 
@@ -145,7 +146,14 @@ export class PosComponent implements OnInit {
             return;
         }
         this.cart.update(items => items.map((item, i) =>
-            i === index ? { ...item, quantity: qty, total: qty * item.price } : item
+            i === index ? { ...item, quantity: qty, total: (qty * item.price) - item.discount } : item
+        ));
+    }
+
+    updateDiscount(index: number, discount: number): void {
+        if (discount < 0) discount = 0;
+        this.cart.update(items => items.map((item, i) =>
+            i === index ? { ...item, discount, total: (item.quantity * item.price) - discount } : item
         ));
     }
 
@@ -172,7 +180,9 @@ export class PosComponent implements OnInit {
                 productId: item.product.productId,
                 lotId: item.product.lotId,
                 quantity: item.quantity,
-                unitPrice: item.price
+                unitPrice: item.price,
+                discountAmount: item.discount,
+                discountReason: item.discount > 0 ? 'Descuento Manual POS' : undefined
             })),
             payments: [
                 {

@@ -1,0 +1,18 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Laboratorios" iconClass="bi bi-building-fill"></app-module-header>
+
+<div class="laboratories-page animate-fade-in">
+    <app-laboratories-list [laboratories]="laboratories()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteLaboratory($event)" (toggleStatus)="onToggleStatus($event)">
+    </app-laboratories-list>
+
+    <!-- Modal para Crear/Editar Laboratorio -->
+    <app-modal-generic [isVisible]="showLaboratoryForm()"
+        [title]="selectedLaboratoryId() ? 'Editar Laboratorio' : 'Nuevo Laboratorio'" size="md"
+        (close)="onFormCancelled()">
+        <app-laboratory-form *ngIf="showLaboratoryForm()" [laboratoryId]="selectedLaboratoryId()"
+            (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-laboratory-form>
+    </app-modal-generic>
+</div>

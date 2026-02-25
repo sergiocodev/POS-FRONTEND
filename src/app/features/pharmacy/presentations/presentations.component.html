@@ -1,0 +1,18 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Presentaciones" iconClass="bi bi-box-seam"></app-module-header>
+
+<div class="presentations-page animate-fade-in">
+    <app-presentations-list [presentations]="presentations()" [isLoading]="isLoading()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDelete($event)">
+    </app-presentations-list>
+
+    <!-- Modal para Crear/Editar Presentación -->
+    <app-modal-generic [isVisible]="showForm()"
+        [title]="selectedPresentationId() ? 'Editar Presentación' : 'Nueva Presentación'" size="md"
+        (close)="onFormCancelled()">
+        <app-presentation-form *ngIf="showForm()" [presentationId]="selectedPresentationId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-presentation-form>
+    </app-modal-generic>
+</div>

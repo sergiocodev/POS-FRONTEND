@@ -1,6 +1,4 @@
-<app-module-header title="Marcas" iconClass="bi bi-tag"></app-module-header>
-
-<div class="brands-container container-fluid py-4 animate-fade-in">
+<div class="brands-list-container container-fluid py-4 animate-fade-in position-relative">
 
     <div class="d-flex justify-content-end align-items-center mb-4">
         <button class="btn btn-primary shadow-sm" (click)="createBrand()">
@@ -35,22 +33,16 @@
 
     <div class="card border-0 shadow-sm overflow-hidden">
         <app-custom-table [columns]="cols" [data]="filteredBrands()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event.row)">
         </app-custom-table>
 
-        <div *ngIf="isLoading()" class="text-center py-5">
+        @if (isLoading) {
+        <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
+        }
     </div>
 
 </div>
-
-<!-- Modal de Formulario de Marca -->
-<app-modal-generic [title]="selectedBrandId() ? 'Editar Marca' : 'Nueva Marca'" [isVisible]="showBrandModal()"
-    (close)="onBrandCancelled()">
-    <app-brand-form *ngIf="showBrandModal()" [idBrand]="selectedBrandId()" (saved)="onBrandSaved()"
-        (cancelled)="onBrandCancelled()">
-    </app-brand-form>
-</app-modal-generic>

@@ -25,6 +25,8 @@ export interface CashSessionRequest {
     notes?: string;
 }
 
+
+
 export interface CashSessionResponse {
     id: number;
     cashRegisterName: string;
@@ -38,4 +40,49 @@ export interface CashSessionResponse {
     notes: string;
     status: SessionStatus;
     establishmentId: number;
+}
+
+export enum ConceptType {
+    INCOME = 'INCOME',
+    EXPENSE = 'EXPENSE'
+}
+
+export interface CashConceptRequest {
+    name: string;
+    type: ConceptType;
+    active?: boolean;
+}
+
+export interface CashConceptResponse {
+    id: number;
+    name: string;
+    type: ConceptType;
+    active: boolean;
+}
+
+
+export enum CashMovementType {
+    INCOME = 'INCOME',
+    EXPENSE = 'EXPENSE'
+}
+
+export interface CashMovementRequest {
+    cashSessionId: number;
+    cashConceptId: number;
+    amount: number;
+    referenceTable?: string;
+    referenceId?: number;
+    description?: string;
+}
+
+export interface CashMovementResponse {
+    id: number;
+    cashSessionName: string;
+    cashConceptName: string;
+    amount: number;
+    type: CashMovementType;
+    referenceTable?: string;
+    referenceId?: number;
+    description?: string;
+    createdAt: string;
 }
