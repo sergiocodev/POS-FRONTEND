@@ -1,11 +1,10 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { ProductService } from '../../../core/services/product.service';
-import { MaintenanceService } from '../../../core/services/maintenance.service';
-import { UploadService } from '../../../core/services/upload.service';
+import { ProductService } from '../../../../core/services/product.service';
+import { MaintenanceService } from '../../../../core/services/maintenance.service';
+import { UploadService } from '../../../../core/services/upload.service';
 import {
     BrandResponse,
     CategoryResponse,
@@ -13,34 +12,24 @@ import {
     PresentationResponse,
     TaxTypeResponse,
     ActiveIngredientResponse
-} from '../../../core/models/product.model';
-import { PharmaceuticalFormResponse } from '../../../core/models/pharmaceutical-form.model';
-import { TherapeuticActionResponse } from '../../../core/models/therapeutic-action.model';
+} from '../../../../core/models/product.model';
+import { PharmaceuticalFormResponse } from '../../../../core/models/pharmaceutical-form.model';
+import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
 
 @Component({
     selector: 'app-product-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './product-form.component.html',
     styleUrl: './product-form.component.scss'
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent implements OnInit, OnChanges {
     private fb = inject(FormBuilder);
     private productService = inject(ProductService);
     private maintenanceService = inject(MaintenanceService);
     private uploadService = inject(UploadService);
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
 
-    @Input() set idProduct(value: number | null) {
-        this._productId.set(value);
-        this.checkEditModeFromInput();
-    }
-    get idProduct(): number | null {
-        return this._productId();
-    }
-    private _productId = signal<number | null>(null);
-
+    @Input() idProduct: number | null = null;
     @Input() isModal: boolean = false;
 
     @Output() saved = new EventEmitter<void>();
@@ -48,11 +37,9 @@ export class ProductFormComponent implements OnInit {
 
     productForm: FormGroup;
     isEditMode = signal<boolean>(false);
-    productId = signal<number | null>(null);
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
     imageError = signal<boolean>(false);
-
 
     brands = signal<BrandResponse[]>([]);
     categories = signal<CategoryResponse[]>([]);
@@ -97,27 +84,22 @@ export class ProductFormComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadLookupData();
-        this.checkEditModeFromRoute();
+        this.checkEditMode();
     }
 
-    checkEditModeFromRoute(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.isEditMode.set(true);
-            this.productId.set(+id);
-            this.loadProduct(+id);
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['idProduct'] && !changes['idProduct'].firstChange) {
+            this.checkEditMode();
         }
     }
 
-    checkEditModeFromInput(): void {
+    checkEditMode(): void {
         const id = this.idProduct;
         if (id) {
             this.isEditMode.set(true);
-            this.productId.set(id);
             this.loadProduct(id);
         } else {
             this.isEditMode.set(false);
-            this.productId.set(null);
             if (this.productForm) {
                 this.productForm.reset({
                     unitType: 'UNI',
@@ -126,7 +108,6 @@ export class ProductFormComponent implements OnInit {
                     therapeuticActionIds: [],
                     ingredients: []
                 });
-                // Clear FormArray
                 while (this.ingredients.length !== 0) {
                     this.ingredients.removeAt(0);
                 }
@@ -181,6 +162,7 @@ export class ProductFormComponent implements OnInit {
     }
 
     loadProduct(id: number): void {
+        this.isLoading.set(true);
         this.productService.getById(id).subscribe({
             next: (response) => {
                 const product = response.data;
@@ -207,6 +189,9 @@ export class ProductFormComponent implements OnInit {
                     therapeuticActionIds: product.therapeuticActionIds || []
                 });
 
+                while (this.ingredients.length !== 0) {
+                    this.ingredients.removeAt(0);
+                }
 
                 if (product.ingredients) {
                     product.ingredients.forEach(i => {
@@ -254,16 +239,13 @@ export class ProductFormComponent implements OnInit {
         const productData = this.productForm.value;
 
         const request$ = this.isEditMode()
-            ? this.productService.update(this.productId()!, productData)
+            ? this.productService.update(this.idProduct!, productData)
             : this.productService.create(productData);
 
         request$.subscribe({
             next: () => {
                 this.isLoading.set(false);
                 this.saved.emit();
-                if (!this.isModal) {
-                    this.router.navigate(['/products']);
-                }
             },
             error: (error) => {
                 this.isLoading.set(false);
@@ -274,9 +256,6 @@ export class ProductFormComponent implements OnInit {
 
     onCancel(): void {
         this.cancelled.emit();
-        if (!this.isModal) {
-            this.router.navigate(['/products']);
-        }
     }
 
     onActionChange(event: any, id: number): void {

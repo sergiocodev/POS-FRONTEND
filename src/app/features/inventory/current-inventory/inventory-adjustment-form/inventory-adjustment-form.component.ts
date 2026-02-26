@@ -1,26 +1,25 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { InventoryService } from '../../../core/services/inventory.service';
-import { InventoryResponse, InventoryRequest } from '../../../core/models/inventory.model';
+import { InventoryService } from '../../../../core/services/inventory.service';
+import { InventoryResponse, InventoryRequest } from '../../../../core/models/inventory.model';
 
 @Component({
     selector: 'app-inventory-adjustment-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './inventory-adjustment-form.component.html',
     styleUrl: './inventory-adjustment-form.component.scss'
 })
-export class InventoryAdjustmentFormComponent implements OnInit {
+export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
     private fb = inject(FormBuilder);
     private inventoryService = inject(InventoryService);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
+
+    @Input() inventoryItem: InventoryResponse | null = null;
+    @Output() saved = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<void>();
 
     adjustmentForm: FormGroup;
-    inventoryItem = signal<InventoryResponse | null>(null);
-    isLoading = signal(false);
     isSaving = signal(false);
 
     movementTypes = [
@@ -43,38 +42,32 @@ export class InventoryAdjustmentFormComponent implements OnInit {
     }
 
     ngOnInit() {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.loadInventoryItem(+id);
+        this.initForm();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['inventoryItem'] && !changes['inventoryItem'].firstChange) {
+            this.initForm();
         }
     }
 
-    loadInventoryItem(id: number) {
-        this.isLoading.set(true);
-        this.inventoryService.getById(id).subscribe({
-            next: (response) => {
-                const item = response.data;
-                this.inventoryItem.set(item);
-                this.adjustmentForm.patchValue({
-                    quantity: item.quantity,
-                    costPrice: item.costPrice,
-                    salesPrice: item.salesPrice
-                });
-                this.isLoading.set(false);
-            },
-            error: (err) => {
-                console.error('Error loading inventory item:', err);
-                this.isLoading.set(false);
-                this.router.navigate(['/inventory']);
-            }
-        });
+    initForm() {
+        if (this.inventoryItem) {
+            this.adjustmentForm.patchValue({
+                quantity: this.inventoryItem.quantity,
+                costPrice: this.inventoryItem.costPrice,
+                salesPrice: this.inventoryItem.salesPrice,
+                movementType: 'ADJUSTMENT',
+                notes: ''
+            });
+        }
     }
 
     onSubmit() {
-        if (this.adjustmentForm.invalid || !this.inventoryItem()) return;
+        if (this.adjustmentForm.invalid || !this.inventoryItem) return;
 
         this.isSaving.set(true);
-        const item = this.inventoryItem()!;
+        const item = this.inventoryItem;
         const formValue = this.adjustmentForm.value;
 
         const request: InventoryRequest = {
@@ -90,12 +83,16 @@ export class InventoryAdjustmentFormComponent implements OnInit {
         this.inventoryService.adjustStock(request).subscribe({
             next: () => {
                 this.isSaving.set(false);
-                this.router.navigate(['/inventory']);
+                this.saved.emit();
             },
             error: (err) => {
                 console.error('Error adjusting stock:', err);
                 this.isSaving.set(false);
             }
         });
+    }
+
+    onCancel() {
+        this.cancelled.emit();
     }
 }

@@ -1,0 +1,56 @@
+<div class="movement-list-container container-fluid py-4 animate-fade-in position-relative">
+
+    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto, lote o motivo...'"
+        [disableClear]="!searchTerm()" (searchQueryChange)="applyLocalFilters()" (clear)="resetFilters()">
+    </app-table-filter>
+
+    <ng-template #dateTemplate let-row>
+        <div class="fw-bold text-dark">{{ row.createdAt | date:'dd/MM/yyyy' }}</div>
+        <small class="text-muted">{{ row.createdAt | date:'HH:mm' }}</small>
+    </ng-template>
+
+    <ng-template #productTemplate let-row>
+        <div class="fw-bold">{{ row.productName }}</div>
+    </ng-template>
+
+    <ng-template #lotTemplate let-row>
+        @if (row.lotCode) {
+        <span class="badge bg-light text-dark border">{{ row.lotCode }}</span>
+        } @else {
+        <span class="text-muted small">-</span>
+        }
+    </ng-template>
+
+    <ng-template #typeTemplate let-row>
+        <span class="badge" [ngClass]="getTypeClass(row.type)">
+            <i class="bi" [class.bi-arrow-down-left]="!isOutput(row.type)"
+                [class.bi-arrow-up-right]="isOutput(row.type)"></i>
+            {{ row.type }}
+        </span>
+    </ng-template>
+
+    <ng-template #quantityTemplate let-row>
+        <span class="fw-bold text-center d-block" [class.text-danger]="isOutput(row.type)"
+            [class.text-success]="!isOutput(row.type)">
+            {{ isOutput(row.type) ? '-' : '+' }}{{ row.quantity }}
+        </span>
+    </ng-template>
+
+    <ng-template #reasonTemplate let-row>
+        <span class="text-wrap d-inline-block" style="max-width: 200px;">
+            {{ row.reason }}
+        </span>
+    </ng-template>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <app-custom-table [data]="filteredMovements()" [columns]="columns" [pageSize]="10">
+        </app-custom-table>
+
+        @if (isLoading) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted">Cargando movimientos...</p>
+        </div>
+        }
+    </div>
+</div>

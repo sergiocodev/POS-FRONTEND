@@ -1,0 +1,16 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Lotes y Vencimientos" iconClass="bi bi-calendar-event"></app-module-header>
+
+<div class="batches-expiration-page animate-fade-in">
+    <app-batch-list [lots]="lots()" [isLoading]="isLoading()" (create)="onOpenForm()">
+    </app-batch-list>
+
+    @if (showForm()) {
+    <app-modal-generic [isVisible]="showForm()" title="Nuevo Lote / Serie" size="lg" (close)="onFormCancelled()">
+        <app-batch-form [products]="products()" [isLoadingProducts]="isLoadingProducts()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-batch-form>
+    </app-modal-generic>
+    }
+</div>

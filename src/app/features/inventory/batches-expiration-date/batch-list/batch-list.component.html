@@ -1,0 +1,49 @@
+<div class="batch-list-container container-fluid py-4 animate-fade-in position-relative">
+
+    <div class="d-flex justify-content-end align-items-center mb-4">
+        <button class="btn btn-primary shadow-sm" (click)="onCreate()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Lote
+        </button>
+    </div>
+
+    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto o lote...'"
+        [disableClear]="!searchTerm()" (searchQueryChange)="applyLocalFilters()" (clear)="resetFilters()">
+    </app-table-filter>
+
+    <ng-template #productTemplate let-row>
+        <div class="fw-bold text-dark">{{ row.productName }}</div>
+        <small class="text-muted">{{ row.id }}</small>
+    </ng-template>
+
+    <ng-template #lotTemplate let-row>
+        <span class="badge bg-light text-dark border">{{ row.lotCode }}</span>
+    </ng-template>
+
+    <ng-template #expiryDateTemplate let-row>
+        {{ row.expiryDate | date:'dd/MM/yyyy' }}
+    </ng-template>
+
+    <ng-template #statusTemplate let-row>
+        <span class="badge" [ngClass]="getExpiryStatus(row.expiryDate).class">
+            {{ getExpiryStatus(row.expiryDate).text }}
+        </span>
+    </ng-template>
+
+    <ng-template #daysRemainingTemplate let-row>
+        <span class="fw-semibold" [class.text-danger]="getDaysRemaining(row.expiryDate) < 30">
+            {{ getDaysRemaining(row.expiryDate) }}
+        </span>
+    </ng-template>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <app-custom-table [data]="filteredLots()" [columns]="columns" [pageSize]="10">
+        </app-custom-table>
+
+        @if (isLoading) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted">Cargando lotes...</p>
+        </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Catálogo de Productos" iconClass="bi bi-box-seam"></app-module-header>
+
+<div class="product-catalog-page animate-fade-in">
+    <app-product-list [products]="products()" [isLoading]="isLoading()" [categories]="categories()" [brands]="brands()"
+        [therapeuticActions]="therapeuticActions()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
+        (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)">
+    </app-product-list>
+
+    @if (showForm()) {
+    <app-modal-generic [isVisible]="showForm()" [title]="selectedProductId() ? 'Editar Producto' : 'Nuevo Producto'"
+        size="xl" (close)="onFormCancelled()">
+        <app-product-form [idProduct]="selectedProductId()" [isModal]="true" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-product-form>
+    </app-modal-generic>
+    }
+</div>

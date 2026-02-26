@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InventoryService } from '../../../core/services/inventory.service';
-import { StockMovementResponse, MovementType } from '../../../core/models/inventory.model';
+import { InventoryService } from '../../../../core/services/inventory.service';
+import { StockMovementResponse, MovementType } from '../../../../core/models/inventory.model';
 
 @Component({
     selector: 'app-stock-movement-list',

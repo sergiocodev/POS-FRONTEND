@@ -41,15 +41,7 @@ export const routes: Routes = [
             },
             {
                 path: 'products',
-                loadComponent: () => import('./features/products/product-list/product-list.component').then(m => m.ProductListComponent)
-            },
-            {
-                path: 'products/new',
-                loadComponent: () => import('./features/products/product-form/product-form.component').then(m => m.ProductFormComponent)
-            },
-            {
-                path: 'products/edit/:id',
-                loadComponent: () => import('./features/products/product-form/product-form.component').then(m => m.ProductFormComponent)
+                loadComponent: () => import('./features/inventory/product-catalog/product-catalog.component').then(m => m.ProductCatalogComponent)
             },
             {
                 path: 'sales',
@@ -58,14 +50,6 @@ export const routes: Routes = [
             {
                 path: 'sales/pos',
                 loadComponent: () => import('./features/sales/new-sale/pos/pos.component').then(m => m.PosComponent)
-            },
-            {
-                path: 'inventory',
-                loadComponent: () => import('./features/inventory/inventory-list/inventory-list.component').then(m => m.InventoryListComponent)
-            },
-            {
-                path: 'inventory/movements',
-                loadComponent: () => import('./features/inventory/stock-movements/stock-movement-list.component').then(m => m.StockMovementListComponent)
             },
             {
                 path: 'purchases',
@@ -170,23 +154,15 @@ export const routes: Routes = [
             },
             {
                 path: 'inventory',
-                loadComponent: () => import('./features/inventory/inventory-list/inventory-list.component').then(m => m.InventoryListComponent)
-            },
-            {
-                path: 'inventory/adjust/:id',
-                loadComponent: () => import('./features/inventory/inventory-adjustment-form/inventory-adjustment-form.component').then(m => m.InventoryAdjustmentFormComponent)
+                loadComponent: () => import('./features/inventory/current-inventory/current-inventory').then(m => m.CurrentInventoryComponent)
             },
             {
                 path: 'inventory/batches',
-                loadComponent: () => import('./features/inventory/batch-list/batch-list.component').then(m => m.BatchListComponent)
-            },
-            {
-                path: 'inventory/batches/new',
-                loadComponent: () => import('./features/inventory/batch-form/batch-form.component').then(m => m.BatchFormComponent)
+                loadComponent: () => import('./features/inventory/batches-expiration-date/batches-expiration-date').then(m => m.BatchesExpirationDateComponent)
             },
             {
                 path: 'inventory/movements',
-                loadComponent: () => import('./features/inventory/movement-list/movement-list.component').then(m => m.MovementListComponent)
+                loadComponent: () => import('./features/inventory/movements/movements').then(m => m.MovementsComponent)
             },
             {
                 path: '',

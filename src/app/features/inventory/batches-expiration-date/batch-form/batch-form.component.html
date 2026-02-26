@@ -1,0 +1,51 @@
+<div class="batch-form-container">
+    <form [formGroup]="batchForm" (ngSubmit)="onSubmit()">
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label fw-bold font-sm">Producto <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="productId"
+                    [class.is-invalid]="batchForm.get('productId')?.touched && batchForm.get('productId')?.invalid">
+                    <option [ngValue]="null">Seleccionar producto...</option>
+                    @for (product of products; track product.id) {
+                    <option [value]="product.id">{{ product.tradeName }} ({{ product.code }})</option>
+                    }
+                </select>
+                @if (isLoadingProducts) {
+                <div class="mt-1 small text-muted">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    Cargando productos...
+                </div>
+                }
+                <div class="invalid-feedback">Debe seleccionar un producto</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold font-sm">Número de Lote / Serie <span
+                        class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="lotCode" placeholder="Ej: LOT-2024-001"
+                    [class.is-invalid]="batchForm.get('lotCode')?.touched && batchForm.get('lotCode')?.invalid">
+                <div class="invalid-feedback">El código de lote es obligatorio</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-bold font-sm">Fecha de Vencimiento <span
+                        class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="expiryDate"
+                    [class.is-invalid]="batchForm.get('expiryDate')?.touched && batchForm.get('expiryDate')?.invalid">
+                <div class="invalid-feedback">La fecha de vencimiento es obligatoria</div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-outline-secondary px-4" (click)="onCancel()">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="batchForm.invalid || isSaving()">
+                @if (isSaving()) {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Guardando...
+                } @else {
+                <i class="bi bi-save me-1"></i> Registrar Lote
+                }
+            </button>
+        </div>
+    </form>
+</div>

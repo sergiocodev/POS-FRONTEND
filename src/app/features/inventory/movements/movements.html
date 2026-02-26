@@ -1,0 +1,8 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Movimientos de Almacén" iconClass="bi bi-arrow-left-right"></app-module-header>
+
+<div class="movements-page animate-fade-in">
+    <app-movement-list [movements]="movements()" [isLoading]="isLoading()">
+    </app-movement-list>
+</div>

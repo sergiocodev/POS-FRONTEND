@@ -1,0 +1,19 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Inventario Actual" iconClass="bi bi-box-seam"></app-module-header>
+
+<div class="current-inventory-page animate-fade-in">
+    <app-inventory-list [inventory]="inventory()" [isLoading]="isLoading()" (adjust)="onAdjust($event)"
+        (export)="onExport()">
+    </app-inventory-list>
+
+    @if (showAdjustmentModal()) {
+    <app-modal-generic [isVisible]="showAdjustmentModal()"
+        [title]="'Ajuste de Stock: ' + (selectedInventoryItem()?.productName || '')" size="lg"
+        (close)="onAdjustmentCancelled()">
+        <app-inventory-adjustment-form [inventoryItem]="selectedInventoryItem()" (saved)="onAdjustmentSaved()"
+            (cancelled)="onAdjustmentCancelled()">
+        </app-inventory-adjustment-form>
+    </app-modal-generic>
+    }
+</div>
