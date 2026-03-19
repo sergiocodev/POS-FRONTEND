@@ -19,7 +19,7 @@ export class ProductService {
         if (brandId !== undefined) queryParams.push(`brandId=${brandId}`);
         if (active !== undefined) queryParams.push(`active=${active}`);
         if (queryParams.length > 0) params = '?' + queryParams.join('&');
-        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}${params}`);
+        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts${params}`);
     }
 
     getById(id: number): Observable<ResponseApi<ProductResponse>> {

@@ -1,0 +1,395 @@
+@use "sass:color";
+@use "../../../../scss/variables" as *;
+
+// =============================================
+// Card Grid — Premium Design System
+// =============================================
+
+// Design Tokens (Migrated to Global)
+$card-radius: $border-radius-lg;
+$transition-fast: 0.2s;
+$transition-normal: 0.3s;
+$scrollbar-width: 5px;
+
+// Mapeo a Variables Globales
+$primary: $color-primary;
+$primary-light: $hover-bg;
+$accent: $color-secondary;
+$success: $color-success;
+$warning: $color-warning;
+$danger: $color-danger;
+$text-dark: $text-main;
+$text-muted: $text-muted;
+$bg-card: $card-bg;
+$bg-image: $bg-body;
+
+// =============================================
+// Scrollbar Personalizado
+// =============================================
+.scrollable-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba($text-muted, 0.2) transparent;
+
+    &::-webkit-scrollbar {
+        width: $scrollbar-width;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba($text-muted, 0.3);
+        border-radius: 10px;
+
+        &:hover {
+            background-color: rgba($text-muted, 0.5);
+        }
+    }
+}
+
+// =============================================
+// Skeleton Loading
+// =============================================
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-card {
+    background: $bg-card;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.skeleton-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, $bg-body 25%, $hover-bg 50%, $bg-body 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+}
+
+.skeleton-line {
+    height: 10px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, $bg-body 25%, $hover-bg 50%, $bg-body 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+}
+
+// =============================================
+// Tarjeta de Producto
+// =============================================
+.product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: $bg-card;
+    border-radius: $card-radius;
+    overflow: hidden;
+    cursor: pointer;
+    outline: none;
+    border: 1px solid $border-color;
+    box-shadow: $shadow-sm;
+    transition:
+        transform $transition-normal cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow $transition-normal cubic-bezier(0.22, 1, 0.36, 1),
+        border-color $transition-normal ease;
+    will-change: transform, box-shadow;
+
+    &:hover {
+        transform: translateY(-6px);
+        border-color: rgba($primary, 0.15);
+        box-shadow:
+            0 8px 24px rgba($primary, 0.08),
+            0 4px 12px rgba(0, 0, 0, 0.06);
+
+        .img-wrapper {
+            transform: scale(1.08);
+        }
+
+        .product-name {
+            color: $primary;
+        }
+
+        .location-badge {
+            box-shadow: 0 4px 16px rgba($primary, 0.3);
+        }
+    }
+
+    &:focus-visible {
+        transform: translateY(-4px);
+        box-shadow: 0 0 0 3px rgba($primary, 0.3);
+    }
+
+    &:active {
+        transform: translateY(-2px) scale(0.98);
+        transition-duration: 0.1s;
+    }
+}
+
+// =============================================
+// Location Badge (Flotante glassmorphism)
+// =============================================
+.location-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: linear-gradient(135deg, $primary, $accent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba($primary, 0.25);
+    pointer-events: none;
+    transition: box-shadow $transition-normal ease;
+
+    i {
+        font-size: 0.65rem;
+    }
+}
+
+// =============================================
+// Sección de Imagen
+// =============================================
+.card-img-section {
+    display: flex;
+    justify-content: center;
+    padding: 16px 16px 8px;
+}
+
+.img-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    background: $bg-image;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform $transition-normal cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: $primary;
+    opacity: 0.35;
+
+    i {
+        font-size: 2rem;
+    }
+}
+
+// =============================================
+// Sección de Información
+// =============================================
+.card-info-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4px 14px 8px;
+    flex-grow: 1;
+    gap: 2px;
+}
+
+.product-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color $transition-fast ease;
+    line-height: 1.3;
+}
+
+.generic-name {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: $primary;
+    opacity: 0.8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.presentation-tag {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: $text-muted;
+    background: rgba($text-muted, 0.08);
+    padding: 1px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+// =============================================
+// Sección Footer (Precio, Stock, Vencimiento)
+// =============================================
+.card-footer-section {
+    padding: 6px 14px 12px;
+    margin-top: auto;
+}
+
+.price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.price {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.01em;
+}
+
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 22px;
+    padding: 0 8px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: 8px;
+    letter-spacing: 0.01em;
+
+    &.stock-ok {
+        color: $success;
+        background: rgba($success, 0.1);
+    }
+
+    &.stock-low {
+        color: $warning;
+        background: rgba($warning, 0.12);
+    }
+
+    &.stock-critical {
+        color: $danger;
+        background: rgba($danger, 0.1);
+        animation: pulse-stock 2s infinite;
+    }
+}
+
+@keyframes pulse-stock {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+// Expiration Row
+.expiration-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 3px 0;
+    border-radius: 6px;
+
+    &.expiration-ok {
+        color: $success;
+    }
+
+    &.expiration-warning {
+        color: $warning;
+    }
+
+    &.expiration-critical {
+        color: $danger;
+        animation: pulse-stock 2s infinite;
+    }
+
+    i {
+        font-size: 0.7rem;
+    }
+}
+
+// =============================================
+// Empty State
+// =============================================
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 3rem 1rem;
+    opacity: 0.5;
+
+    h5 {
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 0.25rem;
+    }
+
+    p {
+        color: $text-muted;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: $primary-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+
+    i {
+        font-size: 2rem;
+        color: $primary;
+    }
+}

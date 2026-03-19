@@ -12,11 +12,12 @@ import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-purchase-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, ModuleHeaderComponent],
     templateUrl: './purchase-form.component.html',
     styleUrl: './purchase-form.component.scss'
 })

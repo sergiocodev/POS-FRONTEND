@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, signal, Input, Output, EventEmitter, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, signal, computed, input, output, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventoryResponse } from '../../../../core/models/inventory.model';
@@ -12,48 +12,38 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
     templateUrl: './inventory-list.component.html',
     styleUrl: './inventory-list.component.scss'
 })
-export class InventoryListComponent implements OnInit, OnChanges {
+export class InventoryListComponent implements OnInit {
     @ViewChild('productTemplate', { static: true }) productTemplate!: TemplateRef<any>;
     @ViewChild('lotTemplate', { static: true }) lotTemplate!: TemplateRef<any>;
     @ViewChild('quantityTemplate', { static: true }) quantityTemplate!: TemplateRef<any>;
     @ViewChild('actionsTemplate', { static: true }) actionsTemplate!: TemplateRef<any>;
 
-    @Input() inventory: InventoryResponse[] = [];
-    @Input() isLoading = false;
+    inventory = input<InventoryResponse[]>([]);
+    isLoading = input(false);
 
-    @Output() adjust = new EventEmitter<InventoryResponse>();
-    @Output() export = new EventEmitter<void>();
+    adjust = output<InventoryResponse>();
+    export = output<void>();
 
     searchTerm = signal<string>('');
-    filteredInventory = signal<InventoryResponse[]>([]);
+
+    filteredInventory = computed(() => {
+        const result = this.inventory();
+        const term = this.searchTerm().toLowerCase();
+
+        if (!term) {
+            return result;
+        }
+
+        return result.filter(item =>
+            item.productName.toLowerCase().includes(term) ||
+            item.lotCode.toLowerCase().includes(term)
+        );
+    });
+
     columns: TableColumn[] = [];
 
     ngOnInit() {
         this.setupColumns();
-        this.applyLocalFilters();
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['inventory']) {
-            this.applyLocalFilters();
-        }
-    }
-
-    applyLocalFilters() {
-        const result = this.inventory || [];
-        const term = this.searchTerm().toLowerCase();
-
-        if (!term) {
-            this.filteredInventory.set(result);
-            return;
-        }
-
-        const filtered = result.filter(item =>
-            item.productName.toLowerCase().includes(term) ||
-            item.lotCode.toLowerCase().includes(term)
-        );
-
-        this.filteredInventory.set(filtered);
     }
 
     setupColumns() {
@@ -98,7 +88,6 @@ export class InventoryListComponent implements OnInit, OnChanges {
 
     resetFilters(): void {
         this.searchTerm.set('');
-        this.applyLocalFilters();
     }
 
     onAdjust(item: InventoryResponse): void {

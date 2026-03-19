@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, signal, Input, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, signal, computed, input, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockMovementResponse, MovementType } from '../../../../core/models/inventory.model';
@@ -12,7 +12,7 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
     templateUrl: './movement-list.component.html',
     styleUrl: './movement-list.component.scss'
 })
-export class MovementListComponent implements OnInit, OnChanges {
+export class MovementListComponent implements OnInit {
     @ViewChild('dateTemplate', { static: true }) dateTemplate!: TemplateRef<any>;
     @ViewChild('productTemplate', { static: true }) productTemplate!: TemplateRef<any>;
     @ViewChild('lotTemplate', { static: true }) lotTemplate!: TemplateRef<any>;
@@ -20,38 +20,29 @@ export class MovementListComponent implements OnInit, OnChanges {
     @ViewChild('quantityTemplate', { static: true }) quantityTemplate!: TemplateRef<any>;
     @ViewChild('reasonTemplate', { static: true }) reasonTemplate!: TemplateRef<any>;
 
-    @Input() movements: StockMovementResponse[] = [];
-    @Input() isLoading = false;
+    movements = input<StockMovementResponse[]>([]);
+    isLoading = input(false);
 
     searchTerm = signal('');
-    filteredMovements = signal<StockMovementResponse[]>([]);
-    columns: TableColumn[] = [];
-
-    ngOnInit() {
-        this.setupColumns();
-        this.applyLocalFilters();
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['movements']) {
-            this.applyLocalFilters();
-        }
-    }
-
-    applyLocalFilters() {
+    filteredMovements = computed(() => {
         const term = this.searchTerm().toLowerCase();
-        const movementsList = this.movements || [];
+        const movementsList = this.movements();
+
         if (!term) {
-            this.filteredMovements.set(movementsList);
-            return;
+            return movementsList;
         }
 
-        const filtered = movementsList.filter(m =>
+        return movementsList.filter(m =>
             m.productName.toLowerCase().includes(term) ||
             (m.lotCode && m.lotCode.toLowerCase().includes(term)) ||
             m.reason.toLowerCase().includes(term)
         );
-        this.filteredMovements.set(filtered);
+    });
+
+    columns: TableColumn[] = [];
+
+    ngOnInit() {
+        this.setupColumns();
     }
 
     setupColumns() {
@@ -108,7 +99,6 @@ export class MovementListComponent implements OnInit, OnChanges {
 
     resetFilters(): void {
         this.searchTerm.set('');
-        this.applyLocalFilters();
     }
 
     getTypeClass(type: MovementType): string {

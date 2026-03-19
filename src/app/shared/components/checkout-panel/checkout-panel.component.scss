@@ -1,0 +1,113 @@
+@use "../../../../scss/variables" as *;
+
+// checkout-panel.component.scss
+.sticky-lg-top {
+    z-index: 1020;
+}
+
+.scrollable-content {
+    max-height: 40vh; // Limita el área de productos para que el total siempre sea visible
+    scrollbar-width: thin;
+    scrollbar-color: rgba($text-muted, 0.2) transparent;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $border-color;
+        border-radius: 10px;
+    }
+}
+
+.focus-within-primary {
+    transition: border-color 0.2s;
+
+    &:focus-within {
+        border-color: $color-primary !important;
+        box-shadow: 0 0 0 0.25rem rgba($color-primary, 0.15);
+    }
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+        background-color: rgba($color-danger, 0.1);
+        transform: scale(1.02);
+    }
+}
+
+.btn-group {
+    .btn-light {
+        border: none;
+        background-color: $hover-bg;
+        color: $text-main;
+
+        &:hover {
+            background-color: rgba($color-primary, 0.1);
+        }
+
+        &:active {
+            background-color: rgba($color-primary, 0.2);
+        }
+    }
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+// Serie selector - classic radio
+.series-radio {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+
+    input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid $text-muted;
+        border-radius: 50%;
+        margin: 0;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.15s ease;
+        background: $card-bg;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: $color-primary;
+            transition: transform 0.15s ease;
+        }
+
+        &:checked {
+            border-color: $color-primary;
+
+            &::after {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    }
+
+    label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: $text-muted;
+        cursor: pointer;
+        user-select: none;
+    }
+}

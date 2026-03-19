@@ -1,0 +1,20 @@
+<div class="w-100">
+    <div *ngIf="label" class="text-muted fw-bold mb-1 text-truncate"
+        style="font-size: 0.65rem; text-transform: uppercase;">
+        {{ label }}
+    </div>
+
+    <div class="btn-group btn-group-sm bg-body-tertiary rounded-3 border border-light w-100" style="height: 26px;">
+
+        <button type="button" class="btn btn-light px-2 py-0 text-muted fw-bold border-0" (click)="decrement()"
+            [disabled]="value <= min">-</button>
+
+        <input type="number" class="px-1 fw-bold bg-white text-center border-0 w-100 custom-number-input"
+            style="font-size: 0.85rem; border-left: 1px solid #eee !important; border-right: 1px solid #eee !important; outline: none; min-width: 1px;"
+            [value]="value" [step]="allowManual ? 'any' : step" [readonly]="!allowManual"
+            (change)="onManualInput($event)" (input)="onManualInput($event)">
+
+        <button type="button" class="btn btn-light px-2 py-0 text-muted fw-bold border-0"
+            (click)="increment()">+</button>
+    </div>
+</div>

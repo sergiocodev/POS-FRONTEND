@@ -1,4 +1,5 @@
 @use 'bootstrap/scss/bootstrap';
+@use './scss/variables' as *;
 
 @font-face {
   font-family: 'Forgotten';
@@ -9,62 +10,116 @@
 
 
 
+// ============================================================
+// 🌤️  LIGHT THEME
+// ============================================================
 :root {
 
-  --font-family: 'Forgotten';
-  --font-size-base: 14px;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-
-
+  // --- Colores principales ---
   --primary-color: #2B2B2B;
-  --secondary-color: #4DA6FF;
   --primary-hover: #1a44d9;
+  --secondary-color: #4DA6FF;
   --secondary-hover: #7c3aed;
 
+  // --- Colores de estado ---
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --warning-color: #f59e0b;
+  --warning-hover: #d97706;
+  --info-color: #3b82f6;
+  --info-hover: #2563eb;
 
+  // --- Fondos ---
   --bg-body: #f8f7fa;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
   --bg-sidebar-start: #ffffff;
   --bg-sidebar-end: #ffffff;
-  --card-bg: #ffffff;
 
-
+  // --- Textos ---
   --text-main: #000000;
   --text-muted: #a5a3ae;
   --text-on-primary: #ffffff;
   --text-on-secondary: #ffffff;
 
-
+  // --- Bordes / interacción ---
   --border-color: #dbdade;
   --hover-bg: rgba(75, 70, 92, 0.08);
   --active-bg: rgba(115, 103, 240, 0.16);
+
+  // --- Sombras ---
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
+
+  // --- Tipografía ---
+  --font-family: 'Forgotten';
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // --- Espaciado ---
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  // --- Bordes redondeados ---
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
 }
 
+// ============================================================
+// 🌙  DARK THEME
+// ============================================================
 .dark-theme {
 
-  --primary-color: #1F51FF;
-  --secondary-color: #8b5cf6;
-  --primary-hover: #4d73ff;
+  // --- Colores principales ---
+  --primary-color: #0000ff;
+  --primary-hover: #ff007c;
+  --secondary-color: #ff007c;
   --secondary-hover: #a78bfa;
 
+  // --- Colores de estado ---
+  --success-color: #34d399;
+  --success-hover: #10b981;
+  --danger-color: #f87171;
+  --danger-hover: #ef4444;
+  --warning-color: #fbbf24;
+  --warning-hover: #f59e0b;
+  --info-color: #60a5fa;
+  --info-hover: #3b82f6;
 
-  --bg-body: #25293c;
-  --bg-sidebar-start: #2f3349;
-  --bg-sidebar-end: #2f3349;
-  --card-bg: #2f3349;
+  // --- Fondos ---
+  --bg-body: #181a26;
+  --card-bg: #181a26;
+  --input-bg: #3a3f5a;
+  --bg-sidebar-start: #181a26;
+  --bg-sidebar-end: #181a26;
 
-
+  // --- Textos ---
   --text-main: #cfcde5;
   --text-muted: #b6bee3;
   --text-on-primary: #ffffff;
   --text-on-secondary: #ffffff;
 
-
+  // --- Bordes / interacción ---
   --border-color: #434968;
   --hover-bg: rgba(255, 255, 255, 0.05);
   --active-bg: linear-gradient(90deg, rgba(115, 103, 240, 0.15) 0%, rgba(115, 103, 240, 0) 100%);
+
+  // --- Sombras ---
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.30);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.40);
 }
 
 

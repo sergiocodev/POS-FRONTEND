@@ -3,7 +3,8 @@ export enum SaleDocumentType {
     BOLETA = 'BOLETA',
     FACTURA = 'FACTURA',
     NOTA_CREDITO = 'NOTA_CREDITO',
-    NOTA_DEBITO = 'NOTA_DEBITO'
+    NOTA_DEBITO = 'NOTA_DEBITO',
+    NOTA_VENTA = 'NOTA_VENTA'
 }
 
 export enum SaleStatus {
@@ -79,6 +80,8 @@ export interface ProductForSaleResponse {
     expirationDate: string;
     lotCode: string;
     lotId: number;
+    barcode?: string;
+    imageUrl?: string;
 }
 
 export interface SaleRequest {
@@ -86,6 +89,7 @@ export interface SaleRequest {
     cashSessionId?: number;
     customerId?: number;
     documentType: SaleDocumentType;
+    series?: string;
     relatedSaleId?: number;
     noteCode?: string;
     noteReason?: string;

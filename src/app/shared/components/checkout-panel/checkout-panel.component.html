@@ -1,0 +1,142 @@
+<div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column sticky-lg-top"
+    style="top: 1.5rem; max-height: calc(100vh - 3rem);">
+
+    <div
+        class="card-header bg-transparent border-bottom-0 pt-3 pb-2 px-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 d-flex align-items-center">
+            <i class="bi bi-receipt-cutoff text-primary me-2 fs-4"></i> Venta Actual
+        </h5>
+        <button class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-medium transition-all"
+            (click)="onClearCart.emit()" [disabled]="cart().length === 0">
+            <i class="bi bi-trash3 me-1"></i> Vaciar
+        </button>
+    </div>
+
+    <div class="card-body px-3 pb-3 d-flex flex-column overflow-hidden">
+
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-end mb-2">
+                <label class="small fw-bold text-muted text-uppercase mb-0">Cliente</label>
+                <div *ngIf="selectedCustomer()" class="small text-warning fw-bold animate__animated animate__fadeIn">
+                    <i class="bi bi-star-fill me-1"></i> {{ selectedCustomer()?.accumulatedPoints || 0 }} pts
+                </div>
+            </div>
+            <div class="input-group">
+                <select
+                    class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
+                    (change)="selectedCustomer.set($any($event.target).value)">
+                    <option [ngValue]="null">Público General</option>
+                    <option *ngFor="let c of customers()" [ngValue]="c">
+                        {{ c.name }} ({{ c.documentNumber }})
+                    </option>
+                </select>
+                <button (click)="onAddCustomer.emit()" class="btn btn-primary rounded-end-3 px-3" type="button">
+                    <i class="bi bi-person-plus-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <div
+            class="flex-grow-1 overflow-auto scrollable-content border border-light-subtle rounded-4 bg-body-tertiary p-2 mb-4">
+            <div *ngIf="cart().length === 0"
+                class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50 py-5">
+                <i class="bi bi-basket2 display-3 mb-3"></i>
+                <span class="fw-medium">El carrito está vacío</span>
+            </div>
+
+            <div *ngFor="let item of cart(); let i = index"
+                class="bg-white rounded-3 p-3 mb-2 shadow-sm border border-light">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="fw-bold text-dark text-truncate flex-grow-1" [title]="item.product.tradeName">{{
+                        item.product.tradeName }}</div>
+                    <button class="btn btn-link text-danger p-0 border-0 ms-2" (click)="removeFromCart(i)">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+
+                <div class="row g-1 align-items-end text-center">
+                    <!-- Cantidad -->
+                    <div class="col-4 px-1">
+                        <app-quantity-input [value]="item.quantity" (valueChange)="updateQuantity(i, $event)"
+                            [allowManual]="false" [min]="1" label="Cant.">
+                        </app-quantity-input>
+                    </div>
+
+                    <!-- P.U -->
+                    <div class="col-2 px-1">
+                        <div class="text-muted fw-bold mb-1 w-100 text-truncate"
+                            style="font-size: 0.60rem; text-transform: uppercase;">P.U
+                        </div>
+                        <div class="fw-medium text-dark d-flex align-items-center justify-content-center w-100 text-truncate"
+                            style="font-size: 0.85rem; height: 26px;">{{ item.price | number:'1.2-2' }}
+                        </div>
+                    </div>
+
+                    <!-- V.Venta -->
+                    <div class="col-2 px-1">
+                        <div class="text-muted fw-bold mb-1 w-100 text-truncate"
+                            style="font-size: 0.60rem; text-transform: uppercase;">
+                            Total</div>
+                        <div class="fw-bold text-primary d-flex align-items-center justify-content-center w-100 text-truncate"
+                            style="font-size: 0.85rem; height: 26px;">{{ item.total | number:'1.2-2'
+                            }}</div>
+                    </div>
+
+                    <!-- Descuento -->
+                    <div class="col-4 px-1">
+                        <app-quantity-input [value]="item.discountInput || 0"
+                            (valueChange)="updateDiscountInput(i, $event)" [allowManual]="true" [min]="0" [step]="1"
+                            label="Desc.">
+                        </app-quantity-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form [formGroup]="posForm" (ngSubmit)="submitSale()" class="mt-auto">
+            <div class="row g-2 mb-3">
+                <!-- Selección de Serie -->
+                <div class="col-12 mb-1">
+                    <div class="d-flex align-items-center gap-3 justify-content-start">
+                        <div *ngFor="let s of seriesOptions[posForm.get('documentType')?.value]" class="series-radio">
+                            <input type="radio" [id]="'series-' + s" [value]="s" formControlName="series">
+                            <label [for]="'series-' + s">{{ s }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Documento</label>
+                    <select class="form-select bg-body-secondary border-0" formControlName="documentType">
+                        <option value="BOLETA">Boleta</option>
+                        <option value="FACTURA">Factura</option>
+                        <option value="NOTA_VENTA">Nota de Venta</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Pago</label>
+                    <select class="form-select bg-body-secondary border-0" formControlName="paymentMethod">
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="YAPE">Yape/Plin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-primary bg-opacity-10 rounded-4 p-3 mb-3">
+                <div class="d-flex justify-content-between mb-1 small text-primary opacity-75">
+                    <span>Subtotal</span>
+                    <span>S/ {{ subtotal() | number:'1.2-2' }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="h6 mb-0 fw-bold text-primary">TOTAL</span>
+                    <span class="h3 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 rounded-4 shadow-sm btn-lg"
+                [disabled]="isLoading() || cart().length === 0">
+                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading()" class="bi bi-wallet2 me-2"></i> PROCESAR VENTA
+            </button>
+        </form>
+    </div>
+</div>

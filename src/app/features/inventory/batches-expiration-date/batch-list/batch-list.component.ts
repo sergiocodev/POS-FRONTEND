@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, signal, Input, Output, EventEmitter, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, signal, computed, input, output, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductLotResponse } from '../../../../core/models/inventory.model';
@@ -12,46 +12,38 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
     templateUrl: './batch-list.component.html',
     styleUrl: './batch-list.component.scss'
 })
-export class BatchListComponent implements OnInit, OnChanges {
+export class BatchListComponent implements OnInit {
     @ViewChild('productTemplate', { static: true }) productTemplate!: TemplateRef<any>;
     @ViewChild('lotTemplate', { static: true }) lotTemplate!: TemplateRef<any>;
     @ViewChild('expiryDateTemplate', { static: true }) expiryDateTemplate!: TemplateRef<any>;
     @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<any>;
     @ViewChild('daysRemainingTemplate', { static: true }) daysRemainingTemplate!: TemplateRef<any>;
 
-    @Input() lots: ProductLotResponse[] = [];
-    @Input() isLoading = false;
+    lots = input<ProductLotResponse[]>([]);
+    isLoading = input(false);
 
-    @Output() create = new EventEmitter<void>();
+    create = output<void>();
 
     searchTerm = signal('');
-    filteredLots = signal<ProductLotResponse[]>([]);
+
+    filteredLots = computed(() => {
+        const term = this.searchTerm().toLowerCase();
+        const lotsList = this.lots();
+
+        if (!term) {
+            return lotsList;
+        }
+
+        return lotsList.filter(lot =>
+            lot.productName.toLowerCase().includes(term) ||
+            lot.lotCode.toLowerCase().includes(term)
+        );
+    });
+
     columns: TableColumn[] = [];
 
     ngOnInit() {
         this.setupColumns();
-        this.applyLocalFilters();
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['lots']) {
-            this.applyLocalFilters();
-        }
-    }
-
-    applyLocalFilters() {
-        const term = this.searchTerm().toLowerCase();
-        const lotsList = this.lots || [];
-        if (!term) {
-            this.filteredLots.set(lotsList);
-            return;
-        }
-
-        const filtered = lotsList.filter(lot =>
-            lot.productName.toLowerCase().includes(term) ||
-            lot.lotCode.toLowerCase().includes(term)
-        );
-        this.filteredLots.set(filtered);
     }
 
     setupColumns() {
@@ -93,7 +85,6 @@ export class BatchListComponent implements OnInit, OnChanges {
 
     resetFilters(): void {
         this.searchTerm.set('');
-        this.applyLocalFilters();
     }
 
     onCreate() {

@@ -1,0 +1,63 @@
+// ============================================================
+// GLOBAL SCSS VARIABLES
+// Estos mapas apuntan a las CSS Custom Properties definidas en styles.scss
+// ============================================================
+
+// Colores principales
+$color-primary: var(--primary-color);
+$color-primary-hover: var(--primary-hover);
+$color-secondary: var(--secondary-color);
+$color-secondary-hover: var(--secondary-hover);
+
+// Estado / semántica
+$color-success: var(--success-color);
+$color-success-hover: var(--success-hover);
+$color-danger: var(--danger-color);
+$color-danger-hover: var(--danger-hover);
+$color-warning: var(--warning-color);
+$color-warning-hover: var(--warning-hover);
+$color-info: var(--info-color);
+$color-info-hover: var(--info-hover);
+
+// Fondos
+$bg-body: var(--bg-body);
+$bg-sidebar-start: var(--bg-sidebar-start);
+$bg-sidebar-end: var(--bg-sidebar-end);
+$card-bg: var(--card-bg);
+$input-bg: var(--input-bg);
+
+// Textos
+$text-main: var(--text-main);
+$text-muted: var(--text-muted);
+$text-on-primary: var(--text-on-primary);
+$text-on-secondary: var(--text-on-secondary);
+
+// Bordes / interacción
+$border-color: var(--border-color);
+$hover-bg: var(--hover-bg);
+$active-bg: var(--active-bg);
+
+// Tipografía
+$font-family: var(--font-family);
+$font-size-base: var(--font-size-base);
+$font-size-sm: var(--font-size-sm);
+$font-size-lg: var(--font-size-lg);
+$font-weight-normal: var(--font-weight-normal);
+$font-weight-medium: var(--font-weight-medium);
+$font-weight-semibold: var(--font-weight-semibold);
+$font-weight-bold: var(--font-weight-bold);
+
+// Espaciado
+$spacing-xs: var(--spacing-xs);
+$spacing-sm: var(--spacing-sm);
+$spacing-md: var(--spacing-md);
+$spacing-lg: var(--spacing-lg);
+$spacing-xl: var(--spacing-xl);
+
+// Radio / sombras
+$border-radius-sm: var(--border-radius-sm);
+$border-radius-md: var(--border-radius-md);
+$border-radius-lg: var(--border-radius-lg);
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);

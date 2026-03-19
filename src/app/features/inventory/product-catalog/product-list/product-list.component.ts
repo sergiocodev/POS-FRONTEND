@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, inject, signal, ViewChild, TemplateRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, input, output, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductResponse, CategoryResponse, BrandResponse } from '../../../../core/models/product.model';
@@ -14,20 +14,21 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
     templateUrl: './product-list.component.html',
     styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit, OnChanges {
+export class ProductListComponent implements OnInit {
     @ViewChild('codeTemplate', { static: true }) codeTemplate!: TemplateRef<any>;
     @ViewChild('productInfoTemplate', { static: true }) productInfoTemplate!: TemplateRef<any>;
 
-    @Input() products: ProductResponse[] = [];
-    @Input() isLoading = false;
-    @Input() categories: CategoryResponse[] = [];
-    @Input() brands: BrandResponse[] = [];
-    @Input() therapeuticActions: TherapeuticActionResponse[] = [];
+    products = input<ProductResponse[]>([]);
+    isLoading = input(false);
+    categories = input<CategoryResponse[]>([]);
+    brands = input<BrandResponse[]>([]);
+    therapeuticActions = input<TherapeuticActionResponse[]>([]);
 
-    @Output() create = new EventEmitter<void>();
-    @Output() edit = new EventEmitter<number>();
-    @Output() delete = new EventEmitter<ProductResponse>();
-    @Output() toggleStatus = new EventEmitter<ProductResponse>();
+    create = output<void>();
+    edit = output<number>();
+    delete = output<ProductResponse>();
+    toggleStatus = output<ProductResponse>();
+
     searchTerm = signal<string>('');
 
     // Filter Signals
@@ -36,25 +37,13 @@ export class ProductListComponent implements OnInit, OnChanges {
     selectedTherapeuticAction = signal<number | null>(null);
 
     columns: TableColumn[] = [];
-    filteredProducts = signal<ProductResponse[]>([]);
 
-    ngOnInit(): void {
-        this.setupColumns();
-        this.applyLocalFilters();
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['products'] || changes['categories'] || changes['brands'] || changes['therapeuticActions']) {
-            this.applyLocalFilters();
-        }
-    }
-
-    applyLocalFilters(): void {
-        let filtered = this.products || [];
+    filteredProducts = computed(() => {
+        let result = this.products();
         const term = this.searchTerm().toLowerCase();
 
         if (term) {
-            filtered = filtered.filter(product =>
+            result = result.filter(product =>
                 product.barcode?.toLowerCase().includes(term) ||
                 product.digemidCode?.toLowerCase().includes(term) ||
                 product.code.toLowerCase().includes(term) ||
@@ -62,28 +51,35 @@ export class ProductListComponent implements OnInit, OnChanges {
             );
         }
 
-        if (this.selectedCategory() !== null) {
-            const category = this.categories.find(c => c.id === this.selectedCategory());
+        const currentCategoryId = this.selectedCategory();
+        if (currentCategoryId !== null) {
+            const category = this.categories().find(c => c.id === currentCategoryId);
             if (category) {
-                filtered = filtered.filter(p => p.categoryName === category.name);
+                result = result.filter(p => p.categoryName === category.name);
             }
         }
 
-        if (this.selectedBrand() !== null) {
-            const brand = this.brands.find(b => b.id === this.selectedBrand());
+        const currentBrandId = this.selectedBrand();
+        if (currentBrandId !== null) {
+            const brand = this.brands().find(b => b.id === currentBrandId);
             if (brand) {
-                filtered = filtered.filter(p => p.brandName === brand.name);
+                result = result.filter(p => p.brandName === brand.name);
             }
         }
 
-        if (this.selectedTherapeuticAction() !== null) {
-            const action = this.therapeuticActions.find(a => a.id === this.selectedTherapeuticAction());
+        const currentActionId = this.selectedTherapeuticAction();
+        if (currentActionId !== null) {
+            const action = this.therapeuticActions().find(a => a.id === currentActionId);
             if (action) {
-                filtered = filtered.filter(p => p.therapeuticActionNames?.includes(action.name));
+                result = result.filter(p => p.therapeuticActionNames?.includes(action.name));
             }
         }
 
-        this.filteredProducts.set(filtered);
+        return result;
+    });
+
+    ngOnInit(): void {
+        this.setupColumns();
     }
 
     setupColumns() {
@@ -127,7 +123,6 @@ export class ProductListComponent implements OnInit, OnChanges {
         this.selectedCategory.set(null);
         this.selectedBrand.set(null);
         this.selectedTherapeuticAction.set(null);
-        this.applyLocalFilters();
     }
 
     handleTableAction(event: { action: string, row: ProductResponse }) {

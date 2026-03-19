@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -16,6 +16,10 @@ import { ProductResponse } from '../../../../core/models/product.model';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { CashSessionResponse } from '../../../../core/models/cash.model';
 import { SaleRequest, PaymentMethod, SaleDocumentType, ProductForSaleResponse } from '../../../../core/models/sale.model';
+import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
+import { CheckoutPanelComponent } from '../../../../shared/components/checkout-panel/checkout-panel.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { CustomerFormComponent } from '../../customers/customer-form/customer-form.component';
 
 interface CartItem {
     product: ProductForSaleResponse;
@@ -28,7 +32,7 @@ interface CartItem {
 @Component({
     selector: 'app-pos',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModuleHeaderComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModuleHeaderComponent, CardGridComponent, CheckoutPanelComponent, ModalGenericComponent, CustomerFormComponent],
     templateUrl: './pos.component.html',
     styleUrl: './pos.component.scss'
 })
@@ -51,6 +55,7 @@ export class PosComponent implements OnInit {
     // Cart Signals
     cart = signal<CartItem[]>([]);
     selectedCustomer = signal<CustomerResponse | null>(null);
+    showCustomerModal = signal<boolean>(false);
 
     // Computed Values
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
@@ -72,10 +77,23 @@ export class PosComponent implements OnInit {
             paymentMethod: [PaymentMethod.EFECTIVO, Validators.required],
             receivedAmount: [0, [Validators.min(0)]]
         });
+
+        // Reaccionar a cambios en el establecimiento seleccionado
+        effect(() => {
+            const establishmentId = this.establishmentStateService.selectedEstablishmentId();
+            if (establishmentId) {
+                // untracked previene que las signals leídas dentro de loadInitialData
+                // registren dependencias reactivas con este effect.
+                untracked(() => {
+                    this.loadInitialData();
+                });
+            }
+        });
     }
 
     ngOnInit(): void {
-        this.loadInitialData();
+        // La carga inicial ahora es manejada por el effect en el constructor
+        // cuando el establishmentId está disponible.
     }
 
     loadInitialData(): void {
@@ -108,17 +126,28 @@ export class PosComponent implements OnInit {
     }
 
     onProductSearch(): void {
-        const term = this.productSearchTerm.toLowerCase();
+        const term = this.productSearchTerm.trim().toLowerCase();
         if (!term) {
             this.filteredProducts.set(this.products());
             return;
         }
-        this.filteredProducts.set(
-            this.products().filter(p =>
-                p.tradeName.toLowerCase().includes(term) ||
-                (p.genericName && p.genericName.toLowerCase().includes(term))
-            )
+
+        // Búsqueda por nombre o código de barras
+        const matches = this.products().filter(p =>
+            p.tradeName.toLowerCase().includes(term) ||
+            p.barcode?.toLowerCase().includes(term) ||
+            (p.genericName && p.genericName.toLowerCase().includes(term))
         );
+
+        this.filteredProducts.set(matches);
+
+        // Lógica de escáner: Si hay un match exacto por código de barras y es único, agregar al carrito
+        const exactBarcodeMatch = this.products().find(p => p.barcode?.toLowerCase() === term);
+        if (exactBarcodeMatch && matches.length === 1) {
+            this.addToCart(exactBarcodeMatch);
+            this.productSearchTerm = '';
+            this.filteredProducts.set(this.products());
+        }
     }
 
     addToCart(product: ProductForSaleResponse): void {
@@ -132,7 +161,15 @@ export class PosComponent implements OnInit {
                     : item
             ));
         } else {
-            this.cart.update(items => [...items, { product, quantity: 1, price, discount: 0, total: price }]);
+            this.cart.update(items => [...items, {
+                product,
+                quantity: 1,
+                price,
+                discount: 0,
+                discountInput: 0,
+                discountType: 'amount',
+                total: price
+            }]);
         }
     }
 
@@ -157,13 +194,9 @@ export class PosComponent implements OnInit {
         ));
     }
 
-    onSubmitSale(): void {
+    onProcessSale(saleData: any): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
 
-        if (this.cart().length === 0) {
-            this.showAlert('Atención', 'El carrito está vacío', 'warning');
-            return;
-        }
         if (!establishmentId) {
             this.showAlert('Error', 'No hay un establecimiento seleccionado', 'danger');
             return;
@@ -174,20 +207,21 @@ export class PosComponent implements OnInit {
         const request: SaleRequest = {
             establishmentId: establishmentId!,
             cashSessionId: this.activeSession()?.id,
-            customerId: this.selectedCustomer()?.id,
-            documentType: this.posForm.value.documentType,
-            items: this.cart().map(item => ({
+            customerId: saleData.customer?.id,
+            documentType: saleData.documentType,
+            series: saleData.series,
+            items: saleData.items.map((item: any) => ({
                 productId: item.product.productId,
                 lotId: item.product.lotId,
                 quantity: item.quantity,
                 unitPrice: item.price,
-                discountAmount: item.discount,
-                discountReason: item.discount > 0 ? 'Descuento Manual POS' : undefined
+                discountAmount: item.discount || 0,
+                discountReason: (item.discount || 0) > 0 ? 'Descuento Manual POS' : undefined
             })),
             payments: [
                 {
-                    paymentMethod: this.posForm.value.paymentMethod,
-                    amount: this.total()
+                    paymentMethod: saleData.paymentMethod,
+                    amount: saleData.total
                 }
             ]
         };
@@ -200,11 +234,6 @@ export class PosComponent implements OnInit {
                 this.isLoading.set(false);
                 this.showAlert('Éxito', `Venta registrada! Comprobante: ${res.series}-${res.number}`, 'success');
                 this.cart.set([]);
-                this.posForm.reset({
-                    documentType: SaleDocumentType.BOLETA,
-                    paymentMethod: PaymentMethod.EFECTIVO,
-                    receivedAmount: 0
-                });
             },
             error: (err) => {
                 console.error('Sale error:', err);
@@ -212,6 +241,43 @@ export class PosComponent implements OnInit {
                 this.showAlert('Error', 'No se pudo procesar la venta. Verifique el stock.', 'danger');
             }
         });
+    }
+
+    onSubmitSale(): void {
+        // Redirigido a onProcessSale manejado por el CheckoutPanelComponent
+    }
+
+    onCustomerSaveSuccess(): void {
+        this.showCustomerModal.set(false);
+        this.showAlert('Éxito', 'Cliente guardado correctamente', 'success');
+        // Recargar lista de clientes
+        this.customerService.getAll().subscribe({
+            next: (data) => {
+                this.customers.set(data.data);
+            }
+        });
+    }
+
+    closeCustomerModal(): void {
+        this.showCustomerModal.set(false);
+    }
+
+    getDaysToExpire(dateString: string | undefined): number | string {
+        if (!dateString) return '';
+
+        const parts = dateString.split('-');
+        if (parts.length !== 3) return '';
+
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+
+        const expDate = new Date(year, month, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = expDate.getTime() - today.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     }
 
     // Helpers UI

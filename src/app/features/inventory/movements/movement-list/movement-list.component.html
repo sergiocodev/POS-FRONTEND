@@ -1,7 +1,7 @@
 <div class="movement-list-container container-fluid py-4 animate-fade-in position-relative">
 
     <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto, lote o motivo...'"
-        [disableClear]="!searchTerm()" (searchQueryChange)="applyLocalFilters()" (clear)="resetFilters()">
+        [disableClear]="!searchTerm()" (clear)="resetFilters()">
     </app-table-filter>
 
     <ng-template #dateTemplate let-row>
@@ -46,7 +46,7 @@
         <app-custom-table [data]="filteredMovements()" [columns]="columns" [pageSize]="10">
         </app-custom-table>
 
-        @if (isLoading) {
+        @if (isLoading()) {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-3 text-muted">Cargando movimientos...</p>

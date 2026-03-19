@@ -1,16 +1,619 @@
-.form-label {
-    letter-spacing: 0.5px;
+@use "sass:color";
+@use "../../../../scss/variables" as *;
+
+// ════════════════════════════════════════
+// Purchase Form — Ultra-Premium Design
+// ════════════════════════════════════════
+
+// Design Tokens
+$space: 8px;
+$radius-sm: 8px;
+$radius-md: 14px;
+$radius-lg: 20px;
+$transition: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+
+// Colors (Migrated to Global Tokens)
+$brand: $color-primary;
+$brand-mid: $color-primary-hover;
+$brand-light: $color-secondary;
+$brand-bg: rgba($color-primary, 0.06);
+$green: $color-success;
+$green-bg: rgba($color-success, 0.08);
+$danger: $color-danger;
+$text-hero: $text-on-primary;
+$text-dark: $text-main;
+$text-body: $text-main;
+$text-muted: $text-muted;
+$border: $border-color;
+$surface: $card-bg;
+$bg-page: $bg-body;
+$bg-field: $input-bg;
+
+// ════════════════════════════════════════
+// Root / Layout
+// ════════════════════════════════════════
+.pf-root {
+    min-height: 100vh;
+    background: $bg-page;
+    //font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
-.table {
-    thead th {
-        background-color: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
+// ════════════════════════════════════════
+// Body
+// ════════════════════════════════════════
+.pf-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+// ════════════════════════════════════════
+// Alert
+// ════════════════════════════════════════
+.pf-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba($danger, 0.06);
+    border: 1px solid rgba($danger, 0.2);
+    border-left: 4px solid $danger;
+    border-radius: $radius-md;
+    padding: 0.875rem 1rem;
+    color: $danger;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+
+    i {
+        font-size: 1rem;
     }
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
+// ════════════════════════════════════════
+// Section Panel
+// ════════════════════════════════════════
+.pf-section {
+    background: $surface;
+    border-radius: $radius-lg;
+    border: 1px solid $border;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.pf-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid $border;
+}
+
+.pf-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-sm;
+    background: $bg-page;
+    border: 1px solid $border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: $text-muted;
+    flex-shrink: 0;
+
+    &.pf-section-icon--green {
+        background: $bg-page;
+        border-color: $border;
+        color: $text-muted;
+    }
+}
+
+.pf-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0 0 1px;
+    letter-spacing: -0.01em;
+}
+
+.pf-section-desc {
+    font-size: 0.72rem;
+    color: $text-muted;
     margin: 0;
+    font-weight: 500;
+}
+
+// ════════════════════════════════════════
+// Fields Grid
+// ════════════════════════════════════════
+.pf-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 576px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    &--span2 {
+        grid-column: span 2;
+    }
+
+    &--full {
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 576px) {
+
+        &--span2,
+        &--full {
+            grid-column: 1;
+        }
+    }
+}
+
+.pf-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    i {
+        font-size: 0.75rem;
+    }
+}
+
+.pf-hint {
+    font-size: 0.65rem;
+    color: $danger;
+    margin: 0;
+    padding-left: 2px;
+}
+
+// ════════════════════════════════════════
+// Inputs & Selects
+// ════════════════════════════════════════
+%pf-field-base {
+    width: 100%;
+    background: $bg-field;
+    border: 1.5px solid transparent;
+    border-radius: $radius-sm;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.875rem;
+    color: $text-dark;
+    font-weight: 500;
+    outline: none;
+    transition: border-color $transition, background $transition, box-shadow $transition;
+    appearance: none;
+
+    &:focus {
+        background: $surface;
+        border-color: $brand-mid;
+        box-shadow: 0 0 0 3px rgba($brand-mid, 0.12);
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    &.pf-invalid {
+        border-color: rgba($danger, 0.5);
+        background: rgba($danger, 0.03);
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgba($danger, 0.1);
+        }
+    }
+}
+
+.pf-input {
+    @extend %pf-field-base;
+
+    &--textarea {
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    &--inline {
+        background: transparent;
+        border-color: transparent;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.82rem;
+        border-radius: 6px;
+
+        &:hover {
+            background: $bg-field;
+            border-color: transparent;
+        }
+
+        &:focus {
+            background: $surface;
+            border-color: $brand-mid;
+            box-shadow: 0 0 0 2px rgba($brand-mid, 0.12);
+        }
+    }
+
+    &--center {
+        text-align: center;
+    }
+}
+
+.pf-select-wrapper {
+    position: relative;
+
+    &::after {
+        content: '\f285'; // bi-chevron-down
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+        color: $text-muted;
+        pointer-events: none;
+    }
+
+    &--inline::after {
+        right: 6px;
+        font-size: 0.65rem;
+    }
+}
+
+.pf-select {
+    @extend %pf-field-base;
+    padding-right: 2rem;
+    cursor: pointer;
+
+    &--inline {
+        background: transparent;
+        border-color: transparent;
+        padding: 0.3rem 1.8rem 0.3rem 0.5rem;
+        font-size: 0.82rem;
+        border-radius: 6px;
+
+        &:hover {
+            background: $bg-field;
+        }
+
+        &:focus {
+            background: $surface;
+            border-color: $brand-mid;
+            box-shadow: 0 0 0 2px rgba($brand-mid, 0.12);
+        }
+    }
+}
+
+// ════════════════════════════════════════
+// Add Item Button
+// ════════════════════════════════════════
+.pf-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: $brand-bg;
+    border: 1.5px solid rgba($brand, 0.2);
+    border-radius: $radius-sm;
+    color: $brand-mid;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all $transition;
+    white-space: nowrap;
+
+    i {
+        font-size: 0.85rem;
+    }
+
+    &:hover {
+        background: $brand-mid;
+        border-color: $brand-mid;
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($brand-mid, 0.25);
+    }
+}
+
+// ════════════════════════════════════════
+// Items Column Headers
+// ════════════════════════════════════════
+.pf-items-header {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1.5rem 0.6rem 3.5rem;
+    background: transparent;
+    border-bottom: 1px solid $border;
+    gap: 0.5rem;
+}
+
+// ════════════════════════════════════════
+// Item Rows
+// ════════════════════════════════════════
+.pf-items-list {
+    padding: 0 0.75rem 0.5rem;
+}
+
+.pf-item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: $radius-sm;
+    position: relative;
+    transition: background $transition;
+
+    &:not(:last-child) {
+        border-bottom: 1px dashed $border;
+    }
+
+    &:hover {
+        background: rgba($brand, 0.025);
+    }
+}
+
+.pf-item-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: $brand-bg;
+    color: $brand-mid;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+// ════════════════════════════════════════
+// Shared Column Widths
+// ════════════════════════════════════════
+.pf-col {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: $text-muted;
+
+    &--product {
+        flex: 2 1 180px;
+        min-width: 140px;
+    }
+
+    &--lot {
+        flex: 1 1 90px;
+        min-width: 75px;
+    }
+
+    &--date {
+        flex: 1 1 110px;
+        min-width: 100px;
+    }
+
+    &--num {
+        flex: 0 0 70px;
+        text-align: center;
+    }
+
+    &--cost {
+        flex: 0 0 110px;
+    }
+
+    &--total {
+        flex: 0 0 90px;
+        text-align: right;
+    }
+
+    &--action {
+        flex: 0 0 36px;
+        text-align: center;
+    }
+}
+
+.pf-price-input {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    .pf-currency {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: $text-muted;
+        padding-left: 2px;
+    }
+}
+
+.pf-subtotal {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: $brand;
+    display: block;
+    text-align: right;
+    letter-spacing: -0.01em;
+}
+
+.pf-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all $transition;
+
+    i {
+        font-size: 0.85rem;
+    }
+
+    &:hover {
+        background: rgba($danger, 0.08);
+        color: $danger;
+        transform: scale(1.1);
+    }
+}
+
+// ════════════════════════════════════════
+// Total Footer
+// ════════════════════════════════════════
+.pf-total-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: $bg-page;
+    border-top: 1px solid $border;
+    margin-top: 0.5rem;
+}
+
+.pf-total-items-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    i {
+        color: $brand-light;
+    }
+}
+
+.pf-total-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pf-total-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-muted;
+}
+
+.pf-total-amount {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: $brand;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+// ════════════════════════════════════════
+// Action Footer
+// ════════════════════════════════════════
+.pf-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.25rem 0 1rem;
+}
+
+.pf-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: $surface;
+    border: 1.5px solid $border;
+    border-radius: $radius-sm;
+    color: $text-body;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all $transition;
+
+    &:hover {
+        border-color: rgba($danger, 0.35);
+        color: $danger;
+        background: rgba($danger, 0.03);
+    }
+}
+
+.pf-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 28px;
+    background: linear-gradient(135deg, $brand, $brand-mid);
+    border: none;
+    border-radius: $radius-sm;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all $transition;
+    box-shadow: 0 4px 14px rgba($brand-mid, 0.3);
+    letter-spacing: 0.01em;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba($brand-mid, 0.4);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba($brand-mid, 0.3);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// Spinner
+.pf-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pf-spin 0.7s linear infinite;
+}
+
+@keyframes pf-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ════════════════════════════════════════
+// Spinner Numbers (remove arrows)
+// ════════════════════════════════════════
+input[type="number"] {
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }
