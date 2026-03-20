@@ -102,6 +102,7 @@ export class SidebarComponent {
                 { label: 'Nueva Compra', route: '/purchases/new', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
                 { label: 'Ver compras', route: '/purchases', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.COMPRAS] },
                 { label: 'Proveedores', route: '/suppliers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
+                { label: 'Cuentas por pagar', route: '/account-payables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
                 { label: 'Ver reportes', route: '/reports/purchases', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] }
             ]
         },

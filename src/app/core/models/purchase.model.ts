@@ -30,15 +30,23 @@ export interface PurchaseItemResponse {
     totalCost: number;
 }
 
+export enum PaymentMethod {
+    EFECTIVO = 'EFECTIVO',
+    CREDITO = 'CREDITO'
+}
+
 export interface PurchaseRequest {
     supplierId: number;
     establishmentId: number;
     documentType: PurchaseDocumentType;
+    paymentMethod: PaymentMethod;
     series?: string;
     number?: string;
     issueDate: string;
     notes?: string;
     items: PurchaseItemRequest[];
+    amountPaid?: number;
+    dueDate?: string;
 }
 
 export interface PurchaseResponse {

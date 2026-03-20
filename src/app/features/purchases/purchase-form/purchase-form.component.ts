@@ -6,7 +6,7 @@ import { PurchaseService } from '../../../core/services/purchase.service';
 import { ProductService } from '../../../core/services/product.service';
 import { SupplierService } from '../../../core/services/supplier.service';
 import { SaleService } from '../../../core/services/sale.service';
-import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus } from '../../../core/models/purchase.model';
+import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus, PaymentMethod } from '../../../core/models/purchase.model';
 import { ProductResponse } from '../../../core/models/product.model';
 import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
@@ -45,6 +45,9 @@ export class PurchaseFormComponent implements OnInit {
             supplierId: [null, Validators.required],
             establishmentId: [null, Validators.required],
             documentType: [PurchaseDocumentType.FACTURA, Validators.required],
+            paymentMethod: [PaymentMethod.EFECTIVO, Validators.required],
+            amountPaid: [0, [Validators.min(0)]],
+            dueDate: [null],
             series: ['', [Validators.required, Validators.maxLength(20)]],
             number: ['', [Validators.required, Validators.maxLength(20)]],
             issueDate: [new Date().toISOString().split('T')[0], Validators.required],
@@ -57,8 +60,24 @@ export class PurchaseFormComponent implements OnInit {
         return this.purchaseForm.get('items') as FormArray;
     }
 
+    get showCreditFields(): boolean {
+        return this.purchaseForm.get('paymentMethod')?.value === PaymentMethod.CREDITO;
+    }
+
     ngOnInit(): void {
         this.loadInitialData();
+
+        this.purchaseForm.get('paymentMethod')?.valueChanges.subscribe(method => {
+            const dueDateCtrl = this.purchaseForm.get('dueDate');
+            if (method === PaymentMethod.CREDITO) {
+                dueDateCtrl?.setValidators([Validators.required]);
+            } else {
+                dueDateCtrl?.clearValidators();
+                this.purchaseForm.patchValue({ amountPaid: 0, dueDate: null }, { emitEvent: false });
+            }
+            dueDateCtrl?.updateValueAndValidity();
+        });
+
         const id = this.route.snapshot.params['id'];
         if (id) {
             this.isEditMode.set(true);
@@ -163,6 +182,15 @@ export class PurchaseFormComponent implements OnInit {
             this.purchaseForm.markAllAsTouched();
             return;
         }
+
+        const total = this.calculateTotal();
+        const amountPaid = this.purchaseForm.get('amountPaid')?.value || 0;
+
+        if (this.showCreditFields && amountPaid > total) {
+            this.errorMessage.set('El monto pagado no puede ser mayor al total de la compra.');
+            return;
+        }
+        this.errorMessage.set('');
 
         this.isLoading.set(true);
         const request: PurchaseRequest = this.purchaseForm.value;

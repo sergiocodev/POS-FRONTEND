@@ -118,6 +118,59 @@
             </div>
 
             <!-- ══════════════════════════════════
+                 SECCIÓN 1.5 — CONDICIONES DE PAGO
+            ══════════════════════════════════ -->
+            <div class="pf-section">
+                <div class="pf-section-header">
+                    <div class="pf-section-icon pf-section-icon--blue"
+                        style="background-color: #e0f2fe; color: #0284c7;">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <div>
+                        <h2 class="pf-section-title">Condiciones de Pago</h2>
+                        <p class="pf-section-desc">Especifique si la compra es al contado o al crédito</p>
+                    </div>
+                </div>
+
+                <div class="pf-fields-grid">
+                    <!-- Método de Pago -->
+                    <div class="pf-field">
+                        <label class="pf-label">
+                            <i class="bi bi-cash-coin"></i> Método de Pago
+                        </label>
+                        <div class="pf-select-wrapper">
+                            <select class="pf-select" formControlName="paymentMethod">
+                                <option value="EFECTIVO">Efectivo / Contado</option>
+                                <option value="CREDITO">Crédito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Monto Pagado por Adelantado -->
+                    <div class="pf-field" *ngIf="showCreditFields">
+                        <label class="pf-label">
+                            <i class="bi bi-currency-dollar"></i> Adelanto (S/)
+                        </label>
+                        <input class="pf-input" type="number" formControlName="amountPaid" placeholder="0.00" min="0"
+                            step="0.01">
+                    </div>
+
+                    <!-- Fecha de Vencimiento -->
+                    <div class="pf-field" *ngIf="showCreditFields">
+                        <label class="pf-label">
+                            <i class="bi bi-calendar-x"></i> Fecha Vencimiento
+                        </label>
+                        <input class="pf-input" type="date" formControlName="dueDate"
+                            [class.pf-invalid]="purchaseForm.get('dueDate')?.touched && purchaseForm.get('dueDate')?.invalid">
+                        <p class="pf-hint"
+                            *ngIf="purchaseForm.get('dueDate')?.touched && purchaseForm.get('dueDate')?.invalid">
+                            Requerido
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════
                  SECCIÓN 2 — DETALLE DE PRODUCTOS
             ══════════════════════════════════ -->
             <div class="pf-section">
