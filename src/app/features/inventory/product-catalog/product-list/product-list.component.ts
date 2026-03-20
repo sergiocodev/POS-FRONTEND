@@ -27,7 +27,6 @@ export class ProductListComponent implements OnInit {
     create = output<void>();
     edit = output<number>();
     delete = output<ProductResponse>();
-    toggleStatus = output<ProductResponse>();
 
     searchTerm = signal<string>('');
 
@@ -44,7 +43,6 @@ export class ProductListComponent implements OnInit {
 
         if (term) {
             result = result.filter(product =>
-                product.barcode?.toLowerCase().includes(term) ||
                 product.digemidCode?.toLowerCase().includes(term) ||
                 product.code.toLowerCase().includes(term) ||
                 product.tradeName.toLowerCase().includes(term)
@@ -108,11 +106,6 @@ export class ProductListComponent implements OnInit {
             { key: 'categoryName', label: 'Categoría', type: 'text', filterable: true },
             { key: 'brandName', label: 'Marca', type: 'text', filterable: true },
             { key: 'laboratoryName', label: 'Laboratorio', type: 'text', filterable: true },
-            {
-                key: 'active',
-                label: 'Estado',
-                type: 'toggle'
-            },
             { key: 'actions', label: 'Acciones', type: 'action' }
         ];
     }
@@ -134,9 +127,7 @@ export class ProductListComponent implements OnInit {
     }
 
     handleTableToggle(event: { row: ProductResponse, key: string, checked: boolean }) {
-        if (event.key === 'active') {
-            this.toggleStatus.emit(event.row);
-        }
+        // No longer toggling product active status
     }
 
     onNew(): void {

@@ -6,11 +6,12 @@ import { PurchaseService } from '../../../core/services/purchase.service';
 import { ProductService } from '../../../core/services/product.service';
 import { SupplierService } from '../../../core/services/supplier.service';
 import { SaleService } from '../../../core/services/sale.service';
-import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus, PaymentMethod } from '../../../core/models/purchase.model';
-import { ProductResponse } from '../../../core/models/product.model';
+import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus, PaymentCondition, PaymentMethod } from '../../../core/models/purchase.model';
+import { ProductResponse, ProductUnitResponse } from '../../../core/models/product.model';
 import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { ProductUnitService } from '../../../core/services/product-unit.service';
 import { forkJoin } from 'rxjs';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 
@@ -28,6 +29,7 @@ export class PurchaseFormComponent implements OnInit {
     private supplierService = inject(SupplierService);
     private saleService = inject(SaleService);
     private authService = inject(AuthService);
+    private productUnitService = inject(ProductUnitService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -39,18 +41,25 @@ export class PurchaseFormComponent implements OnInit {
     products = signal<ProductResponse[]>([]);
     suppliers = signal<SupplierResponse[]>([]);
     establishments = signal<EstablishmentResponse[]>([]);
+    productUnits = signal<{ [productId: number]: ProductUnitResponse[] }>({});
+
+    paymentConditions = Object.values(PaymentCondition);
+    paymentMethods = Object.values(PaymentMethod);
+
+    PaymentConditionEnum = PaymentCondition;
 
     constructor() {
         this.purchaseForm = this.fb.group({
             supplierId: [null, Validators.required],
             establishmentId: [null, Validators.required],
             documentType: [PurchaseDocumentType.FACTURA, Validators.required],
-            paymentMethod: [PaymentMethod.EFECTIVO, Validators.required],
-            amountPaid: [0, [Validators.min(0)]],
-            dueDate: [null],
             series: ['', [Validators.required, Validators.maxLength(20)]],
             number: ['', [Validators.required, Validators.maxLength(20)]],
             issueDate: [new Date().toISOString().split('T')[0], Validators.required],
+            paymentCondition: [PaymentCondition.CASH, Validators.required],
+            initialPayment: [{ value: 0, disabled: true }, [Validators.min(0)]],
+            paymentMethod: [PaymentMethod.EFECTIVO],
+            dueDate: [null],
             notes: [''],
             items: this.fb.array([])
         });
@@ -60,23 +69,9 @@ export class PurchaseFormComponent implements OnInit {
         return this.purchaseForm.get('items') as FormArray;
     }
 
-    get showCreditFields(): boolean {
-        return this.purchaseForm.get('paymentMethod')?.value === PaymentMethod.CREDITO;
-    }
-
     ngOnInit(): void {
         this.loadInitialData();
-
-        this.purchaseForm.get('paymentMethod')?.valueChanges.subscribe(method => {
-            const dueDateCtrl = this.purchaseForm.get('dueDate');
-            if (method === PaymentMethod.CREDITO) {
-                dueDateCtrl?.setValidators([Validators.required]);
-            } else {
-                dueDateCtrl?.clearValidators();
-                this.purchaseForm.patchValue({ amountPaid: 0, dueDate: null }, { emitEvent: false });
-            }
-            dueDateCtrl?.updateValueAndValidity();
-        });
+        this.setupPaymentListeners();
 
         const id = this.route.snapshot.params['id'];
         if (id) {
@@ -85,6 +80,47 @@ export class PurchaseFormComponent implements OnInit {
         } else {
             this.addItem();
         }
+    }
+
+    setupPaymentListeners(): void {
+        const conditionCtrl = this.purchaseForm.get('paymentCondition');
+        const initialPaymentCtrl = this.purchaseForm.get('initialPayment');
+        const paymentMethodCtrl = this.purchaseForm.get('paymentMethod');
+        const dueDateCtrl = this.purchaseForm.get('dueDate');
+
+        conditionCtrl?.valueChanges.subscribe(condition => {
+            if (condition === PaymentCondition.CASH) {
+                initialPaymentCtrl?.disable();
+                initialPaymentCtrl?.setValue(this.calculateTotal(), { emitEvent: false });
+                paymentMethodCtrl?.setValidators([Validators.required]);
+                dueDateCtrl?.clearValidators();
+                dueDateCtrl?.setValue(null, { emitEvent: false });
+            } else {
+                initialPaymentCtrl?.enable();
+                initialPaymentCtrl?.setValue(0, { emitEvent: false });
+                paymentMethodCtrl?.clearValidators();
+                dueDateCtrl?.setValidators([Validators.required]);
+            }
+            paymentMethodCtrl?.updateValueAndValidity();
+            dueDateCtrl?.updateValueAndValidity();
+        });
+
+        initialPaymentCtrl?.valueChanges.subscribe(val => {
+            if (conditionCtrl?.value === PaymentCondition.CREDIT) {
+                if (val && val > 0) {
+                    paymentMethodCtrl?.setValidators([Validators.required]);
+                } else {
+                    paymentMethodCtrl?.clearValidators();
+                }
+                paymentMethodCtrl?.updateValueAndValidity();
+            }
+        });
+
+        this.purchaseForm.get('items')?.valueChanges.subscribe(() => {
+            if (conditionCtrl?.value === PaymentCondition.CASH) {
+                initialPaymentCtrl?.setValue(this.calculateTotal(), { emitEvent: false });
+            }
+        });
     }
 
     loadInitialData(): void {
@@ -100,9 +136,9 @@ export class PurchaseFormComponent implements OnInit {
                 // saleService is now refactored
                 const establishments = data.establishments.data;
 
-                this.products.set(products.filter(p => p.active));
-                this.suppliers.set(suppliers.filter(s => s.active));
-                this.establishments.set(establishments.filter(e => e.active));
+                this.products.set(products);
+                this.suppliers.set(suppliers);
+                this.establishments.set(establishments);
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -124,6 +160,9 @@ export class PurchaseFormComponent implements OnInit {
                     series: purchase.series,
                     number: purchase.number,
                     issueDate: purchase.issueDate,
+                    paymentCondition: PaymentCondition.CASH, // Edit mode defaults or we would need it from backend
+                    initialPayment: 0,
+                    paymentMethod: null,
                     notes: purchase.notes
                 });
 
@@ -133,6 +172,7 @@ export class PurchaseFormComponent implements OnInit {
                     const product = this.products().find(p => p.tradeName === item.productName);
                     this.items.push(this.fb.group({
                         productId: [product?.id, Validators.required],
+                        productUnitId: [item.productUnitId, Validators.required],
                         lotCode: [item.lotCode, Validators.required],
                         expiryDate: [item.expiryDate, Validators.required],
                         quantity: [item.quantity, [Validators.required, Validators.min(1)]],
@@ -154,13 +194,34 @@ export class PurchaseFormComponent implements OnInit {
     addItem(): void {
         const itemForm = this.fb.group({
             productId: [null, Validators.required],
+            productUnitId: [{ value: null, disabled: true }, Validators.required],
             lotCode: ['', [Validators.required, Validators.maxLength(100)]],
             expiryDate: ['', Validators.required],
             quantity: [null, [Validators.required, Validators.min(1)]],
             bonusQuantity: [0],
             unitCost: [null, [Validators.required, Validators.min(0)]]
         });
+
+        itemForm.get('productId')?.valueChanges.subscribe(productId => {
+            if (productId) {
+                this.loadProductUnits(productId);
+                itemForm.get('productUnitId')?.enable();
+            } else {
+                itemForm.get('productUnitId')?.disable();
+            }
+        });
+
         this.items.push(itemForm);
+    }
+
+    loadProductUnits(productId: number): void {
+        if (this.productUnits()[productId]) return;
+        
+        this.productUnitService.getByProductId(productId).subscribe({
+            next: (units) => {
+                this.productUnits.update(curr => ({...curr, [productId]: units}));
+            }
+        });
     }
 
     removeItem(index: number): void {
@@ -183,17 +244,14 @@ export class PurchaseFormComponent implements OnInit {
             return;
         }
 
-        const total = this.calculateTotal();
-        const amountPaid = this.purchaseForm.get('amountPaid')?.value || 0;
-
-        if (this.showCreditFields && amountPaid > total) {
-            this.errorMessage.set('El monto pagado no puede ser mayor al total de la compra.');
-            return;
-        }
         this.errorMessage.set('');
 
         this.isLoading.set(true);
-        const request: PurchaseRequest = this.purchaseForm.value;
+        const formValue = this.purchaseForm.getRawValue(); // To include disabled initialPayment
+        const request: PurchaseRequest = {
+            ...formValue,
+            initialPayment: formValue.initialPayment || 0
+        };
         const userId = this.authService.currentUser()?.id || 1;
 
         this.purchaseService.create(request, userId).subscribe({

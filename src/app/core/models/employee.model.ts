@@ -3,7 +3,6 @@ export interface EmployeeRequest {
     lastName?: string;
     documentNumber?: string;
     userId?: number;
-    active: boolean;
 }
 
 export interface EmployeeResponse {
@@ -13,5 +12,4 @@ export interface EmployeeResponse {
     documentNumber?: string;
     username?: string;
     email?: string;
-    active: boolean;
 }

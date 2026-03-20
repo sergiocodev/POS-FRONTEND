@@ -22,7 +22,6 @@ export class EmployeesListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<EmployeeResponse>();
-    @Output() toggleStatus = new EventEmitter<EmployeeResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -34,7 +33,7 @@ export class EmployeesListComponent implements OnInit, OnChanges {
             type: 'text',
             format: (v: any) => v || 'Sin cuenta'
         },
-        { key: 'active', label: 'Estado', type: 'toggle' },
+
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -44,7 +43,6 @@ export class EmployeesListComponent implements OnInit, OnChanges {
 
     // Filtros
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
     pageSize = 10;
 
@@ -79,9 +77,7 @@ export class EmployeesListComponent implements OnInit, OnChanges {
             );
         }
 
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(emp => emp.active === this.selectedStatusFilter());
-        }
+
 
         this.filteredEmployees.set(filtered);
     }
@@ -91,11 +87,7 @@ export class EmployeesListComponent implements OnInit, OnChanges {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        const value = event === 'true' ? true : event === 'false' ? false : null;
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
+
 
     // --- Actions ---
 
@@ -107,9 +99,7 @@ export class EmployeesListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(e: { row: EmployeeResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-    }
+
 
     createEmployee() {
         this.create.emit();

@@ -40,8 +40,7 @@ export class LaboratoryFormComponent implements OnInit {
 
     initForm() {
         this.form = this.fb.group({
-            name: ['', [Validators.required, Validators.maxLength(200)]],
-            active: [true]
+            name: ['', [Validators.required, Validators.maxLength(200)]]
         });
     }
 
@@ -53,7 +52,7 @@ export class LaboratoryFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -65,8 +64,7 @@ export class LaboratoryFormComponent implements OnInit {
                 const laboratory = response.data.find(l => l.id === id);
                 if (laboratory) {
                     this.form.patchValue({
-                        name: laboratory.name,
-                        active: laboratory.active
+                        name: laboratory.name
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Laboratorio no encontrado', type: 'error' });
@@ -92,15 +90,8 @@ export class LaboratoryFormComponent implements OnInit {
         const request: LaboratoryRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateLaboratoryById(
-                this._laboratoryId()!,
-                request.name,
-                request.active
-            )
-            : this.maintenanceService.createNewLaboratory(
-                request.name,
-                request.active
-            );
+            ? this.maintenanceService.updateLaboratoryById(this._laboratoryId()!, request.name)
+            : this.maintenanceService.createNewLaboratory(request.name);
 
         operation.subscribe({
             next: () => {

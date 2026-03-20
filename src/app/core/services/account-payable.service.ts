@@ -23,7 +23,7 @@ export class AccountPayableService {
         return this.http.get<ResponseApi<AccountPayableResponse[]>>(`${this.apiUrl}/status/${status}`);
     }
 
-    pay(id: number, request: AccountPayablePaymentRequest, userId: number): Observable<ResponseApi<AccountPayableResponse>> {
-        return this.http.post<ResponseApi<AccountPayableResponse>>(`${this.apiUrl}/${id}/pay?userId=${userId}`, request);
+    pay(id: number, request: AccountPayablePaymentRequest): Observable<ResponseApi<AccountPayableResponse>> {
+        return this.http.post<ResponseApi<AccountPayableResponse>>(`${this.apiUrl}/${id}/pay`, request);
     }
 }

@@ -41,8 +41,7 @@ export class TherapeuticActionFormComponent implements OnInit, OnChanges {
     initForm() {
         this.form = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(150)]],
-            description: ['', [Validators.maxLength(255)]],
-            active: [true]
+            description: ['', [Validators.maxLength(255)]]
         });
     }
 
@@ -53,7 +52,7 @@ export class TherapeuticActionFormComponent implements OnInit, OnChanges {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -66,8 +65,7 @@ export class TherapeuticActionFormComponent implements OnInit, OnChanges {
                 if (action) {
                     this.form.patchValue({
                         name: action.name,
-                        description: action.description || '',
-                        active: action.active
+                        description: action.description || ''
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Acción terapéutica no encontrada', type: 'error' });
@@ -93,17 +91,8 @@ export class TherapeuticActionFormComponent implements OnInit, OnChanges {
         const request: TherapeuticActionRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateTherapeuticActionById(
-                this.actionId!,
-                request.name,
-                request.description,
-                request.active
-            )
-            : this.maintenanceService.createNewTherapeuticAction(
-                request.name,
-                request.description,
-                request.active
-            );
+            ? this.maintenanceService.updateTherapeuticActionById(this.actionId!, request.name, request.description)
+            : this.maintenanceService.createNewTherapeuticAction(request.name, request.description);
 
         operation.subscribe({
             next: () => {

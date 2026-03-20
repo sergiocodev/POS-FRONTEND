@@ -395,8 +395,13 @@ $bg-field: $input-bg;
     color: $text-muted;
 
     &--product {
-        flex: 2 1 180px;
-        min-width: 140px;
+        flex: 2 1 150px;
+        min-width: 120px;
+    }
+
+    &--unit {
+        flex: 1 1 120px;
+        min-width: 90px;
     }
 
     &--lot {
@@ -614,6 +619,7 @@ input[type="number"] {
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
         -webkit-appearance: none;
+        appearance: none;
         margin: 0;
     }
 }

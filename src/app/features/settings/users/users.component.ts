@@ -110,25 +110,4 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  async onToggleStatus(user: UserResponse) {
-    const confirmed = await this.modalService.confirm({
-      title: 'Confirmación',
-      message: `¿Está seguro de <b>${user.active ? 'desactivar' : 'activar'}</b> al usuario ${user.username}?`,
-      btnColor: 'warning',
-      confirmText: user.active ? 'Desactivar' : 'Activar'
-    });
-
-    if (confirmed) {
-      this.userService.toggleActive(user.id).subscribe({
-        next: () => {
-          this.loadData();
-          this.modalService.alert({ title: 'Éxito', message: `Usuario ${user.active ? 'desactivado' : 'activado'} correctamente`, type: 'success' });
-        },
-        error: (error) => {
-          console.error(error);
-          this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-        }
-      });
-    }
-  }
 }

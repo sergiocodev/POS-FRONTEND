@@ -99,32 +99,5 @@ export class EstablishmentsComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(est: EstablishmentResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${est.active ? 'desactivar' : 'activar'}</b> el establecimiento <b>${est.name}</b>?`,
-            btnColor: 'warning',
-            confirmText: est.active ? 'Desactivar' : 'Activar'
-        });
 
-        if (confirmed) {
-            const request = {
-                name: est.name,
-                address: est.address,
-                codeSunat: est.codeSunat,
-                active: !est.active
-            };
-
-            this.establishmentService.update(est.id, request).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Establecimiento ${est.active ? 'desactivado' : 'activado'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error('Error toggling status:', error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

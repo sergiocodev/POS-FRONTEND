@@ -57,16 +57,7 @@ export class RegistersListComponent implements OnInit {
         }
     }
 
-    onToggleStatus(register: CashRegisterResponse): void {
 
-        this.cashService.updateRegister(register.id, {
-            name: register.name,
-            establishmentId: register.establishmentId,
-            active: !register.active
-        }).subscribe({
-            next: () => this.loadRegisters()
-        });
-    }
 
     onDelete(id: number): void {
         if (confirm('¿Está seguro de eliminar esta caja registradora?')) {

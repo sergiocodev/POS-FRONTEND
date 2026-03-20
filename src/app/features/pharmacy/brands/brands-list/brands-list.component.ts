@@ -22,13 +22,11 @@ export class BrandsListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<BrandResponse>();
-    @Output() toggleStatus = new EventEmitter<BrandResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'id', label: 'ID', type: 'text' },
         { key: 'name', label: 'Marca', type: 'text' },
-        { key: 'active', label: 'Estado', type: 'toggle' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -36,7 +34,6 @@ export class BrandsListComponent implements OnInit, OnChanges {
     filteredBrands = signal<BrandResponse[]>([]);
 
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
     // Pagination
     pageSize = 10;
@@ -67,9 +64,7 @@ export class BrandsListComponent implements OnInit, OnChanges {
             );
         }
 
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(brand => brand.active === this.selectedStatusFilter());
-        }
+
 
         this.filteredBrands.set(filtered);
         this.currentPage = 1;
@@ -80,11 +75,7 @@ export class BrandsListComponent implements OnInit, OnChanges {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        const value = event === 'true' ? true : event === 'false' ? false : null;
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
+
 
     // --- Actions ---
 
@@ -96,10 +87,7 @@ export class BrandsListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(e: { row: BrandResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-        e.row.active = !e.checked; // Optimistic toggle reversion
-    }
+
 
     createBrand() {
         this.create.emit();

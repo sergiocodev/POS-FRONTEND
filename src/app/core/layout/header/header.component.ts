@@ -65,7 +65,7 @@ export class HeaderComponent implements OnInit {
             next: (response) => {
                 const establishments = response.data;
 
-                const activeEstablishments = establishments.filter(e => e.active);
+                const activeEstablishments = establishments;
                 this.availableServiceCenters.set(activeEstablishments);
 
 

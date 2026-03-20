@@ -41,8 +41,7 @@ export class ActiveIngredientFormComponent implements OnInit {
     initForm() {
         this.form = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(200)]],
-            description: ['', [Validators.maxLength(255)]],
-            active: [true]
+            description: ['', [Validators.maxLength(255)]]
         });
     }
 
@@ -54,7 +53,7 @@ export class ActiveIngredientFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -67,8 +66,7 @@ export class ActiveIngredientFormComponent implements OnInit {
                 if (ingredient) {
                     this.form.patchValue({
                         name: ingredient.name,
-                        description: ingredient.description || '',
-                        active: ingredient.active
+                        description: ingredient.description || ''
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Principio activo no encontrado', type: 'error' });
@@ -95,17 +93,8 @@ export class ActiveIngredientFormComponent implements OnInit {
         const request: ActiveIngredientRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateActiveIngredientById(
-                this.ingredientId!,
-                request.name,
-                request.description,
-                request.active
-            )
-            : this.maintenanceService.createNewActiveIngredient(
-                request.name,
-                request.description,
-                request.active
-            );
+            ? this.maintenanceService.updateActiveIngredientById(this.ingredientId!, request.name, request.description)
+            : this.maintenanceService.createNewActiveIngredient(request.name, request.description);
 
         operation.subscribe({
             next: () => {

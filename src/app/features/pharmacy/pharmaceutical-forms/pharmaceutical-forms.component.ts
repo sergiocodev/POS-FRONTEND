@@ -99,25 +99,4 @@ export class PharmaceuticalFormsComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(pForm: PharmaceuticalFormResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${pForm.active ? 'desactivar' : 'activar'}</b> la forma farmacéutica ${pForm.name}?`,
-            btnColor: 'warning',
-            confirmText: pForm.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updatePharmaceuticalFormById(pForm.id, pForm.name, pForm.description || '', !pForm.active).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Forma farmacéutica ${pForm.active ? 'desactivada' : 'activada'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

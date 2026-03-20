@@ -31,7 +31,6 @@ export class UsersListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<UserResponse>();
-    @Output() toggleStatus = new EventEmitter<UserResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
@@ -40,7 +39,7 @@ export class UsersListComponent implements OnInit, OnChanges {
         { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true },
         { key: 'email', label: 'Email', type: 'text', filterable: true },
         { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', ') },
-        { key: 'active', label: 'Estado', type: 'toggle' },
+
         { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'short') || 'N/A' : 'Nunca' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
@@ -52,7 +51,6 @@ export class UsersListComponent implements OnInit, OnChanges {
     // Filtros
     searchTerm = signal('');
     selectedRoleFilter = signal<number | null>(null);
-    selectedStatusFilter = signal<boolean | null>(null);
 
     currentPage = 1;
     pageSize = 10;
@@ -101,10 +99,7 @@ export class UsersListComponent implements OnInit, OnChanges {
             }
         }
 
-        // Filtro Estado
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(user => user.active === this.selectedStatusFilter());
-        }
+
 
         this.filteredUsers.set(filtered);
         this.currentPage = 1; // Resetear a página 1 al filtrar
@@ -122,20 +117,10 @@ export class UsersListComponent implements OnInit, OnChanges {
         this.applyFilters();
     }
 
-    onStatusFilterChange(status: any) {
-        // El select nativo puede devolver strings "true"/"false"
-        let val: boolean | null = null;
-        if (status === 'true' || status === true) val = true;
-        if (status === 'false' || status === false) val = false;
 
-        this.selectedStatusFilter.set(val);
-        this.applyFilters();
-    }
 
     resetFilters() {
         this.selectedRoleFilter.set(null);
-        this.selectedStatusFilter.set(null);
-        // searchTerm se limpia via model() en el TableFilterComponent
     }
 
     // --- Acciones de la Tabla ---
@@ -148,11 +133,7 @@ export class UsersListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(e: { row: UserResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-        // Optimistic toggle reversion to wait for parent reload
-        e.row.active = !e.checked;
-    }
+
 
     // --- Acciones ---
 

@@ -29,8 +29,7 @@ export class SupplierFormComponent implements OnInit {
             ruc: ['', [Validators.maxLength(20)]],
             phone: ['', [Validators.maxLength(30)]],
             email: ['', [Validators.email, Validators.maxLength(255)]],
-            address: ['', [Validators.maxLength(255)]],
-            active: [true]
+            address: ['', [Validators.maxLength(255)]]
         });
     }
 
@@ -53,8 +52,7 @@ export class SupplierFormComponent implements OnInit {
                     ruc: supplier.ruc || '',
                     phone: supplier.phone || '',
                     email: supplier.email || '',
-                    address: supplier.address || '',
-                    active: supplier.active
+                    address: supplier.address || ''
                 });
                 this.isLoading.set(false);
             },
@@ -103,5 +101,4 @@ export class SupplierFormComponent implements OnInit {
     get phone() { return this.supplierForm.get('phone'); }
     get email() { return this.supplierForm.get('email'); }
     get address() { return this.supplierForm.get('address'); }
-    get active() { return this.supplierForm.get('active'); }
 }

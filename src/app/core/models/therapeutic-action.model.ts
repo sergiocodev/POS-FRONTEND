@@ -1,12 +1,10 @@
 export interface TherapeuticActionResponse {
     id: number;
     name: string;
-    description?: string;
-    active: boolean;
+    description: string;
 }
 
 export interface TherapeuticActionRequest {
     name: string;
     description?: string;
-    active: boolean;
 }

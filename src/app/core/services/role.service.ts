@@ -37,9 +37,6 @@ export class RoleService {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
     }
 
-    toggleActive(id: number): Observable<ResponseApi<RoleResponse>> {
-        return this.http.patch<ResponseApi<RoleResponse>>(`${this.apiUrl}/${id}/toggle-active`, {});
-    }
 
 
 

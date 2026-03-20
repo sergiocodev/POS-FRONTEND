@@ -102,7 +102,7 @@
                                     <th class="py-3 d-none d-md-table-cell">RUC</th>
                                     <th class="py-3 d-none d-lg-table-cell">Teléfono</th>
                                     <th class="py-3 d-none d-lg-table-cell">Email</th>
-                                    <th class="py-3 text-center">Estado</th>
+
                                     <th class="py-3 text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -113,20 +113,7 @@
                                     <td class="d-none d-md-table-cell text-muted">{{ supplier.ruc || '-' }}</td>
                                     <td class="d-none d-lg-table-cell text-muted">{{ supplier.phone || '-' }}</td>
                                     <td class="d-none d-lg-table-cell text-muted">{{ supplier.email || '-' }}</td>
-                                    <td class="text-center">
-                                        <div class="form-check form-switch d-flex justify-content-center">
-                                            <input class="form-check-input" type="checkbox" role="switch"
-                                                [checked]="supplier.active" (change)="toggleActive(supplier)"
-                                                [id]="'switch-' + supplier.id">
-                                            <label class="form-check-label ms-2 d-none d-xl-inline"
-                                                [for]="'switch-' + supplier.id">
-                                                <span class="badge" [class.bg-success]="supplier.active"
-                                                    [class.bg-secondary]="!supplier.active">
-                                                    {{ supplier.active ? 'Activo' : 'Inactivo' }}
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </td>
+
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <button class="btn btn-outline-primary" (click)="onEdit(supplier.id)"

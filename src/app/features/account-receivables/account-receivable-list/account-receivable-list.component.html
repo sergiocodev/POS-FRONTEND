@@ -1,10 +1,10 @@
 <app-modal-alert></app-modal-alert>
-<app-module-header title="Cuentas por Pagar" iconClass="bi bi-wallet2"></app-module-header>
+<app-module-header title="Cuentas por Cobrar" iconClass="bi bi-cash-coin"></app-module-header>
 
-<div class="account-payable-page animate-fade-in">
+<div class="account-receivable-page animate-fade-in">
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <app-custom-table [columns]="columns" [data]="payables()" [pageSize]="10" (onAction)="onAction($event)">
+            <app-custom-table [columns]="columns" [data]="receivables()" [pageSize]="10" (onAction)="onAction($event)">
             </app-custom-table>
 
             <div *ngIf="isLoading()" class="d-flex justify-content-center my-4">
@@ -15,23 +15,23 @@
         </div>
     </div>
 
-    <!-- Modal para Pagar -->
-    <app-modal-generic [isVisible]="showPaymentModal()" title="Registrar Pago" size="md" (close)="closePaymentModal()">
+    <!-- Modal para Cobrar -->
+    <app-modal-generic [isVisible]="showPaymentModal()" title="Registrar Cobro" size="md" (close)="closePaymentModal()">
 
-        <div class="payment-form" *ngIf="selectedPayable()">
-            <div class="alert alert-info border-0 rounded-3">
-                <strong>Proveedor:</strong> {{ selectedPayable()?.supplierName }}<br>
-                <strong>Saldo Pendiente:</strong> S/ {{ selectedPayable()?.pendingBalance | number:'1.2-2' }}
+        <div class="payment-form" *ngIf="selectedReceivable()">
+            <div class="alert alert-success border-0 rounded-3 bg-light">
+                <strong>Cliente:</strong> {{ selectedReceivable()?.customerName }}<br>
+                <strong>Saldo Pendiente:</strong> S/ {{ selectedReceivable()?.pendingBalance | number:'1.2-2' }}
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label fw-bold">Monto a Pagar (S/)</label>
+                <label class="form-label fw-bold">Monto a Cobrar (S/)</label>
                 <input type="number" class="form-control" [(ngModel)]="paymentAmount" placeholder="0.00"
-                    min="0.01" [max]="selectedPayable()?.pendingBalance || 0">
+                    min="0.01" [max]="selectedReceivable()?.pendingBalance || 0">
             </div>
 
             <div class="form-group mb-3">
-                <label class="form-label fw-bold">Método de Pago</label>
+                <label class="form-label fw-bold">Método de Cobro</label>
                 <select class="form-select" [(ngModel)]="paymentMethod">
                     <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
                 </select>
@@ -39,7 +39,7 @@
 
             <div class="form-group mb-3">
                 <label class="form-label fw-bold">Referencia (Opcional)</label>
-                <input type="text" class="form-control" [(ngModel)]="paymentReference" placeholder="Ej. Número de operación">
+                <input type="text" class="form-control" [(ngModel)]="paymentReference" placeholder="Ej. Número de operación o transferencia">
             </div>
 
             <div class="form-group mb-3">
@@ -51,11 +51,11 @@
                 <button type="button" class="btn btn-light rounded-pill px-4" (click)="closePaymentModal()">
                     Cancelar
                 </button>
-                <button type="button" class="btn btn-primary rounded-pill px-4"
-                    [disabled]="isPaying() || !paymentAmount() || paymentAmount()! <= 0 || paymentAmount()! > (selectedPayable()?.pendingBalance || 0)"
+                <button type="button" class="btn btn-success rounded-pill px-4"
+                    [disabled]="isPaying() || !paymentAmount() || paymentAmount()! <= 0 || paymentAmount()! > (selectedReceivable()?.pendingBalance || 0)"
                     (click)="processPayment()">
                     <i class="bi" [ngClass]="isPaying() ? 'bi-hourglass-split' : 'bi-check-circle'"></i>
-                    {{ isPaying() ? 'Procesando...' : 'Confirmar Pago' }}
+                    {{ isPaying() ? 'Procesando...' : 'Confirmar Cobro' }}
                 </button>
             </div>
         </div>

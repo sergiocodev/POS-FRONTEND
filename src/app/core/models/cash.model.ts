@@ -7,7 +7,6 @@ export enum SessionStatus {
 export interface CashRegisterRequest {
     name: string;
     establishmentId: number;
-    active?: boolean;
 }
 
 export interface CashRegisterResponse {
@@ -15,7 +14,6 @@ export interface CashRegisterResponse {
     name: string;
     establishmentId: number;
     establishmentName: string;
-    active: boolean;
 }
 
 
@@ -43,35 +41,32 @@ export interface CashSessionResponse {
 }
 
 export enum ConceptType {
-    INCOME = 'INCOME',
-    EXPENSE = 'EXPENSE'
+    IN = 'IN',
+    OUT = 'OUT'
 }
 
 export interface CashConceptRequest {
     name: string;
     type: ConceptType;
-    active?: boolean;
 }
 
 export interface CashConceptResponse {
     id: number;
     name: string;
     type: ConceptType;
-    active: boolean;
 }
 
 
 export enum CashMovementType {
-    INCOME = 'INCOME',
-    EXPENSE = 'EXPENSE'
+    IN = 'IN',
+    OUT = 'OUT'
 }
 
 export interface CashMovementRequest {
     cashSessionId: number;
     cashConceptId: number;
     amount: number;
-    referenceTable?: string;
-    referenceId?: number;
+    reference?: string;
     description?: string;
 }
 
@@ -81,8 +76,7 @@ export interface CashMovementResponse {
     cashConceptName: string;
     amount: number;
     type: CashMovementType;
-    referenceTable?: string;
-    referenceId?: number;
+    reference?: string;
     description?: string;
     createdAt: string;
 }

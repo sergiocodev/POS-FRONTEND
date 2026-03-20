@@ -22,14 +22,12 @@ export class TherapeuticActionListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<TherapeuticActionResponse>();
-    @Output() toggleStatus = new EventEmitter<TherapeuticActionResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'id', label: 'ID', type: 'text' },
         { key: 'name', label: 'Acción Terapéutica', type: 'text' },
         { key: 'description', label: 'Descripción', type: 'text' },
-        { key: 'active', label: 'Estado', type: 'toggle' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -87,9 +85,7 @@ export class TherapeuticActionListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(row: TherapeuticActionResponse) {
-        this.toggleStatus.emit(row);
-    }
+
 
     createTherapeuticAction() {
         this.create.emit();

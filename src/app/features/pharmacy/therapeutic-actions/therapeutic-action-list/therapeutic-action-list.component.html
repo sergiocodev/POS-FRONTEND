@@ -25,7 +25,7 @@
 
     <div class="card border-0 shadow-sm overflow-hidden">
         <app-custom-table [columns]="cols" [data]="filteredActions()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event.row)">
+            (onAction)="handleTableAction($event)">
         </app-custom-table>
 
         @if (isLoading) {

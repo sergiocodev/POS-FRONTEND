@@ -4,8 +4,7 @@
 
 <div class="pharmaceutical-forms-page animate-fade-in">
     <app-pharmaceutical-form-list [pharmaceuticalForms]="pharmaceuticalForms()" [isLoading]="isLoading()"
-        (create)="onOpenForm()" (edit)="onOpenForm($event)" (delete)="onDelete($event)"
-        (toggleStatus)="onToggleStatus($event)">
+        (create)="onOpenForm()" (edit)="onOpenForm($event)" (delete)="onDelete($event)">
     </app-pharmaceutical-form-list>
 
     <!-- Modal para Crear/Editar Forma Farmacéutica -->

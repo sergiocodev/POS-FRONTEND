@@ -3,14 +3,12 @@
 export interface RoleRequest {
     name: string;
     description?: string;
-    active?: boolean;
 }
 
 export interface RoleResponse {
     id: number;
     name: string;
     description?: string;
-    active: boolean;
     permissionCount?: number;
     createdAt: string;
 }
@@ -19,7 +17,6 @@ export interface RoleDetailResponse {
     id: number;
     name: string;
     description?: string;
-    active: boolean;
     permissions: PermissionResponse[];
     createdAt: string;
 }
@@ -48,7 +45,6 @@ export interface EstablishmentRequest {
     name: string;
     address?: string;
     codeSunat?: string;
-    active?: boolean;
 }
 
 export interface EstablishmentResponse {
@@ -56,7 +52,6 @@ export interface EstablishmentResponse {
     name: string;
     address?: string;
     codeSunat: string;
-    active: boolean;
 }
 
 export interface UserRequest {
@@ -64,7 +59,6 @@ export interface UserRequest {
     email: string;
     password?: string;
     fullName?: string;
-    active?: boolean;
 }
 
 export interface UserResponse {
@@ -72,7 +66,6 @@ export interface UserResponse {
     username: string;
     email: string;
     fullName?: string;
-    active: boolean;
     lastLogin?: string;
     createdAt: string;
     updatedAt: string;

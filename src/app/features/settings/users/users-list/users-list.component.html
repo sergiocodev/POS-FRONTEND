@@ -9,7 +9,7 @@
     </div>
 
     <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Usuario, nombre o email'"
-        [disableClear]="!searchTerm() && selectedRoleFilter() === null && selectedStatusFilter() === null"
+        [disableClear]="!searchTerm() && selectedRoleFilter() === null"
         (clear)="resetFilters()">
 
         <div class="w-50">
@@ -21,21 +21,13 @@
             </select>
         </div>
 
-        <div class="w-50">
-            <label class="form-label fw-semibold">Estado</label>
-            <select class="form-select" [ngModel]="selectedStatusFilter()"
-                (ngModelChange)="selectedStatusFilter.set($event)">
-                <option [ngValue]="null">Todos</option>
-                <option [ngValue]="true">Activos</option>
-                <option [ngValue]="false">Inactivos</option>
-            </select>
-        </div>
+
 
     </app-table-filter>
 
     <div class="card border-0 shadow-sm overflow-hidden mb-4">
         <app-custom-table [columns]="cols" [data]="filteredUsers()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event)">
+            (onAction)="handleTableAction($event)">
         </app-custom-table>
 
         <div *ngIf="isLoading" class="text-center py-5">

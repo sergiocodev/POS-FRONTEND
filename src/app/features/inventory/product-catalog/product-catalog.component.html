@@ -5,7 +5,7 @@
 <div class="product-catalog-page animate-fade-in">
     <app-product-list [products]="products()" [isLoading]="isLoading()" [categories]="categories()" [brands]="brands()"
         [therapeuticActions]="therapeuticActions()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
-        (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)">
+        (delete)="onDelete($event)">
     </app-product-list>
 
     @if (showForm()) {

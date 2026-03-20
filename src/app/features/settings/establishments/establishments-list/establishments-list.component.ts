@@ -22,14 +22,13 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<EstablishmentResponse>();
-    @Output() toggleStatus = new EventEmitter<EstablishmentResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'name', label: 'Establecimiento', type: 'text' },
         { key: 'address', label: 'Dirección', type: 'text', format: (v: string) => v || 'Sin dirección' },
         { key: 'codeSunat', label: 'Cód. SUNAT', type: 'text' },
-        { key: 'active', label: 'Estado', type: 'toggle' },
+
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -39,7 +38,6 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
 
     // Filtros
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
     pageSize = 10;
 
@@ -74,9 +72,7 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
             );
         }
 
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(est => est.active === this.selectedStatusFilter());
-        }
+
 
         this.filteredEstablishments.set(filtered);
     }
@@ -86,14 +82,7 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        let value: boolean | null = null;
-        if (event === 'true' || event === true) value = true;
-        else if (event === 'false' || event === false) value = false;
 
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
 
     // --- Actions ---
 
@@ -105,9 +94,7 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(e: { row: EstablishmentResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-    }
+
 
     createEstablishment() {
         this.create.emit();

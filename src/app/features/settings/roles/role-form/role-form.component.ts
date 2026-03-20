@@ -46,8 +46,7 @@ export class RoleFormComponent implements OnInit {
     initForm() {
         this.roleForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(3)]],
-            description: [''],
-            active: [true]
+            description: ['']
         });
     }
 
@@ -59,7 +58,7 @@ export class RoleFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.roleForm) {
-                this.roleForm.reset({ active: true });
+                this.roleForm.reset();
             }
         }
     }
@@ -70,9 +69,7 @@ export class RoleFormComponent implements OnInit {
             next: (response) => {
                 const role = response.data;
                 this.roleForm.patchValue({
-                    name: role.name,
-                    description: role.description,
-                    active: role.active
+                    description: role.description
                 });
                 this.isLoading.set(false);
             },
@@ -96,8 +93,7 @@ export class RoleFormComponent implements OnInit {
         const formValue = this.roleForm.value;
         const request: RoleRequest = {
             name: formValue.name,
-            description: formValue.description,
-            active: formValue.active
+            description: formValue.description
         };
 
         const operation = this.isEditMode()

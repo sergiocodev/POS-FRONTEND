@@ -5,7 +5,7 @@
 
 <div class="establishments-page animate-fade-in">
     <app-establishments-list [establishments]="establishments()" [isLoading]="isLoading()" (create)="onOpenForm()"
-        (edit)="onOpenForm($event)" (delete)="onDeleteEstablishment($event)" (toggleStatus)="onToggleStatus($event)">
+        (edit)="onOpenForm($event)" (delete)="onDeleteEstablishment($event)">
     </app-establishments-list>
 
     <!-- Modal para Crear/Editar Establecimiento -->

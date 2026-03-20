@@ -41,8 +41,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
     initForm() {
         this.form = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(150)]],
-            description: ['', [Validators.maxLength(255)]],
-            active: [true]
+            description: ['', [Validators.maxLength(255)]]
         });
     }
 
@@ -54,7 +53,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -67,8 +66,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
                 if (form) {
                     this.form.patchValue({
                         name: form.name,
-                        description: form.description || '',
-                        active: form.active
+                        description: form.description || ''
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Forma farmacéutica no encontrada', type: 'error' });
@@ -94,17 +92,8 @@ export class PharmaceuticalFormFormComponent implements OnInit {
         const request: PharmaceuticalFormRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updatePharmaceuticalFormById(
-                this.formId!,
-                request.name,
-                request.description,
-                request.active
-            )
-            : this.maintenanceService.createNewPharmaceuticalForm(
-                request.name,
-                request.description,
-                request.active
-            );
+            ? this.maintenanceService.updatePharmaceuticalFormById(this.formId!, request.name, request.description)
+            : this.maintenanceService.createNewPharmaceuticalForm(request.name, request.description);
 
         operation.subscribe({
             next: () => {

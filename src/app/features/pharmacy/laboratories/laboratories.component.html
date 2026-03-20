@@ -4,7 +4,7 @@
 
 <div class="laboratories-page animate-fade-in">
     <app-laboratories-list [laboratories]="laboratories()" [isLoading]="isLoading()" (create)="onOpenForm()"
-        (edit)="onOpenForm($event)" (delete)="onDeleteLaboratory($event)" (toggleStatus)="onToggleStatus($event)">
+        (edit)="onOpenForm($event)" (delete)="onDeleteLaboratory($event)">
     </app-laboratories-list>
 
     <!-- Modal para Crear/Editar Laboratorio -->

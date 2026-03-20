@@ -62,7 +62,7 @@ export class SessionFormComponent implements OnInit {
     loadRegisters(): void {
         this.cashService.getRegisters().subscribe({
             next: (response) => {
-                this.registers.set(response.data.filter((r: CashRegisterResponse) => r.active));
+                this.registers.set(response.data);
             }
         });
     }

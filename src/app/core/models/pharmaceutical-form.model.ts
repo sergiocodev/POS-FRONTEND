@@ -1,12 +1,10 @@
 export interface PharmaceuticalFormResponse {
     id: number;
     name: string;
-    description?: string;
-    active: boolean;
+    description: string;
 }
 
 export interface PharmaceuticalFormRequest {
     name: string;
     description?: string;
-    active: boolean;
 }

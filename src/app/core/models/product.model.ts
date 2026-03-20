@@ -1,19 +1,16 @@
 export interface BrandResponse {
     id: number;
     name: string;
-    active: boolean;
 }
 
 export interface CategoryResponse {
     id: number;
     name: string;
-    active: boolean;
 }
 
 export interface LaboratoryResponse {
     id: number;
     name: string;
-    active: boolean;
 }
 
 export interface PresentationResponse {
@@ -26,21 +23,18 @@ export interface TaxTypeResponse {
     name: string;
     rate: number;
     codeSunat: string;
-    active: boolean;
 }
 
 export interface TaxTypeRequest {
     name: string;
     rate: number;
     codeSunat?: string;
-    active?: boolean;
 }
 
 export interface ActiveIngredientResponse {
     id: number;
     name: string;
     description?: string;
-    active: boolean;
 }
 
 export interface ProductIngredientRequest {
@@ -56,7 +50,6 @@ export interface ProductIngredientResponse {
 
 export interface ProductRequest {
     code: string;
-    barcode?: string;
     digemidCode?: string;
     tradeName: string;
     genericName?: string;
@@ -69,10 +62,6 @@ export interface ProductRequest {
     pharmaceuticalFormId: number;
     requiresPrescription: boolean;
     isGeneric: boolean;
-    unitType: string;
-    purchaseFactor: number;
-    fractionLabel?: string;
-    active: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientRequest[];
     therapeuticActionIds?: number[];
@@ -81,7 +70,6 @@ export interface ProductRequest {
 export interface ProductResponse {
     id: number;
     code: string;
-    barcode?: string;
     digemidCode?: string;
     tradeName: string;
     genericName?: string;
@@ -94,12 +82,29 @@ export interface ProductResponse {
     taxTypeName?: string;
     requiresPrescription: boolean;
     isGeneric: boolean;
-    unitType: string;
-    purchaseFactor: number;
-    fractionLabel?: string;
-    active: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientResponse[];
     therapeuticActionNames?: string[];
     therapeuticActionIds?: number[];
+}
+
+export interface ProductUnitRequest {
+    productId: number;
+    unitName: string;
+    factor: number;
+    barcode?: string;
+    sunatCode?: string;
+    price: number;
+    isBaseUnit: boolean;
+}
+
+export interface ProductUnitResponse {
+    id: number;
+    productId: number;
+    unitName: string;
+    factor: number;
+    barcode?: string;
+    sunatCode?: string;
+    price: number;
+    isBaseUnit: boolean;
 }

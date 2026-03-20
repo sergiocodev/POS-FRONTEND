@@ -22,13 +22,11 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<PharmaceuticalFormResponse>();
-    @Output() toggleStatus = new EventEmitter<PharmaceuticalFormResponse>();
 
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'id', label: 'ID', type: 'text' },
         { key: 'name', label: 'Forma Farmacéutica', type: 'text' },
-        { key: 'active', label: 'Estado', type: 'toggle' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -36,7 +34,6 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
     filteredForms = signal<PharmaceuticalFormResponse[]>([]);
 
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
     // Pagination
     pageSize = 10;
@@ -67,9 +64,7 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
             );
         }
 
-        if (this.selectedStatusFilter() !== null) {
-            filtered = filtered.filter(f => f.active === this.selectedStatusFilter());
-        }
+
 
         this.filteredForms.set(filtered);
         this.currentPage = 1;
@@ -80,11 +75,7 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        const value = event === 'true' ? true : event === 'false' ? false : null;
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
+
 
     // --- Actions ---
 
@@ -96,10 +87,7 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
         }
     }
 
-    handleStatusToggle(e: { row: PharmaceuticalFormResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-        e.row.active = !e.checked; // Optimistic toggle reversion
-    }
+
 
     createPharmaceuticalForm() {
         this.create.emit();

@@ -66,7 +66,6 @@ export class UserFormComponent implements OnInit {
             fullName: ['', [Validators.required]],
             document: [''],
             password: ['', [Validators.minLength(8)]],
-            active: [true],
             roleIds: [[], [Validators.required, Validators.minLength(1)]],
             profilePicture: ['']
         });
@@ -78,8 +77,8 @@ export class UserFormComponent implements OnInit {
 
     loadLookupData() {
         this.roleService.getAll().subscribe({
-            next: (response) => {
-                this.roles.set(response.data.filter(r => r.active));
+            next: (response: any) => {
+                this.roles.set(response.data);
             },
             error: (error) => console.error('Error loading roles:', error)
         });
@@ -97,7 +96,7 @@ export class UserFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.userForm) {
-                this.userForm.reset({ active: true });
+                this.userForm.reset();
                 this.selectedRoles.set([]);
                 this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
                 this.userForm.get('password')?.updateValueAndValidity();
@@ -114,7 +113,6 @@ export class UserFormComponent implements OnInit {
                     username: user.username,
                     email: user.email,
                     fullName: user.fullName,
-                    active: user.active,
                     roleIds: user.roles?.map(r => r.id) || [],
                     profilePicture: user.profilePicture || ''
                 });
@@ -215,7 +213,6 @@ export class UserFormComponent implements OnInit {
             email: formValue.email,
             fullName: formValue.fullName,
             roleIds: this.selectedRoles(),
-            active: formValue.active,
             profilePicture: formValue.profilePicture
         };
 

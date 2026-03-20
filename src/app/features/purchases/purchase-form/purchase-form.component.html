@@ -118,52 +118,66 @@
             </div>
 
             <!-- ══════════════════════════════════
-                 SECCIÓN 1.5 — CONDICIONES DE PAGO
+                 SECCIÓN 2 — CONDICIÓN DE PAGO
             ══════════════════════════════════ -->
             <div class="pf-section">
                 <div class="pf-section-header">
-                    <div class="pf-section-icon pf-section-icon--blue"
-                        style="background-color: #e0f2fe; color: #0284c7;">
+                    <div class="pf-section-icon" style="color: #0ea5e9; background: #e0f2fe;">
                         <i class="bi bi-wallet2"></i>
                     </div>
                     <div>
-                        <h2 class="pf-section-title">Condiciones de Pago</h2>
-                        <p class="pf-section-desc">Especifique si la compra es al contado o al crédito</p>
+                        <h2 class="pf-section-title">Condición de Pago</h2>
+                        <p class="pf-section-desc">Especifique inicial y método de pago</p>
                     </div>
                 </div>
-
+                
                 <div class="pf-fields-grid">
-                    <!-- Método de Pago -->
+                    <!-- Condición -->
                     <div class="pf-field">
                         <label class="pf-label">
-                            <i class="bi bi-cash-coin"></i> Método de Pago
+                            <i class="bi bi-cash-stack"></i> Condición
                         </label>
                         <div class="pf-select-wrapper">
-                            <select class="pf-select" formControlName="paymentMethod">
-                                <option value="EFECTIVO">Efectivo / Contado</option>
-                                <option value="CREDITO">Crédito</option>
+                            <select class="pf-select" formControlName="paymentCondition">
+                                <option [value]="PaymentConditionEnum.CASH">Al Contado</option>
+                                <option [value]="PaymentConditionEnum.CREDIT">Al Crédito</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Monto Pagado por Adelantado -->
-                    <div class="pf-field" *ngIf="showCreditFields">
+                    <!-- Pago Inicial -->
+                    <div class="pf-field">
                         <label class="pf-label">
-                            <i class="bi bi-currency-dollar"></i> Adelanto (S/)
+                            <i class="bi bi-currency-dollar"></i> Pago Inicial
                         </label>
-                        <input class="pf-input" type="number" formControlName="amountPaid" placeholder="0.00" min="0"
-                            step="0.01">
+                        <div class="pf-price-input">
+                            <span class="pf-currency">S/</span>
+                            <input class="pf-input" type="number" formControlName="initialPayment" min="0" step="0.01">
+                        </div>
                     </div>
 
-                    <!-- Fecha de Vencimiento -->
-                    <div class="pf-field" *ngIf="showCreditFields">
+                    <!-- Método de Pago -->
+                    <div class="pf-field" *ngIf="purchaseForm.get('initialPayment')?.value > 0">
                         <label class="pf-label">
-                            <i class="bi bi-calendar-x"></i> Fecha Vencimiento
+                            <i class="bi bi-credit-card"></i> Método de Pago
+                        </label>
+                        <div class="pf-select-wrapper">
+                            <select class="pf-select" formControlName="paymentMethod"
+                                [class.pf-invalid]="purchaseForm.get('paymentMethod')?.touched && purchaseForm.get('paymentMethod')?.invalid">
+                                <option [ngValue]="null">Seleccione...</option>
+                                <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fecha Vencimiento -->
+                    <div class="pf-field" *ngIf="purchaseForm.get('paymentCondition')?.value === PaymentConditionEnum.CREDIT">
+                        <label class="pf-label">
+                            <i class="bi bi-calendar-event"></i> Fecha Vencimiento
                         </label>
                         <input class="pf-input" type="date" formControlName="dueDate"
                             [class.pf-invalid]="purchaseForm.get('dueDate')?.touched && purchaseForm.get('dueDate')?.invalid">
-                        <p class="pf-hint"
-                            *ngIf="purchaseForm.get('dueDate')?.touched && purchaseForm.get('dueDate')?.invalid">
+                        <p class="pf-hint" *ngIf="purchaseForm.get('dueDate')?.touched && purchaseForm.get('dueDate')?.invalid">
                             Requerido
                         </p>
                     </div>
@@ -171,7 +185,7 @@
             </div>
 
             <!-- ══════════════════════════════════
-                 SECCIÓN 2 — DETALLE DE PRODUCTOS
+                 SECCIÓN 3 — DETALLE DE PRODUCTOS
             ══════════════════════════════════ -->
             <div class="pf-section">
                 <div class="pf-section-header">
@@ -188,9 +202,9 @@
                     </button>
                 </div>
 
-                <!-- Column Headers -->
                 <div class="pf-items-header">
                     <span class="pf-col pf-col--product">Producto</span>
+                    <span class="pf-col pf-col--unit">Unidad</span>
                     <span class="pf-col pf-col--lot">Lote</span>
                     <span class="pf-col pf-col--date">Vencimiento</span>
                     <span class="pf-col pf-col--num">Cant.</span>
@@ -213,6 +227,18 @@
                                 <select class="pf-select pf-select--inline" formControlName="productId">
                                     <option [ngValue]="null">Seleccione producto...</option>
                                     <option *ngFor="let p of products()" [value]="p.id">{{ p.tradeName }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Unidad de Medida -->
+                        <div class="pf-col pf-col--unit">
+                            <div class="pf-select-wrapper pf-select-wrapper--inline">
+                                <select class="pf-select pf-select--inline" formControlName="productUnitId">
+                                    <option [ngValue]="null">Unidad...</option>
+                                    <option *ngFor="let u of productUnits()[item.get('productId')?.value] || []" [value]="u.id">
+                                        {{ u.unitName }} (x{{ u.factor }})
+                                    </option>
                                 </select>
                             </div>
                         </div>

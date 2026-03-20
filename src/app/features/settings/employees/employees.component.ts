@@ -105,27 +105,5 @@ export class EmployeesComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(emp: EmployeeResponse) {
-        const actionStr = emp.active ? 'desactivar' : 'activar';
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${actionStr}</b> al empleado <b>${emp.firstName} ${emp.lastName || ''}</b>?`,
-            btnColor: 'warning',
-            confirmText: emp.active ? 'Desactivar' : 'Activar'
-        });
 
-        if (confirmed) {
-            const request = { ...emp, active: !emp.active };
-            this.employeeService.update(emp.id, request).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Personal ${actionStr} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error('Error toggling status:', error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

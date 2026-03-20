@@ -6,8 +6,7 @@
 
     <!-- Tabla de roles -->
     <app-roles-list [roles]="roles()" [isLoading]="isLoading()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
-        (permissions)="onOpenPermissions($event)" (delete)="onDeleteRole($event)"
-        (toggleStatus)="onToggleStatus($event)">
+        (permissions)="onOpenPermissions($event)" (delete)="onDeleteRole($event)">
     </app-roles-list>
 
     <!-- Modal de Formulario de Rol -->

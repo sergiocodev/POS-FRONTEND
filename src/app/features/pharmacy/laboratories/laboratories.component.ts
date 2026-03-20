@@ -99,25 +99,4 @@ export class LaboratoriesComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(laboratory: LaboratoryResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${laboratory.active ? 'desactivar' : 'activar'}</b> el laboratorio ${laboratory.name}?`,
-            btnColor: 'warning',
-            confirmText: laboratory.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updateLaboratoryById(laboratory.id, laboratory.name, !laboratory.active).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Laboratorio ${laboratory.active ? 'desactivado' : 'activado'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

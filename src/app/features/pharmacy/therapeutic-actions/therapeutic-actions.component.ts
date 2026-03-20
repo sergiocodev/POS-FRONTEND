@@ -77,27 +77,6 @@ export class TherapeuticActionsComponent implements OnInit {
         this.selectedTherapeuticActionId.set(null);
     }
 
-    async onToggleStatus(tAction: TherapeuticActionResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${tAction.active ? 'desactivar' : 'activar'}</b> la acción terapéutica ${tAction.name}?`,
-            btnColor: 'warning',
-            confirmText: tAction.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updateTherapeuticActionById(tAction.id, tAction.name, tAction.description || '', !tAction.active).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Acción terapéutica ${tAction.active ? 'desactivada' : 'activada'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 
     async onDelete(tAction: TherapeuticActionResponse) {
         const confirmed = await this.modalService.confirm({

@@ -124,8 +124,7 @@ export class EmployeeFormComponent implements OnInit {
             lastName: formValue.lastName || undefined,
             documentNumber: formValue.documentNumber || undefined,
             // Convertir a numero si viene como string del select nativo, o undefined si es null
-            userId: formValue.userId ? Number(formValue.userId) : undefined,
-            active: true
+            userId: formValue.userId ? Number(formValue.userId) : undefined
         };
 
         const operation = this.isEditMode()

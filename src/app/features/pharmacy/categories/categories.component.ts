@@ -99,25 +99,4 @@ export class CategoriesComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(category: CategoryResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${category.active ? 'desactivar' : 'activar'}</b> la categoría ${category.name}?`,
-            btnColor: 'warning',
-            confirmText: category.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updateCategoryById(category.id, category.name, !category.active).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Categoría ${category.active ? 'desactivada' : 'activada'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

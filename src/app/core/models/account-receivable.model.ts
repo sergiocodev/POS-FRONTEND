@@ -1,36 +1,37 @@
-export enum PayableStatus {
+export enum ReceivableStatus {
     PENDING = 'PENDING',
     PARTIAL = 'PARTIAL',
     PAID = 'PAID',
     CANCELED = 'CANCELED'
 }
 
-export enum PayablePaymentMethod {
+export enum ReceivablePaymentMethod {
     EFECTIVO = 'EFECTIVO',
     TRANSFERENCIA = 'TRANSFERENCIA',
-    CHEQUE = 'CHEQUE',
     YAPE = 'YAPE',
-    PLIN = 'PLIN'
+    PLIN = 'PLIN',
+    TARJETA = 'TARJETA'
 }
 
-export interface AccountPayableResponse {
+export interface AccountReceivableResponse {
     id: number;
-    purchaseId: number;
-    supplierName: string;
+    saleId: number;
+    customerName: string;
     totalAmount: number;
     amountPaid: number;
     pendingBalance: number;
-    status: PayableStatus;
-    dueDate: string | null;
+    status: ReceivableStatus;
+    dueDate: string;
     notes: string;
     createdAt: string;
     updatedAt: string;
 }
 
-export interface AccountPayablePaymentRequest {
-    accountPayableId: number;
+export interface AccountReceivablePaymentRequest {
+    accountReceivableId: number;
+    cashSessionId: number;
     amount: number;
-    paymentMethod: PayablePaymentMethod;
+    paymentMethod: ReceivablePaymentMethod;
     reference?: string;
     notes?: string;
 }

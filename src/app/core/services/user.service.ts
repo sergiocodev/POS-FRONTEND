@@ -5,15 +5,6 @@ import { UserRequest, UserResponse, UserAssignRolesRequest, UserAssignEstablishm
 import { ResponseApi } from '../models/response-api.model';
 
 
-export interface User {
-    id: number;
-    username: string;
-    email: string;
-    nombre: string;
-    role: string;
-    active: boolean;
-}
-
 @Injectable({
     providedIn: 'root'
 })
@@ -47,10 +38,6 @@ export class UserService {
 
     assignEstablishments(userId: number, request: UserAssignEstablishmentsRequest): Observable<ResponseApi<UserResponse>> {
         return this.http.post<ResponseApi<UserResponse>>(`${this.apiUrl}/${userId}/establishments`, request);
-    }
-
-    toggleActive(id: number): Observable<ResponseApi<UserResponse>> {
-        return this.http.patch<ResponseApi<UserResponse>>(`${this.apiUrl}/${id}/toggle-active`, {});
     }
 
     searchByDocument(documentNumber: string): Observable<ResponseApi<ExternalLookupResponse>> {

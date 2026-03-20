@@ -6,7 +6,7 @@
         </button>
     </div>
 
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por barcode, digemid, código...'"
+    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por digemid, código o nombre...'"
         [disableClear]="!searchTerm() && selectedCategory() === null && selectedBrand() === null && selectedTherapeuticAction() === null"
         (clear)="resetFilters()">
 
@@ -42,9 +42,6 @@
     <ng-template #codeTemplate let-row>
         <div class="d-flex flex-column" style="line-height: 1.2;">
             <small class="text-muted fw-semibold">{{ row.code }}</small>
-            @if (row.barcode) {
-            <small class="text-dark fw-bold">{{ row.barcode }}</small>
-            }
             @if (row.digemidCode) {
             <small class="text-info fw-bold">{{ row.digemidCode }}</small>
             }

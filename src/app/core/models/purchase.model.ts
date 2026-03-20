@@ -10,8 +10,22 @@ export enum PurchaseStatus {
     CANCELED = 'CANCELED'
 }
 
+export enum PaymentCondition {
+    CASH = 'CASH',
+    CREDIT = 'CREDIT'
+}
+
+export enum PaymentMethod {
+    EFECTIVO = 'EFECTIVO',
+    TRANSFERENCIA = 'TRANSFERENCIA',
+    CHEQUE = 'CHEQUE',
+    YAPE = 'YAPE',
+    PLIN = 'PLIN'
+}
+
 export interface PurchaseItemRequest {
     productId: number;
+    productUnitId: number;
     lotCode: string;
     expiryDate: string;
     quantity: number;
@@ -22,6 +36,7 @@ export interface PurchaseItemRequest {
 export interface PurchaseItemResponse {
     id: number;
     productName: string;
+    productUnitId: number;
     lotCode: string;
     expiryDate: string;
     quantity: number;
@@ -30,22 +45,18 @@ export interface PurchaseItemResponse {
     totalCost: number;
 }
 
-export enum PaymentMethod {
-    EFECTIVO = 'EFECTIVO',
-    CREDITO = 'CREDITO'
-}
-
 export interface PurchaseRequest {
     supplierId: number;
     establishmentId: number;
     documentType: PurchaseDocumentType;
-    paymentMethod: PaymentMethod;
     series?: string;
     number?: string;
     issueDate: string;
     notes?: string;
     items: PurchaseItemRequest[];
-    amountPaid?: number;
+    paymentCondition: PaymentCondition;
+    initialPayment?: number;
+    paymentMethod?: PaymentMethod;
     dueDate?: string;
 }
 

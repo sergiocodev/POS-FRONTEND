@@ -8,7 +8,6 @@ export interface UserRequest {
     fullName: string;
     roleIds: number[];
     establishmentIds?: number[];
-    active?: boolean;
     profilePicture?: string;
 }
 
@@ -17,7 +16,6 @@ export interface UserResponse {
     username: string;
     email: string;
     fullName: string;
-    active: boolean;
     roles: RoleResponse[];
     establishments: EstablishmentResponse[];
     profilePicture?: string;

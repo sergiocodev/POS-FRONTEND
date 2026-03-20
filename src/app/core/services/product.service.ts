@@ -12,12 +12,11 @@ export class ProductService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/products';
 
-    getAll(categoryId?: number, brandId?: number, active?: boolean): Observable<ResponseApi<ProductResponse[]>> {
+    getAll(categoryId?: number, brandId?: number): Observable<ResponseApi<ProductResponse[]>> {
         let params = '';
         const queryParams: string[] = [];
         if (categoryId !== undefined) queryParams.push(`categoryId=${categoryId}`);
         if (brandId !== undefined) queryParams.push(`brandId=${brandId}`);
-        if (active !== undefined) queryParams.push(`active=${active}`);
         if (queryParams.length > 0) params = '?' + queryParams.join('&');
         return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts${params}`);
     }
@@ -46,7 +45,4 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductLotResponse[]>>(`${this.apiUrl}/${id}/lots`);
     }
 
-    updateStatus(id: number, active: boolean): Observable<ResponseApi<void>> {
-        return this.http.patch<ResponseApi<void>>(`${this.apiUrl}/${id}/status`, { active });
-    }
 }

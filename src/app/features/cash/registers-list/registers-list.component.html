@@ -26,7 +26,6 @@
                         <tr>
                             <th class="px-4 py-3">Nombre de la Caja</th>
                             <th class="py-3">Establecimiento</th>
-                            <th class="py-3 text-center">Estado</th>
                             <th class="py-3 text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
@@ -45,24 +44,14 @@
                         <tr *ngFor="let reg of filteredRegisters()">
                             <td class="px-4 fw-bold text-primary">{{ reg.name }}</td>
                             <td>{{ reg.establishmentName }}</td>
-                            <td class="text-center">
-                                <span class="badge rounded-pill px-3"
-                                    [ngClass]="reg.active ? 'bg-success' : 'bg-danger'">
-                                    {{ reg.active ? 'Activa' : 'Inactiva' }}
-                                </span>
-                            </td>
+
                             <td class="text-center pe-4">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-sm btn-outline-info"
                                         [routerLink]="['/cash/registers/edit', reg.id]" title="Editar">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm"
-                                        [ngClass]="reg.active ? 'btn-outline-warning' : 'btn-outline-success'"
-                                        (click)="onToggleStatus(reg)" [title]="reg.active ? 'Desactivar' : 'Activar'">
-                                        <i class="bi"
-                                            [ngClass]="reg.active ? 'bi-slash-circle' : 'bi-check-circle'"></i>
-                                    </button>
+
                                     <button class="btn btn-sm btn-outline-danger" (click)="onDelete(reg.id)"
                                         title="Eliminar">
                                         <i class="bi bi-trash"></i>

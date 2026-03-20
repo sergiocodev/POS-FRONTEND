@@ -133,33 +133,4 @@ export class RolesComponent implements OnInit {
         });
     }
 
-    onToggleStatus(role: RoleResponse) {
-        this.modalService.confirm({
-            title: 'Confirmar Cambio de Estado',
-            message: `¿Está seguro de ${role.active ? 'desactivar' : 'activar'} el rol "<b>${role.name}</b>"?`,
-            confirmText: 'Confirmar',
-            btnColor: 'warning'
-        }).then(confirmed => {
-            if (confirmed) {
-                this.roleService.toggleActive(role.id).subscribe({
-                    next: () => {
-                        this.loadData();
-                        this.modalService.alert({
-                            title: 'Éxito',
-                            message: `Rol ${role.active ? 'desactivado' : 'activado'} correctamente`,
-                            type: 'success'
-                        });
-                    },
-                    error: (error) => {
-                        console.error('Error toggling role:', error);
-                        this.modalService.alert({
-                            title: 'Error',
-                            message: 'No se pudo cambiar el estado',
-                            type: 'error'
-                        });
-                    }
-                });
-            }
-        });
-    }
 }

@@ -81,19 +81,6 @@ export class SupplierListComponent implements OnInit {
         }
     }
 
-    toggleActive(supplier: SupplierResponse): void {
-        const updatedSupplier = { ...supplier, active: !supplier.active };
-        this.supplierService.update(supplier.id, updatedSupplier).subscribe({
-            next: () => {
-                this.loadSuppliers();
-            },
-            error: (error) => {
-                this.errorMessage.set('Error al actualizar el estado. Intenta de nuevo.');
-                console.error('Error updating supplier status:', error);
-            }
-        });
-    }
-
     onNew(): void {
         this.router.navigate(['/suppliers/new']);
     }

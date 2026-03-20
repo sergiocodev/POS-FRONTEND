@@ -113,27 +113,6 @@ export class ProductCatalogComponent implements OnInit {
         this.selectedProductId.set(null);
     }
 
-    async onToggleStatus(product: ProductResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Cambiar Estado',
-            message: `¿Está seguro de <b>${product.active ? 'desactivar' : 'activar'}</b> el producto <b>${product.tradeName}</b>?`,
-            btnColor: 'warning',
-            confirmText: product.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.productService.updateStatus(product.id, !product.active).subscribe({
-                next: () => {
-                    this.loadProducts();
-                    this.modalService.alert({ title: 'Éxito', message: 'Estado actualizado correctamente', type: 'success' });
-                },
-                error: (err) => {
-                    console.error(err);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo actualizar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 
     async onDelete(product: ProductResponse) {
         const confirmed = await this.modalService.confirm({

@@ -27,7 +27,6 @@ export class RolesListComponent implements OnInit {
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<RoleResponse>();
-    @Output() toggleStatus = new EventEmitter<RoleResponse>();
     @Output() permissions = new EventEmitter<RoleResponse>();
 
     // Configuración de la tabla
@@ -35,7 +34,7 @@ export class RolesListComponent implements OnInit {
         { key: 'name', label: 'Rol', type: 'text' },
         { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || 'Sin descripción' },
         { key: 'permissionCount', label: 'Permisos', type: 'text', format: (v: number) => `${v || 0} permisos` },
-        { key: 'active', label: 'Estado', type: 'toggle' },
+
         { key: 'createdAt', label: 'Fecha Creación', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'short') || 'N/A' : 'N/A' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
@@ -48,7 +47,6 @@ export class RolesListComponent implements OnInit {
 
     // Filters
     searchTerm = signal('');
-    selectedStatusFilter = signal<boolean | null>(null);
 
     // Pagination & Sorting (Table defaults)
     currentPage = 1;
@@ -79,7 +77,6 @@ export class RolesListComponent implements OnInit {
     applyFilters() {
         let filtered = this.localRoles();
         const search = this.searchTerm().toLowerCase();
-        const status = this.selectedStatusFilter();
 
         if (search) {
             filtered = filtered.filter(role =>
@@ -88,9 +85,7 @@ export class RolesListComponent implements OnInit {
             );
         }
 
-        if (status !== null) {
-            filtered = filtered.filter(role => role.active === status);
-        }
+
 
         this.filteredRoles.set(filtered);
         this.currentPage = 1;
@@ -101,16 +96,10 @@ export class RolesListComponent implements OnInit {
         this.applyFilters();
     }
 
-    onStatusFilterChange(event: any) {
-        // Manejar conversión de string a boolean/null desde select nativo
-        const value = event === 'true' ? true : event === 'false' ? false : null;
-        this.selectedStatusFilter.set(value);
-        this.applyFilters();
-    }
+
 
     resetFilters() {
         this.searchTerm.set('');
-        this.selectedStatusFilter.set(null);
         this.applyFilters();
     }
 
@@ -126,12 +115,7 @@ export class RolesListComponent implements OnInit {
         }
     }
 
-    handleStatusToggle(e: { row: RoleResponse, key: string, checked: boolean }) {
-        this.toggleStatus.emit(e.row);
-        // Revert the toggle visually because the parent will handle the change and reload data
-        // Ideally CustomTable should handle optimistic updates or wait for data refresh
-        e.row.active = !e.checked; // Quick reversion to prevent UI flickering if the user cancels or if we wait for server
-    }
+
 
     createRole() {
         this.create.emit();

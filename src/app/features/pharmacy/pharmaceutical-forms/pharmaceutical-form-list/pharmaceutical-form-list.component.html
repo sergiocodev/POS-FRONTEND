@@ -9,7 +9,7 @@
     <div class="card border-0 shadow-sm overflow-hidden mb-4">
         <div class="card-header bg-white border-0 py-3">
             <div class="row g-3 align-items-center">
-                <div class="col-12 col-md-8">
+                <div class="col-12 col-md-12">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="bi bi-search text-muted"></i>
@@ -19,21 +19,14 @@
                             (input)="onSearchChange($any($event.target).value)">
                     </div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <select class="form-select bg-light" [ngModel]="selectedStatusFilter()"
-                        (ngModelChange)="onStatusFilterChange($event)">
-                        <option [ngValue]="null">Todos los estados</option>
-                        <option [ngValue]="true">Activos</option>
-                        <option [ngValue]="false">Inactivos</option>
-                    </select>
-                </div>
+
             </div>
         </div>
     </div>
 
     <div class="card border-0 shadow-sm overflow-hidden">
         <app-custom-table [columns]="cols" [data]="filteredForms()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)" (onToggle)="handleStatusToggle($event.row)">
+            (onAction)="handleTableAction($event)">
         </app-custom-table>
 
         @if (isLoading) {

@@ -4,11 +4,10 @@ export enum SaleDocumentType {
     FACTURA = 'FACTURA',
     NOTA_CREDITO = 'NOTA_CREDITO',
     NOTA_DEBITO = 'NOTA_DEBITO',
-    NOTA_VENTA = 'NOTA_VENTA'
+    NOTA_DE_VENTA = 'NOTA_DE_VENTA'
 }
 
 export enum SaleStatus {
-    IN_PROGRESS = 'IN_PROGRESS',
     COMPLETED = 'COMPLETED',
     CANCELED = 'CANCELED',
     VOIDED = 'VOIDED'
@@ -29,11 +28,13 @@ export enum PaymentMethod {
     MASTERCARD = 'MASTERCARD',
     YAPE = 'YAPE',
     PLIN = 'PLIN',
-    TRANSFERENCIA = 'TRANSFERENCIA'
+    TRANSFERENCIA = 'TRANSFERENCIA',
+    CREDITO = 'CREDITO'
 }
 
 export interface SaleItemRequest {
     productId: number;
+    productUnitId: number;
     lotId?: number;
     quantity: number;
     unitPrice: number;
@@ -42,6 +43,7 @@ export interface SaleItemRequest {
 export interface SaleItemResponse {
     id: number;
     productName: string;
+    productUnitId: number;
     lotCode?: string;
     quantity: number;
     unitPrice: number;
@@ -68,6 +70,7 @@ export interface SalePaymentResponse {
 export interface ProductForSaleResponse {
     id: number;
     productId: number;
+    productUnitId: number;
     tradeName: string;
     genericName?: string;
     description: string;
@@ -130,5 +133,4 @@ export interface EstablishmentResponse {
     name: string;
     address: string;
     codeSunat: string;
-    active: boolean;
 }

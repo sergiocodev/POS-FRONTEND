@@ -99,30 +99,4 @@ export class ActiveIngredientsComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(ingredient: ActiveIngredientResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${ingredient.active ? 'desactivar' : 'activar'}</b> el principio activo ${ingredient.name}?`,
-            btnColor: 'warning',
-            confirmText: ingredient.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updateActiveIngredientById(
-                ingredient.id,
-                ingredient.name,
-                ingredient.description,
-                !ingredient.active
-            ).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Principio activo ${ingredient.active ? 'desactivado' : 'activado'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

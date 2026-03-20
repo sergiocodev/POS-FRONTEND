@@ -4,7 +4,7 @@
 
 <div class="brands-page animate-fade-in">
     <app-brands-list [brands]="brands()" [isLoading]="isLoading()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
-        (delete)="onDeleteBrand($event)" (toggleStatus)="onToggleStatus($event)">
+        (delete)="onDeleteBrand($event)">
     </app-brands-list>
 
     <!-- Modal para Crear/Editar Marca -->

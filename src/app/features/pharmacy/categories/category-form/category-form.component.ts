@@ -40,8 +40,7 @@ export class CategoryFormComponent implements OnInit {
 
     initForm() {
         this.form = this.fb.group({
-            name: ['', [Validators.required, Validators.maxLength(150)]],
-            active: [true]
+            name: ['', [Validators.required, Validators.maxLength(150)]]
         });
     }
 
@@ -53,7 +52,7 @@ export class CategoryFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -65,8 +64,7 @@ export class CategoryFormComponent implements OnInit {
                 const category = response.data.find(c => c.id === id);
                 if (category) {
                     this.form.patchValue({
-                        name: category.name,
-                        active: category.active
+                        name: category.name
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Categoría no encontrada', type: 'error' });
@@ -92,8 +90,8 @@ export class CategoryFormComponent implements OnInit {
         const request: CategoryRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateCategoryById(this._categoryId()!, request.name, request.active)
-            : this.maintenanceService.createNewCategory(request.name, request.active);
+            ? this.maintenanceService.updateCategoryById(this._categoryId()!, request.name)
+            : this.maintenanceService.createNewCategory(request.name);
 
         operation.subscribe({
             next: () => {

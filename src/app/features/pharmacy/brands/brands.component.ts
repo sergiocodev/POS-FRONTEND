@@ -99,25 +99,4 @@ export class BrandsComponent implements OnInit {
         }
     }
 
-    async onToggleStatus(brand: BrandResponse) {
-        const confirmed = await this.modalService.confirm({
-            title: 'Confirmación',
-            message: `¿Está seguro de <b>${brand.active ? 'desactivar' : 'activar'}</b> la marca ${brand.name}?`,
-            btnColor: 'warning',
-            confirmText: brand.active ? 'Desactivar' : 'Activar'
-        });
-
-        if (confirmed) {
-            this.maintenanceService.updateBrandById(brand.id, brand.name, !brand.active).subscribe({
-                next: () => {
-                    this.loadData();
-                    this.modalService.alert({ title: 'Éxito', message: `Marca ${brand.active ? 'desactivada' : 'activada'} correctamente`, type: 'success' });
-                },
-                error: (error) => {
-                    console.error(error);
-                    this.modalService.alert({ title: 'Error', message: 'No se pudo cambiar el estado', type: 'error' });
-                }
-            });
-        }
-    }
 }

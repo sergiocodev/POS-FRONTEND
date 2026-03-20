@@ -60,6 +60,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/account-payables/account-payable-list/account-payable-list.component').then(m => m.AccountPayableListComponent)
             },
             {
+                path: 'account-receivables',
+                loadComponent: () => import('./features/account-receivables/account-receivable-list/account-receivable-list.component').then(m => m.AccountReceivableListComponent)
+            },
+            {
                 path: 'purchases/new',
                 loadComponent: () => import('./features/purchases/purchase-form/purchase-form.component').then(m => m.PurchaseFormComponent)
             },

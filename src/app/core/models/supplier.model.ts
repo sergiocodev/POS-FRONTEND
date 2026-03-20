@@ -4,7 +4,6 @@ export interface SupplierRequest {
     phone?: string;
     email?: string;
     address?: string;
-    active: boolean;
 }
 
 export interface SupplierResponse {
@@ -14,5 +13,4 @@ export interface SupplierResponse {
     phone?: string;
     email?: string;
     address?: string;
-    active: boolean;
 }

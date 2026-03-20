@@ -40,8 +40,7 @@ export class BrandFormComponent implements OnInit {
 
     initForm() {
         this.form = this.fb.group({
-            name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]],
-            active: [true]
+            name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(150)]]
         });
     }
 
@@ -53,7 +52,7 @@ export class BrandFormComponent implements OnInit {
         } else {
             this.isEditMode.set(false);
             if (this.form) {
-                this.form.reset({ active: true });
+                this.form.reset();
             }
         }
     }
@@ -65,8 +64,7 @@ export class BrandFormComponent implements OnInit {
                 const brand = response.data.find(b => b.id === id);
                 if (brand) {
                     this.form.patchValue({
-                        name: brand.name,
-                        active: brand.active
+                        name: brand.name
                     });
                 } else {
                     this.modalService.alert({ title: 'Error', message: 'Marca no encontrada', type: 'error' });
@@ -92,8 +90,8 @@ export class BrandFormComponent implements OnInit {
         const request: BrandRequest = this.form.value;
 
         const operation = this.isEditMode()
-            ? this.maintenanceService.updateBrandById(this._brandId()!, request.name, request.active)
-            : this.maintenanceService.createNewBrand(request.name, request.active);
+            ? this.maintenanceService.updateBrandById(this._brandId()!, request.name)
+            : this.maintenanceService.createNewBrand(request.name);
 
         operation.subscribe({
             next: () => {

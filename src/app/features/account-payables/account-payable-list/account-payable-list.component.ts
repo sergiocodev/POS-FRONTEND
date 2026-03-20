@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountPayableService } from '../../../core/services/account-payable.service';
-import { AccountPayableResponse } from '../../../core/models/account-payable.model';
+import { AccountPayableResponse, PayablePaymentMethod, AccountPayablePaymentRequest } from '../../../core/models/account-payable.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
@@ -36,7 +36,12 @@ export class AccountPayableListComponent implements OnInit {
     showPaymentModal = signal<boolean>(false);
     selectedPayable = signal<AccountPayableResponse | null>(null);
     paymentAmount = signal<number | null>(null);
+    paymentMethod = signal<PayablePaymentMethod>(PayablePaymentMethod.EFECTIVO);
+    paymentReference = signal<string>('');
+    paymentNotes = signal<string>('');
     isPaying = signal<boolean>(false);
+    
+    paymentMethods = Object.values(PayablePaymentMethod);
 
     columns: TableColumn[] = [
         { key: 'id', label: 'ID', filterable: true, width: '80px' },
@@ -103,6 +108,9 @@ export class AccountPayableListComponent implements OnInit {
         this.showPaymentModal.set(false);
         this.selectedPayable.set(null);
         this.paymentAmount.set(null);
+        this.paymentMethod.set(PayablePaymentMethod.EFECTIVO);
+        this.paymentReference.set('');
+        this.paymentNotes.set('');
     }
 
     async processPayment() {
@@ -119,14 +127,16 @@ export class AccountPayableListComponent implements OnInit {
             return;
         }
 
-        const userId = this.authService.currentUser()?.id;
-        if (!userId) {
-            this.modalService.alert({ title: 'Error', message: 'Usuario no autenticado', type: 'error' });
-            return;
-        }
+        const payload: AccountPayablePaymentRequest = {
+            accountPayableId: payable.id,
+            amount: amount,
+            paymentMethod: this.paymentMethod(),
+            reference: this.paymentReference(),
+            notes: this.paymentNotes()
+        };
 
         this.isPaying.set(true);
-        this.accountPayableService.pay(payable.id, { amount }, userId).subscribe({
+        this.accountPayableService.pay(payable.id, payload).subscribe({
             next: () => {
                 this.isPaying.set(false);
                 this.closePaymentModal();

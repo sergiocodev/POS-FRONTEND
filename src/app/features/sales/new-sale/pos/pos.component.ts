@@ -212,6 +212,7 @@ export class PosComponent implements OnInit {
             series: saleData.series,
             items: saleData.items.map((item: any) => ({
                 productId: item.product.productId,
+                productUnitId: item.product.productUnitId,
                 lotId: item.product.lotId,
                 quantity: item.quantity,
                 unitPrice: item.price,

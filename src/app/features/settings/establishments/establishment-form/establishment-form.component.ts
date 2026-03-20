@@ -107,8 +107,7 @@ export class EstablishmentFormComponent implements OnInit {
         const request: EstablishmentRequest = {
             name: formValue.name,
             address: formValue.address || undefined,
-            codeSunat: formValue.codeSunat || '0000',
-            active: true
+            codeSunat: formValue.codeSunat || '0000'
         };
 
         const operation = this.isEditMode()

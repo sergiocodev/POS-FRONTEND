@@ -11,8 +11,10 @@ import {
     LaboratoryResponse,
     PresentationResponse,
     TaxTypeResponse,
-    ActiveIngredientResponse
+    ActiveIngredientResponse,
+    ProductUnitRequest
 } from '../../../../core/models/product.model';
+import { ProductUnitService } from '../../../../core/services/product-unit.service';
 import { PharmaceuticalFormResponse } from '../../../../core/models/pharmaceutical-form.model';
 import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
 
@@ -28,6 +30,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     private productService = inject(ProductService);
     private maintenanceService = inject(MaintenanceService);
     private uploadService = inject(UploadService);
+    private productUnitService = inject(ProductUnitService);
 
     @Input() idProduct: number | null = null;
     @Input() isModal: boolean = false;
@@ -50,12 +53,9 @@ export class ProductFormComponent implements OnInit, OnChanges {
     pharmaceuticalForms = signal<PharmaceuticalFormResponse[]>([]);
     therapeuticActions = signal<TherapeuticActionResponse[]>([]);
 
-    unitTypes = ['UNI', 'CAJ', 'BLI', 'FRA', 'SOB', 'AMP'];
-
     constructor() {
         this.productForm = this.fb.group({
             code: ['', [Validators.required, Validators.maxLength(50)]],
-            barcode: ['', [Validators.maxLength(50)]],
             digemidCode: ['', [Validators.maxLength(50)]],
             tradeName: ['', [Validators.required, Validators.maxLength(255)]],
             genericName: ['', [Validators.maxLength(255)]],
@@ -68,13 +68,10 @@ export class ProductFormComponent implements OnInit, OnChanges {
             taxTypeId: [null, [Validators.required]],
             requiresPrescription: [false],
             isGeneric: [false],
-            unitType: ['UNI', [Validators.required]],
-            purchaseFactor: [1, [Validators.required, Validators.min(1)]],
-            fractionLabel: [''],
-            active: [true],
             imageUrl: [''],
             therapeuticActionIds: [[]],
-            ingredients: this.fb.array([])
+            ingredients: this.fb.array([]),
+            units: this.fb.array([])
         });
 
         this.productForm.get('imageUrl')?.valueChanges.subscribe(() => {
@@ -102,21 +99,27 @@ export class ProductFormComponent implements OnInit, OnChanges {
             this.isEditMode.set(false);
             if (this.productForm) {
                 this.productForm.reset({
-                    unitType: 'UNI',
-                    purchaseFactor: 1,
-                    active: true,
                     therapeuticActionIds: [],
-                    ingredients: []
+                    ingredients: [],
+                    units: []
                 });
                 while (this.ingredients.length !== 0) {
                     this.ingredients.removeAt(0);
                 }
+                while (this.units.length !== 0) {
+                    this.units.removeAt(0);
+                }
+                this.addUnit(); // Add at least one unit initially
             }
         }
     }
 
     get ingredients(): FormArray {
         return this.productForm.get('ingredients') as FormArray;
+    }
+
+    get units(): FormArray {
+        return this.productForm.get('units') as FormArray;
     }
 
     addIngredient(): void {
@@ -129,6 +132,23 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
     removeIngredient(index: number): void {
         this.ingredients.removeAt(index);
+    }
+
+    addUnit(): void {
+        const unitForm = this.fb.group({
+            id: [null],
+            unitName: ['UNI', Validators.required],
+            factor: [1, [Validators.required, Validators.min(1)]],
+            barcode: [''],
+            sunatCode: [''],
+            price: [0, [Validators.required, Validators.min(0)]],
+            isBaseUnit: [this.units.length === 0]
+        });
+        this.units.push(unitForm);
+    }
+
+    removeUnit(index: number): void {
+        this.units.removeAt(index);
     }
 
     loadLookupData(): void {
@@ -168,7 +188,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 const product = response.data;
                 this.productForm.patchValue({
                     code: product.code,
-                    barcode: product.barcode,
                     digemidCode: product.digemidCode,
                     tradeName: product.tradeName,
                     genericName: product.genericName,
@@ -181,10 +200,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
                     taxTypeId: this.taxTypes().find(t => t.name === product.taxTypeName)?.id,
                     requiresPrescription: product.requiresPrescription,
                     isGeneric: product.isGeneric,
-                    unitType: product.unitType,
-                    purchaseFactor: product.purchaseFactor,
-                    fractionLabel: product.fractionLabel,
-                    active: product.active,
                     imageUrl: product.imageUrl,
                     therapeuticActionIds: product.therapeuticActionIds || []
                 });
@@ -201,7 +216,28 @@ export class ProductFormComponent implements OnInit, OnChanges {
                         }));
                     });
                 }
-                this.isLoading.set(false);
+                
+                // Fetch units dynamically
+                this.productUnitService.getByProductId(product.id).subscribe({
+                    next: (units) => {
+                        while(this.units.length !== 0) this.units.removeAt(0);
+                        units.forEach(u => {
+                            this.units.push(this.fb.group({
+                                id: [u.id],
+                                unitName: [u.unitName, Validators.required],
+                                factor: [u.factor, [Validators.required, Validators.min(1)]],
+                                barcode: [u.barcode],
+                                sunatCode: [u.sunatCode],
+                                price: [u.price, [Validators.required, Validators.min(0)]],
+                                isBaseUnit: [u.isBaseUnit]
+                            }));
+                        });
+                        this.isLoading.set(false);
+                    },
+                    error: () => {
+                        this.isLoading.set(false);
+                    }
+                });
             },
             error: (error) => {
                 this.errorMessage.set('Error al cargar el producto.');
@@ -236,21 +272,63 @@ export class ProductFormComponent implements OnInit, OnChanges {
         }
 
         this.isLoading.set(true);
-        const productData = this.productForm.value;
+        const formValue = this.productForm.value;
+        const productData = { ...formValue };
+        delete productData.units;
 
         const request$ = this.isEditMode()
             ? this.productService.update(this.idProduct!, productData)
             : this.productService.create(productData);
 
         request$.subscribe({
-            next: () => {
-                this.isLoading.set(false);
-                this.saved.emit();
+            next: (res) => {
+                const productId = this.isEditMode() ? this.idProduct! : res.data.id;
+                this.saveUnits(productId).then(() => {
+                    this.isLoading.set(false);
+                    this.saved.emit();
+                }).catch(() => {
+                    this.isLoading.set(false);
+                    this.errorMessage.set('Producto guardado, pero hubo error al guardar las unidades.');
+                    this.saved.emit();
+                });
             },
             error: (error) => {
                 this.isLoading.set(false);
                 this.errorMessage.set('Error al guardar el producto.');
             }
+        });
+    }
+
+    private async saveUnits(productId: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const units: any[] = this.productForm.value.units || [];
+            
+            const unitObv$ = units.map(u => {
+                const req: ProductUnitRequest = {
+                    productId: productId,
+                    unitName: u.unitName,
+                    factor: u.factor,
+                    barcode: u.barcode,
+                    sunatCode: u.sunatCode,
+                    price: u.price,
+                    isBaseUnit: u.isBaseUnit || false
+                };
+                if (u.id) {
+                    return this.productUnitService.update(u.id, req);
+                } else {
+                    return this.productUnitService.create(req);
+                }
+            });
+
+            if (unitObv$.length === 0) {
+                resolve();
+                return;
+            }
+
+            forkJoin(unitObv$).subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err)
+            });
         });
     }
 
