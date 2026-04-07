@@ -30,6 +30,11 @@ export class CheckoutPanelComponent {
   //tax = computed(() => this.subtotal() * 0.18);
   total = computed(() => this.subtotal());
 
+  isPublicoGeneral = computed(() => {
+    const cust = this.selectedCustomer();
+    return !cust || cust.documentNumber === '00000000';
+  });
+
   seriesOptions: any = {
     'BOLETA': ['B001', 'B002', 'B003'],
     'FACTURA': ['F001', 'F002', 'F003'],
@@ -68,6 +73,17 @@ export class CheckoutPanelComponent {
         if (defaultCust) {
           untracked(() => this.selectedCustomer.set(defaultCust));
         }
+      }
+    });
+
+    // Enforce CASH condition if the customer is Publico General
+    effect(() => {
+      if (this.isPublicoGeneral()) {
+        untracked(() => {
+          if (this.posForm.get('paymentCondition')?.value !== PaymentCondition.CASH) {
+            this.posForm.patchValue({ paymentCondition: PaymentCondition.CASH });
+          }
+        });
       }
     });
   }

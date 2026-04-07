@@ -64,11 +64,11 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.VENTAS],
             children: [
-                { label: 'Nueva Venta', route: '/sales/pos', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
-                { label: 'Ver Ventas', route: '/sales', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.VENTAS] },
-                { label: 'Clientes', route: '/customers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
-                { label: 'Cuentas por cobrar', route: '/account-receivables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
-                { label: 'Ver Reportes', route: '/reports/sales', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] }
+                { label: 'Nueva Venta', route: '/sales/pos', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS_POS] },
+                { label: 'Ver Ventas', route: '/sales', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.VENTAS_LISTA] },
+                { label: 'Clientes', route: '/customers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS_CLIENTES] },
+                { label: 'Cuentas por cobrar', route: '/account-receivables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS_CUENTAS_COBRAR] },
+                { label: 'Ver Reportes', route: '/reports/sales', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS_REPORTES] }
             ]
         },
         {
@@ -77,9 +77,9 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.FACTURACION],
             children: [
-                { label: 'Comprobantes', route: '/invoicing/documents', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION] },
-                { label: 'Comunicación de baja', route: '/invoicing/voided', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION] },
-                { label: 'Notas de crédito/débito', route: '/invoicing/notes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION] }
+                { label: 'Comprobantes', route: '/invoicing/documents', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION_COMPROBANTES] },
+                { label: 'Comunicación de baja', route: '/invoicing/voided', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION_BAJAS] },
+                { label: 'Notas de crédito/débito', route: '/invoicing/notes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FACTURACION_NOTAS] }
             ]
         },
         {
@@ -88,11 +88,11 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.INVENTARIO],
             children: [
-                { label: 'Catálogo de productos', route: '/products', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
-                { label: 'Inventario actual', route: '/inventory', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.INVENTARIO] },
-                { label: 'Lotes y vencimientos', route: '/inventory/batches', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
-                { label: 'Movimientos', route: '/inventory/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
-                { label: 'Transferencias', route: '/inventory/transfers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] }
+                { label: 'Catálogo de productos', route: '/products', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO_CATALOGO] },
+                { label: 'Inventario actual', route: '/inventory', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.INVENTARIO_ACTUAL] },
+                { label: 'Lotes y vencimientos', route: '/inventory/batches', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO_LOTES] },
+                { label: 'Movimientos', route: '/inventory/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO_MOVIMIENTOS] },
+                { label: 'Transferencias', route: '/inventory/transfers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO_TRANSFERENCIAS] }
             ]
         },
         {
@@ -101,11 +101,11 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.COMPRAS],
             children: [
-                { label: 'Nueva Compra', route: '/purchases/new', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
-                { label: 'Ver compras', route: '/purchases', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.COMPRAS] },
-                { label: 'Proveedores', route: '/suppliers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
-                { label: 'Cuentas por pagar', route: '/account-payables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] },
-                { label: 'Ver reportes', route: '/reports/purchases', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS] }
+                { label: 'Nueva Compra', route: '/purchases/new', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS_NUEVA] },
+                { label: 'Ver compras', route: '/purchases', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.COMPRAS_LISTA] },
+                { label: 'Proveedores', route: '/suppliers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] },
+                { label: 'Cuentas por pagar', route: '/account-payables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS_CUENTAS_PAGAR] },
+                { label: 'Ver reportes', route: '/reports/purchases', icon: 'bi-dot', requiredPermissions: [PermissionConstants.COMPRAS_REPORTES] }
             ]
         },
         {
@@ -114,10 +114,10 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.CAJA],
             children: [
-                { label: 'Apertura y cierre', route: '/cash', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.CAJA] },
-                { label: 'Movimientos de caja', route: '/cash/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] },
-                { label: 'Cajas registradoras', route: '/cash/registers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] },
-                { label: 'Reportes', route: '/reports/cash', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] }
+                { label: 'Apertura y cierre', route: '/cash', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] },
+                { label: 'Movimientos de caja', route: '/cash/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA_MOVIMIENTOS] },
+                { label: 'Cajas registradoras', route: '/cash/registers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA_REGISTRADORAS] },
+                { label: 'Reportes', route: '/reports/cash', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA_REPORTES] }
             ]
         },
         {
@@ -126,13 +126,13 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.FARMACIA],
             children: [
-                { label: 'Principios activos', route: '/pharmacy/active-ingredients', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Laboratorios', route: '/pharmacy/labs', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Marcas', route: '/pharmacy/brands', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Categorias', route: '/pharmacy/categories', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Presentaciones', route: '/pharmacy/presentations', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Formas farmacéuticas', route: '/pharmacy/pharmaceutical-forms', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] },
-                { label: 'Acciones terapéuticas', route: '/pharmacy/therapeutic-actions', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA] }
+                { label: 'Principios activos', route: '/pharmacy/active-ingredients', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_PRINCIPIOS_ACTIVOS] },
+                { label: 'Laboratorios', route: '/pharmacy/labs', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_LABORATORIOS] },
+                { label: 'Marcas', route: '/pharmacy/brands', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_MARCAS] },
+                { label: 'Categorias', route: '/pharmacy/categories', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_CATEGORIAS] },
+                { label: 'Presentaciones', route: '/pharmacy/presentations', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_PRESENTACIONES] },
+                { label: 'Formas farmacéuticas', route: '/pharmacy/pharmaceutical-forms', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_FORMAS] },
+                { label: 'Acciones terapéuticas', route: '/pharmacy/therapeutic-actions', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_ACCIONES] }
             ]
         },
         {
@@ -141,11 +141,11 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.CONFIGURACION],
             children: [
-                { label: 'Usuarios', route: '/settings/users', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
-                { label: 'Roles y permisos', route: '/settings/roles', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
-                { label: 'Establecimientos', route: '/settings/establishments', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
-                { label: 'Personal', route: '/settings/employees', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] },
-                { label: 'Impuestos', route: '/settings/taxes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION] }
+                { label: 'Usuarios', route: '/settings/users', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_USUARIOS] },
+                { label: 'Roles y permisos', route: '/settings/roles', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_ROLES] },
+                { label: 'Establecimientos', route: '/settings/establishments', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_ESTABLECIMIENTOS] },
+                { label: 'Personal', route: '/settings/employees', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_PERSONAL] },
+                { label: 'Impuestos', route: '/settings/taxes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_IMPUESTOS] }
             ]
         }
     ];

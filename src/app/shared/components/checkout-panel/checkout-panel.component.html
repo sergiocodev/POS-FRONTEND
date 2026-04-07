@@ -24,8 +24,7 @@
             <div class="input-group">
                 <select
                     class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
-                    [value]="selectedCustomer()?.id || 'null'"
-                    (change)="onCustomerChange($event)">
+                    [value]="selectedCustomer()?.id || 'null'" (change)="onCustomerChange($event)">
                     <option value="null">Público General</option>
                     <option *ngFor="let c of customers()" [value]="c.id">
                         {{ c.name }} ({{ c.documentNumber }})
@@ -120,7 +119,7 @@
                     <select class="form-select bg-body-secondary border-0 text-primary fw-medium"
                         formControlName="paymentCondition">
                         <option value="CONTADO">Al Contado</option>
-                        <option value="CREDITO">Al Crédito</option>
+                        <option value="CREDITO" [disabled]="isPublicoGeneral()">Al Crédito</option>
                     </select>
                 </div>
 

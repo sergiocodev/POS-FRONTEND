@@ -48,8 +48,8 @@ export class SaleListComponent implements OnInit {
     errorMessage = signal<string>('');
 
     // Filters
-    startDate = signal<string>(new Date().toISOString().split('T')[0]);
-    endDate = signal<string>(new Date().toISOString().split('T')[0]);
+    startDate = signal<string>(new Date().toISOString().split('T')[0] + 'T00:00:00');
+    endDate = signal<string>(new Date().toISOString().split('T')[0] + 'T23:59:59');
 
     // Modal State
     isDetailVisible = signal<boolean>(false);
@@ -61,19 +61,8 @@ export class SaleListComponent implements OnInit {
     columns: TableColumn[] = [];
 
     filteredSales = computed(() => {
-        let result = this.sales();
-
-        // Date Filtering
-        const start = this.startDate();
-        const end = this.endDate();
-        if (start && end) {
-            result = result.filter(s => {
-                const saleDate = s.date.split('T')[0];
-                return saleDate >= start && saleDate <= end;
-            });
-        }
-
-        return result;
+        // Now filtering is done on the server, but we keep this computed for potential future client-side filters
+        return this.sales();
     });
 
     summary = computed(() => {
@@ -194,7 +183,7 @@ export class SaleListComponent implements OnInit {
         this.isLoading.set(true);
         this.errorMessage.set(''); // Reset error
 
-        this.saleService.getAll().subscribe({
+        this.saleService.getAll(this.startDate(), this.endDate()).subscribe({
             next: (response) => {
                 const data = response.data;
                 this.sales.set(data);
@@ -253,9 +242,7 @@ export class SaleListComponent implements OnInit {
     handleFilter(event: { startDate: string, endDate: string }) {
         this.startDate.set(event.startDate);
         this.endDate.set(event.endDate);
-        // Since the signals are updated, the computed 'filteredSales' will update automatically.
-        // If we want to force a reload from server (if server filtering is implemented), we would call loadSales().
-        // For now, based on the code, it filters locally in 'filteredSales'.
+        this.loadSales();
     }
 
     // --- Helpers for UI Classes ---

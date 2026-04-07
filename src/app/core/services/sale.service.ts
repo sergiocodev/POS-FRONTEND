@@ -15,8 +15,11 @@ export class SaleService {
         return this.http.post<ResponseApi<SaleResponse>>(this.apiUrl, request);
     }
 
-    getAll(): Observable<ResponseApi<SaleResponse[]>> {
-        return this.http.get<ResponseApi<SaleResponse[]>>(this.apiUrl);
+    getAll(startDate?: string, endDate?: string): Observable<ResponseApi<SaleResponse[]>> {
+        const params: any = {};
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+        return this.http.get<ResponseApi<SaleResponse[]>>(this.apiUrl, { params });
     }
 
     getById(id: number): Observable<ResponseApi<SaleResponse>> {

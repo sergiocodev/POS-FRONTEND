@@ -33,7 +33,7 @@ export class DateRangeSearchComponent implements OnInit {
   // Estado temporal para el picker activo
   activePicker: 'start' | 'end' | null = null;
   selectedDay = 0;
-  selectedHour = '12';
+  selectedHour = '00';
   selectedMinute = '00';
   selectedPeriod: 'a. m.' | 'p. m.' = 'a. m.';
 
@@ -55,7 +55,7 @@ export class DateRangeSearchComponent implements OnInit {
   generateCalendar() {
     const year = this.viewDate.getFullYear();
     const month = this.viewDate.getMonth();
-    
+
     this.currentMonthName = new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' }).format(this.viewDate);
     this.currentMonthName = this.currentMonthName.charAt(0).toUpperCase() + this.currentMonthName.slice(1);
 
@@ -139,7 +139,7 @@ export class DateRangeSearchComponent implements OnInit {
     let h = parseInt(this.selectedHour);
     if (this.selectedPeriod === 'p. m.' && h < 12) h += 12;
     if (this.selectedPeriod === 'a. m.' && h === 12) h = 0;
-    
+
     targetDate.setHours(h);
     targetDate.setMinutes(parseInt(this.selectedMinute));
     targetDate.setSeconds(0);
@@ -173,9 +173,14 @@ export class DateRangeSearchComponent implements OnInit {
   }
 
   onSearch() {
-    const startStr = this.startDate.toISOString().split('T')[0];
-    const endStr = this.endDate ? this.endDate.toISOString().split('T')[0] : startStr;
-    
+    const toLocalISO = (date: Date) => {
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    };
+
+    const startStr = toLocalISO(this.startDate);
+    const endStr = toLocalISO(this.endDate);
+
     this.filterChange.emit({ startDate: startStr, endDate: endStr });
     console.log('Buscando rango:', { start: startStr, end: endStr });
   }
