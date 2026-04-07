@@ -1,0 +1,137 @@
+<div class="d-flex flex-column h-100 fadeIn">
+  <div class="px-4 py-3 flex-grow-1 overflow-auto">
+      <form [formGroup]="form" (ngSubmit)="save()">
+          <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100">
+                      <div class="card-body">
+                          <h6 class="card-title mb-4">Detalles del Destino</h6>
+                          
+                          <div class="mb-3">
+                              <label class="form-label">Sucursal Destino</label>
+                              <select class="form-select" formControlName="targetEstablishmentId"
+                                  [class.is-invalid]="form.get('targetEstablishmentId')?.invalid && form.get('targetEstablishmentId')?.touched">
+                                  <option value="">Seleccione una sucursal</option>
+                                  <option *ngFor="let est of establishments()" [value]="est.id">
+                                      {{est.name}}
+                                  </option>
+                              </select>
+                              <div class="invalid-feedback">Seleccione una sucursal destino</div>
+                          </div>
+
+                          <div class="mb-3">
+                              <label class="form-label">Notas / Observaciones</label>
+                              <textarea class="form-control" formControlName="notes" rows="3" placeholder="Opcional"></textarea>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="col-md-6">
+                  <div class="card border-0 shadow-sm h-100">
+                      <div class="card-body">
+                          <h6 class="card-title mb-4">Agregar Productos</h6>
+                          
+                          <div class="position-relative">
+                              <input type="text" class="form-control" 
+                                     placeholder="Buscar producto o lote..." 
+                                     [ngModel]="searchTerm()" 
+                                     (ngModelChange)="searchTerm.set($event)"
+                                     [ngModelOptions]="{standalone: true}">
+                                     
+                              <div class="position-absolute w-100 mt-1 shadow bg-white z-3 rounded border list-group" 
+                                   *ngIf="filteredInventory.length > 0">
+                                  <button type="button" class="list-group-item list-group-item-action py-2"
+                                          *ngFor="let item of filteredInventory"
+                                          (click)="addItem(item)">
+                                      <div class="d-flex justify-content-between align-items-center">
+                                          <div>
+                                              <div class="fw-semibold">{{item.productName}}</div>
+                                              <small class="text-muted">Lote: {{item.lotCode || 'N/A'}}<span *ngIf="item.locationShelf"> - {{item.locationShelf}}</span></small>
+                                          </div>
+                                          <span class="badge bg-primary rounded-pill">{{item.quantity}} disp</span>
+                                      </div>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body p-0">
+                  <div class="table-responsive">
+                      <table class="table table-hover align-middle mb-0">
+                          <thead class="bg-light">
+                              <tr>
+                                  <th class="py-3 px-4 border-bottom-0">Producto</th>
+                                  <th class="py-3 px-4 border-bottom-0">Lote</th>
+                                  <th class="py-3 px-4 border-bottom-0">Disp.</th>
+                                  <th class="py-3 px-4 border-bottom-0" style="width: 150px;">Unidad</th>
+                                  <th class="py-3 px-4 border-bottom-0" style="width: 120px;">A Transferir</th>
+                                  <th class="py-3 px-4 border-bottom-0 text-end" style="width: 100px;">Acciones</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr *ngFor="let item of selectedItems(); let i = index">
+                                  <td class="px-4">{{item.productName}}</td>
+                                  <td class="px-4">
+                                      <span class="badge bg-light text-dark border">{{item.lotCode || 'S/L'}}</span>
+                                  </td>
+                                  <td class="px-4">
+                                      <div class="d-flex flex-column">
+                                        <span>{{item.quantity}}</span>
+                                        <small class="text-muted" style="font-size: 0.75rem;">unid. base</small>
+                                      </div>
+                                  </td>
+                                  <td class="px-4">
+                                      <div class="d-flex align-items-center">
+                                          <div class="spinner-border spinner-border-sm text-primary me-2" *ngIf="item.loadingUnits"></div>
+                                          <select class="form-select form-select-sm" 
+                                                  *ngIf="!item.loadingUnits"
+                                                  [ngModel]="item.selectedUnitId"
+                                                  (ngModelChange)="updateUnit(i, $event)"
+                                                  [ngModelOptions]="{standalone: true}">
+                                              <option *ngFor="let u of item.units" [value]="u.id">
+                                                  {{u.unitName}} (x{{u.factor}})
+                                              </option>
+                                          </select>
+                                      </div>
+                                  </td>
+                                  <td class="px-4">
+                                      <input type="number" class="form-control form-control-sm text-center fw-semibold text-primary"
+                                          [value]="item.transferQuantity"
+                                          (change)="updateQuantity(i, $any($event.target).value)"
+                                          min="1">
+                                  </td>
+                                  <td class="px-4 text-end">
+                                      <button type="button" class="btn btn-sm btn-outline-danger border-0" (click)="removeItem(i)">
+                                          <i class="bi bi-trash3"></i>
+                                      </button>
+                                  </td>
+                              </tr>
+                              <tr *ngIf="selectedItems().length === 0">
+                                  <td colspan="5" class="text-center py-5 text-muted">
+                                      No hay productos agregados a la transferencia
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" (click)="cancel()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="isSaving() || isLoadingData()">
+                  <i class="bi bi-person-check me-2" *ngIf="!isSaving()"></i>
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="isSaving()"></span>
+                  {{ isSaving() ? 'Guardando...' : 'Crear Transferencia' }}
+              </button>
+          </div>
+      </form>
+  </div>
+</div>
+

@@ -6,7 +6,8 @@
             <thead class="border-bottom">
                 <tr>
                     <th *ngFor="let col of columns" scope="col" class="fw-semibold text-secondary py-3"
-                        [style.width]="col.width || 'auto'">
+                        [style.width]="col.width || 'auto'"
+                        [ngClass]="col.align ? 'text-' + (col.align === 'right' ? 'end' : (col.align === 'left' ? 'start' : col.align)) : ''">
                         {{ col.label }}
                     </th>
                 </tr>
@@ -22,7 +23,8 @@
 
             <tbody>
                 <tr *ngFor="let row of paginatedData; let i = index" class="border-bottom">
-                    <td *ngFor="let col of columns" class="py-3">
+                    <td *ngFor="let col of columns" class="py-3"
+                        [ngClass]="col.align ? 'text-' + (col.align === 'right' ? 'end' : (col.align === 'left' ? 'start' : col.align)) : ''">
 
                         <ng-container [ngSwitch]="col.type || 'text'">
 
@@ -34,7 +36,8 @@
                                 {{ getValue(row, col) }}
                             </span>
 
-                            <div *ngSwitchCase="'image'" style="width: 40px; height: 40px;">
+                            <div *ngSwitchCase="'image'" style="width: 40px; height: 40px;"
+                                [ngClass]="{'mx-auto': col.align === 'center', 'ms-auto': col.align === 'right'}">
                                 <img [src]="row[col.key] || 'assets/placeholder.png'"
                                     class="w-100 h-100 rounded-circle object-fit-cover bg-light border">
                             </div>
@@ -44,33 +47,46 @@
                                 {{ getValue(row, col) }}
                             </span>
 
-                            <div *ngSwitchCase="'tags'" class="d-flex flex-wrap gap-1">
+                            <div *ngSwitchCase="'tags'" class="d-flex flex-wrap gap-1"
+                                [ngClass]="{'justify-content-center': col.align === 'center', 'justify-content-end': col.align === 'right'}">
                                 <span *ngFor="let tag of (col.tagsCallback ? col.tagsCallback(row) : [])"
                                     class="badge rounded-1 fw-normal" [ngClass]="tag.class">
                                     {{ tag.label }}
                                 </span>
                             </div>
 
-                            <div *ngSwitchCase="'toggle'" class="form-check form-switch">
+                            <div *ngSwitchCase="'toggle'" class="form-check form-switch d-inline-block">
                                 <input class="form-check-input" type="checkbox" role="switch" [checked]="row[col.key]"
                                     style="cursor: pointer;"
                                     (change)="onToggle.emit({row: row, key: col.key, checked: $any($event.target).checked})">
                             </div>
 
-                            <div *ngSwitchCase="'action'" class="d-flex gap-2">
-                                <button *ngIf="row['permissionCount'] !== undefined" class="btn-action"
-                                    (click)="onAction.emit({action: 'permissions', row: row})"
-                                    title="Gestionar permisos">
-                                    <i class="bi bi-key"></i>
-                                </button>
-                                <button class="btn-action btn-edit" (click)="onAction.emit({action: 'edit', row: row})"
-                                    title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn-action btn-delete"
-                                    (click)="onAction.emit({action: 'delete', row: row})" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                            <div *ngSwitchCase="'action'" class="d-flex gap-2"
+                                [ngClass]="{'justify-content-center': col.align === 'center', 'justify-content-end': col.align === 'right'}">
+                                <!-- Botones Personalizados -->
+                                <ng-container *ngIf="row['actions'] && row['actions'].length > 0">
+                                    <button *ngFor="let act of row['actions']" class="btn-action d-flex align-items-center justify-content-center" [ngClass]="act.class || ''"
+                                        (click)="onAction.emit({action: act.id, row: row})" [title]="act.title || ''">
+                                        <i class="bi" [ngClass]="act.icon"></i>
+                                    </button>
+                                </ng-container>
+
+                                <!-- Botones por Defecto (si no hay acciones personalizadas) -->
+                                <ng-container *ngIf="!row['actions'] || row['actions'].length === 0">
+                                    <button *ngIf="row['permissionCount'] !== undefined" class="btn-action"
+                                        (click)="onAction.emit({action: 'permissions', row: row})"
+                                        title="Gestionar permisos">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" (click)="onAction.emit({action: 'edit', row: row})"
+                                        title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn-action btn-delete"
+                                        (click)="onAction.emit({action: 'delete', row: row})" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </ng-container>
                             </div>
 
                             <ng-container *ngSwitchCase="'template'">
@@ -94,7 +110,7 @@
     <div class="card-footer bg-white border-top-0 py-3" *ngIf="totalPages > 1">
         <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">
-                {{ paginatedData.length }} de {{ filteredData.length }} registros
+                {{ totalElements > 0 ? totalElements : filteredData.length }} registros en total
             </small>
 
             <ul class="pagination pagination-sm mb-0">

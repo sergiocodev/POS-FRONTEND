@@ -1,0 +1,73 @@
+<div class="p-4 fadeIn">
+  <!-- Transfer Summary Header -->
+  <div class="row g-4 mb-4 pb-4 border-bottom">
+    <div class="col-md-3">
+      <h6 class="text-muted mb-1 fs-xs text-uppercase">Número</h6>
+      <div class="fw-semibold fs-5">{{transfer().transferNumber}}</div>
+    </div>
+    
+    <div class="col-md-3">
+      <h6 class="text-muted mb-1 fs-xs text-uppercase">Fecha</h6>
+      <div>{{transfer().createdAt | date:'dd/MM/yyyy HH:mm'}}</div>
+    </div>
+    
+    <div class="col-md-3">
+      <h6 class="text-muted mb-1 fs-xs text-uppercase">Ruta</h6>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-light text-dark">{{transfer().sourceEstablishmentName}}</span>
+        <i class="bi bi-arrow-right text-muted"></i>
+        <span class="badge bg-light text-dark">{{transfer().targetEstablishmentName}}</span>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <h6 class="text-muted mb-1 fs-xs text-uppercase">Estado</h6>
+      <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(transfer().status)">
+        {{transfer().status}}
+      </span>
+    </div>
+  </div>
+
+  <div class="mb-4" *ngIf="transfer().notes">
+    <h6 class="fs-xs text-uppercase text-muted mb-2">Notas / Observaciones</h6>
+    <div class="p-3 bg-light rounded text-secondary">{{transfer().notes}}</div>
+  </div>
+
+  <h6 class="fs-xs text-uppercase text-muted mb-3">Productos ({{(transfer().items.length || 0)}})</h6>
+  
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-0">
+       <app-custom-table 
+          [columns]="columns" 
+          [data]="transfer().items || []"
+          emptyMessage="No hay productos en esta transferencia.">
+       </app-custom-table>
+    </div>
+  </div>
+
+  <!-- Action Footer -->
+  <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+    <div>
+        <button *ngIf="transfer().status === TransferStatus.PENDING" 
+                class="btn btn-outline-danger me-2" 
+                (click)="onCancel()">
+            <i class="bi bi-x-circle me-2"></i>Anular
+        </button>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-light" (click)="close.emit()">Cerrar</button>
+      
+      <button *ngIf="transfer().status === TransferStatus.PENDING" 
+              class="btn btn-info text-white" 
+              (click)="onDispatch()">
+          <i class="bi bi-truck me-2"></i>Despachar
+      </button>
+
+      <button *ngIf="transfer().status === TransferStatus.IN_TRANSIT" 
+              class="btn btn-success" 
+              (click)="onReceive()">
+          <i class="bi bi-box-seam me-2"></i>Recibir
+      </button>
+    </div>
+  </div>
+</div>

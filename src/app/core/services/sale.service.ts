@@ -11,8 +11,8 @@ export class SaleService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/sales';
 
-    create(request: SaleRequest, userId: number): Observable<ResponseApi<SaleResponse>> {
-        return this.http.post<ResponseApi<SaleResponse>>(`${this.apiUrl}?userId=${userId}`, request);
+    create(request: SaleRequest): Observable<ResponseApi<SaleResponse>> {
+        return this.http.post<ResponseApi<SaleResponse>>(this.apiUrl, request);
     }
 
     getAll(): Observable<ResponseApi<SaleResponse[]>> {
@@ -39,16 +39,16 @@ export class SaleService {
         return this.http.get(`${this.apiUrl}/${id}/cdr`, { responseType: 'text' });
     }
 
-    createCreditNote(id: number, reason: string, userId: number): Observable<ResponseApi<SaleResponse>> {
-        return this.http.post<ResponseApi<SaleResponse>>(`${this.apiUrl}/${id}/credit-note?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
+    createCreditNote(id: number, reason: string): Observable<ResponseApi<SaleResponse>> {
+        return this.http.post<ResponseApi<SaleResponse>>(`${this.apiUrl}/${id}/credit-note?reason=${encodeURIComponent(reason)}`, {});
     }
 
-    createDebitNote(id: number, reason: string, userId: number): Observable<ResponseApi<SaleResponse>> {
-        return this.http.post<ResponseApi<SaleResponse>>(`${this.apiUrl}/${id}/debit-note?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
+    createDebitNote(id: number, reason: string): Observable<ResponseApi<SaleResponse>> {
+        return this.http.post<ResponseApi<SaleResponse>>(`${this.apiUrl}/${id}/debit-note?reason=${encodeURIComponent(reason)}`, {});
     }
 
-    invalidate(id: number, reason: string, userId: number): Observable<ResponseApi<void>> {
-        return this.http.post<ResponseApi<void>>(`${this.apiUrl}/${id}/invalidate?reason=${encodeURIComponent(reason)}&userId=${userId}`, {});
+    invalidate(id: number, reason: string): Observable<ResponseApi<void>> {
+        return this.http.post<ResponseApi<void>>(`${this.apiUrl}/${id}/invalidate?reason=${encodeURIComponent(reason)}`, {});
     }
 
     getEstablishments(): Observable<ResponseApi<EstablishmentResponse[]>> {

@@ -1,0 +1,66 @@
+<div class="d-flex flex-column h-100 fadeIn">
+    <div class="d-flex justify-content-end px-4 py-2">
+        <button class="btn btn-primary" (click)="create.emit()">
+            <i class="bi bi-plus-lg me-2"></i>Nueva Transferencia
+        </button>
+    </div>
+
+    <div class="px-4 py-3 flex-grow-1 overflow-auto">
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link cursor-pointer" 
+                   [class.active]="activeTab() === 'SENT'"
+                   (click)="setTab('SENT')">Enviadas (Origen)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link cursor-pointer" 
+                   [class.active]="activeTab() === 'RECEIVED'"
+                   (click)="setTab('RECEIVED')">Recibidas (Destino)</a>
+            </li>
+        </ul>
+
+        <div class="card border-0 shadow-sm">
+            <app-custom-table
+                [columns]="columns"
+                [data]="transfers()"
+                (onAction)="handleAction($event)">
+                
+                <!-- Action Buttons Customization -->
+                <ng-template #actionTemplate let-row>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-light text-primary" (click)="handleAction({action: 'view', row})">
+                            <i class="bi bi-eye"></i> Ver
+                        </button>
+                        
+                        <button class="btn btn-sm btn-light text-info" 
+                            *ngIf="row.status === 'PENDING' && activeTab() === 'SENT'" 
+                            (click)="handleAction({action: 'dispatch', row})" title="Despachar">
+                            <i class="bi bi-truck"></i> Despachar
+                        </button>
+                        
+                        <button class="btn btn-sm btn-light text-success" 
+                            *ngIf="row.status === 'IN_TRANSIT' && activeTab() === 'RECEIVED'" 
+                            (click)="handleAction({action: 'receive', row})" title="Recibir">
+                            <i class="bi bi-box-seam"></i> Recibir
+                        </button>
+                        
+                        <button class="btn btn-sm btn-light text-danger" 
+                            *ngIf="row.status !== 'COMPLETED' && row.status !== 'CANCELED' && (activeTab() === 'SENT' || (activeTab() === 'RECEIVED' && row.status === 'IN_TRANSIT'))" 
+                            (click)="handleAction({action: 'cancel', row})" title="Anular">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </ng-template>
+
+            </app-custom-table>
+
+            @if (isLoading()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3 text-muted">Cargando...</p>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+

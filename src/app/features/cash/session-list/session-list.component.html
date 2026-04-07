@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    
+
     <div class="row mb-4" *ngIf="activeSession()">
         <div class="col-12">
             <div class="card border-0 shadow-sm bg-primary text-white overflow-hidden" style="border-radius: 12px;">
@@ -38,10 +38,18 @@
                             <div class="small opacity-75 text-uppercase fw-bold mb-1">Hora de Apertura</div>
                             <div class="h4 mb-0 fw-bold">{{ activeSession()?.openedAt | date:'HH:mm' }}</div>
                         </div>
-                        <div class="col-md-3 text-md-end mt-3 mt-md-0">
-                            <span class="badge bg-white text-primary rounded-pill px-4 py-2 fs-6 fw-bold shadow-sm">
+                        <div class="col-md-3 text-md-end mt-3 mt-md-0 d-flex flex-column gap-2 align-items-md-end">
+                            <span class="badge bg-white text-primary rounded-pill px-4 py-2 fs-6 fw-bold shadow-sm mb-2">
                                 <i class="bi bi-circle-fill me-2 fs-xs blinking"></i>SESIÓN ACTIVA
                             </span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-light btn-sm fw-bold shadow-sm" (click)="onRegisterInflow()">
+                                    <i class="bi bi-plus-lg me-1"></i> Ingreso
+                                </button>
+                                <button class="btn btn-outline-light btn-sm fw-bold shadow-sm" (click)="onRegisterOutflow()">
+                                    <i class="bi bi-dash-lg me-1"></i> Egreso
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,7 +57,7 @@
         </div>
     </div>
 
-    
+
     <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
         <div class="card-header bg-white py-3 border-0">
             <h5 class="card-title h6 fw-bold mb-0">Historial de Sesiones</h5>

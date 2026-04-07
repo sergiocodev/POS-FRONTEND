@@ -5,14 +5,13 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-// Services & Models (Asegúrate de que las rutas sean correctas)
+// Services & Models
 import { SaleService } from '../../../../core/services/sale.service';
 import { ProductService } from '../../../../core/services/product.service';
 import { CustomerService } from '../../../../core/services/customer.service';
 import { CashSessionService } from '../../../../core/services/cash-session.service';
 import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ProductResponse } from '../../../../core/models/product.model';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { CashSessionResponse } from '../../../../core/models/cash.model';
 import { SaleRequest, PaymentMethod, SaleDocumentType, ProductForSaleResponse } from '../../../../core/models/sale.model';
@@ -21,18 +20,31 @@ import { CheckoutPanelComponent } from '../../../../shared/components/checkout-p
 import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
 import { CustomerFormComponent } from '../../customers/customer-form/customer-form.component';
 
-interface CartItem {
+export interface CartItem {
     product: ProductForSaleResponse;
     quantity: number;
     price: number;
     discount: number;
+    discountInput: number;
+    discountType: 'amount' | 'percentage';
     total: number;
+}
+
+/** Stock breakdown for a given unit factor */
+export interface StockBreakdown {
+    fullPacks: number;
+    remainder: number;
+    availableInUnit: number; // floor(baseStock / factor)
 }
 
 @Component({
     selector: 'app-pos',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModuleHeaderComponent, CardGridComponent, CheckoutPanelComponent, ModalGenericComponent, CustomerFormComponent],
+    imports: [
+        CommonModule, FormsModule, ReactiveFormsModule,
+        ModuleHeaderComponent, CardGridComponent,
+        CheckoutPanelComponent, ModalGenericComponent, CustomerFormComponent
+    ],
     templateUrl: './pos.component.html',
     styleUrl: './pos.component.scss'
 })
@@ -47,15 +59,21 @@ export class PosComponent implements OnInit {
     public router = inject(Router);
 
     // Data Signals
-    products = signal<ProductForSaleResponse[]>([]);
+    products = signal<ProductForSaleResponse[]>([]);        // Full list (all units per product)
+    displayProducts = signal<ProductForSaleResponse[]>([]); // Deduplicated (1 card per product+lot)
     customers = signal<CustomerResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
-    filteredProducts = signal<ProductForSaleResponse[]>([]);
+    filteredProducts = signal<ProductForSaleResponse[]>([]); // Filtered deduplicated list for grid
 
     // Cart Signals
     cart = signal<CartItem[]>([]);
     selectedCustomer = signal<CustomerResponse | null>(null);
     showCustomerModal = signal<boolean>(false);
+
+    // Unit Selector Modal
+    showUnitModal = signal<boolean>(false);
+    unitModalProduct = signal<ProductForSaleResponse | null>(null);  // The clicked product card
+    availableUnits = signal<ProductForSaleResponse[]>([]);           // All units for that product+lot
 
     // Computed Values
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
@@ -78,12 +96,9 @@ export class PosComponent implements OnInit {
             receivedAmount: [0, [Validators.min(0)]]
         });
 
-        // Reaccionar a cambios en el establecimiento seleccionado
         effect(() => {
             const establishmentId = this.establishmentStateService.selectedEstablishmentId();
             if (establishmentId) {
-                // untracked previene que las signals leídas dentro de loadInitialData
-                // registren dependencias reactivas con este effect.
                 untracked(() => {
                     this.loadInitialData();
                 });
@@ -91,10 +106,7 @@ export class PosComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
-        // La carga inicial ahora es manejada por el effect en el constructor
-        // cuando el establishmentId está disponible.
-    }
+    ngOnInit(): void {}
 
     loadInitialData(): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
@@ -110,9 +122,22 @@ export class PosComponent implements OnInit {
             activeSession: this.cashSessionService.getActiveSession()
         }).subscribe({
             next: (data) => {
-                this.products.set(data.products.data);
-                this.filteredProducts.set(data.products.data);
-                this.customers.set(data.customers.data);
+                const allUnits = data.products.data;
+                const deduped = this.deduplicateForGrid(allUnits);
+                this.products.set(allUnits);        // full list → used by modal
+                this.displayProducts.set(deduped);  // 1 per product+lot → used by grid
+                this.filteredProducts.set(deduped);
+                const customers = data.customers.data;
+                this.customers.set(customers);
+                
+                // Select default customer (00000000) if no customer is selected
+                if (!this.selectedCustomer()) {
+                    const defaultCust = customers.find(c => c.documentNumber === '00000000');
+                    if (defaultCust) {
+                        this.selectedCustomer.set(defaultCust);
+                    }
+                }
+
                 this.activeSession.set(data.activeSession.data);
                 this.isLoading.set(false);
             },
@@ -128,38 +153,90 @@ export class PosComponent implements OnInit {
     onProductSearch(): void {
         const term = this.productSearchTerm.trim().toLowerCase();
         if (!term) {
-            this.filteredProducts.set(this.products());
+            this.filteredProducts.set(this.displayProducts());
             return;
         }
 
-        // Búsqueda por nombre o código de barras
-        const matches = this.products().filter(p =>
+        // Barcode scanner: avoid matching if multiple lots share the exact same barcode
+        const exactBarcodeMatches = this.products().filter(p => p.barcode?.toLowerCase() === term);
+        
+        if (exactBarcodeMatches.length === 1) {
+            this.addToCartDirect(exactBarcodeMatches[0]);
+            this.productSearchTerm = '';
+            this.filteredProducts.set(this.displayProducts());
+            return;
+        }
+
+        // Search across all units to support querying by secondary barcodes
+        const matchingUnits = this.products().filter(p => 
             p.tradeName.toLowerCase().includes(term) ||
             p.barcode?.toLowerCase().includes(term) ||
             (p.genericName && p.genericName.toLowerCase().includes(term))
         );
 
-        this.filteredProducts.set(matches);
+        // Get keys for products that had a matching unit
+        const matchedKeys = new Set(matchingUnits.map(p => `${p.productId}_${p.lotId}`));
 
-        // Lógica de escáner: Si hay un match exacto por código de barras y es único, agregar al carrito
-        const exactBarcodeMatch = this.products().find(p => p.barcode?.toLowerCase() === term);
-        if (exactBarcodeMatch && matches.length === 1) {
-            this.addToCart(exactBarcodeMatch);
-            this.productSearchTerm = '';
-            this.filteredProducts.set(this.products());
-        }
+        // Show the base product representatives in the grid
+        const matches = this.displayProducts().filter(baseProd => 
+            matchedKeys.has(`${baseProd.productId}_${baseProd.lotId}`)
+        );
+
+        this.filteredProducts.set(matches);
     }
 
-    addToCart(product: ProductForSaleResponse): void {
-        const existing = this.cart().find(item => item.product.id === product.id);
-        const price = product.salesPrice;
+    /**
+     * Called when user clicks a product card.
+     * Groups all units for that product+lot and opens the unit selector modal.
+     * If only one unit exists, adds directly to cart.
+     */
+    openUnitSelector(product: ProductForSaleResponse): void {
+        // Collect all unit entries for the same product + lot
+        const units = this.products().filter(
+            p => p.productId === product.productId && p.lotId === product.lotId
+        );
 
-        if (existing) {
-            this.cart.update(items => items.map(item =>
-                item.product.id === product.id
-                    ? { ...item, quantity: item.quantity + 1, total: ((item.quantity + 1) * price) - item.discount }
-                    : item
-            ));
+        if (units.length <= 1) {
+            // Only one unit available — add directly
+            this.addToCartDirect(product);
+            return;
+        }
+
+        // Sort: base unit (factor=1) first, then by factor asc
+        units.sort((a, b) => a.factor - b.factor);
+
+        this.unitModalProduct.set(product);
+        this.availableUnits.set(units);
+        this.showUnitModal.set(true);
+    }
+
+    closeUnitModal(): void {
+        this.showUnitModal.set(false);
+        this.unitModalProduct.set(null);
+        this.availableUnits.set([]);
+    }
+
+    selectUnit(unit: ProductForSaleResponse): void {
+        this.addToCartDirect(unit);
+        this.closeUnitModal();
+    }
+
+    /** Core cart add logic (used by modal confirm and barcode scanner) */
+    addToCartDirect(product: ProductForSaleResponse): void {
+        const price = product.salesPrice;
+        // Find existing item by productId + productUnitId + lotId
+        const existingIndex = this.cart().findIndex(
+            i => i.product.productId === product.productId &&
+                 i.product.productUnitId === product.productUnitId &&
+                 i.product.lotId === product.lotId
+        );
+
+        if (existingIndex >= 0) {
+            this.cart.update(items => items.map((item, idx) => {
+                if (idx !== existingIndex) return item;
+                const newQty = item.quantity + 1;
+                return { ...item, quantity: newQty, total: (newQty * item.price) - item.discount };
+            }));
         } else {
             this.cart.update(items => [...items, {
                 product,
@@ -173,15 +250,60 @@ export class PosComponent implements OnInit {
         }
     }
 
+    // ---------- Stock conversion helpers ----------
+
+    /**
+     * Returns one representative card per productId+lotId for the grid.
+     * Picks the entry with the smallest factor (base unit) as the card representative.
+     */
+    private deduplicateForGrid(all: ProductForSaleResponse[]): ProductForSaleResponse[] {
+        const seen = new Map<string, ProductForSaleResponse>();
+        for (const p of all) {
+            const key = `${p.productId}_${p.lotId}`;
+            const existing = seen.get(key);
+            // Keep the entry with the smallest factor as representative
+            if (!existing || p.factor < existing.factor) {
+                seen.set(key, p);
+            }
+        }
+        return Array.from(seen.values());
+    }
+
+    /**
+     * Returns how much stock is available expressed in the given unit.
+     * Example: baseStock=145, factor=10 → { fullPacks:14, remainder:5, availableInUnit:14 }
+     */
+    getStockBreakdown(baseStock: number, factor: number): StockBreakdown {
+        const f = factor || 1;
+        return {
+            fullPacks: Math.floor(baseStock / f),
+            remainder: baseStock % f,
+            availableInUnit: Math.floor(baseStock / f)
+        };
+    }
+
+    getStockLabel(unit: ProductForSaleResponse): string {
+        const base = unit.stock || 0;
+        const factor = unit.factor || 1;
+        if (factor === 1) {
+            return `${base} disponibles`;
+        }
+        const full = Math.floor(base / factor);
+        const rem = base % factor;
+        if (rem === 0) {
+            return `${full} ${unit.unitName || 'unidades'} completos`;
+        }
+        return `${full} completos + ${rem} sueltas`;
+    }
+
+    // ---------- Cart management ----------
+
     removeFromCart(index: number): void {
         this.cart.update(items => items.filter((_, i) => i !== index));
     }
 
     updateQuantity(index: number, qty: number): void {
-        if (qty <= 0) {
-            this.removeFromCart(index);
-            return;
-        }
+        if (qty <= 0) { this.removeFromCart(index); return; }
         this.cart.update(items => items.map((item, i) =>
             i === index ? { ...item, quantity: qty, total: (qty * item.price) - item.discount } : item
         ));
@@ -194,9 +316,10 @@ export class PosComponent implements OnInit {
         ));
     }
 
+    // ---------- Sale submission ----------
+
     onProcessSale(saleData: any): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
-
         if (!establishmentId) {
             this.showAlert('Error', 'No hay un establecimiento seleccionado', 'danger');
             return;
@@ -219,17 +342,15 @@ export class PosComponent implements OnInit {
                 discountAmount: item.discount || 0,
                 discountReason: (item.discount || 0) > 0 ? 'Descuento Manual POS' : undefined
             })),
-            payments: [
-                {
-                    paymentMethod: saleData.paymentMethod,
-                    amount: saleData.total
-                }
-            ]
+            payments: saleData.payments.map((p: any) => ({
+                ...p,
+                cashSessionId: this.activeSession()?.id
+            })),
+            paymentCondition: saleData.paymentCondition,
+            dueDate: saleData.dueDate
         };
 
-        const userId = this.authService.currentUser()?.id || 1;
-
-        this.saleService.create(request, userId).subscribe({
+        this.saleService.create(request).subscribe({
             next: (response) => {
                 const res = response.data;
                 this.isLoading.set(false);
@@ -244,18 +365,11 @@ export class PosComponent implements OnInit {
         });
     }
 
-    onSubmitSale(): void {
-        // Redirigido a onProcessSale manejado por el CheckoutPanelComponent
-    }
-
     onCustomerSaveSuccess(): void {
         this.showCustomerModal.set(false);
         this.showAlert('Éxito', 'Cliente guardado correctamente', 'success');
-        // Recargar lista de clientes
         this.customerService.getAll().subscribe({
-            next: (data) => {
-                this.customers.set(data.data);
-            }
+            next: (data) => { this.customers.set(data.data); }
         });
     }
 
@@ -265,23 +379,14 @@ export class PosComponent implements OnInit {
 
     getDaysToExpire(dateString: string | undefined): number | string {
         if (!dateString) return '';
-
         const parts = dateString.split('-');
         if (parts.length !== 3) return '';
-
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1;
-        const day = parseInt(parts[2], 10);
-
-        const expDate = new Date(year, month, day);
+        const expDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
-        const diffTime = expDate.getTime() - today.getTime();
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     }
 
-    // Helpers UI
     showAlert(title: string, message: string, type: string) {
         this.alertTitle = title;
         this.alertMessage = message;
@@ -289,7 +394,5 @@ export class PosComponent implements OnInit {
         setTimeout(() => this.closeAlert(), 4000);
     }
 
-    closeAlert() {
-        this.alertMessage = '';
-    }
+    closeAlert() { this.alertMessage = ''; }
 }

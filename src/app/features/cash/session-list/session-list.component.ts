@@ -88,6 +88,14 @@ export class SessionListComponent implements OnInit {
         }
     }
 
+    onRegisterInflow(): void {
+        this.router.navigate(['/cash/movement/inflow']);
+    }
+
+    onRegisterOutflow(): void {
+        this.router.navigate(['/cash/movement/outflow']);
+    }
+
     getStatusBadgeClass(status: SessionStatus): string {
         return status === SessionStatus.OPEN ? 'bg-success' : 'bg-secondary';
     }

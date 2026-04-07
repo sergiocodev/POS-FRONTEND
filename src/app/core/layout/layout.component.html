@@ -13,14 +13,7 @@
             aria-labelledby="mobileSidebarLabel">
 
             <div class="offcanvas-header border-bottom border-secondary">
-                <h5 class="offcanvas-title d-flex align-items-center" id="mobileSidebarLabel">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
-                        class="bi bi-capsule me-2" viewBox="0 0 16 16">
-                        <path
-                            d="M1.828 8.9 8.9 1.827a4 4 0 1 1 5.657 5.657l-7.07 7.071A4 4 0 1 1 1.827 8.9m9.128.771 2.893-2.893a3 3 0 1 0-4.243-4.242L6.713 5.429z" />
-                    </svg>
-                    Sistema de Farmacia
-                </h5>
+                <app-logo [showText]="true"></app-logo>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
                     aria-label="Close"></button>
             </div>
@@ -101,6 +94,16 @@
                                     d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 11h9a.5.5 0 0 0 .476-.341l1.89-6.615a.5.5 0 0 0-.127-.495.5.5 0 0 0-.446-.13L1.61 3.414L1.138 1.5A.5.5 0 0 0 .61 1zM2.35 4h11.774l-1.547 5.417H5.187z" />
                             </svg>
                             Ventas
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a routerLink="/account-receivables" routerLinkActive="bg-primary"
+                            class="d-flex align-items-center text-white text-decoration-none px-3 py-2 rounded"
+                            data-bs-dismiss="offcanvas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wallet2 me-3" viewBox="0 0 16 16">
+                              <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z"/>
+                            </svg>
+                            Cuentas x Cobrar
                         </a>
                     </li>
                     <li class="mb-2">
@@ -203,8 +206,10 @@
         </div>
 
 
-        <main class="flex-grow-1 bg-light overflow-auto">
-            <router-outlet></router-outlet>
-        </main>
+        <div class="flex-grow-1 position-relative overflow-hidden" style="transform: translate(0, 0); flex: 1 1 0; min-width: 0;">
+            <main class="h-100 bg-light overflow-auto">
+                <router-outlet></router-outlet>
+            </main>
+        </div>
     </div>
 </div>

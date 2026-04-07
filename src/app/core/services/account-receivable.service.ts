@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AccountReceivableResponse, AccountReceivablePaymentRequest } from '../models/account-receivable.model';
+import { AccountReceivableResponse, AccountReceivablePaymentRequest, AccountReceivablePaymentResponse } from '../models/account-receivable.model';
 import { ResponseApi } from '../models/response-api.model';
+import { Page } from '../models/pagination.model';
 
 @Injectable({
     providedIn: 'root'
@@ -30,5 +31,9 @@ export class AccountReceivableService {
 
     cancel(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
+    }
+
+    getPaymentHistory(params: any): Observable<ResponseApi<Page<AccountReceivablePaymentResponse>>> {
+        return this.http.get<ResponseApi<Page<AccountReceivablePaymentResponse>>>(`${this.paymentUrl}/history`, { params });
     }
 }

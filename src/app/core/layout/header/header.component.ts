@@ -7,10 +7,12 @@ import { EstablishmentService } from '../../services/establishment.service';
 import { EstablishmentStateService } from '../../services/establishment-state.service';
 import { EstablishmentResponse } from '../../models/maintenance.model';
 
+import { LogoComponent } from '../../../shared/components/logo/logo.component';
+
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, LogoComponent],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     animations: [

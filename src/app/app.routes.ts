@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { requireOpenCajaGuard } from './core/guards/require-open-caja.guard';
 
 export const routes: Routes = [
     {
@@ -49,7 +50,8 @@ export const routes: Routes = [
             },
             {
                 path: 'sales/pos',
-                loadComponent: () => import('./features/sales/new-sale/pos/pos.component').then(m => m.PosComponent)
+                loadComponent: () => import('./features/sales/new-sale/pos/pos.component').then(m => m.PosComponent),
+                canActivate: [requireOpenCajaGuard]
             },
             {
                 path: 'purchases',
@@ -60,8 +62,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/account-payables/account-payable-list/account-payable-list.component').then(m => m.AccountPayableListComponent)
             },
             {
+                path: 'account-payables/history',
+                loadComponent: () => import('./features/account-payables/payment-history/payment-history.component').then(m => m.PaymentHistoryComponent)
+            },
+            {
                 path: 'account-receivables',
                 loadComponent: () => import('./features/account-receivables/account-receivable-list/account-receivable-list.component').then(m => m.AccountReceivableListComponent)
+            },
+            {
+                path: 'account-receivables/history',
+                loadComponent: () => import('./features/account-receivables/account-receivable-history/account-receivable-history.component').then(m => m.AccountReceivableHistoryComponent)
             },
             {
                 path: 'purchases/new',
@@ -82,6 +92,14 @@ export const routes: Routes = [
             {
                 path: 'cash/close/:id',
                 loadComponent: () => import('./features/cash/session-form/session-form.component').then(m => m.SessionFormComponent)
+            },
+            {
+                path: 'cash/movement/:type',
+                loadComponent: () => import('./features/cash/movement-form/movement-form.component').then(m => m.MovementFormComponent)
+            },
+            {
+                path: 'cash/movements',
+                loadComponent: () => import('./features/cash/movement-list/movement-list.component').then(m => m.MovementListComponent)
             },
             {
                 path: 'cash/registers',
@@ -171,6 +189,10 @@ export const routes: Routes = [
             {
                 path: 'inventory/movements',
                 loadComponent: () => import('./features/inventory/movements/movements').then(m => m.MovementsComponent)
+            },
+            {
+                path: 'inventory/transfers',
+                loadComponent: () => import('./features/inventory/stock-transfers/stock-transfers.component').then(m => m.StockTransfersComponent)
             },
             {
                 path: '',

@@ -3,7 +3,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     CashSessionRequest, CashSessionResponse,
-    CashRegisterResponse, CashRegisterRequest
+    CashRegisterResponse, CashRegisterRequest,
+    CashInflowRequest, CashOutflowRequest,
+    CashMovementResponse, SessionStatusResponse,
+    CashConceptResponse, CloseSessionRequest
 } from '../models/cash.model';
 import { AuthService } from './auth.service';
 import { ResponseApi } from '../models/response-api.model';
@@ -17,6 +20,8 @@ export class CashSessionService {
 
     private sessionUrl = '/api/v1/cash-sessions';
     private registerUrl = '/api/v1/cash-registers';
+    private cashUrl = '/api/v1/cash';
+    private conceptUrl = '/api/v1/cash-concepts';
 
 
     getRegisters(): Observable<ResponseApi<CashRegisterResponse[]>> {
@@ -83,5 +88,27 @@ export class CashSessionService {
     getHistory(userId: number): Observable<ResponseApi<CashSessionResponse[]>> {
         const params = new HttpParams().set('userId', userId.toString());
         return this.http.get<ResponseApi<CashSessionResponse[]>>(`${this.sessionUrl}/history`, { params });
+    }
+
+    // New Cash Movement Methods (CashController.java)
+    registerInflow(request: CashInflowRequest): Observable<ResponseApi<CashMovementResponse>> {
+        return this.http.post<ResponseApi<CashMovementResponse>>(`${this.cashUrl}/RegisterCashInflow`, request);
+    }
+
+    registerOutflow(request: CashOutflowRequest): Observable<ResponseApi<CashMovementResponse>> {
+        return this.http.post<ResponseApi<CashMovementResponse>>(`${this.cashUrl}/RegisterCashOutflow`, request);
+    }
+
+    getCurrentSessionStatus(userId: number): Observable<ResponseApi<SessionStatusResponse>> {
+        const params = new HttpParams().set('userId', userId.toString());
+        return this.http.get<ResponseApi<SessionStatusResponse>>(`${this.cashUrl}/GetCurrentSessionStatus`, { params });
+    }
+
+    closeSessionAndReport(request: CloseSessionRequest): Observable<ResponseApi<CashSessionResponse>> {
+        return this.http.post<ResponseApi<CashSessionResponse>>(`${this.cashUrl}/CloseSessionAndReport`, request);
+    }
+
+    getConceptsByType(type: string): Observable<ResponseApi<CashConceptResponse[]>> {
+        return this.http.get<ResponseApi<CashConceptResponse[]>>(`${this.conceptUrl}/type/${type}`);
     }
 }

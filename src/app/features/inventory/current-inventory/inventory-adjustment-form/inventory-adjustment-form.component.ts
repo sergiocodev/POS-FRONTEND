@@ -37,7 +37,8 @@ export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
             movementType: ['ADJUSTMENT', Validators.required],
             notes: ['', [Validators.maxLength(255)]],
             costPrice: [0],
-            salesPrice: [0]
+            salesPrice: [0],
+            locationShelf: ['', [Validators.maxLength(255)]]
         });
     }
 
@@ -57,6 +58,7 @@ export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
                 quantity: this.inventoryItem.quantity,
                 costPrice: this.inventoryItem.costPrice,
                 salesPrice: this.inventoryItem.salesPrice,
+                locationShelf: this.inventoryItem.locationShelf || '',
                 movementType: 'ADJUSTMENT',
                 notes: ''
             });
@@ -76,6 +78,7 @@ export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
             quantity: formValue.quantity,
             costPrice: formValue.costPrice,
             salesPrice: formValue.salesPrice,
+            locationShelf: formValue.locationShelf,
             movementType: formValue.movementType,
             notes: formValue.notes
         };

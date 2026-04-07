@@ -1,0 +1,34 @@
+<app-module-header title="Movimientos de Caja" iconClass="bi bi-cash-stack">
+    <button class="btn btn-primary btn-sm" [routerLink]="['/cash/movement/IN']">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Ingreso
+    </button>
+    <button class="btn btn-danger btn-sm ms-2" [routerLink]="['/cash/movement/OUT']">
+        <i class="bi bi-dash-circle me-1"></i> Nuevo Egreso
+    </button>
+</app-module-header>
+
+<div class="card mt-3">
+    <div class="card-body p-0">
+        <app-custom-table 
+            [columns]="columns" 
+            [data]="movements()" 
+            [pageSize]="15"
+            (onAction)="handleAction($event)">
+        </app-custom-table>
+        
+        @if (isLoading()) {
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        }
+
+        @if (!isLoading() && movements().length === 0) {
+            <div class="text-center p-5 text-muted">
+                <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+                No se encontraron movimientos de caja registrados.
+            </div>
+        }
+    </div>
+</div>

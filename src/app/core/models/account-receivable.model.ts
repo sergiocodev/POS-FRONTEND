@@ -35,3 +35,20 @@ export interface AccountReceivablePaymentRequest {
     reference?: string;
     notes?: string;
 }
+
+export interface AccountReceivablePaymentResponse {
+    id: number;
+    accountReceivableId: number;
+    customerName: string;
+    totalAmount: number;
+    amountPaid: number;
+    pendingBalance: number;
+    cashSessionId: number;
+    userId: number;
+    username: string;
+    amount: number;
+    paymentMethod: ReceivablePaymentMethod;
+    reference: string;
+    notes: string;
+    paymentDate: string;
+}

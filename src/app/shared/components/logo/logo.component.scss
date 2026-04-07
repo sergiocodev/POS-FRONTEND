@@ -1,0 +1,31 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  .logo-image {
+    width: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0033cc; // Matching branding color
+    white-space: nowrap;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  &.collapsed {
+    gap: 0;
+    .logo-text {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}

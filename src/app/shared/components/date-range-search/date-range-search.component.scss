@@ -1,0 +1,241 @@
+@use 'sass:color';
+
+/* Variables basadas en la imagen */
+$primary-blue: #001CDB;
+$border-color: #E0E0E0;
+$text-dark: #333333;
+$text-light: #666666;
+$bg-hover: #F5F5F5;
+
+
+.search-bar-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    font-family: 'Inter', sans-serif;
+    /* Asumiendo una fuente limpia */
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+
+    label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000;
+    }
+}
+
+.input-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.active {
+        border-color: $primary-blue;
+        box-shadow: 0 0 0 1px $primary-blue;
+    }
+
+    .value-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .date-text {
+        font-size: 14px;
+        color: $text-dark;
+    }
+
+    i,
+    .icon {
+        font-size: 18px;
+        color: $text-light;
+    }
+}
+
+/* --- POPOVER CALENDARIO Y TIEMPO --- */
+.popover-container {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 16px;
+}
+
+.popover-content {
+    display: flex;
+    gap: 16px;
+}
+
+/* Calendario */
+.calendar-section {
+    width: 250px;
+    border-right: 1px solid $border-color;
+    padding-right: 16px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    .month-title {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .nav-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $text-light;
+    }
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+
+    .weekday {
+        font-size: 10px;
+        color: $text-light;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .day-cell {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border-radius: 8px;
+        cursor: pointer;
+
+        &:hover {
+            background: $bg-hover;
+        }
+
+        &.selected {
+            background: $primary-blue;
+            color: white;
+            font-weight: 600;
+        }
+
+        &.empty {
+            pointer-events: none;
+            cursor: default;
+        }
+    }
+}
+
+.calendar-footer {
+    text-align: right;
+    margin-top: 16px;
+
+    .today-btn {
+        color: $primary-blue;
+        background: none;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+    }
+}
+
+/* Tiempo */
+.time-section {
+    display: flex;
+    gap: 8px;
+    height: 250px;
+    /* Ajustar a la altura del calendario */
+}
+
+.time-column {
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid $border-color;
+
+    &:last-child {
+        border: none;
+    }
+
+    &.scrollable {
+        overflow-y: auto;
+
+        /* Ocultar scrollbar para un look limpio */
+        &::-webkit-scrollbar {
+            width: 0px;
+        }
+    }
+}
+
+.time-cell {
+    width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    border-radius: 4px;
+
+    &:hover {
+        background: $bg-hover;
+    }
+
+    &.selected {
+        background: $primary-blue;
+        color: white;
+        font-weight: bold;
+    }
+}
+
+.period-column {
+    justify-content: center;
+
+    .period-cell {
+        height: 60px;
+    }
+}
+
+/* Botón Buscar */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $primary-blue;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    height: 53px;
+
+    &:hover {
+        background: color.adjust($primary-blue, $lightness: -5%);
+    }
+}

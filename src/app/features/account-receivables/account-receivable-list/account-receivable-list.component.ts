@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AccountReceivableService } from '../../../core/services/account-receivable.service';
 import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest, ReceivableStatus } from '../../../core/models/account-receivable.model';
 import { CashSessionService } from '../../../core/services/cash-session.service';
@@ -16,6 +17,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
     imports: [
         CommonModule,
         FormsModule,
+        RouterModule,
         CustomTableComponent,
         ModalGenericComponent,
         ModalAlertComponent,
@@ -67,7 +69,8 @@ export class AccountReceivableListComponent implements OnInit {
         this.isLoading.set(true);
         this.accountReceivableService.getAll().subscribe({
             next: (response: any) => {
-                const mappedData = response.data.map((item: AccountReceivableResponse) => ({
+                const dataArray = Array.isArray(response) ? response : (response.data || []);
+                const mappedData = dataArray.map((item: AccountReceivableResponse) => ({
                     ...item,
                     actions: [
                         { id: 'pay', icon: 'bi-cash-stack', class: 'btn-success', title: 'Cobrar' }

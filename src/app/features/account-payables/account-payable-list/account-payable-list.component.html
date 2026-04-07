@@ -1,6 +1,12 @@
 <app-modal-alert></app-modal-alert>
 <app-module-header title="Cuentas por Pagar" iconClass="bi bi-wallet2"></app-module-header>
 
+<div class="d-flex justify-content-end px-3 mb-2">
+    <button class="btn btn-outline-primary rounded-pill" routerLink="/account-payables/history">
+        <i class="bi bi-clock-history"></i> Ver Historial de Pagos
+    </button>
+</div>
+
 <div class="account-payable-page animate-fade-in">
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -26,25 +32,25 @@
 
             <div class="form-group mb-3">
                 <label class="form-label fw-bold">Monto a Pagar (S/)</label>
-                <input type="number" class="form-control" [(ngModel)]="paymentAmount" placeholder="0.00"
+                <input type="number" class="form-control" [ngModel]="paymentAmount()" (ngModelChange)="paymentAmount.set($event)" placeholder="0.00"
                     min="0.01" [max]="selectedPayable()?.pendingBalance || 0">
             </div>
 
             <div class="form-group mb-3">
                 <label class="form-label fw-bold">Método de Pago</label>
-                <select class="form-select" [(ngModel)]="paymentMethod">
+                <select class="form-select" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)">
                     <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
                 </select>
             </div>
 
             <div class="form-group mb-3">
                 <label class="form-label fw-bold">Referencia (Opcional)</label>
-                <input type="text" class="form-control" [(ngModel)]="paymentReference" placeholder="Ej. Número de operación">
+                <input type="text" class="form-control" [ngModel]="paymentReference()" (ngModelChange)="paymentReference.set($event)" placeholder="Ej. Número de operación">
             </div>
 
             <div class="form-group mb-3">
                 <label class="form-label fw-bold">Notas (Opcional)</label>
-                <textarea class="form-control" [(ngModel)]="paymentNotes" rows="2" placeholder="Observaciones adicionales..."></textarea>
+                <textarea class="form-control" [ngModel]="paymentNotes()" (ngModelChange)="paymentNotes.set($event)" rows="2" placeholder="Observaciones adicionales..."></textarea>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">

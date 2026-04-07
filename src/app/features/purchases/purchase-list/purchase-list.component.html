@@ -45,6 +45,7 @@
                             <th class="py-3">Documento</th>
                             <th class="py-3">Proveedor</th>
                             <th class="py-3 text-end">Total</th>
+                            <th class="py-3 text-center">Condición</th>
                             <th class="py-3 text-center">Estado</th>
                             <th class="py-3 text-center">Acciones</th>
                         </tr>
@@ -76,6 +77,11 @@
                             </td>
                             <td class="text-end fw-bold text-primary">
                                 {{ purchase.total | currency:'PEN':'S/ ' }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" [ngClass]="getPaymentConditionBadgeClass(purchase.paymentCondition || '')">
+                                    {{ purchase.paymentCondition }}
+                                </span>
                             </td>
                             <td class="text-center">
                                 <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(purchase.status)">

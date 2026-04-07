@@ -1,0 +1,37 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { CashMovement, CashMovementRequest } from '../../core/models/cash-movement.model';
+import { ResponseApi } from '../../core/models/response-api.model';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class CashMovementService {
+    private http = inject(HttpClient);
+    private apiUrl = '/api/v1/cash-movements';
+
+    getAll(page: number = 0, size: number = 10): Observable<ResponseApi<any>> {
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString())
+            .set('sort', 'createdAt,desc');
+        return this.http.get<ResponseApi<any>>(this.apiUrl, { params });
+    }
+
+    getBySession(sessionId: number): Observable<ResponseApi<CashMovement[]>> {
+        return this.http.get<ResponseApi<CashMovement[]>>(`${this.apiUrl}/session/${sessionId}`);
+    }
+
+    create(request: CashMovementRequest): Observable<ResponseApi<CashMovement>> {
+        return this.http.post<ResponseApi<CashMovement>>(this.apiUrl, request);
+    }
+
+    getById(id: number): Observable<ResponseApi<CashMovement>> {
+        return this.http.get<ResponseApi<CashMovement>>(`${this.apiUrl}/${id}`);
+    }
+
+    delete(id: number): Observable<ResponseApi<void>> {
+        return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
+    }
+}

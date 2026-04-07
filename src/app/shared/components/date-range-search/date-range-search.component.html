@@ -1,0 +1,92 @@
+<div class="search-bar-wrapper">
+
+    <!-- Start Date Picker -->
+    <div class="input-group">
+        <label>Fecha y hora de inicio</label>
+        <div class="input-box" (click)="toggleStartPicker()" [class.active]="showStartPicker">
+            <div class="value-container">
+                <i class="bi bi-calendar3 me-2"></i>
+                <span class="date-text">{{ getFormattedStartDate() }}</span>
+            </div>
+            <i class="bi bi-chevron-down ms-auto"></i>
+        </div>
+
+        <div class="popover-container shadow-elevation" *ngIf="showStartPicker">
+            <ng-container *ngTemplateOutlet="pickerContent"></ng-container>
+        </div>
+    </div>
+
+    <!-- End Date Picker -->
+    <div class="input-group">
+        <label>Fecha y hora de fin</label>
+        <div class="input-box" (click)="toggleEndPicker()" [class.active]="showEndPicker">
+            <div class="value-container">
+                <i class="bi bi-calendar3 me-2"></i>
+                <span class="date-text">{{ getFormattedEndDate() }}</span>
+            </div>
+            <i class="bi bi-chevron-down ms-auto"></i>
+        </div>
+
+        <div class="popover-container shadow-elevation" *ngIf="showEndPicker">
+            <ng-container *ngTemplateOutlet="pickerContent"></ng-container>
+        </div>
+    </div>
+
+    <!-- Search Button -->
+    <div class="button-group">
+        <button class="btn btn-primary d-flex align-items-center gap-2" (click)="onSearch()">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+    </div>
+
+</div>
+
+<!-- Popover Content Template -->
+<ng-template #pickerContent>
+    <div class="popover-content">
+        <div class="calendar-section">
+            <div class="calendar-header">
+                <button class="nav-btn" (click)="prevMonth()"><i class="bi bi-chevron-left"></i></button>
+                <span class="month-title">{{ currentMonthName }}</span>
+                <button class="nav-btn" (click)="nextMonth()"><i class="bi bi-chevron-right"></i></button>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+                <div class="day-cell" *ngFor="let day of calendarDays" 
+                    [class.empty]="day === null"
+                    [class.selected]="day === selectedDay"
+                    (click)="selectDay(day)">
+                    {{ day }}
+                </div>
+            </div>
+
+            <div class="calendar-footer">
+                <button class="today-btn" (click)="$event.stopPropagation(); setToday()">Hoy</button>
+            </div>
+        </div>
+
+        <div class="time-section">
+            <div class="time-column scrollable">
+                <div class="time-cell" *ngFor="let hour of hours" [class.selected]="hour === selectedHour"
+                    (click)="selectHour(hour)">
+                    {{ hour }}
+                </div>
+            </div>
+
+            <div class="time-column scrollable">
+                <div class="time-cell" *ngFor="let min of minutes" [class.selected]="min === selectedMinute"
+                    (click)="selectMinute(min)">
+                    {{ min }}
+                </div>
+            </div>
+
+            <div class="time-column period-column">
+                <div class="time-cell period-cell" [class.selected]="selectedPeriod === 'a. m.'"
+                    (click)="selectPeriod('a. m.')">a. m.</div>
+                <div class="time-cell period-cell" [class.selected]="selectedPeriod === 'p. m.'"
+                    (click)="selectPeriod('p. m.')">p. m.</div>
+            </div>
+        </div>
+    </div>
+</ng-template>

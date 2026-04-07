@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { AccountPayableService } from '../../../core/services/account-payable.service';
 import { AccountPayableResponse, PayablePaymentMethod, AccountPayablePaymentRequest } from '../../../core/models/account-payable.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,6 +10,7 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { CashSessionService } from '../../../core/services/cash-session.service';
 
 @Component({
     selector: 'app-account-payable-list',
@@ -16,6 +18,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
     imports: [
         CommonModule,
         FormsModule,
+        RouterModule,
         CustomTableComponent,
         ModalGenericComponent,
         ModalAlertComponent,
@@ -28,6 +31,7 @@ export class AccountPayableListComponent implements OnInit {
     private accountPayableService = inject(AccountPayableService);
     private authService = inject(AuthService);
     private modalService = inject(ModalService);
+    private cashSessionService = inject(CashSessionService);
 
     payables = signal<AccountPayableResponse[]>([]);
     isLoading = signal<boolean>(false);
@@ -40,7 +44,7 @@ export class AccountPayableListComponent implements OnInit {
     paymentReference = signal<string>('');
     paymentNotes = signal<string>('');
     isPaying = signal<boolean>(false);
-    
+
     paymentMethods = Object.values(PayablePaymentMethod);
 
     columns: TableColumn[] = [
@@ -127,26 +131,47 @@ export class AccountPayableListComponent implements OnInit {
             return;
         }
 
-        const payload: AccountPayablePaymentRequest = {
-            accountPayableId: payable.id,
-            amount: amount,
-            paymentMethod: this.paymentMethod(),
-            reference: this.paymentReference(),
-            notes: this.paymentNotes()
-        };
-
         this.isPaying.set(true);
-        this.accountPayableService.pay(payable.id, payload).subscribe({
-            next: () => {
-                this.isPaying.set(false);
-                this.closePaymentModal();
-                this.modalService.alert({ title: 'Éxito', message: 'Pago registrado correctamente', type: 'success' });
-                this.loadPayables();
+
+        // Obtener sesión de caja activa
+        this.cashSessionService.getActiveSession().subscribe({
+            next: (sessionRes) => {
+                const session = sessionRes.data;
+                if (!session) {
+                    this.isPaying.set(false);
+                    this.modalService.alert({ title: 'Error', message: 'Debe tener una sesión de caja abierta para registrar pagos.', type: 'error' });
+                    return;
+                }
+
+                const payload: AccountPayablePaymentRequest = {
+                    accountPayableId: payable.id,
+                    cashSessionId: session.id,
+                    amount: amount,
+                    paymentMethod: this.paymentMethod(),
+                    reference: this.paymentReference(),
+                    notes: this.paymentNotes()
+                };
+
+                this.accountPayableService.pay(payable.id, payload).subscribe({
+                    next: () => {
+                        this.isPaying.set(false);
+                        this.closePaymentModal();
+                        this.modalService.alert({ title: 'Éxito', message: 'Pago registrado correctamente', type: 'success' });
+                        this.loadPayables();
+                    },
+                    error: (err: any) => {
+                        this.isPaying.set(false);
+                        this.modalService.alert({ title: 'Error', message: 'Error al registrar el pago', type: 'error' });
+                    }
+                });
             },
-            error: (err) => {
+            error: (err: any) => {
                 this.isPaying.set(false);
-                this.modalService.alert({ title: 'Error', message: 'Error al registrar el pago', type: 'error' });
+                this.modalService.alert({ title: 'Error', message: 'Error al verificar sesión de caja', type: 'error' });
             }
         });
     }
 }
+
+
+

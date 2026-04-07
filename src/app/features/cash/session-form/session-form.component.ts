@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CashSessionService } from '../../../core/services/cash-session.service';
-import { CashRegisterResponse, CashSessionResponse } from '../../../core/models/cash.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { CashRegisterResponse, SessionStatusResponse, CloseSessionRequest } from '../../../core/models/cash.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
 
@@ -17,6 +18,7 @@ import { map, startWith } from 'rxjs';
 export class SessionFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private cashService = inject(CashSessionService);
+    private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -26,12 +28,12 @@ export class SessionFormComponent implements OnInit {
         closingBalance: [0, [Validators.min(0)]],
         notes: ['']
     });
+    
     isLoading = signal<boolean>(false);
     mode = signal<'OPEN' | 'CLOSE'>('OPEN');
     registers = signal<CashRegisterResponse[]>([]);
     errorMessage = signal<string>('');
-    sessionData = signal<CashSessionResponse | null>(null);
-
+    sessionStatusData = signal<SessionStatusResponse | null>(null);
 
     closingBalanceValue = toSignal(
         this.sessionForm.get('closingBalance')!.valueChanges.pipe(
@@ -40,7 +42,7 @@ export class SessionFormComponent implements OnInit {
         )
     );
 
-    calculatedBalance = computed(() => this.sessionData()?.calculatedBalance || 0);
+    calculatedBalance = computed(() => this.sessionStatusData()?.calculatedBalance || 0);
     differenceAmount = computed(() => (this.closingBalanceValue() || 0) - this.calculatedBalance());
 
     constructor() { }
@@ -49,9 +51,8 @@ export class SessionFormComponent implements OnInit {
         const segments = this.route.snapshot.url.map(s => s.path);
         if (segments.includes('close')) {
             this.mode.set('CLOSE');
-            const id = this.route.snapshot.params['id'];
             this.sessionForm.get('closingBalance')?.setValidators([Validators.required, Validators.min(0)]);
-            this.loadSessionData(id);
+            this.loadCurrentStatus();
         } else {
             this.mode.set('OPEN');
             this.sessionForm.get('cashRegisterId')?.setValidators([Validators.required]);
@@ -67,15 +68,21 @@ export class SessionFormComponent implements OnInit {
         });
     }
 
-    loadSessionData(id: number): void {
+    loadCurrentStatus(): void {
+        const userId = this.authService.currentUser()?.id;
+        if (!userId) {
+            this.errorMessage.set('Usuario no autenticado.');
+            return;
+        }
+
         this.isLoading.set(true);
-        this.cashService.getById(id).subscribe({
+        this.cashService.getCurrentSessionStatus(userId).subscribe({
             next: (response) => {
-                this.sessionData.set(response.data);
+                this.sessionStatusData.set(response.data);
                 this.isLoading.set(false);
             },
             error: () => {
-                this.errorMessage.set('Error al cargar los datos de la sesión.');
+                this.errorMessage.set('Error al cargar el estado de la sesión.');
                 this.isLoading.set(false);
             }
         });
@@ -103,8 +110,20 @@ export class SessionFormComponent implements OnInit {
                 }
             });
         } else {
-            const id = this.route.snapshot.params['id'];
-            this.cashService.closeSession(id, formValue.closingBalance, this.differenceAmount()).subscribe({
+            const userId = this.authService.currentUser()?.id;
+            if (!userId) {
+                this.errorMessage.set('Usuario no autenticado.');
+                this.isLoading.set(false);
+                return;
+            }
+
+            const request: CloseSessionRequest = {
+                userId: userId,
+                closingBalance: formValue.closingBalance,
+                notes: formValue.notes
+            };
+
+            this.cashService.closeSessionAndReport(request).subscribe({
                 next: () => this.router.navigate(['/cash']),
                 error: (err) => {
                     this.errorMessage.set('Error al cerrar la caja.');

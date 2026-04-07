@@ -1,0 +1,47 @@
+<app-module-header title="Historial de Pagos a Proveedores" iconClass="bi bi-clock-history"></app-module-header>
+
+<div class="payment-history-page animate-fade-in px-3">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <!-- Filters -->
+            <div class="row g-3 align-items-end mb-4">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Fecha Inicio</label>
+                    <input type="date" class="form-control" [(ngModel)]="startDate" (change)="onFilter()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Fecha Fin</label>
+                    <input type="date" class="form-control" [(ngModel)]="endDate" (change)="onFilter()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Método de Pago</label>
+                    <select class="form-select" [(ngModel)]="paymentMethod" (change)="onFilter()">
+                        <option value="">Todos</option>
+                        <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-outline-secondary rounded-pill w-100" (click)="startDate.set(''); endDate.set(''); paymentMethod.set(''); onFilter()">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <app-custom-table 
+                [columns]="columns" 
+                [data]="payments()" 
+                [pageSize]="pageSize()"
+                [totalElements]="totalElements()"
+                [currentPage]="currentPage()"
+                (onPageChange)="onPageChange($event)">
+            </app-custom-table>
+
+            <div *ngIf="isLoading()" class="d-flex justify-content-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

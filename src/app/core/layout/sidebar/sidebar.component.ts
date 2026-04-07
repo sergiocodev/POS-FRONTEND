@@ -67,6 +67,7 @@ export class SidebarComponent {
                 { label: 'Nueva Venta', route: '/sales/pos', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
                 { label: 'Ver Ventas', route: '/sales', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.VENTAS] },
                 { label: 'Clientes', route: '/customers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
+                { label: 'Cuentas por cobrar', route: '/account-receivables', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] },
                 { label: 'Ver Reportes', route: '/reports/sales', icon: 'bi-dot', requiredPermissions: [PermissionConstants.VENTAS] }
             ]
         },
@@ -90,7 +91,8 @@ export class SidebarComponent {
                 { label: 'Catálogo de productos', route: '/products', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
                 { label: 'Inventario actual', route: '/inventory', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.INVENTARIO] },
                 { label: 'Lotes y vencimientos', route: '/inventory/batches', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
-                { label: 'Movimientos', route: '/inventory/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] }
+                { label: 'Movimientos', route: '/inventory/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] },
+                { label: 'Transferencias', route: '/inventory/transfers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.INVENTARIO] }
             ]
         },
         {
@@ -113,6 +115,7 @@ export class SidebarComponent {
             requiredPermissions: [PermissionConstants.CAJA],
             children: [
                 { label: 'Apertura y cierre', route: '/cash', icon: 'bi-dot', routerLinkActiveOptions: { exact: true }, requiredPermissions: [PermissionConstants.CAJA] },
+                { label: 'Movimientos de caja', route: '/cash/movements', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] },
                 { label: 'Cajas registradoras', route: '/cash/registers', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] },
                 { label: 'Reportes', route: '/reports/cash', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CAJA] }
             ]

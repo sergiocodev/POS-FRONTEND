@@ -24,9 +24,10 @@
             <div class="input-group">
                 <select
                     class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
-                    (change)="selectedCustomer.set($any($event.target).value)">
-                    <option [ngValue]="null">Público General</option>
-                    <option *ngFor="let c of customers()" [ngValue]="c">
+                    [value]="selectedCustomer()?.id || 'null'"
+                    (change)="onCustomerChange($event)">
+                    <option value="null">Público General</option>
+                    <option *ngFor="let c of customers()" [value]="c.id">
                         {{ c.name }} ({{ c.documentNumber }})
                     </option>
                 </select>
@@ -109,15 +110,44 @@
                     <select class="form-select bg-body-secondary border-0" formControlName="documentType">
                         <option value="BOLETA">Boleta</option>
                         <option value="FACTURA">Factura</option>
-                        <option value="NOTA_VENTA">Nota de Venta</option>
+                        <option value="NOTA_DE_VENTA">Nota de Venta</option>
                     </select>
                 </div>
+
+                <!-- Condición de Pago -->
                 <div class="col-6">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Pago</label>
-                    <select class="form-select bg-body-secondary border-0" formControlName="paymentMethod">
-                        <option value="EFECTIVO">Efectivo</option>
-                        <option value="YAPE">Yape/Plin</option>
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Condición</label>
+                    <select class="form-select bg-body-secondary border-0 text-primary fw-medium"
+                        formControlName="paymentCondition">
+                        <option value="CONTADO">Al Contado</option>
+                        <option value="CREDITO">Al Crédito</option>
                     </select>
+                </div>
+
+                <!-- Pago Acuenta (sólo Crédito) -->
+                <div class="col-6" *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CREDIT">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Pago Inicial</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body-secondary border-0">S/</span>
+                        <input type="number" class="form-control bg-body-secondary border-0"
+                            formControlName="initialPayment" min="0" step="0.1">
+                    </div>
+                </div>
+
+                <!-- Método de Pago -->
+                <div class="col-6"
+                    *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CASH || posForm.get('initialPayment')?.value > 0">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Método</label>
+                    <select class="form-select bg-body-secondary border-0" formControlName="paymentMethod">
+                        <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+                    </select>
+                </div>
+
+                <!-- Fecha de Vencimiento -->
+                <div class="col-6" *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CREDIT">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Vencimiento <span
+                            class="text-danger">*</span></label>
+                    <input type="date" class="form-control bg-body-secondary border-0" formControlName="dueDate">
                 </div>
             </div>
 

@@ -1,0 +1,54 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+
+<app-module-header title="Transferencias de Stock" iconClass="bi bi-arrows-left-right"></app-module-header>
+
+<div class="stock-transfers-page animate-fade-in">
+    <app-stock-transfer-list 
+        [transfers]="transfers()" 
+        [isLoading]="isLoading()" 
+        [activeTab]="activeTab()"
+        (tabChange)="onTabChange($event)"
+        (create)="onOpenForm()"
+        (view)="onView($event)"
+        (dispatch)="onDispatch($event)"
+        (receive)="onReceive($event)"
+        (cancel)="onCancel($event)">
+    </app-stock-transfer-list>
+
+    @if (showForm()) {
+    <app-modal-generic 
+        [isVisible]="showForm()" 
+        title="Nueva Transferencia"
+        size="xl" 
+        (close)="onFormCancelled()">
+        
+        <app-stock-transfer-form 
+            [establishments]="establishments()"
+            [inventoryItems]="inventoryItems()"
+            [lotsMap]="lotsMap()"
+            [isSaving]="isSaving()"
+            [isLoadingData]="isLoadingData()"
+            (saved)="onSaveTransfer($event)"
+            (cancelled)="onFormCancelled()">
+        </app-stock-transfer-form>
+    </app-modal-generic>
+    }
+
+    @if (showDetails() && selectedTransfer()) {
+    <app-modal-generic 
+        [isVisible]="showDetails()" 
+        title="Detalle de Transferencia"
+        size="lg" 
+        (close)="onDetailsClosed()">
+        
+        <app-stock-transfer-details
+            [transfer]="$any(selectedTransfer())"
+            (dispatch)="onDispatch($event)"
+            (receive)="onReceive($event)"
+            (cancel)="onCancel($event)"
+            (close)="onDetailsClosed()">
+        </app-stock-transfer-details>
+    </app-modal-generic>
+    }
+</div>

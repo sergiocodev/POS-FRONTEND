@@ -11,16 +11,16 @@ export enum PurchaseStatus {
 }
 
 export enum PaymentCondition {
-    CASH = 'CASH',
-    CREDIT = 'CREDIT'
+    CASH = 'CONTADO',
+    CREDIT = 'CREDITO'
 }
 
 export enum PaymentMethod {
     EFECTIVO = 'EFECTIVO',
     TRANSFERENCIA = 'TRANSFERENCIA',
-    CHEQUE = 'CHEQUE',
     YAPE = 'YAPE',
-    PLIN = 'PLIN'
+    PLIN = 'PLIN',
+    TARJETA = 'TARJETA'
 }
 
 export interface PurchaseItemRequest {
@@ -74,6 +74,7 @@ export interface PurchaseResponse {
     tax: number;
     total: number;
     status: PurchaseStatus;
+    paymentCondition?: string;
     notes: string;
     items: PurchaseItemResponse[];
 }

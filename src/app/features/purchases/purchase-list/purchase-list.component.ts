@@ -70,4 +70,14 @@ export class PurchaseListComponent implements OnInit {
             default: return 'bg-secondary';
         }
     }
+
+    getPaymentConditionBadgeClass(condition: string): string {
+        switch (condition) {
+            case 'CASH':
+            case 'CONTADO': return 'bg-info text-dark';
+            case 'CREDIT':
+            case 'CREDITO': return 'bg-warning text-dark';
+            default: return 'bg-secondary';
+        }
+    }
 }

@@ -6,7 +6,7 @@ import { PurchaseService } from '../../../core/services/purchase.service';
 import { ProductService } from '../../../core/services/product.service';
 import { SupplierService } from '../../../core/services/supplier.service';
 import { SaleService } from '../../../core/services/sale.service';
-import { PurchaseRequest, PurchaseDocumentType, PurchaseStatus, PaymentCondition, PaymentMethod } from '../../../core/models/purchase.model';
+import { PurchaseRequest, PurchaseResponse, PurchaseDocumentType, PurchaseStatus, PaymentCondition, PaymentMethod } from '../../../core/models/purchase.model';
 import { ProductResponse, ProductUnitResponse } from '../../../core/models/product.model';
 import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
@@ -148,11 +148,14 @@ export class PurchaseFormComponent implements OnInit {
         });
     }
 
+    purchase = signal<PurchaseResponse | undefined>(undefined);
+
     loadPurchase(id: number): void {
         this.isLoading.set(true);
         this.purchaseService.getById(id).subscribe({
             next: (response) => {
                 const purchase = response.data;
+                this.purchase.set(purchase);
                 this.purchaseForm.patchValue({
                     supplierId: this.suppliers().find(s => s.name === purchase.supplierName)?.id,
                     establishmentId: this.establishments().find(e => e.name === purchase.establishmentName)?.id,
@@ -160,7 +163,7 @@ export class PurchaseFormComponent implements OnInit {
                     series: purchase.series,
                     number: purchase.number,
                     issueDate: purchase.issueDate,
-                    paymentCondition: PaymentCondition.CASH, // Edit mode defaults or we would need it from backend
+                    paymentCondition: purchase.paymentCondition,
                     initialPayment: 0,
                     paymentMethod: null,
                     notes: purchase.notes

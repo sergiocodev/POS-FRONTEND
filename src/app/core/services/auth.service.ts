@@ -13,6 +13,7 @@ export class AuthService {
     private router = inject(Router);
 
     private readonly TOKEN_KEY = 'auth_token';
+    private readonly REFRESH_TOKEN_KEY = 'refresh_token';
     private readonly USER_KEY = 'current_user';
 
 
@@ -40,6 +41,7 @@ export class AuthService {
 
     logout(): void {
         localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.REFRESH_TOKEN_KEY);
         localStorage.removeItem(this.USER_KEY);
         this.currentUser.set(null);
         this.router.navigate(['/login']);
@@ -47,6 +49,28 @@ export class AuthService {
 
     getToken(): string | null {
         return localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    getRefreshToken(): string | null {
+        return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    }
+
+    refreshToken(): Observable<ResponseApi<LoginResponse>> {
+        const refreshToken = this.getRefreshToken();
+        if (!refreshToken) {
+            this.logout();
+            throw new Error('No refresh token available');
+        }
+
+        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/refresh', { refreshToken }).pipe(
+            tap(response => {
+                if (response.status === 200 && response.data) {
+                    this.saveAuthData(response.data);
+                } else {
+                    this.logout();
+                }
+            })
+        );
     }
 
     isAuthenticated(): boolean {
@@ -125,6 +149,9 @@ export class AuthService {
 
     private saveAuthData(response: LoginResponse): void {
         localStorage.setItem(this.TOKEN_KEY, response.token);
+        if (response.refreshToken) {
+            localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+        }
 
         const user: User = {
             id: response.id,

@@ -24,12 +24,15 @@ export enum SunatStatus {
 
 export enum PaymentMethod {
     EFECTIVO = 'EFECTIVO',
-    VISA = 'VISA',
-    MASTERCARD = 'MASTERCARD',
+    TRANSFERENCIA = 'TRANSFERENCIA',
     YAPE = 'YAPE',
     PLIN = 'PLIN',
-    TRANSFERENCIA = 'TRANSFERENCIA',
-    CREDITO = 'CREDITO'
+    TARJETA = 'TARJETA'
+}
+
+export enum PaymentCondition {
+    CASH = 'CONTADO',
+    CREDIT = 'CREDITO'
 }
 
 export interface SaleItemRequest {
@@ -56,6 +59,7 @@ export interface SaleItemResponse {
 export interface SalePaymentRequest {
     paymentMethod: PaymentMethod;
     amount: number;
+    cashSessionId: number;
     reference?: string;
 }
 
@@ -85,6 +89,8 @@ export interface ProductForSaleResponse {
     lotId: number;
     barcode?: string;
     imageUrl?: string;
+    unitName: string;
+    factor: number;
 }
 
 export interface SaleRequest {
@@ -98,7 +104,11 @@ export interface SaleRequest {
     noteReason?: string;
     items: SaleItemRequest[];
     payments: SalePaymentRequest[];
+    paymentCondition?: PaymentCondition | string;
+    dueDate?: string;
 }
+
+import { CompanyMinimalResponse } from './company.model';
 
 export interface SaleResponse {
     id: number;
@@ -126,6 +136,12 @@ export interface SaleResponse {
     voidReason?: string;
     items: SaleItemResponse[];
     payments: SalePaymentResponse[];
+    paymentCondition?: string;
+    company?: CompanyMinimalResponse;
+    customerDocumentType: string;
+    customerDocumentNumber: string;
+    customerAddress: string;
+    userFullName: string;
 }
 
 export interface EstablishmentResponse {

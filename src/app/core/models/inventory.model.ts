@@ -39,6 +39,7 @@ export interface InventoryRequest {
     quantity: number;
     costPrice?: number;
     salesPrice?: number;
+    locationShelf?: string;
     movementType?: string;
     notes?: string;
 }
