@@ -38,16 +38,16 @@ export interface DashboardAlertsResponse {
 }
 
 export interface StockAlert {
-    productName: string;
-    lotCode: string;
-    expiryDate: string;
+    product_name: string;
+    lot_code: string;
+    expiry_date: string;
     quantity: number;
     status: 'EXPIRED' | 'EXPIRING_SOON' | 'OUT_OF_STOCK';
 }
 
 export interface SunatAlert {
-    saleId: number;
-    documentType: string;
+    sale_id: number;
+    document_type: string;
     series: string;
     number: string;
     status: string;
@@ -55,23 +55,74 @@ export interface SunatAlert {
 }
 
 export interface PaymentMethodDistribution {
-    paymentMethod: string;
+    payment_method: string;
     amount: number;
     count: number;
     percentage: number;
 }
 
 export interface TopProductDashboard {
-    productId: number;
-    productName: string;
-    quantitySold: number;
-    totalAmount: number;
+    product_id: number;
+    product_name: string;
+    quantity_sold: number;
+    total_amount: number;
 }
 
 export interface EmployeePerformanceDashboard {
-    userId: number;
+    user_id: number;
     username: string;
-    fullName: string;
-    salesCount: number;
+    full_name: string;
+    sales_count: number;
+    total_amount: number;
+}
+
+// ── Nuevos DTOs ──────────────────────────────
+
+export interface SalesByCategoryResponse {
+    categoryId: number;
+    categoryName: string;
     totalAmount: number;
+    percentage: number;
+}
+
+export interface RecentSaleResponse {
+    sale_id: number;
+    customer_name: string;
+    customer_initials: string;
+    document_type: string;
+    product_count: number;
+    sale_date: string;
+    total: number;
+}
+
+export interface ExpiringLotResponse {
+    inventory_id: number;
+    product_name: string;
+    lot_code: string;
+    quantity: number;
+    expiry_date: string;
+    days_until_expiry: number;
+    urgent: boolean;
+}
+
+export interface LowStockItemResponse {
+    product_id: number;
+    product_name: string;
+    category_name: string;
+    current_stock: number;
+    min_stock: number;
+    stock_level: number;
+    critical: boolean;
+}
+
+export interface FullDashboardResponse {
+    summary: DashboardSummaryResponse;
+    sales_chart: SalesChartResponse[];
+    sales_by_category: SalesByCategoryResponse[];
+    payment_methods: PaymentMethodDistribution[];
+    top_products: TopProductDashboard[];
+    employee_performance: EmployeePerformanceDashboard[];
+    recent_sales: RecentSaleResponse[];
+    low_stock: LowStockItemResponse[];
+    expiring_lots: ExpiringLotResponse[];
 }

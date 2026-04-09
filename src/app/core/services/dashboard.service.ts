@@ -7,7 +7,12 @@ import {
     DashboardAlertsResponse,
     PaymentMethodDistribution,
     TopProductDashboard,
-    EmployeePerformanceDashboard
+    EmployeePerformanceDashboard,
+    SalesByCategoryResponse,
+    RecentSaleResponse,
+    ExpiringLotResponse,
+    LowStockItemResponse,
+    FullDashboardResponse
 } from '../models/dashboard.model';
 import { ResponseApi } from '../models/response-api.model';
 
@@ -19,28 +24,61 @@ export class DashboardService {
     private apiUrl = '/api/v1/dashboard';
 
     getSummaryCards(establishmentId: number): Observable<ResponseApi<DashboardSummaryResponse>> {
-        return this.http.get<ResponseApi<DashboardSummaryResponse>>(`${this.apiUrl}/summary-cards?establishmentId=${establishmentId}`);
+        return this.http.get<ResponseApi<DashboardSummaryResponse>>(
+            `${this.apiUrl}/summary-cards?establishmentId=${establishmentId}`);
     }
 
     getSalesChart(range: string, establishmentId: number): Observable<ResponseApi<SalesChartResponse[]>> {
-        return this.http.get<ResponseApi<SalesChartResponse[]>>(`${this.apiUrl}/sales-chart?range=${range}&establishmentId=${establishmentId}`);
+        return this.http.get<ResponseApi<SalesChartResponse[]>>(
+            `${this.apiUrl}/sales-chart?range=${range}&establishmentId=${establishmentId}`);
     }
 
     getAlerts(establishmentId: number): Observable<ResponseApi<DashboardAlertsResponse>> {
-        return this.http.get<ResponseApi<DashboardAlertsResponse>>(`${this.apiUrl}/alerts?establishmentId=${establishmentId}`);
+        return this.http.get<ResponseApi<DashboardAlertsResponse>>(
+            `${this.apiUrl}/alerts?establishmentId=${establishmentId}`);
     }
 
     getPaymentMethods(date: string | null, establishmentId: number): Observable<ResponseApi<PaymentMethodDistribution[]>> {
         const dateParam = date ? `&date=${date}` : '';
-        return this.http.get<ResponseApi<PaymentMethodDistribution[]>>(`${this.apiUrl}/payment-methods?establishmentId=${establishmentId}${dateParam}`);
+        return this.http.get<ResponseApi<PaymentMethodDistribution[]>>(
+            `${this.apiUrl}/payment-methods?establishmentId=${establishmentId}${dateParam}`);
     }
 
     getTopProducts(limit: number, establishmentId: number): Observable<ResponseApi<TopProductDashboard[]>> {
-        return this.http.get<ResponseApi<TopProductDashboard[]>>(`${this.apiUrl}/top-products?limit=${limit}&establishmentId=${establishmentId}`);
+        return this.http.get<ResponseApi<TopProductDashboard[]>>(
+            `${this.apiUrl}/top-products?limit=${limit}&establishmentId=${establishmentId}`);
     }
 
     getEmployeePerformance(date: string | null, establishmentId: number): Observable<ResponseApi<EmployeePerformanceDashboard[]>> {
         const dateParam = date ? `&date=${date}` : '';
-        return this.http.get<ResponseApi<EmployeePerformanceDashboard[]>>(`${this.apiUrl}/employee-performance?establishmentId=${establishmentId}${dateParam}`);
+        return this.http.get<ResponseApi<EmployeePerformanceDashboard[]>>(
+            `${this.apiUrl}/employee-performance?establishmentId=${establishmentId}${dateParam}`);
+    }
+
+    // ── Nuevos endpoints ──────────────────────────────
+
+    getSalesByCategory(range: string, establishmentId: number): Observable<ResponseApi<SalesByCategoryResponse[]>> {
+        return this.http.get<ResponseApi<SalesByCategoryResponse[]>>(
+            `${this.apiUrl}/sales-by-category?range=${range}&establishmentId=${establishmentId}`);
+    }
+
+    getRecentSales(limit: number, establishmentId: number): Observable<ResponseApi<RecentSaleResponse[]>> {
+        return this.http.get<ResponseApi<RecentSaleResponse[]>>(
+            `${this.apiUrl}/recent-sales?limit=${limit}&establishmentId=${establishmentId}`);
+    }
+
+    getExpiringLots(days: number, establishmentId: number): Observable<ResponseApi<ExpiringLotResponse[]>> {
+        return this.http.get<ResponseApi<ExpiringLotResponse[]>>(
+            `${this.apiUrl}/expiring-lots?days=${days}&establishmentId=${establishmentId}`);
+    }
+
+    getLowStock(limit: number, establishmentId: number): Observable<ResponseApi<LowStockItemResponse[]>> {
+        return this.http.get<ResponseApi<LowStockItemResponse[]>>(
+            `${this.apiUrl}/low-stock?limit=${limit}&establishmentId=${establishmentId}`);
+    }
+
+    getFullDashboard(establishmentId: number): Observable<ResponseApi<FullDashboardResponse>> {
+        return this.http.get<ResponseApi<FullDashboardResponse>>(
+            `${this.apiUrl}/full?establishmentId=${establishmentId}`);
     }
 }

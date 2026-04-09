@@ -1,0 +1,527 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+$bg-base: var(--bg-body);
+$bg-card: var(--card-bg);
+$bg-card-hover: var(--hover-bg);
+$border: var(--border-color);
+$text-primary: var(--text-main);
+$text-secondary: var(--text-muted);
+$accent: #00c897;
+$accent-dim: rgba(0, 200, 150, 0.12);
+$danger: var(--danger-color);
+$warning: var(--warning-color);
+
+:host {
+    display: block;
+    background: $bg-base;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+.dashboard {
+    padding: 28px 28px 40px;
+    max-width: 1400px;
+    color: $text-primary;
+}
+
+// ── Header ─────────────────────────────────────────────
+.dash-header {
+    margin-bottom: 24px;
+}
+
+.dash-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: $text-primary;
+
+    .dot {
+        color: $danger;
+    }
+}
+
+.dash-subtitle {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0;
+}
+
+// ── KPI Grid ───────────────────────────────────────────
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi-card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 20px 22px;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+}
+
+.kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: $text-secondary;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.kpi-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: $accent-dim;
+}
+
+.kpi-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.kpi-change {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 500;
+
+    &.positive {
+        color: $accent;
+    }
+
+    &.negative {
+        color: $danger;
+    }
+}
+
+// ── Charts Row ─────────────────────────────────────────
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 22px 24px 16px;
+}
+
+.chart-header {
+    margin-bottom: 18px;
+}
+
+.chart-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 4px;
+}
+
+.chart-subtitle {
+    font-size: 12px;
+    color: $text-secondary;
+    margin: 0;
+}
+
+.canvas-wrapper {
+    canvas {
+        display: block;
+        width: 100% !important;
+        height: auto;
+
+    }
+}
+
+// Donut
+.chart-donut {
+    display: flex;
+    flex-direction: column;
+}
+
+.donut-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0 12px;
+
+    canvas {
+        width: 200px !important;
+        height: 200px !important;
+    }
+}
+
+.donut-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
+
+// ── Bottom Row ─────────────────────────────────────────
+.bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ── Section Card (shared) ──────────────────────────────
+.section-card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 22px 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 4px;
+}
+
+.section-subtitle {
+    font-size: 12px;
+    color: $text-secondary;
+    margin: 0;
+}
+
+// ── Buttons & Links ────────────────────────────────────
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: $accent;
+    color: #0d1f1a;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s, transform 0.15s;
+
+    &:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+    }
+}
+
+.link-action {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: $accent;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.75;
+    }
+}
+
+// ── Stock List ─────────────────────────────────────────
+.stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stock-item {
+    display: grid;
+    grid-template-columns: 1fr 160px 90px;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.stock-name-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 3px;
+}
+
+.stock-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+.stock-category {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
+
+// ── Badges ─────────────────────────────────────────────
+.badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 30px;
+    color: #fff;
+    letter-spacing: 0.2px;
+}
+
+.badge-critical {
+    background: $danger;
+}
+
+.badge-low {
+    background: $warning;
+}
+
+// ── Stock Bar ──────────────────────────────────────────
+.stock-bar-track {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stock-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.stock-meta {
+    text-align: right;
+}
+
+.stock-units {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+}
+
+.stock-min {
+    font-size: 11px;
+    color: $text-secondary;
+}
+
+// ── Sales List ─────────────────────────────────────────
+.sales-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sale-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.sale-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.sale-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sale-name-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 3px;
+}
+
+.sale-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+.sale-meta {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
+
+.sale-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+}
+
+// ── Vencimientos ───────────────────────────────────────
+.vencimientos-card {
+    margin-bottom: 0;
+}
+
+.venc-header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.venc-icon {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.venc-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.venc-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 14px;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.venc-alert-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.15);
+    color: $warning;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.urgent {
+        background: rgba(239, 68, 68, 0.15);
+        color: $danger;
+    }
+}
+
+.venc-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.venc-name {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: 3px;
+}
+
+.venc-lot {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
+
+.venc-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.venc-days {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    color: #fff;
+}
+
+.venc-date {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
