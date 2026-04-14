@@ -19,7 +19,7 @@
 
     <!-- Sales Table -->
     <div class="position-relative">
-        <app-custom-table [data]="filteredSales()" [columns]="columns" [pageSize]="10"
+        <app-custom-table [data]="sales()" [columns]="columns" [pageSize]="10"
             (onAction)="handleTableAction($event)">
         </app-custom-table>
 
@@ -29,6 +29,36 @@
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2 text-muted small">Cargando ventas...</p>
         </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div *ngIf="totalPages() > 0" class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+            Mostrando {{ displayStart }}-{{ displayEnd }} de {{ totalItems() }} registros
+        </small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="currentPage() === 0">
+                    <button class="page-link" (click)="previousPage()">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </li>
+                @for (p of pageNumbers; track p) {
+                    @if (isEllipsis(p)) {
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    } @else {
+                        <li class="page-item" [class.active]="p === currentPage()">
+                            <button class="page-link" (click)="onPageClick(p)">{{ p + 1 }}</button>
+                        </li>
+                    }
+                }
+                <li class="page-item" [class.disabled]="currentPage() >= totalPages() - 1">
+                    <button class="page-link" (click)="nextPage()">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </li>
+            </ul>
+        </nav>
     </div>
 
     <!-- Templates for Custom Columns -->

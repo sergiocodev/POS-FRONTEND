@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductRequest, ProductResponse } from '../models/product.model';
 import { ProductLotResponse } from '../models/inventory.model';
@@ -13,12 +13,10 @@ export class ProductService {
     private apiUrl = '/api/v1/products';
 
     getAll(categoryId?: number, brandId?: number): Observable<ResponseApi<ProductResponse[]>> {
-        let params = '';
-        const queryParams: string[] = [];
-        if (categoryId !== undefined) queryParams.push(`categoryId=${categoryId}`);
-        if (brandId !== undefined) queryParams.push(`brandId=${brandId}`);
-        if (queryParams.length > 0) params = '?' + queryParams.join('&');
-        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts${params}`);
+        let params = new HttpParams();
+        if (categoryId !== undefined) params = params.set('categoryId', categoryId);
+        if (brandId !== undefined) params = params.set('brandId', brandId);
+        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<ProductResponse>> {
@@ -38,7 +36,9 @@ export class ProductService {
     }
 
     search(query: string): Observable<ResponseApi<ProductResponse[]>> {
-        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/search?query=${encodeURIComponent(query)}`);
+        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/search`, {
+            params: new HttpParams().set('query', query)
+        });
     }
 
     getLots(id: number): Observable<ResponseApi<ProductLotResponse[]>> {

@@ -43,13 +43,26 @@ export class SaleListComponent implements OnInit {
     private saleService = inject(SaleService);
     private router = inject(Router);
 
+    // Pagination state
+    currentPage = signal(0);
+    pageSize = signal(20);
+    totalItems = signal(0);
+    totalPages = signal(0);
+
     sales = signal<SaleResponse[]>([]);
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
 
     // Filters
-    startDate = signal<string>(new Date().toISOString().split('T')[0] + 'T00:00:00');
-    endDate = signal<string>(new Date().toISOString().split('T')[0] + 'T23:59:59');
+    startDate = signal<string>(this.formatDate(new Date()) + 'T00:00:00');
+    endDate = signal<string>(this.formatDate(new Date()) + 'T23:59:59');
+
+    private formatDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
     // Modal State
     isDetailVisible = signal<boolean>(false);
@@ -60,13 +73,8 @@ export class SaleListComponent implements OnInit {
 
     columns: TableColumn[] = [];
 
-    filteredSales = computed(() => {
-        // Now filtering is done on the server, but we keep this computed for potential future client-side filters
-        return this.sales();
-    });
-
     summary = computed(() => {
-        const sales = this.filteredSales();
+        const sales = this.sales();
         return {
             totalFacturas: sales.filter(s => s.documentType === SaleDocumentType.FACTURA).reduce((acc, s) => acc + s.total, 0),
             totalBoletas: sales.filter(s => s.documentType === SaleDocumentType.BOLETA).reduce((acc, s) => acc + s.total, 0),
@@ -88,8 +96,6 @@ export class SaleListComponent implements OnInit {
             { label: 'Total Neto', value: s.totalNeto, icon: 'N', cssClass: 'card-n' },
         ];
     });
-
-    totalItems = computed(() => this.filteredSales().length);
 
     ngOnInit(): void {
         this.loadSales();
@@ -181,12 +187,14 @@ export class SaleListComponent implements OnInit {
 
     loadSales(): void {
         this.isLoading.set(true);
-        this.errorMessage.set(''); // Reset error
+        this.errorMessage.set('');
 
-        this.saleService.getAll(this.startDate(), this.endDate()).subscribe({
+        this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate()).subscribe({
             next: (response) => {
-                const data = response.data;
-                this.sales.set(data);
+                const page = response.data;
+                this.sales.set(page.content || []);
+                this.totalItems.set(page.totalElements || 0);
+                this.totalPages.set(page.totalPages || 0);
                 this.isLoading.set(false);
             },
             error: (error) => {
@@ -195,6 +203,66 @@ export class SaleListComponent implements OnInit {
                 console.error('Error loading sales:', error);
             }
         });
+    }
+
+    // Pagination controls
+    goToPage(page: number): void {
+        if (page >= 0 && page < this.totalPages()) {
+            this.currentPage.set(page);
+            this.loadSales();
+        }
+    }
+
+    previousPage(): void {
+        if (this.currentPage() > 0) {
+            this.currentPage.set(this.currentPage() - 1);
+            this.loadSales();
+        }
+    }
+
+    nextPage(): void {
+        if (this.currentPage() < this.totalPages() - 1) {
+            this.currentPage.set(this.currentPage() + 1);
+            this.loadSales();
+        }
+    }
+
+    get displayStart(): number {
+        return this.totalItems() === 0 ? 0 : (this.currentPage() * this.pageSize()) + 1;
+    }
+
+    get displayEnd(): number {
+        const end = (this.currentPage() + 1) * this.pageSize();
+        return Math.min(end, this.totalItems());
+    }
+
+    get pageNumbers(): number[] {
+        const total = this.totalPages();
+        const current = this.currentPage();
+        const pages: number[] = [];
+
+        if (total <= 7) {
+            for (let i = 0; i < total; i++) pages.push(i);
+        } else {
+            pages.push(0, 1, 2);
+            if (current > 4) pages.push(-1); // ellipsis
+            const start = Math.max(3, current - 1);
+            const end = Math.min(total - 3, current + 1);
+            for (let i = start; i <= end; i++) pages.push(i);
+            if (current < total - 5) pages.push(-2); // ellipsis
+            pages.push(total - 3, total - 2, total - 1);
+        }
+
+        return pages;
+    }
+
+    onPageClick(page: number): void {
+        if (page < 0) return; // ellipsis
+        this.goToPage(page);
+    }
+
+    isEllipsis(page: number): boolean {
+        return page < 0;
     }
 
     onNewSale(): void {
@@ -242,6 +310,7 @@ export class SaleListComponent implements OnInit {
     handleFilter(event: { startDate: string, endDate: string }) {
         this.startDate.set(event.startDate);
         this.endDate.set(event.endDate);
+        this.currentPage.set(0);
         this.loadSales();
     }
 

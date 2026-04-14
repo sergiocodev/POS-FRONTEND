@@ -1,0 +1,26 @@
+<div class="donut-container">
+    <svg [attr.viewBox]="viewBox" class="donut-svg">
+        @for (seg of segments(); track $index) {
+        <path class="donut-segment" [attr.d]="seg.path" [attr.fill]="seg.color"
+            (mouseenter)="onMouseEnter($event, seg.data)" (mousemove)="onMouseMove($event)"
+            (mouseleave)="onMouseLeave()" />
+        }
+        <text class="donut-center-label" [attr.x]="center" [attr.y]="center - 5">Total</text>
+        <text class="donut-center-value" [attr.x]="center" [attr.y]="center + 12">
+            {{ formatValue(total()) }}%
+        </text>
+    </svg>
+
+    @if (activeSegment(); as active) {
+    <div class="donut-tooltip" [style.left.px]="tooltipPosition().x" [style.top.px]="tooltipPosition().y">
+        <div class="tooltip-header">
+            <span class="tooltip-dot" [style.background]="active.color"></span>
+            <span class="tooltip-label">{{ active.label }}</span>
+        </div>
+        <div class="tooltip-body">
+            <span class="tooltip-value">{{ active.extra || formatValue(active.value) }}</span>
+            <span class="tooltip-percentage">{{ percentage(active.value) }}%</span>
+        </div>
+    </div>
+    }
+</div>

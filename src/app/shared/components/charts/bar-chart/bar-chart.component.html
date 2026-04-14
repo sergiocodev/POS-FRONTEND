@@ -1,0 +1,16 @@
+<svg [attr.viewBox]="viewBox()" class="bar-svg">
+    @for (bar of bars(); track $index) {
+        <rect class="bar-rect"
+              [attr.x]="bar.x" [attr.y]="bar.y"
+              [attr.width]="bar.width" [attr.height]="bar.height"
+              [attr.fill]="bar.color" rx="4"/>
+        <text class="bar-value"
+              [attr.x]="bar.x + bar.width / 2" [attr.y]="bar.y - 5">
+            S/ {{ formatValue(bar.value) }}
+        </text>
+        <text class="bar-label"
+              [attr.x]="bar.x + bar.width / 2" [attr.y]="height() - 8">
+            {{ data()[$index]?.label }}
+        </text>
+    }
+</svg>

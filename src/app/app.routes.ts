@@ -159,7 +159,7 @@ export const routes: Routes = [
                 path: 'reports/inventory',
                 loadComponent: () => import('./features/reports/inventory-report/inventory-report.component').then(m => m.InventoryReportComponent),
                 canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.INVENTARIO_CATALOGO] } // Map appropriately
+                data: { requiredPermissions: [PermissionConstants.INVENTARIO_REPORTES] }
             },
 
             // --- CAJA ---

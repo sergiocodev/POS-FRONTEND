@@ -125,15 +125,41 @@ $warning: var(--warning-color);
 }
 
 // ── Charts Row ─────────────────────────────────────────
-.charts-row {
+// ── Body Grid ─────────────────────────────────────────
+.dash-body-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 16px;
-    margin-bottom: 20px;
+    grid-template-columns: 1fr 400px;
+    gap: 20px;
+    align-items: start;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: 1fr 340px;
+    }
 
     @media (max-width: 1100px) {
         grid-template-columns: 1fr;
     }
+}
+
+.dash-main-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.dash-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+// ── Shared Column Row ──────────────────────────────────
+.charts-row,
+.middle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .chart-card {
@@ -161,11 +187,10 @@ $warning: var(--warning-color);
 }
 
 .canvas-wrapper {
-    canvas {
+    svg {
         display: block;
         width: 100% !important;
         height: auto;
-
     }
 }
 
@@ -180,9 +205,9 @@ $warning: var(--warning-color);
     justify-content: center;
     margin: 4px 0 12px;
 
-    canvas {
-        width: 200px !important;
-        height: 200px !important;
+    svg {
+        width: 150px !important;
+        height: 150px !important;
     }
 }
 
@@ -211,12 +236,160 @@ $warning: var(--warning-color);
     color: $text-secondary;
 }
 
+// ── Middle Row ─────────────────────────────────────────
+// (removed duplicated definition)
+
+.top-products-list {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+}
+
+.top-product-item {
+    display: grid;
+    grid-template-columns: 40px 1fr 100px 120px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    &:first-child {
+        padding-top: 0;
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 32px 1fr 80px;
+
+        .product-financials-col {
+            display: none;
+        }
+    }
+}
+
+.product-rank-col {
+    display: flex;
+    justify-content: center;
+}
+
+.product-rank {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(148, 163, 184, 0.1);
+    color: $text-secondary;
+
+    &.rank-1 {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b; // Gold
+    }
+
+    &.rank-2 {
+        background: rgba(148, 163, 184, 0.15);
+        color: #94a3b8; // Silver
+    }
+
+    &.rank-3 {
+        background: rgba(180, 83, 9, 0.15);
+        color: #b45309; // Bronze
+    }
+}
+
+.product-info-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.product-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.product-category {
+    font-size: 11.5px;
+    color: $text-secondary;
+}
+
+.product-units-col {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.units-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+}
+
+.units-label {
+    font-size: 11px;
+    color: $text-secondary;
+}
+
+.product-financials-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.product-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+}
+
+.trend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(148, 163, 184, 0.1);
+
+    svg {
+        width: 10px;
+        height: 10px;
+    }
+
+    &.positive {
+        color: $accent;
+        background: rgba(0, 200, 150, 0.1);
+    }
+
+    &.negative {
+        color: $danger;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    &.neutral {
+        color: $text-secondary;
+    }
+}
+
 // ── Bottom Row ─────────────────────────────────────────
 .bottom-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 20px;
 
     @media (max-width: 900px) {
         grid-template-columns: 1fr;

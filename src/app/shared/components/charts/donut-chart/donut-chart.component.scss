@@ -1,0 +1,113 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.donut-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.donut-svg {
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.donut-segment {
+    stroke: var(--chart-bg, #ffffff);
+    stroke-width: 2;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+        opacity: 0.9;
+        filter: brightness(1.1);
+        transform: scale(1.02);
+        transform-origin: center;
+    }
+}
+
+.donut-tooltip {
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    min-width: 140px;
+    transform: translate(-50%, -115%); // Centered above cursor
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .tooltip-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+        .tooltip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tooltip-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+        }
+    }
+
+    .tooltip-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+
+        .tooltip-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .tooltip-percentage {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 1px 6px;
+            border-radius: 6px;
+        }
+    }
+}
+
+.donut-center-label {
+    fill: var(--chart-text, #6b7280);
+    font-size: 11px;
+    text-anchor: middle;
+}
+
+.donut-center-value {
+    fill: var(--chart-value, #1f2937);
+    font-size: 14px;
+    text-anchor: middle;
+    font-weight: 700;
+}
+

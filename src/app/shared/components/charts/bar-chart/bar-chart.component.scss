@@ -1,0 +1,32 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.bar-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.bar-rect {
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.85;
+    }
+}
+
+.bar-value {
+    fill: var(--chart-value, #1f2937);
+    font-size: 10px;
+    text-anchor: middle;
+    font-weight: 600;
+}
+
+.bar-label {
+    fill: var(--chart-text, #6b7280);
+    font-size: 10px;
+    text-anchor: middle;
+}

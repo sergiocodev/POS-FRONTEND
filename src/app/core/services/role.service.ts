@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import {
     RoleRequest,
     RoleResponse,
@@ -17,8 +17,13 @@ export class RoleService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/roles';
 
+    private cache$?: Observable<ResponseApi<RoleResponse[]>>;
+
     getAll(): Observable<ResponseApi<RoleResponse[]>> {
-        return this.http.get<ResponseApi<RoleResponse[]>>(this.apiUrl);
+        if (!this.cache$) {
+            this.cache$ = this.http.get<ResponseApi<RoleResponse[]>>(this.apiUrl).pipe(shareReplay(1));
+        }
+        return this.cache$;
     }
 
     getById(id: number): Observable<ResponseApi<RoleDetailResponse>> {
@@ -36,9 +41,6 @@ export class RoleService {
     delete(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
     }
-
-
-
 
     getPermissions(roleId: number): Observable<ResponseApi<PermissionResponse[]>> {
         return this.http.get<ResponseApi<PermissionResponse[]>>(`${this.apiUrl}/${roleId}/permissions`);
@@ -58,5 +60,9 @@ export class RoleService {
 
     removePermissions(roleId: number, request: AssignPermissionsRequest): Observable<ResponseApi<RoleDetailResponse>> {
         return this.http.post<ResponseApi<RoleDetailResponse>>(`${this.apiUrl}/${roleId}/permissions/batch-remove`, request);
+    }
+
+    invalidateCache(): void {
+        this.cache$ = undefined;
     }
 }

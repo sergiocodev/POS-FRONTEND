@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { SupplierRequest, SupplierResponse } from '../models/supplier.model';
 import { ResponseApi } from '../models/response-api.model';
 
@@ -11,8 +11,13 @@ export class SupplierService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/suppliers';
 
+    private cache$?: Observable<ResponseApi<SupplierResponse[]>>;
+
     getAll(): Observable<ResponseApi<SupplierResponse[]>> {
-        return this.http.get<ResponseApi<SupplierResponse[]>>(this.apiUrl);
+        if (!this.cache$) {
+            this.cache$ = this.http.get<ResponseApi<SupplierResponse[]>>(this.apiUrl).pipe(shareReplay(1));
+        }
+        return this.cache$;
     }
 
     getById(id: number): Observable<ResponseApi<SupplierResponse>> {
@@ -29,5 +34,9 @@ export class SupplierService {
 
     delete(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
+    }
+
+    invalidateCache(): void {
+        this.cache$ = undefined;
     }
 }

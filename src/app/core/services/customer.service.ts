@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { CustomerRequest, CustomerResponse, ExternalLookupResponse } from '../models/customer.model';
 import { ResponseApi } from '../models/response-api.model';
 
@@ -11,8 +11,13 @@ export class CustomerService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/customers';
 
+    private cache$?: Observable<ResponseApi<CustomerResponse[]>>;
+
     getAll(): Observable<ResponseApi<CustomerResponse[]>> {
-        return this.http.get<ResponseApi<CustomerResponse[]>>(this.apiUrl);
+        if (!this.cache$) {
+            this.cache$ = this.http.get<ResponseApi<CustomerResponse[]>>(this.apiUrl).pipe(shareReplay(1));
+        }
+        return this.cache$;
     }
 
     getById(id: number): Observable<ResponseApi<CustomerResponse>> {
@@ -33,5 +38,9 @@ export class CustomerService {
 
     searchByDocument(documentNumber: string): Observable<ResponseApi<ExternalLookupResponse>> {
         return this.http.get<ResponseApi<ExternalLookupResponse>>(`/api/v1/users/search/${documentNumber}`);
+    }
+
+    invalidateCache(): void {
+        this.cache$ = undefined;
     }
 }

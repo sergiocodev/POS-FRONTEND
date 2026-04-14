@@ -27,6 +27,7 @@ export class PermissionConstants {
     static readonly INVENTARIO_LOTES = 'INVENTARIO_LOTES';
     static readonly INVENTARIO_MOVIMIENTOS = 'INVENTARIO_MOVIMIENTOS';
     static readonly INVENTARIO_TRANSFERENCIAS = 'INVENTARIO_TRANSFERENCIAS';
+    static readonly INVENTARIO_REPORTES = 'INVENTARIO_REPORTES';
 
     // Submódulos de COMPRAS
     static readonly COMPRAS_NUEVA = 'COMPRAS_NUEVA';

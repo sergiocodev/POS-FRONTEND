@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, timer, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 // Services & Models
 import { SaleService } from '../../../../core/services/sale.service';
@@ -28,6 +29,14 @@ export interface CartItem {
     discountInput: number;
     discountType: 'amount' | 'percentage';
     total: number;
+}
+
+/** Pre-computed display data for a unit in the modal */
+export interface UnitDisplayData {
+    unit: ProductForSaleResponse;
+    fullPacks: number;
+    remainder: number;
+    stockLabel: string;
 }
 
 /** Stock breakdown for a given unit factor */
@@ -57,6 +66,7 @@ export class PosComponent implements OnInit {
     private authService = inject(AuthService);
     private establishmentStateService = inject(EstablishmentStateService);
     public router = inject(Router);
+    private destroyRef = inject(DestroyRef);
 
     // Data Signals
     products = signal<ProductForSaleResponse[]>([]);        // Full list (all units per product)
@@ -70,30 +80,34 @@ export class PosComponent implements OnInit {
     selectedCustomer = signal<CustomerResponse | null>(null);
     showCustomerModal = signal<boolean>(false);
 
+    // Stock warning
+    stockWarning = signal<string | null>(null);
+
     // Unit Selector Modal
     showUnitModal = signal<boolean>(false);
     unitModalProduct = signal<ProductForSaleResponse | null>(null);  // The clicked product card
     availableUnits = signal<ProductForSaleResponse[]>([]);           // All units for that product+lot
+    unitDisplayData = signal<UnitDisplayData[]>([]);                 // Pre-computed for template
 
     // Computed Values
     subtotal = computed(() => this.cart().reduce((sum, item) => sum + item.total, 0));
     tax = computed(() => this.subtotal() * 0.18);
-    total = computed(() => this.subtotal());
+    total = computed(() => this.subtotal() + this.tax());
 
     posForm: FormGroup;
     isLoading = signal<boolean>(false);
     productSearchTerm = '';
+    private searchSubject = new Subject<string>();
 
-    // Alert System
-    alertMessage = '';
-    alertTitle = '';
-    alertType = 'success';
+    // Alert System (signals)
+    alertMessage = signal('');
+    alertTitle = signal('');
+    alertType = signal<'success'|'danger'|'warning'|'info'>('success');
 
     constructor() {
         this.posForm = this.fb.group({
             documentType: [SaleDocumentType.BOLETA, Validators.required],
-            paymentMethod: [PaymentMethod.EFECTIVO, Validators.required],
-            receivedAmount: [0, [Validators.min(0)]]
+            paymentMethod: [PaymentMethod.EFECTIVO, Validators.required]
         });
 
         effect(() => {
@@ -106,7 +120,29 @@ export class PosComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(term => {
+                if (!term.trim()) {
+                    return [this.displayProducts()];
+                }
+                const estId = this.establishmentStateService.getSelectedEstablishment();
+                if (!estId) return [];
+                return this.saleService.searchProductsForPOS(term.trim(), estId).pipe(
+                    map(response => {
+                        return this.deduplicateForGrid(response.data);
+                    })
+                );
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(results => {
+            if (Array.isArray(results)) {
+                this.filteredProducts.set(results);
+            }
+        });
+    }
 
     loadInitialData(): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
@@ -153,13 +189,13 @@ export class PosComponent implements OnInit {
     onProductSearch(): void {
         const term = this.productSearchTerm.trim().toLowerCase();
         if (!term) {
-            this.filteredProducts.set(this.displayProducts());
+            this.searchSubject.next('');
             return;
         }
 
         // Barcode scanner: avoid matching if multiple lots share the exact same barcode
         const exactBarcodeMatches = this.products().filter(p => p.barcode?.toLowerCase() === term);
-        
+
         if (exactBarcodeMatches.length === 1) {
             this.addToCartDirect(exactBarcodeMatches[0]);
             this.productSearchTerm = '';
@@ -167,22 +203,8 @@ export class PosComponent implements OnInit {
             return;
         }
 
-        // Search across all units to support querying by secondary barcodes
-        const matchingUnits = this.products().filter(p => 
-            p.tradeName.toLowerCase().includes(term) ||
-            p.barcode?.toLowerCase().includes(term) ||
-            (p.genericName && p.genericName.toLowerCase().includes(term))
-        );
-
-        // Get keys for products that had a matching unit
-        const matchedKeys = new Set(matchingUnits.map(p => `${p.productId}_${p.lotId}`));
-
-        // Show the base product representatives in the grid
-        const matches = this.displayProducts().filter(baseProd => 
-            matchedKeys.has(`${baseProd.productId}_${baseProd.lotId}`)
-        );
-
-        this.filteredProducts.set(matches);
+        // Debounced backend search
+        this.searchSubject.next(this.productSearchTerm);
     }
 
     /**
@@ -205,8 +227,24 @@ export class PosComponent implements OnInit {
         // Sort: base unit (factor=1) first, then by factor asc
         units.sort((a, b) => a.factor - b.factor);
 
+        // Pre-compute display data for the template (avoids repeated method calls)
+        const displayData: UnitDisplayData[] = units.map(unit => {
+            const base = unit.stock || 0;
+            const factor = unit.factor || 1;
+            if (factor === 1) {
+                return { unit, fullPacks: base, remainder: 0, stockLabel: `${base} disponibles` };
+            }
+            const full = Math.floor(base / factor);
+            const rem = base % factor;
+            const stockLabel = rem === 0
+                ? `${full} ${unit.unitName || 'unidades'} completos`
+                : `${full} completos + ${rem} sueltas`;
+            return { unit, fullPacks: full, remainder: rem, stockLabel };
+        });
+
         this.unitModalProduct.set(product);
         this.availableUnits.set(units);
+        this.unitDisplayData.set(displayData);
         this.showUnitModal.set(true);
     }
 
@@ -214,6 +252,7 @@ export class PosComponent implements OnInit {
         this.showUnitModal.set(false);
         this.unitModalProduct.set(null);
         this.availableUnits.set([]);
+        this.unitDisplayData.set([]);
     }
 
     selectUnit(unit: ProductForSaleResponse): void {
@@ -224,6 +263,8 @@ export class PosComponent implements OnInit {
     /** Core cart add logic (used by modal confirm and barcode scanner) */
     addToCartDirect(product: ProductForSaleResponse): void {
         const price = product.salesPrice;
+        const baseStock = product.stock || 0;
+
         // Find existing item by productId + productUnitId + lotId
         const existingIndex = this.cart().findIndex(
             i => i.product.productId === product.productId &&
@@ -231,10 +272,25 @@ export class PosComponent implements OnInit {
                  i.product.lotId === product.lotId
         );
 
+        // Calculate the quantity that would be in cart after adding
+        const currentQty = existingIndex >= 0 ? this.cart()[existingIndex].quantity : 0;
+        const newQty = currentQty + 1;
+
+        // Stock validation warning (server will enforce on submit)
+        const effectiveStock = baseStock / (product.factor || 1);
+        if (newQty > effectiveStock && effectiveStock > 0) {
+            this.stockWarning.set(`⚠️ Stock insuficiente: ${product.tradeName} — disponible: ${Math.floor(effectiveStock)}, en carrito: ${newQty}`);
+            timer(5000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.stockWarning.set(null));
+        } else if (baseStock <= 0) {
+            this.stockWarning.set(`⚠️ Sin stock: ${product.tradeName}`);
+            timer(5000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.stockWarning.set(null));
+        } else {
+            this.stockWarning.set(null);
+        }
+
         if (existingIndex >= 0) {
             this.cart.update(items => items.map((item, idx) => {
                 if (idx !== existingIndex) return item;
-                const newQty = item.quantity + 1;
                 return { ...item, quantity: newQty, total: (newQty * item.price) - item.discount };
             }));
         } else {
@@ -387,12 +443,12 @@ export class PosComponent implements OnInit {
         return Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     }
 
-    showAlert(title: string, message: string, type: string) {
-        this.alertTitle = title;
-        this.alertMessage = message;
-        this.alertType = type;
-        setTimeout(() => this.closeAlert(), 4000);
+    showAlert(title: string, message: string, type: 'success'|'danger'|'warning'|'info') {
+        this.alertTitle.set(title);
+        this.alertMessage.set(message);
+        this.alertType.set(type);
+        timer(4000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.closeAlert());
     }
 
-    closeAlert() { this.alertMessage = ''; }
+    closeAlert() { this.alertMessage.set(''); }
 }

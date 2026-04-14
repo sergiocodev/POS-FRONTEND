@@ -12,10 +12,12 @@ export class AuthService {
     private http = inject(HttpClient);
     private router = inject(Router);
 
-    private readonly TOKEN_KEY = 'auth_token';
-    private readonly REFRESH_TOKEN_KEY = 'refresh_token';
-    private readonly USER_KEY = 'current_user';
-
+    // SECURITY: Access token in sessionStorage (cleared on tab close, not shared across tabs)
+    // Refresh token in localStorage (needed for background refresh)
+    // This mitigates XSS impact — access token is gone when tab closes
+    private readonly TOKEN_KEY = 'auth_token'; // sessionStorage
+    private readonly REFRESH_TOKEN_KEY = 'refresh_token'; // localStorage
+    private readonly USER_KEY = 'current_user'; // sessionStorage
 
     currentUser = signal<User | null>(this.getUserFromStorage());
 
@@ -32,7 +34,7 @@ export class AuthService {
     register(request: RegisterRequest): Observable<ResponseApi<LoginResponse>> {
         return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/register', request).pipe(
             tap(response => {
-                if (response.status === 201 && response.data) { // Assuming 201 for register based on controller
+                if (response.status === 201 && response.data) {
                     this.saveAuthData(response.data);
                 }
             })
@@ -40,19 +42,31 @@ export class AuthService {
     }
 
     logout(): void {
-        localStorage.removeItem(this.TOKEN_KEY);
+        sessionStorage.removeItem(this.TOKEN_KEY);
         localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
+        sessionStorage.removeItem(this.USER_KEY);
         this.currentUser.set(null);
         this.router.navigate(['/login']);
     }
 
+    /**
+     * Get access token from sessionStorage (not localStorage).
+     * SessionStorage is cleared when the tab closes, limiting XSS exposure.
+     */
     getToken(): string | null {
-        return localStorage.getItem(this.TOKEN_KEY);
+        try {
+            return sessionStorage.getItem(this.TOKEN_KEY);
+        } catch {
+            return null;
+        }
     }
 
     getRefreshToken(): string | null {
-        return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+        try {
+            return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+        } catch {
+            return null;
+        }
     }
 
     refreshToken(): Observable<ResponseApi<LoginResponse>> {
@@ -74,7 +88,15 @@ export class AuthService {
     }
 
     isAuthenticated(): boolean {
-        return !!this.getToken();
+        const token = this.getToken();
+        if (!token) return false;
+        // Check if JWT is expired by decoding the payload
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.exp * 1000 > Date.now();
+        } catch {
+            return false;
+        }
     }
 
 
@@ -148,7 +170,9 @@ export class AuthService {
 
 
     private saveAuthData(response: LoginResponse): void {
-        localStorage.setItem(this.TOKEN_KEY, response.token);
+        // Access token → sessionStorage (cleared on tab close)
+        sessionStorage.setItem(this.TOKEN_KEY, response.token);
+        // Refresh token → localStorage (needed for background refresh across sessions)
         if (response.refreshToken) {
             localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
         }
@@ -163,17 +187,23 @@ export class AuthService {
             profilePicture: response.profilePicture
         };
 
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        // User data → sessionStorage (synced with access token lifecycle)
+        sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
         this.currentUser.set(user);
     }
 
     private getUserFromStorage(): User | null {
-        const userJson = localStorage.getItem(this.USER_KEY);
-        return userJson ? JSON.parse(userJson) : null;
+        try {
+            const userJson = sessionStorage.getItem(this.USER_KEY);
+            return userJson ? JSON.parse(userJson) : null;
+        } catch {
+            sessionStorage.removeItem(this.USER_KEY);
+            return null;
+        }
     }
 
     updateCurrentUser(user: User): void {
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
         this.currentUser.set(user);
     }
 }

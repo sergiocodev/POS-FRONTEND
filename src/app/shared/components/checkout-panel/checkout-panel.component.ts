@@ -23,12 +23,31 @@ export class CheckoutPanelComponent {
   posForm: FormGroup;
   selectedCustomer = signal<any>(null);
 
+  // Payments Management (Signals)
+  payments = signal<any[]>([
+    { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: 0, reference: '' }
+  ]);
+
   // Cálculos Computados (Performance Pro)
   subtotal = computed(() =>
     this.cart().reduce((acc, item) => acc + (item.price * item.quantity - (item.discount || 0)), 0)
   );
   //tax = computed(() => this.subtotal() * 0.18);
   total = computed(() => this.subtotal());
+
+  totalPaid = computed(() =>
+    this.payments().reduce((acc, p) => acc + (p.amount || 0), 0)
+  );
+
+  remainingAmount = computed(() => {
+    const rem = this.total() - this.totalPaid();
+    return rem > 0 ? rem : 0;
+  });
+
+  changeAmount = computed(() => {
+    const diff = this.totalPaid() - this.total();
+    return diff > 0 ? diff : 0;
+  });
 
   isPublicoGeneral = computed(() => {
     const cust = this.selectedCustomer();
@@ -50,10 +69,7 @@ export class CheckoutPanelComponent {
       documentType: ['BOLETA', Validators.required],
       series: ['B001', Validators.required],
       paymentCondition: [PaymentCondition.CASH, Validators.required],
-      initialPayment: [{ value: 0, disabled: true }, [Validators.min(0)]],
-      paymentMethod: [PaymentMethod.EFECTIVO],
       dueDate: [null],
-      receivedAmount: [0, [Validators.min(0)]],
     });
 
     this.posForm.get('documentType')?.valueChanges.subscribe(type => {
@@ -63,7 +79,16 @@ export class CheckoutPanelComponent {
       }
     });
 
-    this.setupPaymentListeners();
+    this.posForm.get('paymentCondition')?.valueChanges.subscribe(condition => {
+      const dueDateCtrl = this.posForm.get('dueDate');
+      if (condition === PaymentCondition.CASH) {
+        dueDateCtrl?.clearValidators();
+        dueDateCtrl?.setValue(null, { emitEvent: false });
+      } else {
+        dueDateCtrl?.setValidators([Validators.required]);
+      }
+      dueDateCtrl?.updateValueAndValidity();
+    });
 
     // Select default customer (00000000) when customers are loaded
     effect(() => {
@@ -86,40 +111,51 @@ export class CheckoutPanelComponent {
         });
       }
     });
+
+    // Sync first payment amount with total if it's the only one and it was 0 or tied to total
+    effect(() => {
+      const currentTotal = this.total();
+      untracked(() => {
+        const currentPayments = this.payments();
+        if (currentPayments.length === 1 && currentPayments[0].amount !== currentTotal) {
+          this.updatePaymentAmount(0, currentTotal);
+        }
+      });
+    });
   }
 
-  setupPaymentListeners(): void {
-    const conditionCtrl = this.posForm.get('paymentCondition');
-    const initialPaymentCtrl = this.posForm.get('initialPayment');
-    const paymentMethodCtrl = this.posForm.get('paymentMethod');
-    const dueDateCtrl = this.posForm.get('dueDate');
+  // Payments logic
+  addPayment() {
+    const remaining = this.remainingAmount();
+    if (remaining <= 0 && this.posForm.get('paymentCondition')?.value === PaymentCondition.CASH) return;
 
-    conditionCtrl?.valueChanges.subscribe(condition => {
-      if (condition === PaymentCondition.CASH) {
-        initialPaymentCtrl?.disable();
-        paymentMethodCtrl?.setValidators([Validators.required]);
-        dueDateCtrl?.clearValidators();
-        dueDateCtrl?.setValue(null, { emitEvent: false });
-      } else {
-        initialPaymentCtrl?.enable();
-        initialPaymentCtrl?.setValue(0, { emitEvent: false });
-        paymentMethodCtrl?.clearValidators();
-        dueDateCtrl?.setValidators([Validators.required]);
-      }
-      paymentMethodCtrl?.updateValueAndValidity();
-      dueDateCtrl?.updateValueAndValidity();
-    });
+    this.payments.update(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: remaining > 0 ? remaining : 0, reference: '' }
+    ]);
+  }
 
-    initialPaymentCtrl?.valueChanges.subscribe(val => {
-      if (conditionCtrl?.value === PaymentCondition.CREDIT) {
-        if (val && val > 0) {
-          paymentMethodCtrl?.setValidators([Validators.required]);
-        } else {
-          paymentMethodCtrl?.clearValidators();
-        }
-        paymentMethodCtrl?.updateValueAndValidity();
-      }
-    });
+  removePayment(index: number) {
+    if (this.payments().length <= 1) return;
+    this.payments.update(prev => prev.filter((_, i) => i !== index));
+  }
+
+  trackPayment(index: number, item: any) {
+    return item.id;
+  }
+
+  updatePaymentMethod(index: number, method: PaymentMethod) {
+    this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, method } : p));
+  }
+
+  updatePaymentAmount(index: number, amount: number) {
+    this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, amount } : p));
+  }
+
+
+
+  updateReference(index: number, reference: string) {
+    this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, reference } : p));
   }
 
   updateQuantity(index: number, newQty: number) {
@@ -190,23 +226,18 @@ export class CheckoutPanelComponent {
 
     const formValue = this.posForm.getRawValue();
     const condition = formValue.paymentCondition;
-    const initialPayment = formValue.initialPayment || 0;
     const totalAmount = this.total();
+    const paidAmount = this.totalPaid();
 
-    let payments = [];
+    // Validations
+    if (condition === PaymentCondition.CASH && paidAmount < totalAmount) {
+      alert('Para venta al contado, el monto total debe ser cubierto.');
+      return;
+    }
 
-    if (condition === PaymentCondition.CASH) {
-      payments.push({
-        paymentMethod: formValue.paymentMethod,
-        amount: totalAmount
-      });
-    } else {
-      if (initialPayment > 0) {
-        payments.push({
-          paymentMethod: formValue.paymentMethod,
-          amount: initialPayment
-        });
-      }
+    if (condition === PaymentCondition.CREDIT && paidAmount >= totalAmount) {
+      alert('Para venta al crédito, el pago inicial debe ser menor al total.');
+      return;
     }
 
     const saleData = {
@@ -214,10 +245,15 @@ export class CheckoutPanelComponent {
       items: this.cart(),
       customer: this.selectedCustomer(),
       total: totalAmount,
-      payments: payments,
+      payments: this.payments().filter(p => p.amount > 0).map(p => ({
+        paymentMethod: p.method,
+        amount: p.amount,
+        reference: p.reference
+      })),
       paymentCondition: condition,
       dueDate: formValue.dueDate
     };
     this.onProcessSale.emit(saleData);
   }
+
 }

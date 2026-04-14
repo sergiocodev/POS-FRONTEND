@@ -1,0 +1,28 @@
+<svg [attr.viewBox]="viewBox()" class="chart-svg">
+    <!-- Grid lines -->
+    @for (line of gridLines(); track $index) {
+    <line class="chart-grid-line" [attr.x1]="padding.left" [attr.y1]="line.y" [attr.x2]="chartWidth()"
+        [attr.y2]="line.y" />
+    <text class="chart-grid-label" [attr.x]="padding.left - 25" [attr.y]="line.y + 4" text-anchor="end">
+        S/ {{ line.label }}
+    </text>
+    }
+    <!-- Area fill -->
+    <path class="chart-area" [attr.d]="areaPath()" />
+    <!-- Line -->
+    <path class="chart-line" [attr.d]="linePath()" />
+    <!-- Data points -->
+    @for (point of points(); track $index) {
+    <circle class="chart-dot" [attr.cx]="point.x" [attr.cy]="point.y" r="4" />
+    <text class="chart-x-label" [attr.x]="point.x" [attr.y]="height() - 8">
+        {{ data()[$index]?.label }}
+    </text>
+    }
+    <!-- Value labels on points -->
+    @for (point of points(); track $index) {
+    @let item = data()[$index];
+    <text class="chart-value-label" [attr.x]="point.x" [attr.y]="point.y - 10">
+        {{ item ? 'S/ ' + formatValue(item.value) : '' }}
+    </text>
+    }
+</svg>

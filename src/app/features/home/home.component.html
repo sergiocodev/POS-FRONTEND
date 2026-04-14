@@ -11,177 +11,250 @@
   <!-- KPI Cards -->
   <div class="kpi-grid">
     @for (card of kpiCards; track card.label) {
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <span class="kpi-label">{{ card.label }}</span>
-          <div class="kpi-icon" [style.background]="'rgba(0,200,150,0.12)'">
-            <span>{{ card.icon }}</span>
-          </div>
-        </div>
-        <div class="kpi-value">{{ card.value }}</div>
-        <div class="kpi-change" [class.positive]="card.positive" [class.negative]="!card.positive">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            @if (card.positive) {
-              <polyline points="1,9 5,4 8,7 11,2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            } @else {
-              <polyline points="1,3 5,8 8,5 11,10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            }
-          </svg>
-          {{ card.change }}
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-label">{{ card.label }}</span>
+        <div class="kpi-icon" [style.background]="'rgba(0,200,150,0.12)'">
+          <span>{{ card.icon }}</span>
         </div>
       </div>
+      <div class="kpi-value">{{ card.value }}</div>
+      <div class="kpi-change" [class.positive]="card.positive" [class.negative]="!card.positive">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          @if (card.positive) {
+          <polyline points="1,9 5,4 8,7 11,2" stroke="currentColor" stroke-width="1.5" fill="none"
+            stroke-linecap="round" stroke-linejoin="round" />
+          } @else {
+          <polyline points="1,3 5,8 8,5 11,10" stroke="currentColor" stroke-width="1.5" fill="none"
+            stroke-linecap="round" stroke-linejoin="round" />
+          }
+        </svg>
+        {{ card.change }}
+      </div>
+    </div>
     }
   </div>
 
-  <!-- Charts Row -->
-  <div class="charts-row">
+  <div class="dash-body-grid">
 
-    <!-- Weekly Line Chart -->
-    <div class="chart-card chart-line">
-      <div class="chart-header">
-        <div>
-          <h3 class="chart-title">Ventas Semanales</h3>
-          <p class="chart-subtitle">Resumen de ventas de los últimos 7 días</p>
+    <div class="dash-main-col">
+      <div class="charts-row">
+        <!-- Weekly Line Chart -->
+        <div class="chart-card chart-line">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">Ventas Semanales</h3>
+              <p class="chart-subtitle">Resumen de ventas de los últimos 7 días</p>
+            </div>
+          </div>
+          <div class="canvas-wrapper">
+            <app-line-chart [data]="lineChartData()" />
+          </div>
         </div>
       </div>
-      <div class="canvas-wrapper">
-        <canvas #lineChart width="680" height="240" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()"></canvas>
-      </div>
-    </div>
 
-    <!-- Donut Chart -->
-    <div class="chart-card chart-donut">
-      <div class="chart-header">
-        <div>
-          <h3 class="chart-title">Ventas por Categoría</h3>
-          <p class="chart-subtitle">Distribución de ventas esta semana</p>
+      <div class="middle-row">
+        <!-- Productos Más Vendidos -->
+        <div class="section-card top-products-card">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Productos Más Vendidos</h3>
+              <p class="section-subtitle">Top 6 productos por unidades vendidas este mes</p>
+            </div>
+          </div>
+
+          <div class="top-products-list">
+            @for (product of topSoldProducts; track product.product_id; let i = $index) {
+            <div class="top-product-item">
+              <div class="product-rank-col">
+                <div class="product-rank" [class]="'rank-' + (i + 1)">{{ i + 1 }}</div>
+              </div>
+              <div class="product-info-col">
+                <span class="product-name">{{ product.product_name }}</span>
+                <span class="product-category">{{ product.category_name }}</span>
+              </div>
+              <div class="product-units-col">
+                <span class="units-value">{{ product.quantity_sold }}</span>
+                <span class="units-label">unidades</span>
+              </div>
+              <div class="product-financials-col">
+                <span class="product-amount">{{ formatCurrency(product.total_amount) }}</span>
+                <div class="trend-badge" [class.positive]="product.trend_label.startsWith('+')"
+                  [class.negative]="product.trend_label.startsWith('-')" [class.neutral]="product.trend_label === '0%'">
+                  @if (product.trend_label.startsWith('+')) {
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                      d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+                  </svg>
+                  } @else if (product.trend_label.startsWith('-')) {
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                      d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                  </svg>
+                  }
+                  <span>{{ product.trend_label.replace('+', '').replace('-', '') }}</span>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
         </div>
       </div>
-      <div class="donut-wrapper">
-        <canvas #donutChart width="200" height="200"></canvas>
+
+      <div class="bottom-row">
+        <!-- Stock Bajo -->
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Stock Bajo</h3>
+              <p class="section-subtitle">Productos que necesitan reabastecimiento</p>
+            </div>
+            <button class="btn-action">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z" />
+              </svg>
+              Crear Pedido
+            </button>
+          </div>
+
+          <div class="stock-list">
+            @for (item of lowStockItems; track item.name) {
+            <div class="stock-item">
+              <div class="stock-info">
+                <div class="stock-name-row">
+                  <span class="stock-name">{{ item.name }}</span>
+                  @if (item.critical) {
+                  <span class="badge badge-critical">crítico</span>
+                  } @else {
+                  <span class="badge badge-low">bajo</span>
+                  }
+                </div>
+                <span class="stock-category">{{ item.category }}</span>
+              </div>
+              <div class="stock-bar-col">
+                <div class="stock-bar-track">
+                  <div class="stock-bar-fill" [style.width.%]="item.level * 100"
+                    [style.background]="getStockBarColor(item.level, item.critical)">
+                  </div>
+                </div>
+              </div>
+              <div class="stock-meta">
+                <span class="stock-units">{{ item.units }} uds</span>
+                <span class="stock-min">Mín: {{ item.min }}</span>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Ventas Recientes -->
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Ventas Recientes</h3>
+              <p class="section-subtitle">Últimas transacciones del día</p>
+            </div>
+            <a class="link-action" href="#">Ver todas →</a>
+          </div>
+
+          <div class="sales-list">
+            @for (sale of recentSales; track sale.name) {
+            <div class="sale-item">
+              <div class="sale-avatar" [style.background]="sale.color">{{ sale.initials }}</div>
+              <div class="sale-info">
+                <div class="sale-name-row">
+                  <span class="sale-name">{{ sale.name }}</span>
+                  <span class="badge" [style.background]="getBadgeColor(sale.type)">{{ sale.type }}</span>
+                </div>
+                <span class="sale-meta">{{ sale.products }} productos · Hace {{ sale.minutes }} min</span>
+              </div>
+              <span class="sale-amount">{{ sale.amount }}</span>
+            </div>
+            }
+          </div>
+        </div>
       </div>
-      <div class="donut-legend">
-        @for (seg of donutSegments; track seg.label) {
+    </div> <!-- End main col -->
+
+    <div class="dash-sidebar">
+      <!-- Donut Chart Categories -->
+      <div class="chart-card chart-donut">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">Ventas por Categoría</h3>
+            <p class="chart-subtitle">Distribución de ventas esta semana</p>
+          </div>
+        </div>
+        <div class="donut-wrapper">
+          <app-donut-chart [data]="donutChartData()" />
+        </div>
+        <div class="donut-legend">
+          @for (seg of donutSegments(); track seg.label) {
           <div class="legend-item">
             <span class="legend-dot" [style.background]="seg.color"></span>
             <span class="legend-label">{{ seg.label }}</span>
           </div>
-        }
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Row: Stock Bajo + Ventas Recientes -->
-  <div class="bottom-row">
-
-    <!-- Stock Bajo -->
-    <div class="section-card">
-      <div class="section-header">
-        <div>
-          <h3 class="section-title">Stock Bajo</h3>
-          <p class="section-subtitle">Productos que necesitan reabastecimiento</p>
-        </div>
-        <button class="btn-action">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
-          </svg>
-          Crear Pedido
-        </button>
-      </div>
-
-      <div class="stock-list">
-        @for (item of lowStockItems; track item.name) {
-          <div class="stock-item">
-            <div class="stock-info">
-              <div class="stock-name-row">
-                <span class="stock-name">{{ item.name }}</span>
-                @if (item.critical) {
-                  <span class="badge badge-critical">crítico</span>
-                } @else {
-                  <span class="badge badge-low">bajo</span>
-                }
-              </div>
-              <span class="stock-category">{{ item.category }}</span>
-            </div>
-            <div class="stock-bar-col">
-              <div class="stock-bar-track">
-                <div class="stock-bar-fill"
-                  [style.width.%]="item.level * 100"
-                  [style.background]="getStockBarColor(item.level, item.critical)">
-                </div>
-              </div>
-            </div>
-            <div class="stock-meta">
-              <span class="stock-units">{{ item.units }} uds</span>
-              <span class="stock-min">Mín: {{ item.min }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Ventas Recientes -->
-    <div class="section-card">
-      <div class="section-header">
-        <div>
-          <h3 class="section-title">Ventas Recientes</h3>
-          <p class="section-subtitle">Últimas transacciones del día</p>
-        </div>
-        <a class="link-action" href="#">Ver todas →</a>
-      </div>
-
-      <div class="sales-list">
-        @for (sale of recentSales; track sale.name) {
-          <div class="sale-item">
-            <div class="sale-avatar" [style.background]="sale.color">{{ sale.initials }}</div>
-            <div class="sale-info">
-              <div class="sale-name-row">
-                <span class="sale-name">{{ sale.name }}</span>
-                <span class="badge" [style.background]="getBadgeColor(sale.type)">{{ sale.type }}</span>
-              </div>
-              <span class="sale-meta">{{ sale.products }} productos · Hace {{ sale.minutes }} min</span>
-            </div>
-            <span class="sale-amount">{{ sale.amount }}</span>
-          </div>
-        }
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Próximos Vencimientos -->
-  <div class="section-card vencimientos-card">
-    <div class="section-header">
-      <div class="venc-header-left">
-        <span class="venc-icon">📅</span>
-        <div>
-          <h3 class="section-title">Próximos Vencimientos</h3>
-          <p class="section-subtitle">Productos que vencen en los próximos 30 días</p>
+          }
         </div>
       </div>
-      <a class="link-action" href="#">Ver Reporte</a>
-    </div>
 
-    <div class="venc-list">
-      @for (exp of expirations; track exp.name) {
-        <div class="venc-item">
-          <div class="venc-alert-icon" [class.urgent]="exp.urgent">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="venc-info">
-            <span class="venc-name">{{ exp.name }}</span>
-            <span class="venc-lot">{{ exp.lot }}</span>
-          </div>
-          <div class="venc-right">
-            <span class="venc-days" [style.background]="getExpirationColor(exp.daysLeft)">{{ exp.daysLeft }} días</span>
-            <span class="venc-date">{{ exp.date }}</span>
+      <!-- Donut Chart Payment Methods -->
+      <div class="chart-card chart-donut">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">Ventas por Método de Pago</h3>
+            <p class="chart-subtitle">Distribución de pagos hoy</p>
           </div>
         </div>
-      }
-    </div>
-  </div>
+        <div class="donut-wrapper">
+          <app-donut-chart [data]="paymentChartData()" />
+        </div>
+        <div class="donut-legend">
+          @for (seg of paymentSegments(); track seg.label) {
+          <div class="legend-item">
+            <span class="legend-dot" [style.background]="seg.color"></span>
+            <span class="legend-label">{{ seg.label }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Próximos Vencimientos -->
+      <div class="section-card vencimientos-card">
+        <div class="section-header">
+          <div class="venc-header-left">
+            <span class="venc-icon">📅</span>
+            <div>
+              <h3 class="section-title">Próximos Vencimientos</h3>
+              <p class="section-subtitle">Productos que vencen en 30 días</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="venc-list">
+          @for (exp of expirations; track exp.name) {
+          <div class="venc-item">
+            <div class="venc-alert-icon" [class.urgent]="exp.urgent">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="venc-info">
+              <span class="venc-name">{{ exp.name }}</span>
+              <span class="venc-lot">{{ exp.lot }}</span>
+            </div>
+            <div class="venc-right">
+              <span class="venc-days" [style.background]="getExpirationColor(exp.daysLeft)">{{ exp.daysLeft }} d</span>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div> <!-- End sidebar -->
+
+  </div> <!-- End body grid -->
 
 </div>

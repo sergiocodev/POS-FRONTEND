@@ -12,160 +12,231 @@
         </button>
     </div>
 
-    <div class="card-body px-3 pb-3 d-flex flex-column overflow-hidden">
-
-        <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-end mb-2">
-                <label class="small fw-bold text-muted text-uppercase mb-0">Cliente</label>
-                <div *ngIf="selectedCustomer()" class="small text-warning fw-bold animate__animated animate__fadeIn">
-                    <i class="bi bi-star-fill me-1"></i> {{ selectedCustomer()?.accumulatedPoints || 0 }} pts
+    <!-- El formulario envuelve el cuerpo y el pie para mantener la funcionalidad de submit -->
+    <form [formGroup]="posForm" (ngSubmit)="submitSale()" class="card-body p-0 d-flex flex-column overflow-hidden">
+        
+        <!-- Área Desplazable: Cliente, Carrito y Configuración de Venta -->
+        <div class="flex-grow-1 overflow-y-auto px-3 pt-3 custom-scrollbar">
+            
+            <!-- Cliente -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-end mb-1">
+                    <label class="form-label-compact mb-0">Cliente</label>
+                    <div *ngIf="selectedCustomer()" class="small text-warning fw-bold animate__animated animate__fadeIn"
+                        style="font-size: 0.7rem;">
+                        <i class="bi bi-star-fill me-1"></i> {{ selectedCustomer()?.accumulatedPoints || 0 }} pts
+                    </div>
                 </div>
-            </div>
-            <div class="input-group">
-                <select
-                    class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
-                    [value]="selectedCustomer()?.id || 'null'" (change)="onCustomerChange($event)">
-                    <option value="null">Público General</option>
-                    <option *ngFor="let c of customers()" [value]="c.id">
-                        {{ c.name }} ({{ c.documentNumber }})
-                    </option>
-                </select>
-                <button (click)="onAddCustomer.emit()" class="btn btn-primary rounded-end-3 px-3" type="button">
-                    <i class="bi bi-person-plus-fill"></i>
-                </button>
-            </div>
-        </div>
-
-        <div
-            class="flex-grow-1 overflow-auto scrollable-content border border-light-subtle rounded-4 bg-body-tertiary p-2 mb-4">
-            <div *ngIf="cart().length === 0"
-                class="d-flex flex-column justify-content-center align-items-center h-100 text-muted opacity-50 py-5">
-                <i class="bi bi-basket2 display-3 mb-3"></i>
-                <span class="fw-medium">El carrito está vacío</span>
-            </div>
-
-            <div *ngFor="let item of cart(); let i = index"
-                class="bg-white rounded-3 p-3 mb-2 shadow-sm border border-light">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="fw-bold text-dark text-truncate flex-grow-1" [title]="item.product.tradeName">{{
-                        item.product.tradeName }}</div>
-                    <button class="btn btn-link text-danger p-0 border-0 ms-2" (click)="removeFromCart(i)">
-                        <i class="bi bi-x-circle-fill"></i>
+                <div class="input-group input-group-sm">
+                    <select
+                        class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
+                        [value]="selectedCustomer()?.id || 'null'" (change)="onCustomerChange($event)">
+                        <option value="null">Público General</option>
+                        <option *ngFor="let c of customers()" [value]="c.id">
+                            {{ c.name }}
+                        </option>
+                    </select>
+                    <button (click)="onAddCustomer.emit()" class="btn btn-primary rounded-end-3 px-2" type="button">
+                        <i class="bi bi-person-plus-fill"></i>
                     </button>
                 </div>
+            </div>
 
-                <div class="row g-1 align-items-end text-center">
-                    <!-- Cantidad -->
-                    <div class="col-4 px-1">
-                        <app-quantity-input [value]="item.quantity" (valueChange)="updateQuantity(i, $event)"
-                            [allowManual]="false" [min]="1" label="Cant.">
-                        </app-quantity-input>
+            <!-- Listado de Productos (Carrito) -->
+            <div class="cart-items-container border border-light-subtle rounded-4 bg-body-tertiary p-2 mb-3">
+                <div *ngIf="cart().length === 0"
+                    class="d-flex flex-column justify-content-center align-items-center text-muted opacity-50 py-4">
+                    <i class="bi bi-basket2 fs-2 mb-2"></i>
+                    <span class="x-small">Vacío</span>
+                </div>
+
+                <div *ngFor="let item of cart(); let i = index"
+                    class="bg-white rounded-3 p-2 mb-2 shadow-sm border border-light animate__animated animate__fadeIn">
+                    <div class="d-flex align-items-center mb-1">
+                        <div class="fw-bold text-dark text-truncate flex-grow-1" style="font-size: 0.75rem;"
+                            [title]="item.product.tradeName">{{
+                            item.product.tradeName }}</div>
+                        <button class="btn btn-link text-danger p-0 border-0 ms-2" title="Eliminar" (click)="removeFromCart(i)">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
                     </div>
 
-                    <!-- P.U -->
-                    <div class="col-2 px-1">
-                        <div class="text-muted fw-bold mb-1 w-100 text-truncate"
-                            style="font-size: 0.60rem; text-transform: uppercase;">P.U
+                    <div class="row g-1 align-items-end text-center">
+                        <div class="col-4">
+                            <app-quantity-input [value]="item.quantity" (valueChange)="updateQuantity(i, $event)"
+                                [allowManual]="true" [min]="1" label="Cant." customClass="form-control-sm">
+                            </app-quantity-input>
                         </div>
-                        <div class="fw-medium text-dark d-flex align-items-center justify-content-center w-100 text-truncate"
-                            style="font-size: 0.85rem; height: 26px;">{{ item.price | number:'1.2-2' }}
+                        <div class="col-4">
+                            <div class="x-small text-muted mb-0">Total</div>
+                            <div class="fw-bold text-primary" style="font-size: 0.8rem;">{{ item.total | number:'1.2-2' }}
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- V.Venta -->
-                    <div class="col-2 px-1">
-                        <div class="text-muted fw-bold mb-1 w-100 text-truncate"
-                            style="font-size: 0.60rem; text-transform: uppercase;">
-                            Total</div>
-                        <div class="fw-bold text-primary d-flex align-items-center justify-content-center w-100 text-truncate"
-                            style="font-size: 0.85rem; height: 26px;">{{ item.total | number:'1.2-2'
-                            }}</div>
-                    </div>
-
-                    <!-- Descuento -->
-                    <div class="col-4 px-1">
-                        <app-quantity-input [value]="item.discountInput || 0"
-                            (valueChange)="updateDiscountInput(i, $event)" [allowManual]="true" [min]="0" [step]="1"
-                            label="Desc.">
-                        </app-quantity-input>
+                        <div class="col-4">
+                            <app-quantity-input [value]="item.discountInput || 0"
+                                (valueChange)="updateDiscountInput(i, $event)" [allowManual]="true" [min]="0" [step]="1"
+                                label="Desc.">
+                            </app-quantity-input>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <form [formGroup]="posForm" (ngSubmit)="submitSale()" class="mt-auto">
-            <div class="row g-2 mb-3">
-                <!-- Selección de Serie -->
-                <div class="col-12 mb-1">
-                    <div class="d-flex align-items-center gap-3 justify-content-start">
+            <!-- Configuración de Venta y Pagos -->
+            <div class="sale-config row g-2 mb-3">
+                <!-- Selección de Serie y Documento -->
+                <div class="col-6">
+                    <label class="form-label-compact">Documento</label>
+                    <select class="form-select form-select-sm bg-body-secondary border-0"
+                        formControlName="documentType">
+                        <option value="BOLETA">Boleta</option>
+                        <option value="FACTURA">Factura</option>
+                        <option value="NOTA_DE_VENTA">Nota de Venta</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label-compact">Serie</label>
+                    <div class="d-flex align-items-center gap-2 justify-content-start mt-1">
                         <div *ngFor="let s of seriesOptions[posForm.get('documentType')?.value]" class="series-radio">
                             <input type="radio" [id]="'series-' + s" [value]="s" formControlName="series">
                             <label [for]="'series-' + s">{{ s }}</label>
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Documento</label>
-                    <select class="form-select bg-body-secondary border-0" formControlName="documentType">
-                        <option value="BOLETA">Boleta</option>
-                        <option value="FACTURA">Factura</option>
-                        <option value="NOTA_DE_VENTA">Nota de Venta</option>
-                    </select>
-                </div>
 
                 <!-- Condición de Pago -->
-                <div class="col-6">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Condición</label>
-                    <select class="form-select bg-body-secondary border-0 text-primary fw-medium"
-                        formControlName="paymentCondition">
-                        <option value="CONTADO">Al Contado</option>
-                        <option value="CREDITO" [disabled]="isPublicoGeneral()">Al Crédito</option>
-                    </select>
-                </div>
-
-                <!-- Pago Acuenta (sólo Crédito) -->
-                <div class="col-6" *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CREDIT">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Pago Inicial</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-body-secondary border-0">S/</span>
-                        <input type="number" class="form-control bg-body-secondary border-0"
-                            formControlName="initialPayment" min="0" step="0.1">
+                <div class="col-12">
+                    <label class="form-label-compact">Condición de Venta</label>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all"
+                            [class.btn-primary]="posForm.get('paymentCondition')?.value === 'CONTADO'"
+                            [class.btn-outline-primary]="posForm.get('paymentCondition')?.value !== 'CONTADO'"
+                            (click)="posForm.get('paymentCondition')?.setValue('CONTADO')">
+                            CONTADO
+                        </button>
+                        <button type="button" class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all"
+                            [class.btn-primary]="posForm.get('paymentCondition')?.value === 'CREDITO'"
+                            [class.btn-outline-primary]="posForm.get('paymentCondition')?.value !== 'CREDITO'"
+                            [disabled]="isPublicoGeneral()"
+                            (click)="posForm.get('paymentCondition')?.setValue('CREDITO')">
+                            CRÉDITO
+                        </button>
                     </div>
                 </div>
 
-                <!-- Método de Pago -->
-                <div class="col-6"
-                    *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CASH || posForm.get('initialPayment')?.value > 0">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Método</label>
-                    <select class="form-select bg-body-secondary border-0" formControlName="paymentMethod">
-                        <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
-                    </select>
+                <!-- Fecha de Vencimiento (solo Crédito) -->
+                <div class="col-12" *ngIf="posForm.get('paymentCondition')?.value === 'CREDITO'">
+                    <label class="form-label-compact">Vencimiento <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-sm bg-body-secondary border-0"
+                        formControlName="dueDate">
                 </div>
 
-                <!-- Fecha de Vencimiento -->
-                <div class="col-6" *ngIf="posForm.get('paymentCondition')?.value === PaymentConditionEnum.CREDIT">
-                    <label class="small fw-bold text-muted text-uppercase mb-1">Vencimiento <span
-                            class="text-danger">*</span></label>
-                    <input type="date" class="form-control bg-body-secondary border-0" formControlName="dueDate">
+                <!-- Listado de Pagos -->
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label-compact mb-0">Métodos de Pago</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+                            style="font-size: 0.65rem;" (click)="addPayment()"
+                            [disabled]="remainingAmount() <= 0 && posForm.get('paymentCondition')?.value === 'CONTADO'">
+                            <i class="bi bi-plus-lg"></i> Agregar
+                        </button>
+                    </div>
+
+                    <div class="payment-list mb-2">
+                        <div *ngFor="let p of payments(); let idx = index; trackBy: trackPayment"
+                            class="mb-2 animate__animated animate__fadeIn">
+                            <div class="payment-item bg-white border rounded-3 d-flex align-items-center gap-2 px-2 py-1 shadow-sm">
+                                
+                                <!-- Selector de Método -->
+                                <select class="form-select form-select-sm border-0 bg-transparent fw-bold p-0"
+                                    style="width: auto; min-width: 100px; font-size: 0.75rem; cursor: pointer;" 
+                                    [value]="p.method"
+                                    (change)="updatePaymentMethod(idx, $any($event.target).value)">
+                                    <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+                                </select>
+
+                                <div class="payment-divider mx-1"></div>
+
+                                <!-- Input de Monto -->
+                                <div class="input-group input-group-sm flex-nowrap align-items-center">
+                                    <span class="input-group-text bg-transparent border-0 pe-1 py-0 px-0 text-muted fw-bold"
+                                        style="font-size: 0.7rem;">S/</span>
+                                    <input type="number" 
+                                        class="form-control bg-transparent border-0 fw-bold py-0 h-auto shadow-none no-arrows"
+                                        style="font-size: 0.85rem; width: 60px;" 
+                                        [value]="p.amount"
+                                        (input)="updatePaymentAmount(idx, $any($event.target).valueAsNumber)">
+                                </div>
+
+                                <!-- Botón Eliminar (si hay más de uno) -->
+                                <button type="button" class="btn btn-link text-danger p-0 border-0 ms-auto"
+                                    *ngIf="payments().length > 1" (click)="removePayment(idx)">
+                                    <i class="bi bi-x-circle-fill fs-6"></i>
+                                </button>
+                            </div>
+
+                            <!-- Referencia -->
+                            <div *ngIf="p.method !== 'EFECTIVO'" class="mt-1 px-1">
+                                <input type="text" 
+                                    class="form-control form-control-sm bg-light border-0 py-0 animate__animated animate__fadeIn"
+                                    style="font-size: 0.65rem; height: 22px;" 
+                                    placeholder="Ref. (opcional)"
+                                    [value]="p.reference" 
+                                    (input)="updateReference(idx, $any($event.target).value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas de pagos (Vuelto / Faltante) -->
+                    <div class="payment-alerts d-flex flex-column gap-1 mb-2">
+                        <div class="d-flex justify-content-between align-items-center" *ngIf="changeAmount() > 0">
+                            <span
+                                class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-cash-coin me-2"></i> VUELTO: S/ {{ changeAmount() | number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center"
+                            *ngIf="remainingAmount() > 0 && posForm.get('paymentCondition')?.value === 'CONTADO'">
+                            <span
+                                class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-exclamation-triangle me-2"></i> FALTAN: S/ {{ remainingAmount() |
+                                number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center"
+                            *ngIf="remainingAmount() > 0 && posForm.get('paymentCondition')?.value === 'CREDITO'">
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-calendar-check me-2"></i> SALDO A CRÉDITO: S/ {{ remainingAmount() |
+                                number:'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-primary bg-opacity-10 rounded-4 p-3 mb-3">
-                <div class="d-flex justify-content-between mb-1 small text-primary opacity-75">
+        <!-- Área Fija: Totales y Botón de Acción -->
+        <div class="px-3 pb-3 pt-2 bg-white border-top shadow-sm">
+            <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
+                <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
                     <span>Subtotal</span>
                     <span>S/ {{ subtotal() | number:'1.2-2' }}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="h6 mb-0 fw-bold text-primary">TOTAL</span>
-                    <span class="h3 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
+                    <span class="fw-bold text-primary" style="font-size: 0.8rem;">TOTAL</span>
+                    <span class="h4 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 rounded-4 shadow-sm btn-lg"
-                [disabled]="isLoading() || cart().length === 0">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-6 rounded-4 shadow-sm"
+                [disabled]="isLoading() || cart().length === 0 || posForm.invalid || (posForm.get('paymentCondition')?.value === 'CONTADO' && remainingAmount() > 0)">
                 <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
                 <i *ngIf="!isLoading()" class="bi bi-wallet2 me-2"></i> PROCESAR VENTA
             </button>
-        </form>
-    </div>
+        </div>
+
+    </form>
 </div>

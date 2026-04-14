@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SaleRequest, SaleResponse, EstablishmentResponse, ProductForSaleResponse } from '../models/sale.model';
 import { ResponseApi } from '../models/response-api.model';
+import { Page } from '../models/pagination.model';
 
 @Injectable({
     providedIn: 'root'
@@ -20,6 +21,15 @@ export class SaleService {
         if (startDate) params.startDate = startDate;
         if (endDate) params.endDate = endDate;
         return this.http.get<ResponseApi<SaleResponse[]>>(this.apiUrl, { params });
+    }
+
+    getAllPaged(page: number = 0, size: number = 20, startDate?: string, endDate?: string): Observable<ResponseApi<Page<SaleResponse>>> {
+        let params = new HttpParams()
+            .set('page', page)
+            .set('size', size);
+        if (startDate) params = params.set('startDate', startDate);
+        if (endDate) params = params.set('endDate', endDate);
+        return this.http.get<ResponseApi<Page<SaleResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<SaleResponse>> {
@@ -61,6 +71,12 @@ export class SaleService {
     listProductsForSale(establishmentId: number): Observable<ResponseApi<ProductForSaleResponse[]>> {
         return this.http.get<ResponseApi<ProductForSaleResponse[]>>(`${this.apiUrl}/ListProductsForSale`, {
             params: { establishmentId: establishmentId.toString() }
+        });
+    }
+
+    searchProductsForPOS(query: string, establishmentId: number): Observable<ResponseApi<ProductForSaleResponse[]>> {
+        return this.http.get<ResponseApi<ProductForSaleResponse[]>>(`${this.apiUrl}/SearchProductsForPOS`, {
+            params: { query, establishmentId: establishmentId.toString() }
         });
     }
 }

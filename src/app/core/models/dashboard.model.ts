@@ -8,6 +8,7 @@ export interface SummaryData {
     transactions: ValueTrendLong;
     sunat_pending_docs: number;
     stock_alerts: StockAlertsData;
+    total_products: number;
 }
 
 export interface ValueTrend {
@@ -64,8 +65,10 @@ export interface PaymentMethodDistribution {
 export interface TopProductDashboard {
     product_id: number;
     product_name: string;
+    category_name: string;
     quantity_sold: number;
     total_amount: number;
+    trend_label: string;
 }
 
 export interface EmployeePerformanceDashboard {

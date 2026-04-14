@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import {
     BrandResponse,
     CategoryResponse,
@@ -19,8 +19,20 @@ import { ResponseApi } from '../models/response-api.model';
 export class MaintenanceService {
     private http = inject(HttpClient);
 
+    private brandsCache$?: Observable<ResponseApi<BrandResponse[]>>;
+    private categoriesCache$?: Observable<ResponseApi<CategoryResponse[]>>;
+    private laboratoriesCache$?: Observable<ResponseApi<LaboratoryResponse[]>>;
+    private presentationsCache$?: Observable<ResponseApi<PresentationResponse[]>>;
+    private taxTypesCache$?: Observable<ResponseApi<TaxTypeResponse[]>>;
+    private activeIngredientsCache$?: Observable<ResponseApi<ActiveIngredientResponse[]>>;
+    private pharmaceuticalFormsCache$?: Observable<ResponseApi<PharmaceuticalFormResponse[]>>;
+    private therapeuticActionsCache$?: Observable<ResponseApi<TherapeuticActionResponse[]>>;
+
     getAllBrands(): Observable<ResponseApi<BrandResponse[]>> {
-        return this.http.get<ResponseApi<BrandResponse[]>>('/api/v1/brands/GetAllBrands');
+        if (!this.brandsCache$) {
+            this.brandsCache$ = this.http.get<ResponseApi<BrandResponse[]>>('/api/v1/brands/GetAllBrands').pipe(shareReplay(1));
+        }
+        return this.brandsCache$;
     }
 
     createNewBrand(name: string): Observable<ResponseApi<BrandResponse>> {
@@ -36,7 +48,10 @@ export class MaintenanceService {
     }
 
     getAllCategory(): Observable<ResponseApi<CategoryResponse[]>> {
-        return this.http.get<ResponseApi<CategoryResponse[]>>('/api/v1/category/GetAllCategory');
+        if (!this.categoriesCache$) {
+            this.categoriesCache$ = this.http.get<ResponseApi<CategoryResponse[]>>('/api/v1/category/GetAllCategory').pipe(shareReplay(1));
+        }
+        return this.categoriesCache$;
     }
 
     createNewCategory(name: string): Observable<ResponseApi<CategoryResponse>> {
@@ -52,7 +67,10 @@ export class MaintenanceService {
     }
 
     getAllLaboratory(): Observable<ResponseApi<LaboratoryResponse[]>> {
-        return this.http.get<ResponseApi<LaboratoryResponse[]>>('/api/v1/laboratory/GetAllLaboratory');
+        if (!this.laboratoriesCache$) {
+            this.laboratoriesCache$ = this.http.get<ResponseApi<LaboratoryResponse[]>>('/api/v1/laboratory/GetAllLaboratory').pipe(shareReplay(1));
+        }
+        return this.laboratoriesCache$;
     }
 
     createNewLaboratory(name: string): Observable<ResponseApi<LaboratoryResponse>> {
@@ -68,7 +86,10 @@ export class MaintenanceService {
     }
 
     getAllPresentations(): Observable<ResponseApi<PresentationResponse[]>> {
-        return this.http.get<ResponseApi<PresentationResponse[]>>('/api/v1/presentations/GetAllPresentations');
+        if (!this.presentationsCache$) {
+            this.presentationsCache$ = this.http.get<ResponseApi<PresentationResponse[]>>('/api/v1/presentations/GetAllPresentations').pipe(shareReplay(1));
+        }
+        return this.presentationsCache$;
     }
 
     createNewPresentation(description: string): Observable<ResponseApi<PresentationResponse>> {
@@ -84,7 +105,10 @@ export class MaintenanceService {
     }
 
     getAllTaxTypes(): Observable<ResponseApi<TaxTypeResponse[]>> {
-        return this.http.get<ResponseApi<TaxTypeResponse[]>>('/api/v1/tax-types/GetAllTaxTypes');
+        if (!this.taxTypesCache$) {
+            this.taxTypesCache$ = this.http.get<ResponseApi<TaxTypeResponse[]>>('/api/v1/tax-types/GetAllTaxTypes').pipe(shareReplay(1));
+        }
+        return this.taxTypesCache$;
     }
 
     createNewTaxType(name: string, rate: number, codeSunat?: string): Observable<ResponseApi<TaxTypeResponse>> {
@@ -100,7 +124,10 @@ export class MaintenanceService {
     }
 
     getAllActiveIngredients(): Observable<ResponseApi<ActiveIngredientResponse[]>> {
-        return this.http.get<ResponseApi<ActiveIngredientResponse[]>>('/api/v1/active-ingredients/GetAllActiveIngredients');
+        if (!this.activeIngredientsCache$) {
+            this.activeIngredientsCache$ = this.http.get<ResponseApi<ActiveIngredientResponse[]>>('/api/v1/active-ingredients/GetAllActiveIngredients').pipe(shareReplay(1));
+        }
+        return this.activeIngredientsCache$;
     }
 
     createNewActiveIngredient(name: string, description?: string): Observable<ResponseApi<ActiveIngredientResponse>> {
@@ -116,7 +143,10 @@ export class MaintenanceService {
     }
 
     getAllPharmaceuticalForms(): Observable<ResponseApi<PharmaceuticalFormResponse[]>> {
-        return this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms/GetAllPharmaceuticalForms');
+        if (!this.pharmaceuticalFormsCache$) {
+            this.pharmaceuticalFormsCache$ = this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms/GetAllPharmaceuticalForms').pipe(shareReplay(1));
+        }
+        return this.pharmaceuticalFormsCache$;
     }
 
     createNewPharmaceuticalForm(name: string, description?: string): Observable<ResponseApi<PharmaceuticalFormResponse>> {
@@ -132,7 +162,10 @@ export class MaintenanceService {
     }
 
     getAllTherapeuticActions(): Observable<ResponseApi<TherapeuticActionResponse[]>> {
-        return this.http.get<ResponseApi<TherapeuticActionResponse[]>>('/api/v1/therapeutic-actions/GetAllTherapeuticActions');
+        if (!this.therapeuticActionsCache$) {
+            this.therapeuticActionsCache$ = this.http.get<ResponseApi<TherapeuticActionResponse[]>>('/api/v1/therapeutic-actions/GetAllTherapeuticActions').pipe(shareReplay(1));
+        }
+        return this.therapeuticActionsCache$;
     }
 
     createNewTherapeuticAction(name: string, description?: string): Observable<ResponseApi<TherapeuticActionResponse>> {
@@ -145,6 +178,17 @@ export class MaintenanceService {
 
     deleteTherapeuticActionById(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`/api/v1/therapeutic-actions/DeleteTherapeuticActionById/${id}`);
+    }
+
+    invalidateAllCaches(): void {
+        this.brandsCache$ = undefined;
+        this.categoriesCache$ = undefined;
+        this.laboratoriesCache$ = undefined;
+        this.presentationsCache$ = undefined;
+        this.taxTypesCache$ = undefined;
+        this.activeIngredientsCache$ = undefined;
+        this.pharmaceuticalFormsCache$ = undefined;
+        this.therapeuticActionsCache$ = undefined;
     }
 
 
