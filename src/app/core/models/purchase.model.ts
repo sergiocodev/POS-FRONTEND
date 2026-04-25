@@ -12,7 +12,7 @@ export enum PurchaseStatus {
 
 export enum PaymentCondition {
     CASH = 'CONTADO',
-    CREDIT = 'CREDITO'
+    CREDIT = 'CREDIT'
 }
 
 export enum PaymentMethod {

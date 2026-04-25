@@ -8,7 +8,7 @@ export enum PayableStatus {
 export enum PayablePaymentMethod {
     EFECTIVO = 'EFECTIVO',
     TRANSFERENCIA = 'TRANSFERENCIA',
-    CHEQUE = 'CHEQUE',
+    TARJETA = 'TARJETA',
     YAPE = 'YAPE',
     PLIN = 'PLIN'
 }

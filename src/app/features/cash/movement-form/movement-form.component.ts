@@ -40,7 +40,7 @@ export class MovementFormComponent implements OnInit {
 
     loadConcepts(): void {
         const type = this.type() === 'inflow' ? 'IN' : 'OUT';
-        this.cashService.getConceptsByType(type).subscribe({
+        this.cashService.getConceptsByType(type, false).subscribe({
             next: (response) => {
                 this.concepts.set(response.data);
             },
@@ -86,5 +86,28 @@ export class MovementFormComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    addConcept(): void {
+        const typeStr = this.type() === 'inflow' ? 'IN' : 'OUT';
+        const typeLabel = this.type() === 'inflow' ? 'ingreso' : 'egreso';
+        const name = window.prompt(`Ingrese el nombre para el nuevo concepto de ${typeLabel}:`);
+        
+        if (name && name.trim()) {
+            this.isLoading.set(true);
+            this.cashService.createConcept(name.trim(), typeStr).subscribe({
+                next: (response) => {
+                    this.isLoading.set(false);
+                    if (response.data) {
+                        this.concepts.update(c => [...c, response.data]);
+                        this.movementForm.patchValue({ conceptId: response.data.id });
+                    }
+                },
+                error: (err) => {
+                    this.isLoading.set(false);
+                    this.errorMessage.set('Error al crear el concepto.');
+                }
+            });
+        }
     }
 }

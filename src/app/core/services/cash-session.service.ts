@@ -108,7 +108,15 @@ export class CashSessionService {
         return this.http.post<ResponseApi<CashSessionResponse>>(`${this.cashUrl}/CloseSessionAndReport`, request);
     }
 
-    getConceptsByType(type: string): Observable<ResponseApi<CashConceptResponse[]>> {
-        return this.http.get<ResponseApi<CashConceptResponse[]>>(`${this.conceptUrl}/type/${type}`);
+    getConceptsByType(type: string, isSystem?: boolean): Observable<ResponseApi<CashConceptResponse[]>> {
+        let params = new HttpParams();
+        if (isSystem !== undefined) {
+            params = params.set('isSystem', String(isSystem));
+        }
+        return this.http.get<ResponseApi<CashConceptResponse[]>>(`${this.conceptUrl}/type/${type}`, { params });
+    }
+
+    createConcept(name: string, type: string): Observable<ResponseApi<CashConceptResponse>> {
+        return this.http.post<ResponseApi<CashConceptResponse>>(this.conceptUrl, { name, type });
     }
 }
