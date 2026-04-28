@@ -1,30 +1,29 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { CustomerService } from '../../../../core/services/customer.service';
+import { RouterModule } from '@angular/router';
 import { CustomerResponse } from '../../../../core/models/customer.model';
-import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
-import { CustomerFormComponent } from '../customer-form/customer-form.component';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
     selector: 'app-customer-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, ModalGenericComponent, CustomerFormComponent, ModuleHeaderComponent],
+    imports: [CommonModule, RouterModule],
     templateUrl: './customer-list.component.html',
     styleUrl: './customer-list.component.scss'
 })
-export class CustomerListComponent implements OnInit {
-    private customerService = inject(CustomerService);
-    private router = inject(Router);
+export class CustomerListComponent implements OnInit, OnChanges {
+    // Inputs from Container
+    @Input() customers: CustomerResponse[] = [];
+    @Input() isLoading = false;
+    @Input() errorMessage = '';
 
-    customers = signal<CustomerResponse[]>([]);
-    filteredCustomers = signal<CustomerResponse[]>([]);
-    isLoading = signal<boolean>(false);
-    errorMessage = signal<string>('');
+    // Outputs to Container
+    @Output() newCustomer = new EventEmitter<void>();
+    @Output() editCustomer = new EventEmitter<number>();
+    @Output() deleteCustomer = new EventEmitter<CustomerResponse>();
+    @Output() clearError = new EventEmitter<void>();
+
     searchTerm = signal<string>('');
-    isModalOpen = signal<boolean>(false);
-    selectedCustomerId = signal<number | null>(null);
+    filteredCustomers = signal<CustomerResponse[]>([]);
 
     // Client-side pagination
     currentPage = signal(0);
@@ -67,6 +66,38 @@ export class CustomerListComponent implements OnInit {
         return pages;
     }
 
+    ngOnInit(): void {
+        this.updateFilteredCustomers();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['customers']) {
+            this.updateFilteredCustomers();
+        }
+    }
+
+    updateFilteredCustomers(): void {
+        const term = this.searchTerm().toLowerCase();
+        if (!term) {
+            this.filteredCustomers.set(this.customers);
+        } else {
+            const filtered = this.customers.filter(customer =>
+                customer.name.toLowerCase().includes(term) ||
+                customer.documentNumber.includes(term) ||
+                customer.email?.toLowerCase().includes(term) ||
+                customer.phone?.includes(term)
+            );
+            this.filteredCustomers.set(filtered);
+        }
+        this.currentPage.set(0);
+    }
+
+    onSearch(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.searchTerm.set(input.value.toLowerCase());
+        this.updateFilteredCustomers();
+    }
+
     goToPage(page: number): void {
         if (page >= 0 && page < this.totalPages()) {
             this.currentPage.set(page);
@@ -94,80 +125,19 @@ export class CustomerListComponent implements OnInit {
         return page < 0;
     }
 
-    ngOnInit(): void {
-        this.loadCustomers();
-    }
-
-    loadCustomers(): void {
-        this.isLoading.set(true);
-        this.errorMessage.set('');
-
-        this.customerService.getAll().subscribe({
-            next: (response) => {
-                const data = response.data;
-                this.customers.set(data);
-                this.filteredCustomers.set(data);
-                this.isLoading.set(false);
-            },
-            error: (error) => {
-                this.errorMessage.set('Error al cargar clientes. Intenta de nuevo.');
-                this.isLoading.set(false);
-                console.error('Error loading customers:', error);
-            }
-        });
-    }
-
-    onSearch(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const term = input.value.toLowerCase();
-        this.searchTerm.set(term);
-        this.currentPage.set(0);
-
-        if (!term) {
-            this.filteredCustomers.set(this.customers());
-            return;
-        }
-
-        const filtered = this.customers().filter(customer =>
-            customer.name.toLowerCase().includes(term) ||
-            customer.documentNumber.includes(term) ||
-            customer.email?.toLowerCase().includes(term) ||
-            customer.phone?.includes(term)
-        );
-        this.filteredCustomers.set(filtered);
+    onNew(): void {
+        this.newCustomer.emit();
     }
 
     onEdit(id: number): void {
-        this.selectedCustomerId.set(id);
-        this.isModalOpen.set(true);
+        this.editCustomer.emit(id);
     }
 
     onDelete(customer: CustomerResponse): void {
-        if (confirm(`¿Estás seguro de eliminar al cliente "${customer.name}"?`)) {
-            this.customerService.delete(customer.id).subscribe({
-                next: () => {
-                    this.loadCustomers();
-                },
-                error: (error) => {
-                    this.errorMessage.set('Error al eliminar el cliente. Intenta de nuevo.');
-                    console.error('Error deleting customer:', error);
-                }
-            });
-        }
+        this.deleteCustomer.emit(customer);
     }
 
-    onNew(): void {
-        this.selectedCustomerId.set(null);
-        this.isModalOpen.set(true);
-    }
-
-    closeModal(): void {
-        this.isModalOpen.set(false);
-        this.selectedCustomerId.set(null);
-    }
-
-    handleSaveSuccess(): void {
-        this.closeModal();
-        this.loadCustomers();
+    onClearError(): void {
+        this.clearError.emit();
     }
 }

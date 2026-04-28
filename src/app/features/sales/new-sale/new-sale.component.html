@@ -1,0 +1,21 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+
+<div class="shadow-sm z-1">
+    <app-module-header title="Punto de Venta" iconClass="bi-cart"></app-module-header>
+</div>
+
+<app-pos [products]="products()" [displayProducts]="displayProducts()" [customers]="customers()"
+    [filteredProducts]="filteredProducts()" [cart]="cart()" [selectedCustomer]="selectedCustomer()"
+    [isLoading]="isLoading()" (productSearch)="onProductSearch($event)" (processSale)="onProcessSale($event)"
+    (updateCart)="cart.set($event)" (updateSelectedCustomer)="selectedCustomer.set($event)"
+    (openCustomerModal)="showCustomerModal.set(true)">
+</app-pos>
+
+<!-- Customer Form Modal -->
+<app-modal-generic [isVisible]="showCustomerModal()" title="Nuevo Cliente" size="lg"
+    (close)="showCustomerModal.set(false)">
+    <app-customer-form *ngIf="showCustomerModal()" [isModal]="true" (saveSuccess)="onCustomerSaveSuccess()"
+        (cancel)="showCustomerModal.set(false)">
+    </app-customer-form>
+</app-modal-generic>

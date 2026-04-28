@@ -104,7 +104,9 @@
                                 </div>
                                 <div class="d-flex">
                                     <span class="fw-bold me-2" style="min-width: 80px;">Pago:</span>
-                                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod)
+                                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' ||
+                                        sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
+                                        sale.payments[0]?.paymentMethod)
                                         || 'CONTADO') }}</span>
                                 </div>
                             </div>
@@ -125,7 +127,9 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="fw-bold">Pago:</span>
-                                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod)
+                                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' ||
+                                        sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
+                                        sale.payments[0]?.paymentMethod)
                                         || 'CONTADO') }}</span>
                                 </div>
                             </div>
@@ -146,8 +150,8 @@
                                 <tr *ngFor="let item of sale.items">
                                     <td class="text-start">{{ item.productName }}</td>
                                     <td class="text-center">{{ item.quantity }}</td>
-                                    <td class="text-end text-muted">{{ item.unitPrice | number:'1.2-2' }}</td>
-                                    <td class="text-end fw-bold">{{ item.amount | number:'1.2-2' }}</td>
+                                    <td class="text-end text-muted">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) / item.quantity | number:'1.2-2' }}</td>
+                                    <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) | number:'1.2-2' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -216,7 +220,9 @@
                             <p class="mb-1"><strong>Cliente:</strong> {{ sale.customerName || 'VARIOS' }}</p>
                             <p class="mb-1"><strong>RUC/DNI:</strong> {{ sale.customerDocumentNumber || '00000000' }}
                             </p>
-                            <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod)
+                            <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' ||
+                                sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
+                                sale.payments[0]?.paymentMethod)
                                 || 'CONTADO') }}</p>
                         </div>
 
@@ -233,8 +239,10 @@
                                 <tr *ngFor="let item of sale.items">
                                     <td class="text-start fw-bold">{{ item.quantity }}</td>
                                     <td class="text-start">{{ item.productName }}</td>
-                                    <td class="text-end text-muted">{{ item.unitPrice | number:'1.2-2' }}</td>
-                                    <td class="text-end fw-bold">{{ item.amount | number:'1.2-2' }}</td>
+                                    <td class="text-end text-muted">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) / item.quantity |
+                                        number:'1.2-2' }} </td>
+                                    <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) | number:'1.2-2'
+                                        }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -322,7 +330,9 @@
                     <div class="x-small-text">
                         <p class="mb-1"><strong>Cliente:</strong> {{ sale.customerName || 'VARIOS' }}</p>
                         <p class="mb-1"><strong>RUC/DNI:</strong> {{ sale.customerDocumentNumber || '00000000' }}</p>
-                        <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) ||
+                        <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' ||
+                            sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
+                            sale.payments[0]?.paymentMethod) ||
                             'CONTADO') }}</p>
                     </div>
 
@@ -341,8 +351,8 @@
                             <tr *ngFor="let item of sale.items">
                                 <td class="text-start">{{ item.productName }}</td>
                                 <td class="text-center">{{ item.quantity }}</td>
-                                <td class="text-end">{{ item.unitPrice | number:'1.2-2' }}</td>
-                                <td class="text-end">{{ item.amount | number:'1.2-2' }}</td>
+                                <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) / item.quantity | number:'1.2-2' }}</td>
+                                <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) | number:'1.2-2' }}</td>
                             </tr>
                         </tbody>
                     </table>

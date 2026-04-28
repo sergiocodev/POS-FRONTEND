@@ -21,7 +21,7 @@ export const routes: Routes = [
             // --- VENTAS ---
             {
                 path: 'customers',
-                loadComponent: () => import('./features/sales/customers/customer-list/customer-list.component').then(m => m.CustomerListComponent),
+                loadComponent: () => import('./features/sales/customers/customers.component').then(m => m.CustomersComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_CLIENTES] }
             },
@@ -39,31 +39,31 @@ export const routes: Routes = [
             },
             {
                 path: 'sales',
-                loadComponent: () => import('./features/sales/view-sales/sale-list/sale-list.component').then(m => m.SaleListComponent),
+                loadComponent: () => import('./features/sales/view-sales/view-sales.component').then(m => m.ViewSalesComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_LISTA] }
             },
             {
                 path: 'sales/pos',
-                loadComponent: () => import('./features/sales/new-sale/pos/pos.component').then(m => m.PosComponent),
+                loadComponent: () => import('./features/sales/new-sale/new-sale.component').then(m => m.NewSaleComponent),
                 canActivate: [requireOpenCajaGuard, permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_POS] }
             },
             {
                 path: 'account-receivables',
-                loadComponent: () => import('./features/account-receivables/account-receivable-list/account-receivable-list.component').then(m => m.AccountReceivableListComponent),
+                loadComponent: () => import('./features/sales/account-receivables/account-receivables.component').then(m => m.AccountReceivablesComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_CUENTAS_COBRAR] }
             },
             {
                 path: 'account-receivables/history',
-                loadComponent: () => import('./features/account-receivables/account-receivable-history/account-receivable-history.component').then(m => m.AccountReceivableHistoryComponent),
+                loadComponent: () => import('./features/sales/account-receivables/account-receivable-history/account-receivable-history.component').then(m => m.AccountReceivableHistoryComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_CUENTAS_COBRAR] }
             },
             {
                 path: 'reports/sales',
-                loadComponent: () => import('./features/sales/view-reports/sales-report/sales-report.component').then(m => m.SalesReportComponent),
+                loadComponent: () => import('./features/sales/view-reports/view-reports.component').then(m => m.ViewReportsComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_REPORTES] }
             },

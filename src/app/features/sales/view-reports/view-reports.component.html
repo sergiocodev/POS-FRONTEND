@@ -1,0 +1,12 @@
+<app-module-header title="Reportes" iconClass="bi bi-graph-up-arrow"></app-module-header>
+
+<div class="container-fluid">
+    <app-sales-report 
+        [sales]="sales()" 
+        [summary]="summary()" 
+        [isLoading]="isLoading()"
+        [initialStartDate]="startDate"
+        [initialEndDate]="endDate"
+        (filterChange)="handleFilterChange($event)">
+    </app-sales-report>
+</div>

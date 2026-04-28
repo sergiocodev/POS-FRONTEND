@@ -1,11 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AccountReceivableService } from '../../../core/services/account-receivable.service';
-import { AccountReceivablePaymentResponse, ReceivablePaymentMethod } from '../../../core/models/account-receivable.model';
-import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table.component';
-import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
-import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
+import { AccountReceivableService } from '../../../../core/services/account-receivable.service';
+import { AccountReceivablePaymentResponse, ReceivablePaymentMethod } from '../../../../core/models/account-receivable.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-account-receivable-history',

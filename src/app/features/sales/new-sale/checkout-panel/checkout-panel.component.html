@@ -6,7 +6,7 @@
         <h5 class="fw-bold mb-0 d-flex align-items-center">
             <i class="bi bi-receipt-cutoff text-primary me-2 fs-4"></i> Venta Actual
         </h5>
-        <button class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-medium transition-all"
+        <button type="button" class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-medium transition-all"
             (click)="onClearCart.emit()" [disabled]="cart().length === 0">
             <i class="bi bi-trash3 me-1"></i> Vaciar
         </button>
@@ -14,10 +14,10 @@
 
     <!-- El formulario envuelve el cuerpo y el pie para mantener la funcionalidad de submit -->
     <form [formGroup]="posForm" (ngSubmit)="submitSale()" class="card-body p-0 d-flex flex-column overflow-hidden">
-        
+
         <!-- Área Desplazable: Cliente, Carrito y Configuración de Venta -->
         <div class="flex-grow-1 overflow-y-auto px-3 pt-3 custom-scrollbar">
-            
+
             <!-- Cliente -->
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-end mb-1">
@@ -43,20 +43,22 @@
             </div>
 
             <!-- Listado de Productos (Carrito) -->
-            <div class="cart-items-container border border-light-subtle rounded-4 bg-body-tertiary p-2 mb-3">
+            <div class="cart-items-container border border-light-subtle rounded-4 p-2 mb-3 overflow-y-auto custom-scrollbar"
+                style="max-height: 35vh;">
                 <div *ngIf="cart().length === 0"
                     class="d-flex flex-column justify-content-center align-items-center text-muted opacity-50 py-4">
                     <i class="bi bi-basket2 fs-2 mb-2"></i>
                     <span class="x-small">Vacío</span>
                 </div>
 
-                <div *ngFor="let item of cart(); let i = index"
-                    class="bg-white rounded-3 p-2 mb-2 shadow-sm border border-light animate__animated animate__fadeIn">
+                <div *ngFor="let item of cart(); let i = index; trackBy: trackByCartItem"
+                    class="rounded-3 p-2 mb-2 shadow-sm border border-light animate__animated animate__fadeIn">
                     <div class="d-flex align-items-center mb-1">
                         <div class="fw-bold text-dark text-truncate flex-grow-1" style="font-size: 0.75rem;"
                             [title]="item.product.tradeName">{{
                             item.product.tradeName }}</div>
-                        <button class="btn btn-link text-danger p-0 border-0 ms-2" title="Eliminar" (click)="removeFromCart(i)">
+                        <button type="button" class="btn btn-link text-danger p-0 border-0 ms-2" title="Eliminar"
+                            (click)="removeFromCart(i)">
                             <i class="bi bi-x-circle-fill"></i>
                         </button>
                     </div>
@@ -64,18 +66,19 @@
                     <div class="row g-1 align-items-end text-center">
                         <div class="col-4">
                             <app-quantity-input [value]="item.quantity" (valueChange)="updateQuantity(i, $event)"
-                                [allowManual]="true" [min]="1" label="Cant." customClass="form-control-sm">
+                                [allowManual]="true" [min]="1" [max]="item.stock" label="Cant."
+                                customClass="form-control-sm">
                             </app-quantity-input>
                         </div>
                         <div class="col-4">
-                            <div class="x-small text-muted mb-0">Total</div>
-                            <div class="fw-bold text-primary" style="font-size: 0.8rem;">{{ item.total | number:'1.2-2' }}
-                            </div>
+                            <app-quantity-input [value]="item.price * item.quantity" [showControls]="false"
+                                label="Precio" customClass="form-control-sm">
+                            </app-quantity-input>
                         </div>
                         <div class="col-4">
-                            <app-quantity-input [value]="item.discountInput || 0"
-                                (valueChange)="updateDiscountInput(i, $event)" [allowManual]="true" [min]="0" [step]="1"
-                                label="Desc.">
+                            <app-quantity-input [value]="item.adjustmentInput || 0"
+                                (valueChange)="updateAdjustmentInput(i, $event)" [allowManual]="true"
+                                [min]="-item.price * item.quantity" [step]="0.5" label="Ajuste">
                             </app-quantity-input>
                         </div>
                     </div>
@@ -145,13 +148,13 @@
                     <div class="payment-list mb-2">
                         <div *ngFor="let p of payments(); let idx = index; trackBy: trackPayment"
                             class="mb-2 animate__animated animate__fadeIn">
-                            <div class="payment-item bg-white border rounded-3 d-flex align-items-center gap-2 px-2 py-1 shadow-sm">
-                                
+                            <div
+                                class="payment-item border rounded-3 d-flex align-items-center gap-2 px-2 py-1 shadow-sm">
+
                                 <!-- Selector de Método -->
                                 <select class="form-select form-select-sm border-0 bg-transparent fw-bold p-0"
-                                    style="width: auto; min-width: 100px; font-size: 0.75rem; cursor: pointer;" 
-                                    [value]="p.method"
-                                    (change)="updatePaymentMethod(idx, $any($event.target).value)">
+                                    style="width: auto; min-width: 100px; font-size: 0.75rem; cursor: pointer;"
+                                    [value]="p.method" (change)="updatePaymentMethod(idx, $any($event.target).value)">
                                     <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
                                 </select>
 
@@ -159,12 +162,12 @@
 
                                 <!-- Input de Monto -->
                                 <div class="input-group input-group-sm flex-nowrap align-items-center">
-                                    <span class="input-group-text bg-transparent border-0 pe-1 py-0 px-0 text-muted fw-bold"
+                                    <span
+                                        class="input-group-text bg-transparent border-0 pe-1 py-0 px-0 text-muted fw-bold"
                                         style="font-size: 0.7rem;">S/</span>
-                                    <input type="number" 
+                                    <input type="number"
                                         class="form-control bg-transparent border-0 fw-bold py-0 h-auto shadow-none no-arrows"
-                                        style="font-size: 0.85rem; width: 60px;" 
-                                        [value]="p.amount"
+                                        style="font-size: 0.85rem; width: 60px;" [value]="p.amount"
                                         (input)="updatePaymentAmount(idx, $any($event.target).valueAsNumber)">
                                 </div>
 
@@ -177,12 +180,10 @@
 
                             <!-- Referencia -->
                             <div *ngIf="p.method !== 'EFECTIVO'" class="mt-1 px-1">
-                                <input type="text" 
-                                    class="form-control form-control-sm bg-light border-0 py-0 animate__animated animate__fadeIn"
-                                    style="font-size: 0.65rem; height: 22px;" 
-                                    placeholder="Ref. (opcional)"
-                                    [value]="p.reference" 
-                                    (input)="updateReference(idx, $any($event.target).value)">
+                                <input type="text"
+                                    class="form-control form-control-sm border-0 py-0 animate__animated animate__fadeIn"
+                                    style="font-size: 0.65rem; height: 22px;" placeholder="Ref. (opcional)"
+                                    [value]="p.reference" (input)="updateReference(idx, $any($event.target).value)">
                             </div>
                         </div>
                     </div>
@@ -198,8 +199,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center"
                             *ngIf="remainingAmount() > 0 && posForm.get('paymentCondition')?.value === 'CONTADO'">
-                            <span
-                                class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 w-100"
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 w-100"
                                 style="font-size: 0.75rem !important;">
                                 <i class="bi bi-exclamation-triangle me-2"></i> FALTAN: S/ {{ remainingAmount() |
                                 number:'1.2-2' }}
@@ -219,13 +219,18 @@
         </div>
 
         <!-- Área Fija: Totales y Botón de Acción -->
-        <div class="px-3 pb-3 pt-2 bg-white border-top shadow-sm">
+        <div class="px-3 pb-3 pt-2 border-top shadow-sm">
             <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
                 <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
                     <span>Subtotal</span>
                     <span>S/ {{ subtotal() | number:'1.2-2' }}</span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between mb-1 x-small text-primary opacity-75">
+                    <span>IGV (18%)</span>
+                    <span>S/ {{ tax() | number:'1.2-2' }}</span>
+                </div>
+                <div
+                    class="d-flex justify-content-between align-items-center border-top border-primary border-opacity-25 pt-1">
                     <span class="fw-bold text-primary" style="font-size: 0.8rem;">TOTAL</span>
                     <span class="h4 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
                 </div>

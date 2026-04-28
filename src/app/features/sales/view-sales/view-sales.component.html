@@ -1,0 +1,18 @@
+<div class="module-header">
+    <app-module-header title="Ver ventas" iconClass="bi-receipt"></app-module-header>
+</div>
+
+<app-sale-list [sales]="sales()" [isLoading]="isLoading()" [totalItems]="totalItems()" [totalPages]="totalPages()"
+    [currentPage]="currentPage()" [pageSize]="pageSize()" [summaryItems]="summaryItems()"
+    (pageChange)="handlePageChange($event)" (pageSizeChange)="handlePageSizeChange($event)"
+    (tableFilterChange)="handleTableFilter($event)" (dateFilterChange)="handleDateFilter($event)"
+    (viewDetail)="onViewDetails($event)" (cancelSale)="onCancelSale($event)">
+</app-sale-list>
+
+<!-- Sale Detail Modal -->
+<app-modal-generic [title]="'Ajuste de Comprobante'" [isVisible]="isDetailVisible()" [size]="'full'"
+    (close)="isDetailVisible.set(false)">
+    <app-sale-detail *ngIf="selectedSale()" [sale]="selectedSale()" (actionSuccess)="loadSales()"
+        (cancel)="onCancelSale($event)" (close)="isDetailVisible.set(false)">
+    </app-sale-detail>
+</app-modal-generic>

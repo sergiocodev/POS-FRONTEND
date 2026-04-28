@@ -1,23 +1,5 @@
-<div class="pos-container bg-body-tertiary min-vh-100 d-flex flex-column">
+<div class="pos-container min-vh-100 d-flex flex-column">
 
-    <!-- Alert toast -->
-    <div *ngIf="alertMessage()" class="alert alert-dismissible fade show m-3 shadow-sm rounded-4"
-        [ngClass]="'alert-' + alertType()" role="alert"
-        style="position: fixed; top: 1rem; right: 1rem; z-index: var(--alert-z-index, 1080); max-width: 400px;">
-        <div class="d-flex align-items-center">
-            <i class="bi fs-4"
-                [ngClass]="alertType() === 'success' ? 'bi-check-circle-fill text-success' : (alertType() === 'danger' ? 'bi-exclamation-triangle-fill text-danger' : (alertType() === 'warning' ? 'bi-exclamation-triangle-fill text-warning' : 'bi-info-circle-fill text-info'))"></i>
-            <div class="ms-3">
-                <strong class="d-block mb-1">{{ alertTitle() }}</strong>
-                <small class="mb-0">{{ alertMessage() }}</small>
-            </div>
-            <button type="button" class="btn-close ms-auto" (click)="closeAlert()"></button>
-        </div>
-    </div>
-
-    <div class="bg-white shadow-sm z-1">
-        <app-module-header title="Punto de Venta" iconClass="bi-cart"></app-module-header>
-    </div>
 
     <div class="container-fluid px-3 px-xl-4 py-4 flex-grow-1 d-flex flex-column">
         <div class="row g-4 flex-grow-1">
@@ -33,41 +15,25 @@
                             </span>
                             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                                 placeholder="Buscar producto por nombre o código..." [(ngModel)]="productSearchTerm"
-                                (input)="onProductSearch()" (keyup.enter)="onProductSearch()">
+                                (input)="onProductSearch()">
                         </div>
                     </div>
                 </div>
 
-                <app-card-grid [products]="filteredProducts()" [isLoading]="isLoading()"
+                <app-card-grid class="flex-grow-1" [products]="filteredProducts" [isLoading]="isLoading"
                     (productClick)="openUnitSelector($any($event))">
                 </app-card-grid>
-
-                <!-- Stock warning banner -->
-                @if (stockWarning()) {
-                <div class="alert alert-warning alert-dismissible fade show shadow-sm rounded-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <small>{{ stockWarning() }}</small>
-                    <button type="button" class="btn-close btn-sm" (click)="stockWarning.set(null)"></button>
-                </div>
-                }
 
             </div>
 
             <!-- Checkout panel -->
             <div class="col-lg-5 col-xl-4">
+                <!-- In a presentational setup, we'd ideally emit cart changes up -->
                 <app-checkout-panel [cart]="cart" [customers]="customers" [isLoading]="isLoading"
-                    (onProcessSale)="onProcessSale($event)" (onClearCart)="cart.set([])"
-                    (onAddCustomer)="showCustomerModal.set(true)">
+                    (onProcessSale)="onProcessSale($event)" (onClearCart)="updateCart.emit([])"
+                    (onAddCustomer)="onOpenCustomerModal()" (onCartChange)="updateCart.emit($event)">
                 </app-checkout-panel>
             </div>
-
-            <!-- Modal: New Customer -->
-            <app-modal-generic [isVisible]="showCustomerModal()" title="Nuevo Cliente" size="lg"
-                (close)="closeCustomerModal()">
-                <app-customer-form [isModal]="true" (saveSuccess)="onCustomerSaveSuccess()"
-                    (cancel)="closeCustomerModal()">
-                </app-customer-form>
-            </app-modal-generic>
 
         </div>
     </div>

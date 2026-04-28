@@ -1,0 +1,20 @@
+<app-module-header title="Gestión de Clientes" iconClass="bi bi-people-fill"></app-module-header>
+
+<div class="container-fluid">
+    <app-customer-list 
+        [customers]="customers()" 
+        [isLoading]="isLoading()" 
+        [errorMessage]="errorMessage()"
+        (newCustomer)="onNew()"
+        (editCustomer)="onEdit($event)"
+        (deleteCustomer)="onDelete($event)"
+        (clearError)="errorMessage.set('')">
+    </app-customer-list>
+</div>
+
+<app-modal-generic [title]="selectedCustomerId() ? 'Editar Cliente' : 'Nuevo Cliente'" [isVisible]="isModalOpen()"
+    (close)="closeModal()" size="lg">
+    <app-customer-form *ngIf="isModalOpen()" [isModal]="true" [customerId]="selectedCustomerId()"
+        (saveSuccess)="handleSaveSuccess()" (cancel)="closeModal()">
+    </app-customer-form>
+</app-modal-generic>

@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, TemplateRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, TemplateRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 // --- INTERFACES ---
 
@@ -28,14 +30,14 @@ export interface TableColumn {
   align?: 'left' | 'center' | 'right';
 }
 
-
 @Component({
   selector: 'app-custom-table',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss',
 })
-export class CustomTableComponent implements OnChanges {
+export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   // --- INPUTS ---
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
@@ -43,29 +45,57 @@ export class CustomTableComponent implements OnChanges {
   @Input() totalElements: number = 0;
   @Input() currentPage: number = 1;
 
-  // Defecto: Solo hover, fondo blanco (sin striped)
   @Input() tableClass: string = 'table-hover';
 
   // --- OUTPUTS ---
   @Output() onAction = new EventEmitter<{ action: string, row: any }>();
   @Output() onPageChange = new EventEmitter<number>();
+  @Output() onPageSizeChange = new EventEmitter<number>();
   @Output() onToggle = new EventEmitter<{ row: any, key: string, checked: boolean }>();
-  @Output() onFileSelected = new EventEmitter<{ row: any, file: File }>();
+  @Output() onFilterChange = new EventEmitter<{ [key: string]: string }>();
+
+  isServerSide: boolean = false;
 
   // --- LÓGICA INTERNA ---
   filteredData: any[] = [];
   paginatedData: any[] = [];
   filterValues: { [key: string]: string } = {};
 
-  // currentPage: number = 1; // Ya viene como input
   totalPages: number = 1;
   visiblePages: (number | string)[] = [];
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  // Debounce logic
+  private filterSubject = new Subject<{ [key: string]: string }>();
+  private filterSubscription?: Subscription;
 
   get hasFilterableColumns(): boolean {
     return this.columns.some(c => c.filterable);
   }
 
+  ngOnInit(): void {
+    // Forzamos el modo server-side si totalElements fue proporcionado (incluso si es 0)
+    if (this.totalElements !== undefined && this.totalElements !== null) {
+      this.isServerSide = true;
+    }
+
+    // Configurar debounce para el filtrado
+    this.filterSubscription = this.filterSubject.pipe(
+      debounceTime(250) // Esperar 250ms después de que el usuario termine de escribir
+    ).subscribe(filters => {
+      this.onFilterChange.emit(filters);
+      this.applyFilters();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.filterSubscription?.unsubscribe();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['totalElements']) {
+       this.isServerSide = true;
+    }
     if (changes['data'] || changes['columns']) {
       this.applyFilters();
     }
@@ -73,7 +103,7 @@ export class CustomTableComponent implements OnChanges {
 
   // 1. Filtrado
   applyFilters() {
-    if (this.totalElements > 0) {
+    if (this.isServerSide) {
       this.filteredData = this.data;
       this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
     } else {
@@ -89,22 +119,26 @@ export class CustomTableComponent implements OnChanges {
     }
 
     if (this.currentPage > this.totalPages) {
-        // En server-side no queremos resetear a 1 si estamos cargando una página específica
-        if (this.totalElements === 0) this.currentPage = 1;
+        if (this.totalElements === 0 || !this.isServerSide) this.currentPage = 1;
     }
     this.updatePaginatedData();
   }
 
   // 2. Paginación de datos
   updatePaginatedData() {
-    if (this.totalElements > 0) {
-      this.paginatedData = this.data;
+    if (this.isServerSide) {
+      this.paginatedData = this.filteredData;
     } else {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       this.paginatedData = this.filteredData.slice(start, end);
     }
     this.updateVisiblePages();
+  }
+
+  onPageSizeUIChange(event: any) {
+    const newSize = Number(event.target.value);
+    this.onPageSizeChange.emit(newSize);
   }
 
   // 3. Calculadora de botones de paginación
@@ -133,17 +167,26 @@ export class CustomTableComponent implements OnChanges {
     this.visiblePages = rangeWithDots;
   }
 
-  // --- UI HELPERS ---
   changePage(page: number | string) {
     if (page === '...') return;
     const p = Number(page);
     if (p >= 1 && p <= this.totalPages) {
-      if (this.totalElements > 0) {
-        this.onPageChange.emit(p - 1); // 0-based para el backend
+      if (this.isServerSide) {
+        this.onPageChange.emit(p - 1);
       } else {
         this.currentPage = p;
         this.updatePaginatedData();
       }
+    }
+  }
+
+  onFilterUIChange() {
+    // Si es server-side, mandamos al subject para el debounce
+    if (this.isServerSide) {
+        this.filterSubject.next({ ...this.filterValues });
+    } else {
+        // Si no es server-side, aplicamos de inmediato para que se vea reactivo localmente
+        this.applyFilters();
     }
   }
 

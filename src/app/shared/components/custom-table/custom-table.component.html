@@ -16,7 +16,7 @@
                     <th *ngFor="let col of columns" class="p-2 border-0">
                         <input *ngIf="col.filterable" type="text"
                             class="form-control form-control-sm shadow-none border" [placeholder]="'Buscar...'"
-                            [(ngModel)]="filterValues[col.key]" (ngModelChange)="applyFilters()">
+                            [(ngModel)]="filterValues[col.key]" (ngModelChange)="onFilterUIChange()">
                     </th>
                 </tr>
             </thead>
@@ -107,31 +107,45 @@
         </table>
     </div>
 
-    <div class="card-footer bg-white border-top-0 py-3" *ngIf="totalPages > 1">
+    <div class="card-footer bg-white border-top-0 py-3" *ngIf="isServerSide ? totalElements > 0 : filteredData.length > 0">
         <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">
-                {{ totalElements > 0 ? totalElements : filteredData.length }} registros en total
+                {{ isServerSide ? totalElements : filteredData.length }} registros en total
             </small>
 
-            <ul class="pagination pagination-sm mb-0">
-                <li class="page-item" [class.disabled]="currentPage === 1">
-                    <button class="page-link border-0 text-dark" (click)="changePage(currentPage - 1)">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                </li>
-                <li class="page-item" *ngFor="let p of visiblePages" [class.active]="p === currentPage"
-                    [class.disabled]="p === '...'">
-                    <button class="page-link border-0 rounded mx-1"
-                        [ngClass]="p === currentPage ? 'bg-primary text-white' : 'text-dark'" (click)="changePage(p)">
-                        {{ p }}
-                    </button>
-                </li>
-                <li class="page-item" [class.disabled]="currentPage === totalPages">
-                    <button class="page-link border-0 text-dark" (click)="changePage(currentPage + 1)">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </li>
-            </ul>
+            <div class="d-flex align-items-center gap-4">
+                <!-- Page Size Selector -->
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">Filas por página:</small>
+                    <select class="form-select form-select-sm border shadow-none" 
+                            style="width: 75px; cursor: pointer;"
+                            [ngModel]="pageSize" 
+                            (change)="onPageSizeUIChange($event)">
+                        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+                    </select>
+                </div>
+
+                <!-- Pagination -->
+                <ul class="pagination pagination-sm mb-0" *ngIf="totalPages > 1">
+                    <li class="page-item" [class.disabled]="currentPage === 1">
+                        <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </li>
+                    <li class="page-item" *ngFor="let p of visiblePages" [class.active]="p === currentPage"
+                        [class.disabled]="p === '...'">
+                        <button class="page-link border-0 rounded mx-1"
+                            [ngClass]="p === currentPage ? 'bg-primary text-white shadow-sm' : 'text-dark'" (click)="changePage(p)">
+                            {{ p }}
+                        </button>
+                    </li>
+                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                        <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

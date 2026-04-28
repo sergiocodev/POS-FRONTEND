@@ -14,14 +14,20 @@ export class QuantityInputComponent {
   @Input() min: number = 0;
   @Input() step: number = 1;
 
-  // NUEVO: Controla si se puede digitar manualmente o solo usar botones
+  @Input() max: number = Infinity;
   @Input() allowManual: boolean = true;
+  @Input() showControls: boolean = true;
+  @Input() disabled: boolean = false;
 
   @Output() valueChange = new EventEmitter<number>();
 
   increment() {
     const nextValue = parseFloat((Number(this.value) + Number(this.step)).toFixed(2));
-    this.emitChange(nextValue);
+    if (nextValue > this.max) {
+      this.emitChange(this.max);
+    } else {
+      this.emitChange(nextValue);
+    }
   }
 
   decrement() {
@@ -33,14 +39,15 @@ export class QuantityInputComponent {
   }
 
   onManualInput(event: Event) {
-    // Si no está permitido el ingreso manual, ignoramos el evento por seguridad
     if (!this.allowManual) return;
 
     const target = event.target as HTMLInputElement;
-    const val = parseFloat(target.value);
+    let val = parseFloat(target.value);
 
     if (!isNaN(val)) {
-      this.emitChange(val < this.min ? this.min : val);
+      if (val > this.max) val = this.max;
+      if (val < this.min) val = this.min;
+      this.emitChange(val);
     } else {
       this.emitChange(this.min);
     }

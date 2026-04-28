@@ -1,7 +1,6 @@
-import { Component, Input, Output, EventEmitter, signal, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SaleResponse } from '../../../../core/models/sale.model';
-import { SaleService } from '../../../../core/services/sale.service';
 
 @Component({
   selector: 'app-sale-detail',
@@ -11,11 +10,10 @@ import { SaleService } from '../../../../core/services/sale.service';
   styleUrl: './sale-detail.component.scss',
 })
 export class SaleDetailComponent {
-  private saleService = inject(SaleService);
-
   @Input() sale?: SaleResponse;
   @Output() close = new EventEmitter<void>();
   @Output() actionSuccess = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<number>();
 
   selectedTab = signal<string>('document');
   selectedFormat = signal<string>('TICKET');
@@ -59,14 +57,8 @@ export class SaleDetailComponent {
   }
 
   onInvalidate() {
-    if (this.sale && confirm('¿Estás seguro de anular esta venta?')) {
-      this.saleService.cancel(this.sale.id).subscribe({
-        next: () => {
-          this.actionSuccess.emit();
-          this.onClose();
-        },
-        error: (err) => console.error('Error invalidating sale:', err)
-      });
+    if (this.sale) {
+      this.cancel.emit(this.sale.id);
     }
   }
 }

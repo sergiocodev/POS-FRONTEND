@@ -1,4 +1,4 @@
-@use "../../../../scss/variables" as *;
+@use "../../../../../scss/variables" as *;
 
 // checkout-panel.component.scss
 .sticky-lg-top {
@@ -138,16 +138,18 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .no-arrows {
+
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
         appearance: none;
         margin: 0;
     }
+
     -moz-appearance: textfield;
 }
 
 .x-small {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -161,7 +163,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 // Compact form elements
 .form-label-compact {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     font-weight: 800;
     text-transform: uppercase;
     color: $text-muted;

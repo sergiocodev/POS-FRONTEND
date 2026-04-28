@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, signal, computed, effect, untracked } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, effect, untracked, input } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
-import { PaymentMethod, PaymentCondition } from '../../../core/models/sale.model';
+import { QuantityInputComponent } from '../../../../shared/components/quantity-input/quantity-input.component';
+import { PaymentMethod, PaymentCondition } from '../../../../core/models/sale.model';
 
 @Component({
   selector: 'app-checkout-panel',
@@ -12,13 +12,15 @@ import { PaymentMethod, PaymentCondition } from '../../../core/models/sale.model
   styleUrl: './checkout-panel.component.scss',
 })
 export class CheckoutPanelComponent {
-  @Input() cart = signal<any[]>([]);
-  @Input() customers = signal<any[]>([]);
-  @Input() isLoading = signal<boolean>(false);
+  // Using modern Signal Inputs (Angular 17.2+)
+  cart = input<any[]>([]);
+  customers = input<any[]>([]);
+  isLoading = input<boolean>(false);
 
   @Output() onProcessSale = new EventEmitter<any>();
   @Output() onClearCart = new EventEmitter<void>();
   @Output() onAddCustomer = new EventEmitter<void>();
+  @Output() onCartChange = new EventEmitter<any[]>();
 
   posForm: FormGroup;
   selectedCustomer = signal<any>(null);
@@ -28,12 +30,18 @@ export class CheckoutPanelComponent {
     { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: 0, reference: '' }
   ]);
 
-  // Cálculos Computados (Performance Pro)
-  subtotal = computed(() =>
-    this.cart().reduce((acc, item) => acc + (item.price * item.quantity - (item.discount || 0)), 0)
+  // Cálculos Computados
+  total = computed(() =>
+    this.cart().reduce((acc, item) => acc + (item.price * item.quantity + (item.adjustment || 0)), 0)
   );
-  //tax = computed(() => this.subtotal() * 0.18);
-  total = computed(() => this.subtotal());
+  subtotal = computed(() => {
+    return this.cart().reduce((acc, item) => {
+      const itemTotal = item.price * item.quantity + (item.adjustment || 0);
+      const rate = item.product.taxRate || 0;
+      return acc + (itemTotal / (1 + rate));
+    }, 0);
+  });
+  tax = computed(() => this.total() - this.subtotal());
 
   totalPaid = computed(() =>
     this.payments().reduce((acc, p) => acc + (p.amount || 0), 0)
@@ -90,7 +98,7 @@ export class CheckoutPanelComponent {
       dueDateCtrl?.updateValueAndValidity();
     });
 
-    // Select default customer (00000000) when customers are loaded
+    // Select default customer when customers are loaded
     effect(() => {
       const customers = this.customers();
       if (customers.length > 0 && !untracked(this.selectedCustomer)) {
@@ -112,7 +120,7 @@ export class CheckoutPanelComponent {
       }
     });
 
-    // Sync first payment amount with total if it's the only one and it was 0 or tied to total
+    // Sync first payment amount with total
     effect(() => {
       const currentTotal = this.total();
       untracked(() => {
@@ -152,8 +160,6 @@ export class CheckoutPanelComponent {
     this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, amount } : p));
   }
 
-
-
   updateReference(index: number, reference: string) {
     this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, reference } : p));
   }
@@ -161,58 +167,58 @@ export class CheckoutPanelComponent {
   updateQuantity(index: number, newQty: number) {
     if (newQty < 1) return;
     const currentCart = [...this.cart()];
-    const item = currentCart[index];
-    item.quantity = newQty;
-    this.recalculateItemTotal(item);
-    this.cart.set(currentCart);
+    currentCart[index] = { ...currentCart[index], quantity: newQty };
+    this.recalculateItemTotal(currentCart[index]);
+    this.onCartChange.emit(currentCart);
   }
 
-  setDiscountType(index: number, type: 'amount' | 'percentage') {
+  updatePrice(index: number, newPrice: number) {
+    if (newPrice < 0) return;
     const currentCart = [...this.cart()];
-    const item = currentCart[index];
-    item.discountType = type;
-    this.recalculateItemTotal(item);
-    this.cart.set(currentCart);
+    currentCart[index] = { ...currentCart[index], price: newPrice };
+    this.recalculateItemTotal(currentCart[index]);
+    this.onCartChange.emit(currentCart);
   }
 
-  updateDiscountInput(index: number, val: number) {
-    if (val < 0) val = 0;
+  setAdjustmentType(index: number, type: 'amount' | 'percentage') {
     const currentCart = [...this.cart()];
-    const item = currentCart[index];
-    // Asegurar precisión de 2 decimales para moneda
-    item.discountInput = Math.round(val * 100) / 100;
-    this.recalculateItemTotal(item);
-    this.cart.set(currentCart);
+    currentCart[index] = { ...currentCart[index], adjustmentType: type };
+    this.recalculateItemTotal(currentCart[index]);
+    this.onCartChange.emit(currentCart);
+  }
+
+  updateAdjustmentInput(index: number, val: number) {
+    const currentCart = [...this.cart()];
+    currentCart[index] = { ...currentCart[index], adjustmentInput: Math.round(val * 100) / 100 };
+    this.recalculateItemTotal(currentCart[index]);
+    this.onCartChange.emit(currentCart);
   }
 
   recalculateItemTotal(item: any) {
     const subtotal = item.price * item.quantity;
-    let computedDiscount = 0;
-
-    const dVal = item.discountInput || 0;
-    if (item.discountType === 'percentage') {
-      computedDiscount = subtotal * (dVal / 100);
+    let computedAdjustment = 0;
+    const val = item.adjustmentInput || 0;
+    if (item.adjustmentType === 'percentage') {
+      computedAdjustment = subtotal * (val / 100);
     } else {
-      computedDiscount = dVal;
+      computedAdjustment = val;
     }
-
-    if (computedDiscount > subtotal) computedDiscount = subtotal;
-    if (computedDiscount < 0) computedDiscount = 0;
-
-    item.discount = computedDiscount;
-    item.total = subtotal - computedDiscount;
+    item.adjustment = computedAdjustment;
+    item.total = Math.max(0, subtotal + computedAdjustment);
   }
 
   removeFromCart(index: number) {
-    const currentCart = [...this.cart()];
-    currentCart.splice(index, 1);
-    this.cart.set(currentCart);
+    const currentCart = this.cart().filter((_, i) => i !== index);
+    this.onCartChange.emit(currentCart);
+  }
+
+  trackByCartItem(index: number, item: any) {
+    return item.product.id;
   }
 
   onCustomerChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     const value = selectElement.value;
-
     if (value === 'null' || !value) {
       this.selectedCustomer.set(null);
     } else {
@@ -223,18 +229,15 @@ export class CheckoutPanelComponent {
 
   submitSale() {
     if (this.posForm.invalid || this.cart().length === 0) return;
-
     const formValue = this.posForm.getRawValue();
     const condition = formValue.paymentCondition;
     const totalAmount = this.total();
     const paidAmount = this.totalPaid();
 
-    // Validations
     if (condition === PaymentCondition.CASH && paidAmount < totalAmount) {
       alert('Para venta al contado, el monto total debe ser cubierto.');
       return;
     }
-
     if (condition === PaymentCondition.CREDIT && paidAmount >= totalAmount) {
       alert('Para venta al crédito, el pago inicial debe ser menor al total.');
       return;
@@ -255,5 +258,4 @@ export class CheckoutPanelComponent {
     };
     this.onProcessSale.emit(saleData);
   }
-
 }

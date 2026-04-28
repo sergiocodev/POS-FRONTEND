@@ -1,40 +1,38 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { AccountReceivableService } from '../../../core/services/account-receivable.service';
-import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest, ReceivableStatus } from '../../../core/models/account-receivable.model';
 import { CashSessionService } from '../../../core/services/cash-session.service';
-import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table.component';
-import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
+import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest } from '../../../core/models/account-receivable.model';
+import { AccountReceivableListComponent } from './account-receivable-list/account-receivable-list.component';
+import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-account-receivable-list',
+    selector: 'app-account-receivables',
     standalone: true,
     imports: [
         CommonModule,
         FormsModule,
-        RouterModule,
-        CustomTableComponent,
+        AccountReceivableListComponent,
         ModalGenericComponent,
         ModalAlertComponent,
         ModuleHeaderComponent
     ],
-    templateUrl: './account-receivable-list.component.html',
-    styleUrl: './account-receivable-list.component.scss'
+    templateUrl: './account-receivables.component.html'
 })
-export class AccountReceivableListComponent implements OnInit {
+export class AccountReceivablesComponent implements OnInit {
     private accountReceivableService = inject(AccountReceivableService);
     private cashSessionService = inject(CashSessionService);
     private modalService = inject(ModalService);
 
+    // State
     receivables = signal<AccountReceivableResponse[]>([]);
     isLoading = signal<boolean>(false);
 
-    // Modal State
+    // Modal State for Payment
     showPaymentModal = signal<boolean>(false);
     selectedReceivable = signal<AccountReceivableResponse | null>(null);
     paymentAmount = signal<number | null>(null);
@@ -42,24 +40,8 @@ export class AccountReceivableListComponent implements OnInit {
     paymentReference = signal<string>('');
     paymentNotes = signal<string>('');
     isPaying = signal<boolean>(false);
-    
-    paymentMethods = Object.values(ReceivablePaymentMethod);
 
-    columns: TableColumn[] = [
-        { key: 'id', label: 'ID', filterable: true, width: '80px' },
-        { key: 'customerName', label: 'Cliente', filterable: true },
-        { key: 'saleId', label: 'Venta ID', filterable: true, width: '100px' },
-        { key: 'createdAt', label: 'Fecha Registro', format: (val) => new Date(val).toLocaleDateString() },
-        { key: 'dueDate', label: 'Fecha Vencimiento', format: (val) => val ? new Date(val).toLocaleDateString() : 'N/A' },
-        { key: 'totalAmount', label: 'Monto Total', format: (val) => `S/ ${val.toFixed(2)}` },
-        { key: 'amountPaid', label: 'Cobrado', format: (val) => `S/ ${val.toFixed(2)}` },
-        { key: 'pendingBalance', label: 'Saldo Pendiente', format: (val) => `S/ ${val.toFixed(2)}` },
-        {
-            key: 'status', label: 'Estado', type: 'badge',
-            classCallback: (val) => this.getStatusBadgeClass(val)
-        },
-        { key: 'actions', label: 'Acciones', type: 'action' }
-    ];
+    paymentMethods = Object.values(ReceivablePaymentMethod);
 
     ngOnInit(): void {
         this.loadReceivables();
@@ -86,30 +68,18 @@ export class AccountReceivableListComponent implements OnInit {
         });
     }
 
-    getStatusBadgeClass(status: string): string {
-        switch (status) {
-            case 'PAID': return 'bg-success text-white';
-            case 'PARTIAL': return 'bg-warning text-dark';
-            case 'PENDING': return 'bg-danger text-white';
-            case 'CANCELED': return 'bg-dark text-white';
-            default: return 'bg-secondary text-white';
+    onPayAction(receivable: AccountReceivableResponse) {
+        if (receivable.status === 'PAID') {
+            this.modalService.alert({ title: 'Aviso', message: 'Esta cuenta ya está totalmente cobrada.', type: 'warning' });
+            return;
         }
-    }
-
-    onAction(event: { action: string, row: any }) {
-        if (event.action === 'pay') {
-            if (event.row.status === 'PAID') {
-                this.modalService.alert({ title: 'Aviso', message: 'Esta cuenta ya está totalmente cobrada.', type: 'warning' });
-                return;
-            }
-            if (event.row.status === 'CANCELED') {
-                this.modalService.alert({ title: 'Aviso', message: 'Esta cuenta está anulada.', type: 'warning' });
-                return;
-            }
-            this.selectedReceivable.set(event.row);
-            this.paymentAmount.set(event.row.pendingBalance);
-            this.showPaymentModal.set(true);
+        if (receivable.status === 'CANCELED') {
+            this.modalService.alert({ title: 'Aviso', message: 'Esta cuenta está anulada.', type: 'warning' });
+            return;
         }
+        this.selectedReceivable.set(receivable);
+        this.paymentAmount.set(receivable.pendingBalance);
+        this.showPaymentModal.set(true);
     }
 
     closePaymentModal() {
@@ -121,7 +91,7 @@ export class AccountReceivableListComponent implements OnInit {
         this.paymentNotes.set('');
     }
 
-    async processPayment() {
+    processPayment() {
         const receivable = this.selectedReceivable();
         const amount = this.paymentAmount();
 
@@ -137,7 +107,6 @@ export class AccountReceivableListComponent implements OnInit {
 
         this.isPaying.set(true);
 
-        // Obtener sesión de caja activa
         this.cashSessionService.getActiveSession().subscribe({
             next: (sessionRes) => {
                 const session = sessionRes.data;

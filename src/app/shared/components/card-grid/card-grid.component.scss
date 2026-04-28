@@ -5,6 +5,13 @@
 // Card Grid — Premium Design System
 // =============================================
 
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0; // Crucial for nested flex scrolling
+}
+
 // Design Tokens (Migrated to Global)
 $card-radius: $border-radius-lg;
 $transition-fast: 0.2s;

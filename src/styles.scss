@@ -175,3 +175,67 @@ body {
 .fade-in {
   animation: fadeIn 0.6s ease;
 }
+
+// ============================================================
+// 🛠️  GLOBAL THEME OVERRIDES
+// ============================================================
+
+// --- Bootstrap Card Overrides ---
+.card {
+  background-color: var(--card-bg) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+
+  .card-header,
+  .card-footer {
+    background-color: transparent !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+  }
+}
+
+// --- Bootstrap Form Overrides ---
+.form-control,
+.form-select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+
+  &:focus {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+  }
+
+  &::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  &:disabled {
+    background-color: var(--hover-bg) !important;
+    opacity: 0.7;
+  }
+}
+
+// --- Bootstrap Modal Overrides ---
+.modal-content {
+  background-color: var(--card-bg) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+// --- Clean up generic BG classes ---
+.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.bg-light {
+  background-color: var(--bg-body) !important;
+}
+
+.bg-body-tertiary {
+  background-color: var(--bg-body) !important;
+}
+
+.text-dark {
+  color: var(--text-main) !important;
+}

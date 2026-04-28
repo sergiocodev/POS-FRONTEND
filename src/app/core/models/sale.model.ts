@@ -41,6 +41,10 @@ export interface SaleItemRequest {
     lotId?: number;
     quantity: number;
     unitPrice: number;
+    discountAmount?: number;
+    discountReason?: string;
+    increaseAmount?: number;
+    increaseReason?: string;
 }
 
 export interface SaleItemResponse {
@@ -54,6 +58,8 @@ export interface SaleItemResponse {
     appliedTaxRate: number;
     discountAmount: number;
     discountReason?: string;
+    increaseAmount?: number;
+    increaseReason?: string;
 }
 
 export interface SalePaymentRequest {
@@ -91,6 +97,7 @@ export interface ProductForSaleResponse {
     imageUrl?: string;
     unitName: string;
     factor: number;
+    taxRate: number;
 }
 
 export interface SaleRequest {
@@ -149,4 +156,13 @@ export interface EstablishmentResponse {
     name: string;
     address: string;
     codeSunat: string;
+}
+
+export interface SaleSummaryResponse {
+    totalFacturas: number;
+    totalBoletas: number;
+    totalNotaCredito: number;
+    totalNotaDebito: number;
+    totalNotaVenta: number;
+    totalNeto: number;
 }
