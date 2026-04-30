@@ -2,7 +2,7 @@
 :host {
     z-index: 1060;
     position: relative;
-    
+
     .modal {
         position: fixed !important;
         top: 0;
@@ -19,6 +19,7 @@
 
 // Ajuste opcional para el botón azul para que coincida exactamente con el tono de la imagen si el 'primary' de tu tema es diferente
 .btn-primary {
+    width: 100px;
     background-color: #0099ff; // Tono azul brillante de la imagen
     border-color: #0099ff;
 

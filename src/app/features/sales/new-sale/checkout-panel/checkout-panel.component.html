@@ -27,16 +27,15 @@
                         <i class="bi bi-star-fill me-1"></i> {{ selectedCustomer()?.accumulatedPoints || 0 }} pts
                     </div>
                 </div>
-                <div class="input-group input-group-sm">
-                    <select
-                        class="form-select bg-body-secondary border-0 rounded-start-3 shadow-none focus-ring focus-ring-primary"
-                        [value]="selectedCustomer()?.id || 'null'" (change)="onCustomerChange($event)">
-                        <option value="null">Público General</option>
-                        <option *ngFor="let c of customers()" [value]="c.id">
-                            {{ c.name }}
-                        </option>
-                    </select>
-                    <button (click)="onAddCustomer.emit()" class="btn btn-primary rounded-end-3 px-2" type="button">
+                <div class="d-flex align-items-center">
+                    <app-searchable-dropdown 
+                        class="flex-grow-1"
+                        [options]="customerOptions()"
+                        [selectedId]="selectedCustomer() ? selectedCustomer().id : 'null'"
+                        placeholder="Buscar cliente..."
+                        (selectionChange)="onCustomerSelect($event)"
+                    ></app-searchable-dropdown>
+                    <button (click)="onAddCustomer.emit()" class="btn btn-primary ms-2 px-3 py-2" type="button" style="height: 42px;">
                         <i class="bi bi-person-plus-fill"></i>
                     </button>
                 </div>
@@ -71,14 +70,14 @@
                             </app-quantity-input>
                         </div>
                         <div class="col-4">
-                            <app-quantity-input [value]="item.price * item.quantity" [showControls]="false"
+                            <app-quantity-input [value]="round(item.price * item.quantity)" [showControls]="false"
                                 label="Precio" customClass="form-control-sm">
                             </app-quantity-input>
                         </div>
                         <div class="col-4">
                             <app-quantity-input [value]="item.adjustmentInput || 0"
                                 (valueChange)="updateAdjustmentInput(i, $event)" [allowManual]="true"
-                                [min]="-item.price * item.quantity" [step]="0.5" label="Ajuste">
+                                [min]="-round(item.price * item.quantity)" [step]="0.5" label="Ajuste">
                             </app-quantity-input>
                         </div>
                     </div>

@@ -1,16 +1,18 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading() || isImagesLoading()" [fullScreen]="true"></app-spinner>
 
 <div class="shadow-sm z-1">
     <app-module-header title="Punto de Venta" iconClass="bi-cart"></app-module-header>
 </div>
 
-<app-pos [products]="products()" [displayProducts]="displayProducts()" [customers]="customers()"
+<app-product-catalog-panel [products]="products()" [displayProducts]="displayProducts()" [customers]="customers()"
     [filteredProducts]="filteredProducts()" [cart]="cart()" [selectedCustomer]="selectedCustomer()"
     [isLoading]="isLoading()" (productSearch)="onProductSearch($event)" (processSale)="onProcessSale($event)"
     (updateCart)="cart.set($event)" (updateSelectedCustomer)="selectedCustomer.set($event)"
-    (openCustomerModal)="showCustomerModal.set(true)">
-</app-pos>
+    (openCustomerModal)="showCustomerModal.set(true)"
+    (imagesLoadingStatus)="isImagesLoading.set($event)">
+</app-product-catalog-panel>
 
 <!-- Customer Form Modal -->
 <app-modal-generic [isVisible]="showCustomerModal()" title="Nuevo Cliente" size="lg"

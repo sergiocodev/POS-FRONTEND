@@ -41,13 +41,33 @@ export class AuthService {
         );
     }
 
-    logout(): void {
-        sessionStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-        sessionStorage.removeItem(this.USER_KEY);
-        this.currentUser.set(null);
-        this.router.navigate(['/login']);
+  logout(): void {
+    const token = this.getToken();
+    if (token) {
+      this.http.post<ResponseApi<void>>('/api/v1/auth/logout', { token }).subscribe({
+        next: () => {
+          sessionStorage.removeItem(this.TOKEN_KEY);
+          localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+          sessionStorage.removeItem(this.USER_KEY);
+          this.currentUser.set(null);
+          this.router.navigate(['/login']);
+        },
+        error: () => {
+          sessionStorage.removeItem(this.TOKEN_KEY);
+          localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+          sessionStorage.removeItem(this.USER_KEY);
+          this.currentUser.set(null);
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      sessionStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+      sessionStorage.removeItem(this.USER_KEY);
+      this.currentUser.set(null);
+      this.router.navigate(['/login']);
     }
+  }
 
     /**
      * Get access token from sessionStorage (not localStorage).

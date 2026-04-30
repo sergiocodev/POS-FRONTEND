@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
 import { RoleService } from '../../../../core/services/role.service';
@@ -28,7 +28,6 @@ export class UserFormComponent implements OnInit {
     private roleService = inject(RoleService);
     private uploadService = inject(UploadService);
     private authService = inject(AuthService);
-    private router = inject(Router);
     private modalService = inject(ModalService);
 
     @Input() set userId(value: number | null) {
@@ -66,7 +65,7 @@ export class UserFormComponent implements OnInit {
             fullName: ['', [Validators.required]],
             document: [''],
             password: ['', [Validators.minLength(8)]],
-            roleIds: [[], [Validators.required, Validators.minLength(1)]],
+            roleIds: [[]],
             profilePicture: ['']
         });
 
@@ -119,8 +118,7 @@ export class UserFormComponent implements OnInit {
                 this.selectedRoles.set(user.roles?.map(r => r.id) || []);
                 this.isLoading.set(false);
             },
-            error: (error) => {
-                console.error('Error loading user:', error);
+            error: () => {
                 this.modalService.alert({
                     title: 'Error',
                     message: 'Error al cargar el usuario',
@@ -132,9 +130,8 @@ export class UserFormComponent implements OnInit {
     }
 
     toggleRole(roleId: number) {
-        // Solo permitir un rol a la vez
+        // Solo permite un rol a la vez
         const updated = [roleId];
-
         this.selectedRoles.set(updated);
         this.userForm.get('roleIds')?.setValue(updated);
         this.userForm.get('roleIds')?.markAsTouched();
@@ -172,7 +169,7 @@ export class UserFormComponent implements OnInit {
                 }
                 this.modalService.alert({ title: 'Éxito', message: 'Datos encontrados', type: 'success' });
             },
-            error: (error) => {
+            error: () => {
                 this.isSearching.set(false);
                 this.modalService.alert({ title: 'Error', message: 'No se encontraron datos', type: 'error' });
             }
@@ -189,7 +186,7 @@ export class UserFormComponent implements OnInit {
                     this.imageError.set(false);
                     this.isSaving.set(false);
                 },
-                error: (err) => {
+                error: () => {
                     this.modalService.alert({ title: 'Error', message: 'No se pudo subir la imagen', type: 'error' });
                     this.isSaving.set(false);
                 }
@@ -200,37 +197,38 @@ export class UserFormComponent implements OnInit {
     onSubmit() {
         if (this.userForm.invalid) {
             this.userForm.markAllAsTouched();
-            if (this.userForm.get('roleIds')?.invalid) {
-                this.modalService.alert({ title: 'Atención', message: 'Debe seleccionar al menos un rol', type: 'warning' });
-            }
             return;
         }
 
         this.isSaving.set(true);
         const formValue = this.userForm.value;
+
         const request: UserRequest = {
             username: formValue.username,
             email: formValue.email,
             fullName: formValue.fullName,
-            roleIds: this.selectedRoles(),
-            profilePicture: formValue.profilePicture
+            password: formValue.password || undefined,
+            profilePicture: formValue.profilePicture || undefined,
+            roleIds: this.selectedRoles()
         };
-
-        if (formValue.password) {
-            request.password = formValue.password;
-        }
 
         const operation = this.isEditMode()
             ? this.userService.update(this.userId!, request)
             : this.userService.create(request);
 
         operation.subscribe({
-            next: () => {
+            next: (response) => {
                 this.isSaving.set(false);
-                // Update session logic if needed...
+                // Si el usuario actualmente logueado es el mismo que se editó, actualizar sesión
                 const currentUser = this.authService.currentUser();
                 if (currentUser && currentUser.id === this.userId) {
-                    this.authService.updateCurrentUser({ ...currentUser, ...request, id: currentUser.id });
+                    this.authService.updateCurrentUser({
+                        ...currentUser,
+                        username: response.data.username,
+                        email: response.data.email,
+                        fullName: response.data.fullName,
+                        profilePicture: response.data.profilePicture
+                    });
                 }
                 this.modalService.alert({
                     title: 'Éxito',
@@ -240,9 +238,10 @@ export class UserFormComponent implements OnInit {
                 this.saved.emit();
             },
             error: (error) => {
-                console.error('Error saving user:', error);
                 this.isSaving.set(false);
-                this.modalService.alert({ title: 'Error', message: 'Error al guardar el usuario', type: 'error' });
+                // El backend retorna "Validation failed" en message si hay errores de validación (@ValidRoleIds, etc.)
+                const msg = error?.error?.message || 'Error al guardar el usuario';
+                this.modalService.alert({ title: 'Error', message: msg, type: 'error' });
             }
         });
     }

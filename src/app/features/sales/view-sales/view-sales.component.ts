@@ -50,7 +50,6 @@ export class ViewSalesComponent implements OnInit {
             { label: 'Total Facturas', value: 0, icon: 'F', cssClass: 'card-f' },
             { label: 'Total Boletas', value: 0, icon: 'B', cssClass: 'card-b' },
             { label: 'Nota de Crédito', value: 0, icon: 'C', cssClass: 'card-c' },
-            { label: 'Nota de Débito', value: 0, icon: 'D', cssClass: 'card-d' },
             { label: 'Nota de Venta', value: 0, icon: 'V', cssClass: 'card-v' },
             { label: 'Total Neto', value: 0, icon: 'N', cssClass: 'card-n' },
         ];
@@ -59,7 +58,6 @@ export class ViewSalesComponent implements OnInit {
             { label: 'Total Facturas', value: s.totalFacturas, icon: 'F', cssClass: 'card-f' },
             { label: 'Total Boletas', value: s.totalBoletas, icon: 'B', cssClass: 'card-b' },
             { label: 'Nota de Crédito', value: s.totalNotaCredito, icon: 'C', cssClass: 'card-c' },
-            { label: 'Nota de Débito', value: s.totalNotaDebito, icon: 'D', cssClass: 'card-d' },
             { label: 'Nota de Venta', value: s.totalNotaVenta, icon: 'V', cssClass: 'card-v' },
             { label: 'Total Neto', value: s.totalNeto, icon: 'N', cssClass: 'card-n' },
         ];

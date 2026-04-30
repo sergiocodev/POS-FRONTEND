@@ -3,11 +3,12 @@ import { Component, Input, Output, EventEmitter, signal, computed, effect, untra
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { QuantityInputComponent } from '../../../../shared/components/quantity-input/quantity-input.component';
 import { PaymentMethod, PaymentCondition } from '../../../../core/models/sale.model';
+import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 
 @Component({
   selector: 'app-checkout-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuantityInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuantityInputComponent, SearchableDropdownComponent],
   templateUrl: './checkout-panel.component.html',
   styleUrl: './checkout-panel.component.scss',
 })
@@ -25,6 +26,11 @@ export class CheckoutPanelComponent {
   posForm: FormGroup;
   selectedCustomer = signal<any>(null);
 
+  // Mapped options for searchable dropdown
+  customerOptions = computed(() => {
+    return this.customers().map(c => ({ id: c.id, label: c.name }));
+  });
+
   // Payments Management (Signals)
   payments = signal<any[]>([
     { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: 0, reference: '' }
@@ -32,28 +38,28 @@ export class CheckoutPanelComponent {
 
   // Cálculos Computados
   total = computed(() =>
-    this.cart().reduce((acc, item) => acc + (item.price * item.quantity + (item.adjustment || 0)), 0)
+    this.round(this.cart().reduce((acc, item) => acc + (item.price * item.quantity + (item.adjustment || 0)), 0))
   );
   subtotal = computed(() => {
-    return this.cart().reduce((acc, item) => {
+    return this.round(this.cart().reduce((acc, item) => {
       const itemTotal = item.price * item.quantity + (item.adjustment || 0);
       const rate = item.product.taxRate || 0;
       return acc + (itemTotal / (1 + rate));
-    }, 0);
+    }, 0));
   });
-  tax = computed(() => this.total() - this.subtotal());
+  tax = computed(() => this.round(this.total() - this.subtotal()));
 
   totalPaid = computed(() =>
-    this.payments().reduce((acc, p) => acc + (p.amount || 0), 0)
+    this.round(this.payments().reduce((acc, p) => acc + (p.amount || 0), 0))
   );
 
   remainingAmount = computed(() => {
-    const rem = this.total() - this.totalPaid();
+    const rem = this.round(this.total() - this.totalPaid());
     return rem > 0 ? rem : 0;
   });
 
   changeAmount = computed(() => {
-    const diff = this.totalPaid() - this.total();
+    const diff = this.round(this.totalPaid() - this.total());
     return diff > 0 ? diff : 0;
   });
 
@@ -157,7 +163,7 @@ export class CheckoutPanelComponent {
   }
 
   updatePaymentAmount(index: number, amount: number) {
-    this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, amount } : p));
+    this.payments.update(prev => prev.map((p, i) => i === index ? { ...p, amount: this.round(amount) } : p));
   }
 
   updateReference(index: number, reference: string) {
@@ -199,12 +205,16 @@ export class CheckoutPanelComponent {
     let computedAdjustment = 0;
     const val = item.adjustmentInput || 0;
     if (item.adjustmentType === 'percentage') {
-      computedAdjustment = subtotal * (val / 100);
+      computedAdjustment = this.round(subtotal * (val / 100));
     } else {
       computedAdjustment = val;
     }
     item.adjustment = computedAdjustment;
-    item.total = Math.max(0, subtotal + computedAdjustment);
+    item.total = Math.max(0, this.round(subtotal + computedAdjustment));
+  }
+
+  public round(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
   removeFromCart(index: number) {
@@ -216,13 +226,11 @@ export class CheckoutPanelComponent {
     return item.product.id;
   }
 
-  onCustomerChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const value = selectElement.value;
-    if (value === 'null' || !value) {
+  onCustomerSelect(option: any) {
+    if (!option || option.id === 'null') {
       this.selectedCustomer.set(null);
     } else {
-      const customer = this.customers().find(c => c.id === Number(value));
+      const customer = this.customers().find(c => c.id === Number(option.id));
       this.selectedCustomer.set(customer || null);
     }
   }

@@ -30,7 +30,8 @@
                     <div class="card-img-section">
                         <div class="img-wrapper">
                             <img *ngIf="prod.imageUrl" [src]="prod.imageUrl" class="product-img" [alt]="prod.tradeName"
-                                (error)="$any($event.target).style.display = 'none'">
+                                (load)="onImageLoadOrError()"
+                                (error)="onImageLoadOrError($event)">
                             <div *ngIf="!prod.imageUrl" class="img-placeholder">
                                 <i class="bi bi-capsule"></i>
                             </div>

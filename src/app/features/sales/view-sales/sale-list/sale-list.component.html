@@ -1,7 +1,7 @@
 <div class="container-fluid px-4">
-    <div class="row g-3">
+    <div class="row">
         <div class="col-12">
-            <div class="card border-0 shadow-sm mb-4">
+            <div class="card border shadow-sm my-4">
                 <div class="card-body p-3">
                     <app-date-range-search (filterChange)="handleDateFilter($event)"></app-date-range-search>
                 </div>
@@ -10,22 +10,30 @@
     </div>
 
     <!-- Sales Summary -->
-    <app-summary-cards title="RESUMEN" [items]="summaryItems">
-    </app-summary-cards>
+    <div class="row">
+        <div class="col-12">
+            <app-summary-cards title="RESUMEN" [items]="summaryItems">
+            </app-summary-cards>
+        </div>
+    </div>
 
     <!-- Sales Table -->
-    <div class="position-relative">
-        <app-custom-table [data]="sales" [columns]="columns" [pageSize]="pageSize" [totalElements]="totalItems"
-            [currentPage]="currentPage + 1" (onAction)="handleTableAction($event)"
-            (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
-            (onPageSizeChange)="handlePageSizeChange($event)">
-        </app-custom-table>
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="position-relative">
+                <app-custom-table [data]="sales" [columns]="columns" [pageSize]="pageSize" [totalElements]="totalItems"
+                    [currentPage]="currentPage + 1" (onAction)="handleTableAction($event)"
+                    (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
+                    (onPageSizeChange)="handlePageSizeChange($event)">
+                </app-custom-table>
 
-        <div *ngIf="isLoading"
-            class="position-absolute top-50 start-50 translate-middle text-center w-100 h-100 bg-white bg-opacity-75 d-flex flex-column align-items-center justify-content-center"
-            style="z-index: 10;">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted small">Cargando ventas...</p>
+                <div *ngIf="isLoading"
+                    class="position-absolute top-50 start-50 translate-middle text-center w-100 h-100 bg-white bg-opacity-75 d-flex flex-column align-items-center justify-content-center"
+                    style="z-index: 10;">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted small">Cargando ventas...</p>
+                </div>
+            </div>
         </div>
     </div>
 

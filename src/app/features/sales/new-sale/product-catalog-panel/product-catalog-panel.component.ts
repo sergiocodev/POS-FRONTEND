@@ -25,7 +25,7 @@ export interface UnitDisplayData {
 }
 
 @Component({
-    selector: 'app-pos',
+    selector: 'app-product-catalog-panel',
     standalone: true,
     imports: [
         CommonModule, FormsModule, ReactiveFormsModule,
@@ -53,6 +53,7 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     @Output() updateCart = new EventEmitter<CartItem[]>();
     @Output() updateSelectedCustomer = new EventEmitter<CustomerResponse | null>();
     @Output() openCustomerModal = new EventEmitter<void>();
+    @Output() imagesLoadingStatus = new EventEmitter<boolean>();
 
     // Local UI State
     productSearchTerm = '';

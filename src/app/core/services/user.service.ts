@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
-import { UserRequest, UserResponse, UserAssignRolesRequest, UserAssignEstablishmentsRequest, ExternalLookupResponse } from '../models/user.model';
+import { Observable } from 'rxjs';
+import { UserRequest, UserResponse, UserAssignRolesRequest, ExternalLookupResponse } from '../models/user.model';
 import { ResponseApi } from '../models/response-api.model';
 
 
@@ -12,13 +12,12 @@ export class UserService {
     private http = inject(HttpClient);
     private apiUrl = '/api/v1/users';
 
-    private cache$?: Observable<ResponseApi<UserResponse[]>>;
-
-    getAll(): Observable<ResponseApi<UserResponse[]>> {
-        if (!this.cache$) {
-            this.cache$ = this.http.get<ResponseApi<UserResponse[]>>(this.apiUrl).pipe(shareReplay(1));
-        }
-        return this.cache$;
+    /**
+     * Obtiene la lista paginada de usuarios activos.
+     * El backend devuelve Page<UserResponse>.getContent() envuelto en ResponseApi.
+     */
+    getAll(page: number = 0, size: number = 20): Observable<ResponseApi<UserResponse[]>> {
+        return this.http.get<ResponseApi<UserResponse[]>>(`${this.apiUrl}?page=${page}&size=${size}`);
     }
 
     getById(id: number): Observable<ResponseApi<UserResponse>> {
@@ -41,15 +40,7 @@ export class UserService {
         return this.http.post<ResponseApi<UserResponse>>(`${this.apiUrl}/${userId}/roles`, request);
     }
 
-    assignEstablishments(userId: number, request: UserAssignEstablishmentsRequest): Observable<ResponseApi<UserResponse>> {
-        return this.http.post<ResponseApi<UserResponse>>(`${this.apiUrl}/${userId}/establishments`, request);
-    }
-
     searchByDocument(documentNumber: string): Observable<ResponseApi<ExternalLookupResponse>> {
         return this.http.get<ResponseApi<ExternalLookupResponse>>(`${this.apiUrl}/search/${documentNumber}`);
-    }
-
-    invalidateCache(): void {
-        this.cache$ = undefined;
     }
 }

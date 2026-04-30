@@ -1,9 +1,7 @@
-import { Component, signal, ViewChild, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsersListComponent } from './users-list/users-list.component';
 import { UserFormComponent } from './user-form/user-form.component';
-import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
-import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { UserService } from '../../../core/services/user.service';
 import { RoleService } from '../../../core/services/role.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
@@ -11,6 +9,8 @@ import { UserResponse } from '../../../core/models/user.model';
 import { RoleResponse } from '../../../core/models/maintenance.model';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 
 @Component({
   selector: 'app-users',
@@ -54,8 +54,8 @@ export class UsersComponent implements OnInit {
       error: (err) => console.error('Error loading roles:', err)
     });
 
-    // Load Users
-    this.userService.getAll().subscribe({
+    // Load Users — size=20 matches backend @PageableDefault(size = 20)
+    this.userService.getAll(0, 20).subscribe({
       next: (response) => {
         this.users.set(response.data);
         this.isLoading.set(false);
@@ -109,5 +109,4 @@ export class UsersComponent implements OnInit {
       });
     }
   }
-
 }

@@ -19,6 +19,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-new-sale',
@@ -29,7 +30,8 @@ import { ModalService } from '../../../shared/components/confirm-modal/service/m
         CustomerFormComponent,
         ModuleHeaderComponent,
         ModalAlertComponent,
-        ConfirmModalComponent
+        ConfirmModalComponent,
+        SpinnerComponent
     ],
     templateUrl: './new-sale.component.html'
 })
@@ -50,6 +52,7 @@ export class NewSaleComponent implements OnInit {
     activeSession = signal<CashSessionResponse | null>(null);
     filteredProducts = signal<ProductForSaleResponse[]>([]);
     isLoading = signal<boolean>(false);
+    isImagesLoading = signal<boolean>(false);
 
     // Cart Signals
     cart = signal<CartItem[]>([]);
@@ -190,7 +193,7 @@ export class NewSaleComponent implements OnInit {
             next: (response) => {
                 const res = response.data;
                 this.isLoading.set(false);
-                this.modalService.alert({ title: 'Éxito', message: `Venta registrada! Comprobante: ${res.series}-${res.number}`, type: 'success' });
+                this.modalService.alert({ title: 'Éxito', message: `Venta registrada!<br>${res.series}-${res.number}`, type: 'success' });
                 this.cart.set([]);
             },
             error: (err) => {

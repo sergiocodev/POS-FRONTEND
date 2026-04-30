@@ -1,5 +1,4 @@
 
-
 export interface RoleRequest {
     name: string;
     description?: string;
@@ -52,21 +51,4 @@ export interface EstablishmentResponse {
     name: string;
     address?: string;
     codeSunat: string;
-}
-
-export interface UserRequest {
-    username: string;
-    email: string;
-    password?: string;
-    fullName?: string;
-}
-
-export interface UserResponse {
-    id: number;
-    username: string;
-    email: string;
-    fullName?: string;
-    lastLogin?: string;
-    createdAt: string;
-    updatedAt: string;
 }

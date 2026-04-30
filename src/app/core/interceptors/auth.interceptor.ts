@@ -32,13 +32,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-            // Check for blacklisted token (backend sets X-Token-Blacklisted: true)
-            // This means the user explicitly logged out — don't attempt refresh
-            if (error.headers.get('X-Token-Blacklisted') === 'true') {
-                authService.logout();
-                return throwError(() => new Error('Session ended. Please log in again.'));
-            }
-
             // Only refresh on 401 (Unauthorized), not 403 (Forbidden)
             // 403 means "authenticated but no permission" — refreshing won't help
             if (error.status === 401 && !req.url.includes('/api/v1/auth/refresh')) {

@@ -39,9 +39,9 @@
 
                 <h4 class="fw-bold text-dark mb-2">{{ modalService.alertConfig.title }}</h4>
 
-                <p class="text-muted mb-4">{{ modalService.alertConfig.message }}</p>
+                <p class="text-muted mb-4" [innerHTML]="modalService.alertConfig.message"></p>
 
-                <div class="d-grid col-10 mx-auto">
+                <div class="d-flex justify-content-center">
                     <button type="button" class="btn btn-primary btn-lg rounded-pill fw-bold" (click)="onClose()">
                         {{ modalService.alertConfig.buttonText }}
                     </button>

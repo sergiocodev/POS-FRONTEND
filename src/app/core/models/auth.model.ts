@@ -4,23 +4,24 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-    username: string;
-    password: string;
-    email: string;
-    fullName: string;
+  username: string;
+  password: string;
+  email: string;
+  fullName: string;
+  profilePicture?: string;
 }
 
 export interface LoginResponse {
-    token: string;
-    refreshToken?: string;
-    type?: string;
-    id: number;
-    username: string;
-    email: string;
-    fullName: string;
-    roles: string[];
-    permissions: string[];
-    profilePicture?: string;
+  token: string;
+  refreshToken: string; // Ahora es obligatorio
+  type?: string;
+  id: number;
+  username: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  permissions: string[];
+  profilePicture?: string;
 }
 
 export interface User {

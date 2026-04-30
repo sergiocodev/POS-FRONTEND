@@ -1,5 +1,5 @@
 import { CommonModule, NgIf, NgFor, DecimalPipe } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 
 export interface Product {
   id: string | number;
@@ -28,13 +28,40 @@ export interface Product {
   templateUrl: './card-grid.component.html',
   styleUrl: './card-grid.component.scss',
 })
-export class CardGridComponent {
+export class CardGridComponent implements OnChanges {
   // Entradas desde el componente padre
   @Input() products: Product[] = [];
   @Input() isLoading: boolean = false;
 
   // Salida hacia el componente padre
   @Output() productClick = new EventEmitter<Product>();
+  @Output() imagesLoadingStatus = new EventEmitter<boolean>();
+
+  private imagesToLoad = 0;
+  private imagesLoadedCount = 0;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['products']) {
+      this.imagesToLoad = this.products.filter(p => p.imageUrl).length;
+      this.imagesLoadedCount = 0;
+
+      if (this.imagesToLoad > 0) {
+        setTimeout(() => this.imagesLoadingStatus.emit(true));
+      } else {
+        setTimeout(() => this.imagesLoadingStatus.emit(false));
+      }
+    }
+  }
+
+  onImageLoadOrError(event?: any): void {
+    if (event && event.type === 'error') {
+      event.target.style.display = 'none';
+    }
+    this.imagesLoadedCount++;
+    if (this.imagesLoadedCount >= this.imagesToLoad) {
+      setTimeout(() => this.imagesLoadingStatus.emit(false));
+    }
+  }
 
   // Emitimos el evento cuando el usuario hace clic en una tarjeta
   onProductClick(product: Product): void {

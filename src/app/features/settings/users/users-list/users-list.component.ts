@@ -40,7 +40,7 @@ export class UsersListComponent implements OnInit, OnChanges {
         { key: 'email', label: 'Email', type: 'text', filterable: true },
         { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', ') },
 
-        { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'short') || 'N/A' : 'Nunca' },
+        { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'dd/MM/yyyy HH:mm', 'UTC') || 'N/A' : 'Nunca' },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
@@ -52,8 +52,9 @@ export class UsersListComponent implements OnInit, OnChanges {
     searchTerm = signal('');
     selectedRoleFilter = signal<number | null>(null);
 
-    currentPage = 1;
+    currentPage = signal(1);
     pageSize = 10;
+    totalUsers = signal(0);
 
 
 
@@ -71,6 +72,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 
     updateLocalData() {
         this.localUsers.set(this.users);
+        this.totalUsers.set(this.users.length);
         this.applyFilters();
     }
 
@@ -102,7 +104,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 
 
         this.filteredUsers.set(filtered);
-        this.currentPage = 1; // Resetear a página 1 al filtrar
+        this.currentPage.set(1); // Resetear a página 1 al filtrar
     }
 
     onSearchChange(value: string) {
