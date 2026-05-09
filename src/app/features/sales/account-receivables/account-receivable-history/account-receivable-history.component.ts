@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AccountReceivableService } from '../../../../core/services/account-receivable.service';
 import { AccountReceivablePaymentResponse, ReceivablePaymentMethod } from '../../../../core/models/account-receivable.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
@@ -14,7 +15,8 @@ import { ModalService } from '../../../../shared/components/confirm-modal/servic
         CommonModule,
         FormsModule,
         CustomTableComponent,
-        ModuleHeaderComponent
+        ModuleHeaderComponent,
+        RouterLink
     ],
     templateUrl: './account-receivable-history.component.html',
     styleUrl: './account-receivable-history.component.scss'

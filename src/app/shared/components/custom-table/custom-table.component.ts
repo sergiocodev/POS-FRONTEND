@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { CustomSelectComponent } from '../custom-select.component/custom-select.component';
 
 // --- INTERFACES ---
 
@@ -33,7 +34,7 @@ export interface TableColumn {
 @Component({
   selector: 'app-custom-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CustomSelectComponent],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss',
 })
@@ -46,6 +47,10 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentPage: number = 1;
 
   @Input() tableClass: string = 'table-hover';
+  @Input() title: string = '';
+  @Input() icon: string = '';
+  @Input() showAddButton: boolean = false;
+  @Input() addButtonLabel: string = 'Nuevo';
 
   // --- OUTPUTS ---
   @Output() onAction = new EventEmitter<{ action: string, row: any }>();
@@ -53,6 +58,7 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   @Output() onPageSizeChange = new EventEmitter<number>();
   @Output() onToggle = new EventEmitter<{ row: any, key: string, checked: boolean }>();
   @Output() onFilterChange = new EventEmitter<{ [key: string]: string }>();
+  @Output() onAdd = new EventEmitter<void>();
 
   isServerSide: boolean = false;
 
@@ -94,7 +100,7 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['totalElements']) {
-       this.isServerSide = true;
+      this.isServerSide = true;
     }
     if (changes['data'] || changes['columns']) {
       this.applyFilters();
@@ -119,7 +125,7 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.currentPage > this.totalPages) {
-        if (this.totalElements === 0 || !this.isServerSide) this.currentPage = 1;
+      if (this.totalElements === 0 || !this.isServerSide) this.currentPage = 1;
     }
     this.updatePaginatedData();
   }
@@ -137,8 +143,15 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onPageSizeUIChange(event: any) {
-    const newSize = Number(event.target.value);
+    const newSize = Number(event.target?.value ?? event);
     this.onPageSizeChange.emit(newSize);
+  }
+
+  onPageSizeSelectChange(value: any) {
+    const newSize = Number(value);
+    this.pageSize = newSize;
+    this.onPageSizeChange.emit(newSize);
+    this.applyFilters();
   }
 
   // 3. Calculadora de botones de paginación
@@ -183,10 +196,10 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   onFilterUIChange() {
     // Si es server-side, mandamos al subject para el debounce
     if (this.isServerSide) {
-        this.filterSubject.next({ ...this.filterValues });
+      this.filterSubject.next({ ...this.filterValues });
     } else {
-        // Si no es server-side, aplicamos de inmediato para que se vea reactivo localmente
-        this.applyFilters();
+      // Si no es server-side, aplicamos de inmediato para que se vea reactivo localmente
+      this.applyFilters();
     }
   }
 

@@ -35,6 +35,7 @@
   --bg-body: #f8f7fa;
   --card-bg: #ffffff;
   --input-bg: #ffffff;
+  --dropdown-bg: #ffffff;
   --bg-sidebar-start: #ffffff;
   --bg-sidebar-end: #ffffff;
 
@@ -84,9 +85,9 @@
 
   // --- Colores principales ---
   --primary-color: #0000ff;
-  --primary-hover: #ff007c;
+  --primary-hover: #00008e;
   --secondary-color: #ff007c;
-  --secondary-hover: #a78bfa;
+  --secondary-hover: #aa0454;
 
   // --- Colores de estado ---
   --success-color: #34d399;
@@ -99,11 +100,12 @@
   --info-hover: #3b82f6;
 
   // --- Fondos ---
-  --bg-body: #181a26;
-  --card-bg: #181a26;
-  --input-bg: #3a3f5a;
-  --bg-sidebar-start: #181a26;
-  --bg-sidebar-end: #181a26;
+  --bg-body: #2b2c33;
+  --card-bg: #0e1529;
+  --input-bg: #162343;
+  --dropdown-bg: #162343;
+  --bg-sidebar-start: #0e1529;
+  --bg-sidebar-end: #0e1529;
 
   // --- Textos ---
   --text-main: #cfcde5;
@@ -113,8 +115,8 @@
 
   // --- Bordes / interacción ---
   --border-color: #434968;
-  --hover-bg: rgba(255, 255, 255, 0.05);
-  --active-bg: linear-gradient(90deg, rgba(115, 103, 240, 0.15) 0%, rgba(115, 103, 240, 0) 100%);
+  --hover-bg: #0000ff;
+
 
   // --- Sombras ---
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.20);
@@ -134,6 +136,33 @@ body {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* --- Global Scrollbar Styling --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+
+  &:hover {
+    background-color: var(--text-muted);
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
 }
 
 
@@ -184,7 +213,7 @@ body {
 .card {
   background-color: var(--card-bg) !important;
   color: var(--text-main) !important;
-  border-color: var(--border-color) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important; // Very subtle border for dark mode consistency
 
   .card-header,
   .card-footer {
@@ -197,12 +226,12 @@ body {
 // --- Bootstrap Form Overrides ---
 .form-control,
 .form-select {
-  background-color: var(--input-bg) !important;
+  background-color: var(--input-bg);
   border-color: var(--border-color) !important;
   color: var(--text-main) !important;
 
   &:focus {
-    background-color: var(--input-bg) !important;
+    background-color: var(--input-bg);
     color: var(--text-main) !important;
   }
 
@@ -223,6 +252,29 @@ body {
   border-color: var(--border-color) !important;
 }
 
+// --- Bootstrap Dropdown Overrides ---
+.dropdown-menu {
+  background-color: var(--dropdown-bg) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+
+  .dropdown-item {
+    color: var(--text-main) !important;
+
+    &:hover,
+    &:focus {
+      background-color: var(--hover-bg) !important;
+      color: var(--text-main) !important;
+    }
+
+    &.active,
+    &:active {
+      background-color: var(--primary-color) !important;
+      color: var(--text-on-primary) !important;
+    }
+  }
+}
+
 // --- Clean up generic BG classes ---
 .bg-white {
   background-color: var(--card-bg) !important;
@@ -232,10 +284,33 @@ body {
   background-color: var(--bg-body) !important;
 }
 
-.bg-body-tertiary {
-  background-color: var(--bg-body) !important;
+.bg-body-tertiary,
+.bg-body-secondary {
+  background-color: var(--hover-bg) !important;
 }
 
 .text-dark {
   color: var(--text-main) !important;
-}
+}
+
+.text-body {
+  color: var(--text-main) !important;
+}
+
+.text-secondary,
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.badge {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+.badge-success { background-color: var(--success-color) !important; }
+.badge-danger { background-color: var(--danger-color) !important; }
+.badge-warning { background-color: var(--warning-color) !important; }
+.badge-info { background-color: var(--info-color) !important; }
+.badge-secondary { background-color: var(--border-color) !important; color: var(--text-main) !important; }
+
+

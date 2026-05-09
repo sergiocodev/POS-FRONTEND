@@ -20,6 +20,9 @@ export class SearchableDropdownComponent {
   searchPlaceholder = input<string>('Buscar...');
   emptyMessage = input<string>('No se encontraron resultados.');
   selectedId = input<string | number | null>(null);
+  searchable = input<boolean>(true);
+  size = input<'sm' | 'md' | 'lg'>('md');
+  disabled = input<boolean>(false);
 
   // Output
   selectionChange = output<SelectOption>();
@@ -53,6 +56,7 @@ export class SearchableDropdownComponent {
   });
 
   toggleDropdown(): void {
+    if (this.disabled()) return;
     this.isOpen.update(v => !v);
     if (!this.isOpen()) {
       this.searchTerm.set(''); // Resetea la búsqueda al cerrar

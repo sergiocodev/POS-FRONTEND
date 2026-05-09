@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ElementRef, inject, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ElementRef, inject, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -11,6 +11,9 @@ import { FormsModule } from '@angular/forms';
 export class DateRangeSearchComponent implements OnInit {
   private elementRef = inject(ElementRef);
   @Output() filterChange = new EventEmitter<{ startDate: string, endDate: string }>();
+  @Input() showSearchButton = true;
+  @Input() initialStartDate?: string;
+  @Input() initialEndDate?: string;
 
   // Estado de los popovers
   showStartPicker = false;
@@ -47,8 +50,24 @@ export class DateRangeSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.startDate.setHours(0, 0, 0, 0);
-    this.endDate.setHours(23, 59, 59, 999);
+    if (this.initialStartDate) {
+      const [datePart, timePart] = this.initialStartDate.split('T');
+      const [y, m, d] = datePart.split('-');
+      const [h, min, s] = timePart ? timePart.split(':') : ['0', '0', '0'];
+      this.startDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), parseInt(h), parseInt(min), parseInt(s));
+    } else {
+      this.startDate.setHours(0, 0, 0, 0);
+    }
+
+    if (this.initialEndDate) {
+      const [datePart, timePart] = this.initialEndDate.split('T');
+      const [y, m, d] = datePart.split('-');
+      const [h, min, s] = timePart ? timePart.split(':') : ['23', '59', '59'];
+      this.endDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), parseInt(h), parseInt(min), parseInt(s));
+    } else {
+      this.endDate.setHours(23, 59, 59, 999);
+    }
+    
     this.generateCalendar();
   }
 
@@ -143,6 +162,10 @@ export class DateRangeSearchComponent implements OnInit {
     targetDate.setHours(h);
     targetDate.setMinutes(parseInt(this.selectedMinute));
     targetDate.setSeconds(0);
+
+    if (!this.showSearchButton) {
+      this.onSearch();
+    }
   }
 
   setToday() {

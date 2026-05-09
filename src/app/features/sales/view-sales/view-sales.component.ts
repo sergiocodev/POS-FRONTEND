@@ -6,8 +6,9 @@ import { SaleResponse, SaleSummaryResponse } from '../../../core/models/sale.mod
 import { SaleListComponent } from './sale-list/sale-list.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { SaleDetailComponent } from './sale-detail/sale-detail.component';
-import { SummaryItem } from '../../../shared/components/summary-cards/summary-cards.component';
+import { SummaryCardsComponent, SummaryItem } from '../../../shared/components/summary-cards/summary-cards.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { DateRangeSearchComponent } from '../../../shared/components/date-range-search/date-range-search.component';
 @Component({
     selector: 'app-view-sales',
     standalone: true,
@@ -16,7 +17,9 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
         SaleListComponent,
         ModalGenericComponent,
         SaleDetailComponent,
-        ModuleHeaderComponent
+        ModuleHeaderComponent,
+        SummaryCardsComponent,
+        DateRangeSearchComponent
     ],
     templateUrl: './view-sales.component.html'
 })

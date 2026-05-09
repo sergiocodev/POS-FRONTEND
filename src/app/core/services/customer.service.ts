@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { CustomerRequest, CustomerResponse, ExternalLookupResponse } from '../models/customer.model';
+import { CustomerDashboardResponse } from '../models/customer-dashboard.model';
 import { ResponseApi } from '../models/response-api.model';
 
 @Injectable({
@@ -18,6 +19,16 @@ export class CustomerService {
             this.cache$ = this.http.get<ResponseApi<CustomerResponse[]>>(this.apiUrl).pipe(shareReplay(1));
         }
         return this.cache$;
+    }
+
+    getAllPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<any>> {
+        let params = `?page=${page}&size=${size}`;
+        if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        if (filters.documentNumber) params += `&documentNumber=${encodeURIComponent(filters.documentNumber)}`;
+        if (filters.email) params += `&email=${encodeURIComponent(filters.email)}`;
+        if (filters.phone) params += `&phone=${encodeURIComponent(filters.phone)}`;
+
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/paged${params}`);
     }
 
     getById(id: number): Observable<ResponseApi<CustomerResponse>> {
@@ -38,6 +49,10 @@ export class CustomerService {
 
     searchByDocument(documentNumber: string): Observable<ResponseApi<ExternalLookupResponse>> {
         return this.http.get<ResponseApi<ExternalLookupResponse>>(`/api/v1/users/search/${documentNumber}`);
+    }
+
+    getDashboard(): Observable<ResponseApi<CustomerDashboardResponse>> {
+        return this.http.get<ResponseApi<CustomerDashboardResponse>>(`${this.apiUrl}/dashboard`);
     }
 
     invalidateCache(): void {

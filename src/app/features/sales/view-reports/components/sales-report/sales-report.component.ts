@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SalesReport, SalesSummary } from '../../../../core/models/report.model';
+import { SalesReport, SalesSummary } from '../../../../../core/models/report.model';
 
 @Component({
     selector: 'app-sales-report',
@@ -43,6 +43,7 @@ export class SalesReportComponent implements OnInit {
             case 'PENDIENTE':
                 return 'text-bg-warning';
             case 'CANCELLED':
+            case 'CANCELED':
             case 'ANULADO':
                 return 'text-bg-danger';
             default:

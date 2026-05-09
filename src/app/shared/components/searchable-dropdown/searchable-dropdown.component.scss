@@ -1,7 +1,7 @@
 :host {
     display: block;
     flex: 1 1 auto;
-    width: 1%; // Bootstrap pattern for input-group items
+    width: 100%;
 }
 
 .dropdown-container {
@@ -17,30 +17,57 @@
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.5;
-    color: var(--bs-body-color);
-    background-color: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.375rem;
+    color: var(--text-main);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem; // More rounded like the photo
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    height: 31px; // Match input-group-sm height roughly
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.size-sm {
+        height: 32px;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    &.size-md {
+        height: 40px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    &.size-lg {
+        height: 52px;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+
+    &.disabled {
+        background-color: var(--dropdown-bg);
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+        border-color: var(--border-color);
+    }
 
     &.bg-body-secondary {
-        background-color: var(--bs-secondary-bg) !important;
+        background-color: var(--hover-bg) !important;
         border: none;
     }
 
-    &:hover {
-        background-color: var(--bs-secondary-bg);
+    &:hover,
+    &.isOpen {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
     }
 
     .selected-text {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        
+
         &.placeholder {
-            color: var(--bs-secondary-color);
+            color: var(--text-muted);
             opacity: 0.7;
         }
     }
@@ -48,7 +75,7 @@
     i {
         font-size: 0.75rem;
         margin-left: 0.5rem;
-        color: var(--bs-secondary-color);
+        color: var(--text-muted);
     }
 }
 
@@ -58,47 +85,75 @@
     left: 0;
     right: 0;
     z-index: 1050;
-    margin-top: 0.25rem;
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem; // More rounded like the photo
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    padding: 0.5rem;
+    padding: 0.25rem; // Reduced padding
+    display: none;
+
+    &.show {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .search-box {
     position: relative;
-    margin-bottom: 0.5rem;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-color);
+    margin: -0.25rem -0.25rem 0.25rem -0.25rem;
 
     i {
         position: absolute;
-        left: 0.75rem;
+        left: 1.125rem;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--bs-secondary-color);
-        font-size: 0.875rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
     }
 
     input {
-        padding-left: 2.25rem;
+        padding-left: 2.625rem;
+        height: 34px;
         font-size: 0.875rem;
         border-radius: 0.375rem;
-        border: 1px solid var(--bs-border-color-translucent);
-        background: var(--bs-secondary-bg);
+        border: none;
+        background: transparent;
+        color: var(--text-main);
+        width: 100%;
+
+        &::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
 
         &:focus {
             box-shadow: none;
-            border-color: var(--bs-primary);
+            background: transparent;
         }
     }
 }
 
 .items-list {
     list-style: none;
-    padding: 0;
+    padding: 0.125rem;
     margin: 0;
-    max-height: 200px;
+    max-height: 200px; // Reduced height
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -106,40 +161,66 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background: var(--bs-border-color);
+        background: var(--border-color);
         border-radius: 10px;
     }
 
     li {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        transition: background 0.15s ease;
+        margin-bottom: 2px;
 
-        &:hover {
-            background: var(--bs-secondary-bg);
+        &:last-child {
+            margin-bottom: 0;
         }
 
-        &.active {
-            background: rgba(var(--bs-primary-rgb), 0.1);
-            color: var(--bs-primary);
-            font-weight: 600;
+        .dropdown-item-custom {
+            width: 100%;
+            padding: 0.25rem 0.35rem; // Smaller padding
+            font-size: 0.875rem; // Smaller font size
+            font-weight: 500;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; // Smaller gap
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            text-align: left;
+
+            &:hover {
+                background: var(--hover-bg);
+            }
+
+            &.active {
+                background: var(--primary-color) !important;
+                color: #ffffff !important;
+                box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+
+                i {
+                    color: #ffffff !important;
+                }
+            }
+
+            i {
+                font-size: 1rem; // Smaller icon
+                flex-shrink: 0;
+            }
+
+            span {
+                flex-grow: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
 
         &.no-results {
-            justify-content: center;
-            color: var(--bs-secondary-color);
+            padding: 1.5rem;
+            color: var(--text-muted);
             font-style: italic;
-            cursor: default;
-            &:hover { background: transparent; }
-        }
-
-        i {
-            font-size: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
         }
     }
 }

@@ -3,12 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CustomerService } from '../../../../core/services/customer.service';
+import { ModalAlertComponent } from '../../../../shared/components/modal-alert/modal-alert.component';
+import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 
 
 @Component({
     selector: 'app-customer-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [
+        CommonModule, 
+        ReactiveFormsModule, 
+        RouterModule,
+        ModalAlertComponent,
+        ConfirmModalComponent,
+        SpinnerComponent
+    ],
     templateUrl: './customer-form.component.html',
     styleUrl: './customer-form.component.scss'
 })
@@ -17,6 +28,7 @@ export class CustomerFormComponent implements OnInit {
     private customerService = inject(CustomerService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private modalService = inject(ModalService);
 
     @Input() isModal: boolean = false;
     @Input() customerId: number | null = null;
@@ -42,7 +54,6 @@ export class CustomerFormComponent implements OnInit {
     isSearching = signal<boolean>(false);
     isLoading = signal<boolean>(false);
     accumulatedPoints = signal<number>(0);
-    errorMessage = signal<string>('');
 
     documentTypes = [
         { value: 'DNI', label: 'DNI' },
@@ -133,7 +144,7 @@ export class CustomerFormComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: (error) => {
-                this.errorMessage.set('Error al cargar el cliente. Intenta de nuevo.');
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar el cliente. Intenta de nuevo.', type: 'error' });
                 this.isLoading.set(false);
                 console.error('Error loading customer:', error);
             }
@@ -143,12 +154,11 @@ export class CustomerFormComponent implements OnInit {
     searchDocument() {
         const document = this.customerForm.get('documentNumber')?.value;
         if (!document) {
-            this.errorMessage.set('Ingrese un número de documento para buscar.');
+            this.modalService.alert({ title: 'Atención', message: 'Ingrese un número de documento para buscar.', type: 'warning' });
             return;
         }
 
         this.isSearching.set(true);
-        this.errorMessage.set('');
 
         this.customerService.searchByDocument(document).subscribe({
             next: (response) => {
@@ -174,12 +184,12 @@ export class CustomerFormComponent implements OnInit {
                         address: fullAddress
                     });
                 } else {
-                    this.errorMessage.set('No se encontraron datos (nombre/razón social) para este documento.');
+                    this.modalService.alert({ title: 'Sin resultados', message: 'No se encontraron datos (nombre/razón social) para este documento.', type: 'warning' });
                 }
             },
             error: (error) => {
                 this.isSearching.set(false);
-                this.errorMessage.set('No se encontraron datos para este documento o ocurrió un error.');
+                this.modalService.alert({ title: 'Error', message: 'No se encontraron datos para este documento o ocurrió un error.', type: 'error' });
                 console.error('Search error:', error);
             }
         });
@@ -192,7 +202,6 @@ export class CustomerFormComponent implements OnInit {
         }
 
         this.isLoading.set(true);
-        this.errorMessage.set('');
 
         const customerData = this.customerForm.value;
 
@@ -202,19 +211,21 @@ export class CustomerFormComponent implements OnInit {
 
         request$.subscribe({
             next: () => {
+                this.isLoading.set(false);
                 if (this.isModal) {
                     this.saveSuccess.emit();
                 } else {
-                    this.router.navigate(['/customers']);
+                    this.modalService.alert({ title: 'Éxito', message: 'Cliente guardado correctamente', type: 'success' })
+                        .then(() => this.router.navigate(['/customers']));
                 }
             },
             error: (error) => {
                 this.isLoading.set(false);
+                let msg = 'Error al guardar el cliente. Verifica los datos e intenta de nuevo.';
                 if (error.status === 409) {
-                    this.errorMessage.set('Ya existe un cliente con este número de documento.');
-                } else {
-                    this.errorMessage.set('Error al guardar el cliente. Verifica los datos e intenta de nuevo.');
+                    msg = 'Ya existe un cliente con este número de documento.';
                 }
+                this.modalService.alert({ title: 'Error', message: msg, type: 'error' });
                 console.error('Error saving customer:', error);
             }
         });

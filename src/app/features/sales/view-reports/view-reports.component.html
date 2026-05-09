@@ -1,12 +1,145 @@
-<app-module-header title="Reportes" iconClass="bi bi-graph-up-arrow"></app-module-header>
+<app-module-header title="Reporte de Ventas" iconClass="bi bi-graph-up-arrow"></app-module-header>
 
-<div class="container-fluid">
-    <app-sales-report 
-        [sales]="sales()" 
-        [summary]="summary()" 
-        [isLoading]="isLoading()"
-        [initialStartDate]="startDate"
-        [initialEndDate]="endDate"
-        (filterChange)="handleFilterChange($event)">
-    </app-sales-report>
+<div class="container-fluid report-container">
+    <!-- ═══ Tab Navigation ═══ -->
+    <div class="report-tabs-wrapper my-4">
+        <div class="report-tabs">
+            @for (tab of tabs; track tab.key) {
+            <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="setActiveTab(tab.key)">
+                <i class="bi" [class]="tab.icon"></i>
+                <span>{{ tab.label }}</span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- ═══ Filters Section ═══ -->
+    <app-report-filters [activeTab]="activeTab()" [establishments]="establishments()" [startDate]="startDate()"
+        [endDate]="endDate()" [selectedEstablishmentId]="selectedEstablishmentId()?.toString() || null"
+        (establishmentChange)="onEstablishmentChange($event); loadTabData()" [documentTypes]="documentTypes"
+        [selectedDocumentType]="selectedDocumentType()"
+        (documentTypeChange)="selectedDocumentType.set($event); loadTabData()" [availableSeries]="availableSeries()"
+        [selectedSeries]="selectedSeries()" (seriesChange)="selectedSeries.set($event); loadTabData()"
+        [sellers]="sellers()"
+        [selectedSellerId]="selectedSellerIds().length > 0 ? selectedSellerIds()[0].toString() : null"
+        (sellerChange)="onSellerChange($event); loadTabData()" [customers]="customers()"
+        [selectedCustomerId]="selectedCustomerIds().length > 0 ? selectedCustomerIds()[0].toString() : null"
+        (customerChange)="onCustomerChange($event); loadTabData()"
+        (dateRangeChange)="onDateRangeChange($event)"></app-report-filters>
+
+    <!-- ═══ Loading Overlay ═══ -->
+    <app-spinner [show]="isLoading()" message="Generando reporte..."></app-spinner>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: COMPROBANTES -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'comprobantes' && !isLoading()) {
+    <div class="row g-4">
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR COMPROBANTE"
+                description="Visualiza las ventas agrupadas por tipo de comprobante" (actionClick)="onViewPdfReport()">
+                <i class="bi bi-tags fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: PRODUCTOS -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'productos' && !isLoading()) {
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR CATEGORIA" description="Visualiza las ventas agrupadas por tipo de categoria"
+                [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
+                placeholder="Seleccione Categoría" (selectionChange)="onCategoryChange($event)"
+                (actionClick)="onViewCategoryPdfReport()">
+                <i class="bi bi-tags fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR ESTABLECIMIENTO Y SERIE"
+                description="Visualiza las ventas agrupadas por establecimiento y serie"
+                [dropdownConfigs]="cardDropdownConfigs()" (dropdownChange)="onCardDropdownChange($event)"
+                (actionClick)="onViewEstablishmentSeriesPdfReport()">
+                <i class="bi bi-shop fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR ACCIÓN TERAPÉUTICA, MARCA Y PRODUCTO"
+                description="Visualiza las ventas agrupadas por producto, marca y acción terapéutica"
+                [dropdownConfigs]="productCardDropdownConfigs()" (dropdownChange)="onProductCardDropdownChange($event)"
+                [disabled]="!isProductCombinationValid()" (actionClick)="onViewProductBrandTherapeuticPdfReport()">
+                <i class="bi bi-box-seam fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: CLIENTES -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'clientes' && !isLoading()) {
+    <div class="row g-4">
+
+        <!-- Card Report (PDF Gen) -->
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR CLIENTE" description="Visualiza las ventas agrupadas por cliente"
+                [hasDropdown]="true" [multiple]="true" [options]="customerOptions()" placeholder="Seleccione Cliente"
+                (selectionChange)="onCustomerCardChange($event)" (actionClick)="onViewCustomerPdfReport()"
+                [disabled]="selectedCustomerIds().length === 0 && selectedCustomerIdsForCard().length === 0">
+                <i class="bi bi-people fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: VENDEDOR -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'vendedor' && !isLoading()) {
+    <div class="row g-4">
+
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR VENDEDOR" description="Visualiza las ventas agrupadas por vendedor"
+                [hasDropdown]="true" [multiple]="true" [options]="sellerOptions()" placeholder="Seleccione Vendedor"
+                (selectionChange)="onSellerCardChange($event)"
+                [disabled]="selectedSellerIds().length === 0 && selectedSellerIdsForSellerCard().length === 0"
+                (actionClick)="onViewSellerPdfReport()">
+                <i class="bi bi-person-badge fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR CATEGORÍA" description="Visualiza las ventas agrupadas por categoría"
+                [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
+                placeholder="Seleccione Categoría" (selectionChange)="onCategoryChange($event)"
+                [disabled]="selectedSellerIds().length === 0" (actionClick)="onViewSellerCategoryPdfReport()">
+                <i class="bi bi-tags fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+        <div class="col-12 col-md-4 d-flex">
+            <app-card-report title="POR PRODUCTO" description="Visualiza las ventas agrupadas por producto"
+                [dropdownConfigs]="singleProductDropdownConfig()" (dropdownChange)="onProductCardDropdownChange($event)"
+                [disabled]="selectedSellerIds().length === 0" (actionClick)="onViewSellerProductPdfReport()">
+                <i class="bi bi-box-seam fs-1" mainIcon></i>
+                <i class="bi bi-eye me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+    </div>
+    }
 </div>

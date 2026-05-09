@@ -1,12 +1,12 @@
 .summary-container {
-    background: #fdfdfd;
-    border: 1px solid #e0e0e0;
+    background: var(--card-bg);
+
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 
     .summary-title {
-        color: #4a90e2;
+        color: var(--primary-color);
         font-weight: 600;
         margin-bottom: 1.5rem;
         font-size: 1.1rem;
@@ -24,8 +24,9 @@
     align-items: center;
     padding: 1rem;
     border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
     transition: transform 0.2s;
+    background-color: var(--dropdown-bg);
 
     &:hover {
         transform: translateY(-2px);
@@ -56,80 +57,68 @@
 
         .card-label {
             font-size: 0.75rem;
-            color: #6c757d;
+            color: var(--text-muted);
         }
     }
 
     /* Variaciones dinámicas según tus estilos */
     &.card-f {
-        background-color: #f0fdf4;
-
         .card-icon {
-            background-color: #22c55e;
+            background-color: var(--success-color);
         }
 
         .card-value {
-            color: #166534;
+            color: var(--success-color);
         }
     }
 
     &.card-b {
-        background-color: #f0fdf4;
-
         .card-icon {
-            background-color: #15803d;
+            background-color: var(--success-color);
         }
 
         .card-value {
-            color: #166534;
+            color: var(--success-color);
         }
     }
 
     &.card-c {
-        background-color: #fef2f2;
-
         .card-icon {
-            background-color: #ef4444;
+            background-color: var(--danger-color);
         }
 
         .card-value {
-            color: #991b1b;
+            color: var(--danger-color);
         }
     }
 
     &.card-d {
-        background-color: #f0fdf4;
-
         .card-icon {
-            background-color: #166534;
+            background-color: var(--success-color);
         }
 
         .card-value {
-            color: #166534;
+            color: var(--success-color);
         }
     }
 
     &.card-v {
-        background-color: #f0fdf4;
-
         .card-icon {
-            background-color: #4ade80;
+            background-color: var(--success-color);
         }
 
         .card-value {
-            color: #166534;
+            color: var(--success-color);
         }
     }
 
     &.card-n {
-        background-color: #eff6ff;
-
         .card-icon {
-            background-color: #3b82f6;
+            background-color: var(--info-color);
         }
 
         .card-value {
-            color: #1e40af;
+            color: var(--info-color);
         }
     }
 }

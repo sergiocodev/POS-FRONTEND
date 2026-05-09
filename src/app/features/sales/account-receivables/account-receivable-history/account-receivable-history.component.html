@@ -1,4 +1,8 @@
-<app-module-header title="Historial de Cobros a Clientes" iconClass="bi bi-clock-history"></app-module-header>
+<app-module-header title="Historial de Cobros a Clientes" iconClass="bi bi-clock-history">
+    <button class="btn btn-outline-primary rounded-pill btn-sm" routerLink="/account-receivables">
+        <i class="bi bi-arrow-left"></i> Volver
+    </button>
+</app-module-header>
 
 <div class="payment-history-page animate-fade-in px-3">
     <div class="card shadow-sm border-0 mb-4">
@@ -7,15 +11,15 @@
             <div class="row g-3 align-items-end mb-4">
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Fecha Inicio</label>
-                    <input type="date" class="form-control" [(ngModel)]="startDate" (change)="onFilter()">
+                    <input type="date" class="form-control" [ngModel]="startDate()" (ngModelChange)="startDate.set($event); onFilter()">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Fecha Fin</label>
-                    <input type="date" class="form-control" [(ngModel)]="endDate" (change)="onFilter()">
+                    <input type="date" class="form-control" [ngModel]="endDate()" (ngModelChange)="endDate.set($event); onFilter()">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Método de Pago</label>
-                    <select class="form-select" [(ngModel)]="paymentMethod" (change)="onFilter()">
+                    <select class="form-select" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event); onFilter()">
                         <option value="">Todos</option>
                         <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
                     </select>

@@ -6,18 +6,72 @@
     <app-module-header title="Punto de Venta" iconClass="bi-cart"></app-module-header>
 </div>
 
-<app-product-catalog-panel [products]="products()" [displayProducts]="displayProducts()" [customers]="customers()"
-    [filteredProducts]="filteredProducts()" [cart]="cart()" [selectedCustomer]="selectedCustomer()"
-    [isLoading]="isLoading()" (productSearch)="onProductSearch($event)" (processSale)="onProcessSale($event)"
-    (updateCart)="cart.set($event)" (updateSelectedCustomer)="selectedCustomer.set($event)"
-    (openCustomerModal)="showCustomerModal.set(true)"
-    (imagesLoadingStatus)="isImagesLoading.set($event)">
-</app-product-catalog-panel>
+<div class="pos-container min-vh-100 d-flex flex-column pb-5 pb-lg-0">
+    <div class="container-fluid px-2 px-md-3 px-xl-4 py-3 py-md-4 flex-grow-1 d-flex flex-column">
+        <div class="row g-3 g-md-4 flex-grow-1">
+
+            <!-- Product grid panel -->
+            <div class="col-12 col-lg-7 col-xl-8 d-flex flex-column gap-2 gap-md-3 mb-4 mb-lg-0">
+                <app-product-catalog-panel class="flex-grow-1" [products]="products()" [displayProducts]="displayProducts()"
+                    [filteredProducts]="filteredProducts()" [cart]="cart()"
+                    [isLoading]="isLoading()"
+                    (productSearch)="onProductSearch($event)" (updateCart)="cart.set($event)"
+                    (imagesLoadingStatus)="isImagesLoading.set($event)">
+                </app-product-catalog-panel>
+            </div>
+
+            <!-- Checkout panel (Offcanvas in Mobile, Column in Desktop) -->
+            <div class="col-12 col-lg-5 col-xl-4 offcanvas-lg offcanvas-end bg-transparent" tabindex="-1" id="checkoutOffcanvas" [class.show]="isCartOpen()" [style.visibility]="isCartOpen() ? 'visible' : ''">
+                <!-- Offcanvas Header for Mobile only -->
+                <div class="offcanvas-header d-lg-none border-bottom border-white border-opacity-10 px-3 bg-card">
+                    <h5 class="offcanvas-title fw-bold d-flex align-items-center m-0">
+                        <i class="bi bi-cart3 me-2 text-primary fs-4"></i> Venta Actual
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-medium shadow-sm"
+                            (click)="cart.set([])" [disabled]="cart().length === 0">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                        <button type="button" class="btn-close ms-1" aria-label="Close" (click)="isCartOpen.set(false)"></button>
+                    </div>
+                </div>
+
+                <div class="offcanvas-body p-0 p-lg-0 h-100 d-flex flex-column overflow-hidden">
+                    <app-checkout-panel class="flex-grow-1" [cart]="cart()" [customers]="customers()" [isLoading]="isLoading()"
+                        (onProcessSale)="onProcessSale($event)" (onClearCart)="cart.set([])"
+                        (onAddCustomer)="showCustomerModal.set(true)" (onCartChange)="cart.set($event)">
+                    </app-checkout-panel>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Backdrop for Mobile -->
+@if (isCartOpen()) {
+    <div class="offcanvas-backdrop fade show d-lg-none" (click)="isCartOpen.set(false)"></div>
+}
+
+<!-- Floating Action Button for Mobile -->
+<div class="d-lg-none position-fixed bottom-0 start-0 w-100 p-3 bg-card border-top border-white border-opacity-10 shadow-lg z-3">
+    <button class="btn btn-primary w-100 py-3 fw-bold fs-6 rounded-pill shadow-sm d-flex justify-content-between align-items-center px-4" (click)="isCartOpen.set(true)">
+        <span class="d-flex align-items-center">
+            <i class="bi bi-cart-fill fs-5 me-2"></i>
+            Ver Carrito
+        </span>
+        <span class="badge bg-primary text-white rounded-pill px-3 py-2 fs-6">
+            {{ cart().length }} items
+        </span>
+    </button>
+</div>
 
 <!-- Customer Form Modal -->
 <app-modal-generic [isVisible]="showCustomerModal()" title="Nuevo Cliente" size="lg"
     (close)="showCustomerModal.set(false)">
-    <app-customer-form *ngIf="showCustomerModal()" [isModal]="true" (saveSuccess)="onCustomerSaveSuccess()"
-        (cancel)="showCustomerModal.set(false)">
-    </app-customer-form>
+    @if (showCustomerModal()) {
+        <app-customer-form [isModal]="true" (saveSuccess)="onCustomerSaveSuccess()"
+            (cancel)="showCustomerModal.set(false)">
+        </app-customer-form>
+    }
 </app-modal-generic>

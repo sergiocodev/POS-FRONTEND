@@ -2,12 +2,31 @@
     <app-module-header title="Ver ventas" iconClass="bi-receipt"></app-module-header>
 </div>
 
-<app-sale-list [sales]="sales()" [isLoading]="isLoading()" [totalItems]="totalItems()" [totalPages]="totalPages()"
-    [currentPage]="currentPage()" [pageSize]="pageSize()" [summaryItems]="summaryItems()"
-    (pageChange)="handlePageChange($event)" (pageSizeChange)="handlePageSizeChange($event)"
-    (tableFilterChange)="handleTableFilter($event)" (dateFilterChange)="handleDateFilter($event)"
-    (viewDetail)="onViewDetails($event)" (cancelSale)="onCancelSale($event)">
-</app-sale-list>
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border shadow-sm my-4">
+                <div class="card-body p-3">
+                    <app-date-range-search (filterChange)="handleDateFilter($event)"></app-date-range-search>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Summary -->
+    <div class="row">
+        <div class="col-12">
+            <app-summary-cards title="RESUMEN" [items]="summaryItems()">
+            </app-summary-cards>
+        </div>
+    </div>
+
+    <app-sale-list [sales]="sales()" [isLoading]="isLoading()" [totalItems]="totalItems()" [totalPages]="totalPages()"
+        [currentPage]="currentPage()" [pageSize]="pageSize()" (pageChange)="handlePageChange($event)"
+        (pageSizeChange)="handlePageSizeChange($event)" (tableFilterChange)="handleTableFilter($event)"
+        (viewDetail)="onViewDetails($event)" (cancelSale)="onCancelSale($event)">
+    </app-sale-list>
+</div>
 
 <!-- Sale Detail Modal -->
 <app-modal-generic [title]="'Ajuste de Comprobante'" [isVisible]="isDetailVisible()" [size]="'full'"

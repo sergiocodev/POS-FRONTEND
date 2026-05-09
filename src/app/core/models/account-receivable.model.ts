@@ -15,12 +15,13 @@ export enum ReceivablePaymentMethod {
 
 export interface AccountReceivableResponse {
     id: number;
-    saleId: number;
+    saleIdentifier: string;
     customerName: string;
     totalAmount: number;
     amountPaid: number;
     pendingBalance: number;
     status: ReceivableStatus;
+    daysUntilDue: number | null;
     dueDate: string;
     notes: string;
     createdAt: string;

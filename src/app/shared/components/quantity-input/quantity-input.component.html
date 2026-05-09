@@ -4,20 +4,19 @@
         {{ label }}
     </div>
 
-    <div class="btn-group btn-group-sm bg-body-tertiary rounded-3 border border-light w-100"
-        [class.bg-white]="!showControls" style="height: 26px;">
+    <div class="btn-group btn-group-sm quantity-container rounded-3 border w-100"
+        style="height: 26px;">
 
-        <button *ngIf="showControls" type="button" class="btn btn-light px-2 py-0 text-muted fw-bold border-0"
+        <button *ngIf="showControls" type="button" class="btn btn-qty px-2 py-0 text-muted fw-bold border-0"
             (click)="decrement()" [disabled]="value <= min || disabled">-</button>
 
-        <input type="number" class="px-1 fw-bold bg-white text-center border-0 w-100 custom-number-input"
-            style="font-size: 0.85rem; border-left: 1px solid #eee !important; border-right: 1px solid #eee !important; outline: none; min-width: 1px;"
-            [style.border-left]="!showControls ? 'none' : '1px solid #eee !important'"
-            [style.border-right]="!showControls ? 'none' : '1px solid #eee !important'" [value]="value"
+        <input type="number" class="px-1 fw-bold text-center border-0 w-100 custom-number-input"
+            [class.border-start]="showControls" [class.border-end]="showControls"
+            [value]="value"
             [step]="allowManual ? 'any' : step" [readonly]="!allowManual || !showControls || disabled"
             (change)="onManualInput($event)" (input)="onManualInput($event)">
 
-        <button *ngIf="showControls" type="button" class="btn btn-light px-2 py-0 text-muted fw-bold border-0"
+        <button *ngIf="showControls" type="button" class="btn btn-qty px-2 py-0 text-muted fw-bold border-0"
             (click)="increment()" [disabled]="value >= max || disabled">+</button>
     </div>
 </div>

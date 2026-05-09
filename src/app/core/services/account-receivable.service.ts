@@ -17,6 +17,14 @@ export class AccountReceivableService {
         return this.http.get<ResponseApi<AccountReceivableResponse[]>>(this.apiUrl);
     }
 
+    getAllPaged(params: any): Observable<ResponseApi<Page<AccountReceivableResponse>>> {
+        return this.http.get<ResponseApi<Page<AccountReceivableResponse>>>(`${this.apiUrl}/paged`, { params });
+    }
+
+    getDashboard(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/dashboard`);
+    }
+
     getById(id: number): Observable<ResponseApi<AccountReceivableResponse>> {
         return this.http.get<ResponseApi<AccountReceivableResponse>>(`${this.apiUrl}/${id}`);
     }

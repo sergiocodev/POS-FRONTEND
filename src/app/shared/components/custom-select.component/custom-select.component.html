@@ -1,0 +1,25 @@
+<div class="custom-select-container" [ngClass]="customClass">
+    <!-- Botón principal que muestra la selección o el placeholder -->
+    <div class="select-trigger" (click)="toggleDropdown()" [class.open]="isOpen">
+        <span class="selected-text" [class.placeholder]="!selectedOption">
+            {{ getDisplayLabel(selectedOption) }}
+        </span>
+        <span class="arrow" [class.up]="isOpen">
+            <i class="bi bi-chevron-down"></i>
+        </span>
+    </div>
+
+    <!-- Lista de opciones desplegable -->
+    <ul class="select-options" *ngIf="isOpen">
+        <li *ngFor="let option of options" class="option-item" [class.selected]="selectedOption === option"
+            (click)="selectOption(option)">
+
+            <span class="option-label">{{ getDisplayLabel(option) }}</span>
+        </li>
+
+        <!-- Mensaje por si el array está vacío -->
+        <li *ngIf="options.length === 0" class="option-item disabled">
+            No hay opciones
+        </li>
+    </ul>
+</div>

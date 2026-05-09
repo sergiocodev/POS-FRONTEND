@@ -1,132 +1,79 @@
-import { Component, OnInit, signal, computed, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CustomerResponse } from '../../../../core/models/customer.model';
+import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
 
 @Component({
     selector: 'app-customer-list',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, CustomTableComponent],
     templateUrl: './customer-list.component.html',
     styleUrl: './customer-list.component.scss'
 })
-export class CustomerListComponent implements OnInit, OnChanges {
+export class CustomerListComponent implements OnInit {
     // Inputs from Container
     @Input() customers: CustomerResponse[] = [];
     @Input() isLoading = false;
     @Input() errorMessage = '';
+    @Input() totalItems = 0;
+    @Input() totalPages = 0;
+    @Input() currentPage = 0;
+    @Input() pageSize = 10;
 
     // Outputs to Container
     @Output() newCustomer = new EventEmitter<void>();
     @Output() editCustomer = new EventEmitter<number>();
     @Output() deleteCustomer = new EventEmitter<CustomerResponse>();
     @Output() clearError = new EventEmitter<void>();
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() pageSizeChange = new EventEmitter<number>();
+    @Output() tableFilterChange = new EventEmitter<any>();
 
-    searchTerm = signal<string>('');
-    filteredCustomers = signal<CustomerResponse[]>([]);
-
-    // Client-side pagination
-    currentPage = signal(0);
-    pageSize = signal(20);
-
-    pagedCustomers = computed(() => {
-        const start = this.currentPage() * this.pageSize();
-        return this.filteredCustomers().slice(start, start + this.pageSize());
-    });
-
-    totalItems = computed(() => this.filteredCustomers().length);
-    totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
-
-    get displayStart(): number {
-        return this.totalItems() === 0 ? 0 : (this.currentPage() * this.pageSize()) + 1;
-    }
-
-    get displayEnd(): number {
-        const end = (this.currentPage() + 1) * this.pageSize();
-        return Math.min(end, this.totalItems());
-    }
-
-    get pageNumbers(): number[] {
-        const total = this.totalPages();
-        const current = this.currentPage();
-        const pages: number[] = [];
-
-        if (total <= 7) {
-            for (let i = 0; i < total; i++) pages.push(i);
-        } else {
-            pages.push(0, 1, 2);
-            if (current > 4) pages.push(-1);
-            const start = Math.max(3, current - 1);
-            const end = Math.min(total - 3, current + 1);
-            for (let i = start; i <= end; i++) pages.push(i);
-            if (current < total - 5) pages.push(-2);
-            pages.push(total - 3, total - 2, total - 1);
-        }
-
-        return pages;
-    }
+    columns: TableColumn[] = [
+        { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
+        {
+            key: 'documentType',
+            label: 'Tipo Doc.',
+            type: 'badge',
+            align: 'center',
+            classCallback: () => 'bg-secondary'
+        },
+        { key: 'documentNumber', label: 'Nº Documento', filterable: true },
+        { key: 'name', label: 'Nombre', filterable: true },
+        { key: 'phone', label: 'Teléfono', filterable: true },
+        { key: 'email', label: 'Email', filterable: true },
+        {
+            key: 'accumulatedPoints',
+            label: 'Puntos',
+            type: 'badge',
+            align: 'center',
+            classCallback: () => 'bg-primary bg-opacity-10 text-primary rounded-pill px-3'
+        },
+        { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
+    ];
 
     ngOnInit(): void {
-        this.updateFilteredCustomers();
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['customers']) {
-            this.updateFilteredCustomers();
+    onTableAction(event: { action: string, row: any }): void {
+        if (event.action === 'edit') {
+            this.onEdit(event.row.id);
+        } else if (event.action === 'delete') {
+            this.onDelete(event.row);
         }
     }
 
-    updateFilteredCustomers(): void {
-        const term = this.searchTerm().toLowerCase();
-        if (!term) {
-            this.filteredCustomers.set(this.customers);
-        } else {
-            const filtered = this.customers.filter(customer =>
-                customer.name.toLowerCase().includes(term) ||
-                customer.documentNumber.includes(term) ||
-                customer.email?.toLowerCase().includes(term) ||
-                customer.phone?.includes(term)
-            );
-            this.filteredCustomers.set(filtered);
-        }
-        this.currentPage.set(0);
+    handlePageChange(page: number): void {
+        this.pageChange.emit(page);
     }
 
-    onSearch(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        this.searchTerm.set(input.value.toLowerCase());
-        this.updateFilteredCustomers();
+    handlePageSizeChange(size: number): void {
+        this.pageSizeChange.emit(size);
     }
 
-    goToPage(page: number): void {
-        if (page >= 0 && page < this.totalPages()) {
-            this.currentPage.set(page);
-        }
-    }
-
-    previousPage(): void {
-        if (this.currentPage() > 0) {
-            this.currentPage.set(this.currentPage() - 1);
-        }
-    }
-
-    nextPage(): void {
-        if (this.currentPage() < this.totalPages() - 1) {
-            this.currentPage.set(this.currentPage() + 1);
-        }
-    }
-
-    onPageClick(page: number): void {
-        if (page < 0) return;
-        this.goToPage(page);
-    }
-
-    isEllipsis(page: number): boolean {
-        return page < 0;
-    }
-
-    onNew(): void {
-        this.newCustomer.emit();
+    handleTableFilter(filters: any): void {
+        this.tableFilterChange.emit(filters);
     }
 
     onEdit(id: number): void {

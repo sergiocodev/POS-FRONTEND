@@ -1,0 +1,57 @@
+<div class="filters-card mb-4">
+    <div class="filters-body">
+        <div class="row g-3 align-items-end w-100 mx-0">
+
+            <!-- Dates (takes half the row) -->
+            <div class="col-12 col-md-6">
+                <app-date-range-search [showSearchButton]="false" [initialStartDate]="startDate"
+                    [initialEndDate]="endDate" (filterChange)="onDateRangeChange($event)">
+                </app-date-range-search>
+            </div>
+
+            <!-- Tab-specific Filters (take the other half) -->
+            @if (activeTab === 'productos') {
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Establecimiento</label>
+                <app-searchable-dropdown [options]="establishmentOptions" [selectedId]="selectedEstablishmentId"
+                    size="lg" placeholder="Seleccione Establecimiento"
+                    (selectionChange)="establishmentChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+
+            @if (activeTab === 'comprobantes') {
+            <div class="col-12 col-md-3">
+                <label class="filter-label">Tipo de Comprobante</label>
+                <app-searchable-dropdown [options]="documentTypeOptions" [selectedId]="selectedDocumentType" size="lg"
+                    placeholder="Seleccione Tipo"
+                    (selectionChange)="documentTypeChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="filter-label">Serie</label>
+                <app-searchable-dropdown [options]="seriesOptions" [selectedId]="selectedSeries" size="lg"
+                    placeholder="Todas" [disabled]="!selectedDocumentType"
+                    (selectionChange)="seriesChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+
+            @if (activeTab === 'vendedor') {
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Vendedor</label>
+                <app-searchable-dropdown [options]="sellerOptions" [selectedId]="selectedSellerId" size="lg"
+                    placeholder="Seleccione Vendedor"
+                    (selectionChange)="sellerChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+
+            @if (activeTab === 'clientes') {
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Cliente</label>
+                <app-searchable-dropdown [options]="customerOptions" [selectedId]="selectedCustomerId" size="lg"
+                    placeholder="Seleccione Cliente"
+                    (selectionChange)="customerChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+        </div>
+    </div>
+</div>

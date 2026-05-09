@@ -1,0 +1,452 @@
+// ═══════════════════════════════════════════════════
+// Report Module Styles
+// ═══════════════════════════════════════════════════
+
+$primary: #1a0dab;
+$primary-light: #e8e6ff;
+$primary-dark: #0f0875;
+$success: #198754;
+$danger: #dc3545;
+$info: #0dcaf0;
+$teal: #0d9488;
+$purple: #7c3aed;
+$warning: #f59e0b;
+
+.report-container {}
+
+// ── Tab Navigation ──
+.report-tabs-wrapper {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 4px 15px rgba(var(--primary-color), 0.3);
+}
+
+.report-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+
+    &::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+    }
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    i {
+        font-size: 1rem;
+    }
+
+    &:hover {
+        color: #fff;
+        background: var(--primary-hover);
+    }
+
+    &.active {
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+
+
+// ── KPI Cards ──
+.kpi-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.kpi-content {
+    .kpi-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+}
+
+.kpi-primary {
+    border-left: 4px solid $primary;
+
+    .kpi-value {
+        color: $primary;
+    }
+}
+
+.kpi-success {
+    border-left: 4px solid $success;
+
+    .kpi-value {
+        color: $success;
+    }
+}
+
+.kpi-info {
+    border-left: 4px solid $info;
+
+    .kpi-value {
+        color: $info;
+    }
+}
+
+.kpi-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+        font-size: 1.4rem;
+    }
+}
+
+.kpi-icon-primary {
+    background: rgba($primary, 0.08);
+    color: $primary;
+}
+
+.kpi-icon-success {
+    background: rgba($success, 0.08);
+    color: $success;
+}
+
+.kpi-icon-info {
+    background: rgba($info, 0.08);
+    color: $info;
+}
+
+// ── Report Table Card ──
+.report-table-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    thead {
+        background: #f8f9fc;
+
+        th {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            color: #6b7280;
+            border: none;
+            padding: 14px 12px;
+        }
+    }
+
+    tbody {
+        border-top: none !important;
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+}
+
+.table-header-bar {
+    padding: 14px 20px;
+    background: $primary;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.table-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+
+// ── Badges ──
+.badge-doctype {
+    background: #f0f0ff;
+    color: $primary;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba($primary, 0.1);
+}
+
+.badge-status-success {
+    background: #ecfdf5;
+    color: $success;
+    font-weight: 600;
+}
+
+.badge-status-danger {
+    background: #fef2f2;
+    color: $danger;
+    font-weight: 600;
+}
+
+.badge-status-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.badge-percentage {
+    background: rgba($purple, 0.1);
+    color: $purple;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.badge-category {
+    background: rgba($teal, 0.1);
+    color: $teal;
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.voided-row {
+    background: #fef2f2 !important;
+    opacity: 0.7;
+    text-decoration: line-through;
+}
+
+// ── Report Card Block (Categories, Vendedor tabs) ──
+.report-card-block {
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    padding: 24px;
+    height: 100%;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        border-color: $primary;
+        box-shadow: 0 4px 16px rgba($primary, 0.1);
+    }
+}
+
+.report-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: $primary;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+
+    &.report-card-icon-teal {
+        background: $teal;
+    }
+
+    &.report-card-icon-purple {
+        background: $purple;
+    }
+}
+
+.report-card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: $primary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.report-card-desc {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.report-card-table {
+    flex: 1;
+    max-height: 320px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 10px;
+    }
+
+    table {
+        font-size: 0.8rem;
+    }
+
+    thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6b7280;
+        font-weight: 600;
+        padding: 8px 6px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    tbody td {
+        padding: 8px 6px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+}
+
+// ── Group Summary Cards (Grupos tab) ──
+.group-summary-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+}
+
+
+
+.group-card-body {
+    padding: 18px;
+}
+
+.group-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid #f3f4f6;
+    }
+}
+
+.group-stat-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.group-stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+// ── Category expandable rows ──
+.category-row {
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #f8f9fc !important;
+    }
+}
+
+.product-detail-row {
+    background: #fafbfe !important;
+    animation: slideDown 0.2s ease;
+}
+
+.transition-icon {
+    transition: transform 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ── Responsive ──
+@media (max-width: 768px) {
+    .tab-btn {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+
+        span {
+            display: none;
+        }
+    }
+
+    .kpi-card {
+        padding: 16px;
+    }
+
+    .kpi-content .kpi-value {
+        font-size: 1.2rem;
+    }
+
+    .report-card-block {
+        padding: 18px;
+    }
+}

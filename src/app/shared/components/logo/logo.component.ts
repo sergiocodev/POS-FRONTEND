@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-logo',
@@ -12,4 +13,12 @@ export class LogoComponent {
   @Input() collapsed = false;
   @Input() showText = true;
   @Input() height = '40px';
+
+  private themeService = inject(ThemeService);
+
+  get isDarkMode() {
+    return this.themeService.isDarkMode();
+  }
+
 }
+

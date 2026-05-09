@@ -4,11 +4,12 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } 
 import { QuantityInputComponent } from '../../../../shared/components/quantity-input/quantity-input.component';
 import { PaymentMethod, PaymentCondition } from '../../../../core/models/sale.model';
 import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
+import { CustomSelectComponent } from '../../../../shared/components/custom-select.component/custom-select.component';
 
 @Component({
   selector: 'app-checkout-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuantityInputComponent, SearchableDropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuantityInputComponent, SearchableDropdownComponent, CustomSelectComponent],
   templateUrl: './checkout-panel.component.html',
   styleUrl: './checkout-panel.component.scss',
 })
@@ -69,14 +70,23 @@ export class CheckoutPanelComponent {
   });
 
   seriesOptions: any = {
-    'BOLETA': ['B001', 'B002', 'B003'],
-    'FACTURA': ['F001', 'F002', 'F003'],
-    'NOTA_DE_VENTA': ['NV001', 'NV002', 'NV003']
+    'BOLETA': ['B001', 'B002'],
+    'FACTURA': ['F001', 'F002'],
+    'NOTA_DE_VENTA': ['NV001', 'NV002']
   };
 
   paymentConditions = Object.values(PaymentCondition);
   paymentMethods = Object.values(PaymentMethod);
   PaymentConditionEnum = PaymentCondition;
+  documentOptions = signal([
+    { id: 'BOLETA', label: 'BOLETA' },
+    { id: 'FACTURA', label: 'FACTURA' },
+    { id: 'NOTA_DE_VENTA', label: 'NOTA DE VENTA' }
+  ]);
+
+  onDocumentTypeSelect(option: any) {
+    this.posForm.patchValue({ documentType: option.id });
+  }
 
   constructor(private fb: FormBuilder) {
     this.posForm = this.fb.group({

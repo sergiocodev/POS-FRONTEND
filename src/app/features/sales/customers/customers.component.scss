@@ -1,0 +1,33 @@
+// ══════════════════════════════════════════════════════════════
+// customers.component.scss — Customer Dashboard Styles (Simplified)
+// ══════════════════════════════════════════════════════════════
+
+.btn-new-customer {
+  background: var(--primary-color);
+  border: none;
+  color: var(--text-on-primary);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: var(--primary-hover);
+  }
+}
+
+.customers-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── KPI helpers (If used within custom components, keep if needed) ──
+// These were likely moved to shared components, but we'll keep the basics 
+// for the wrapper structure.
+
+@media (max-width: 768px) {
+  .customers-wrapper {
+    margin: 1rem !important;
+  }
+}

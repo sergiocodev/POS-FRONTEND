@@ -5,23 +5,54 @@
     z-index: 1020;
 }
 
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba($text-muted, 0.2) transparent;
+.checkout-container {
+    height: 100%;
 
-    &::-webkit-scrollbar {
-        width: 4px;
+    @media (min-width: 992px) {
+        top: 1.5rem;
+        max-height: calc(100vh - 3rem);
     }
+}
 
-    &::-webkit-scrollbar-thumb {
-        background: $border-color;
-        border-radius: 10px;
+:host ::ng-deep {
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: padding-box;
+
+            &:hover {
+                background-color: var(--text-muted);
+            }
+        }
     }
 }
 
 .cart-items-container {
     min-height: 100px;
     transition: all 0.3s ease;
+    background-color: $card-bg; // Use card background for the container
+}
+
+.cart-item {
+    background-color: $dropdown-bg;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .focus-within-primary {
@@ -125,15 +156,36 @@ input[type=number]::-webkit-outer-spin-button {
     transition: all 0.1s ease;
     border-left: 3px solid $color-primary !important;
     padding: 0.25rem 0.5rem !important;
+    background-color: var(--input-bg);
+    border: 1px solid transparent;
 
     &:hover {
-        background-color: rgba($color-primary, 0.02);
+        border-color: var(--primary-color) !important;
     }
 
     .payment-divider {
         width: 1px;
         height: 16px;
         background-color: rgba($text-muted, 0.2);
+    }
+
+    .form-select {
+        background-color: transparent;
+        color: var(--text-main);
+        cursor: pointer;
+
+        option {
+            background-color: #162343 !important;
+            color: var(--text-main) !important;
+
+            &:hover,
+            &:focus,
+            &:active,
+            &:checked {
+                background-color: var(--primary-color) !important;
+                color: var(--text-on-primary) !important;
+            }
+        }
     }
 }
 
@@ -169,4 +221,126 @@ input[type=number]::-webkit-outer-spin-button {
     color: $text-muted;
     margin-bottom: 0.25rem;
     display: block;
+}
+
+.custom-date-input {
+    transition: all 0.2s ease;
+    border: 1px solid transparent !important;
+    background-color: var(--input-bg) !important;
+
+    &:hover {
+        border-color: var(--primary-color) !important;
+        background-color: color-mix(in srgb, var(--primary-color), transparent 95%) !important;
+
+        &::-webkit-calendar-picker-indicator {
+            // Light theme primary (#2B2B2B) - Almost black
+            filter: brightness(0) saturate(100%) invert(13%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(17%) contrast(85%);
+            cursor: pointer;
+            opacity: 1;
+        }
+    }
+
+    // Ajuste para Dark Theme (Icono azul #0000ff)
+    :host-context(.dark-theme) & {
+        &:hover {
+            &::-webkit-calendar-picker-indicator {
+                filter: invert(32%) sepia(98%) saturate(7469%) hue-rotate(242deg) brightness(101%) contrast(105%);
+            }
+        }
+    }
+
+    &::-webkit-calendar-picker-indicator {
+        transition: all 0.2s ease;
+        opacity: 0.7;
+    }
+}
+
+.btn-payment-condition {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color);
+    background-color: transparent;
+
+    &.active {
+        background-color: var(--primary-color) !important;
+        color: var(--text-on-primary) !important;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--primary-color);
+        color: var(--text-on-primary);
+        opacity: 0.9;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted);
+    }
+}
+
+.btn-theme-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-on-primary) !important;
+
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.btn-theme-outline-primary {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    background-color: transparent !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--primary-color) !important;
+        color: var(--text-on-primary) !important;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted) !important;
+    }
+}
+
+.btn-theme-secondary {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: var(--text-on-secondary) !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--secondary-hover) !important;
+        border-color: var(--secondary-hover) !important;
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.btn-theme-outline-secondary {
+    border-color: var(--secondary-color) !important;
+    color: var(--secondary-color) !important;
+    background-color: transparent !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--secondary-color) !important;
+        color: var(--text-on-secondary) !important;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted) !important;
+    }
 }

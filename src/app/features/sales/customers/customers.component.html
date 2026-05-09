@@ -1,20 +1,36 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading() || isImagesLoading() || dashboardLoading()" [fullScreen]="true"></app-spinner>
+
 <app-module-header title="Gestión de Clientes" iconClass="bi bi-people-fill"></app-module-header>
 
-<div class="container-fluid">
-    <app-customer-list 
-        [customers]="customers()" 
-        [isLoading]="isLoading()" 
-        [errorMessage]="errorMessage()"
-        (newCustomer)="onNew()"
-        (editCustomer)="onEdit($event)"
-        (deleteCustomer)="onDelete($event)"
-        (clearError)="errorMessage.set('')">
+<div class="customers-wrapper m-4">
+
+
+    @if (!dashboardLoading() && dashboard()) {
+    <!-- ── KPI Cards ─────────────────────────────────────────── -->
+    <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
+
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn-new-customer" (click)="onNew()">Nuevo Cliente</button>
+    </div>
+
+    <!-- Listado Completo de Clientes -->
+    <app-customer-list [customers]="customers()" [isLoading]="isLoading()" [errorMessage]="errorMessage()"
+        [totalItems]="totalItems()" [totalPages]="totalPages()" [currentPage]="currentPage()" [pageSize]="pageSize()"
+        (newCustomer)="onNew()" (editCustomer)="onEdit($event)" (deleteCustomer)="onDelete($event)"
+        (clearError)="errorMessage.set('')" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)" (tableFilterChange)="onTableFilter($event)">
     </app-customer-list>
+    }
 </div>
 
+<!-- Modal -->
 <app-modal-generic [title]="selectedCustomerId() ? 'Editar Cliente' : 'Nuevo Cliente'" [isVisible]="isModalOpen()"
     (close)="closeModal()" size="lg">
-    <app-customer-form *ngIf="isModalOpen()" [isModal]="true" [customerId]="selectedCustomerId()"
-        (saveSuccess)="handleSaveSuccess()" (cancel)="closeModal()">
+    @if (isModalOpen()) {
+    <app-customer-form [isModal]="true" [customerId]="selectedCustomerId()" (saveSuccess)="handleSaveSuccess()"
+        (cancel)="closeModal()">
     </app-customer-form>
+    }
 </app-modal-generic>

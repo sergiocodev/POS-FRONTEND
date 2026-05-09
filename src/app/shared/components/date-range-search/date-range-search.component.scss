@@ -13,7 +13,7 @@ $bg-hover: #F5F5F5;
     align-items: flex-end;
     gap: 16px;
     font-family: 'Inter', sans-serif;
-    /* Asumiendo una fuente limpia */
+    width: 100%;
 }
 
 .date-input-group {
@@ -26,7 +26,7 @@ $bg-hover: #F5F5F5;
     label {
         font-size: 14px;
         font-weight: 600;
-        color: #000;
+        color: var(--text-main);
     }
 }
 
@@ -35,9 +35,9 @@ $bg-hover: #F5F5F5;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    border: 1px solid $border-color;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: white;
+    background: var(--input-bg);
     cursor: pointer;
     transition: all 0.2s;
 
@@ -54,13 +54,13 @@ $bg-hover: #F5F5F5;
 
     .date-text {
         font-size: 14px;
-        color: $text-dark;
+        color: var(--text-main);
     }
 
     i,
     .icon {
         font-size: 18px;
-        color: $text-light;
+        color: var(--text-muted);
     }
 }
 
@@ -69,11 +69,11 @@ $bg-hover: #F5F5F5;
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    background: white;
+    background: var(--dropdown-bg);
     border-radius: 12px;
-    border: 1px solid $border-color;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
     padding: 16px;
 }
 
@@ -85,7 +85,7 @@ $bg-hover: #F5F5F5;
 /* Calendario */
 .calendar-section {
     width: 250px;
-    border-right: 1px solid $border-color;
+    border-right: 1px solid var(--border-color);
     padding-right: 16px;
 }
 
@@ -98,13 +98,14 @@ $bg-hover: #F5F5F5;
     .month-title {
         font-weight: 600;
         font-size: 14px;
+        color: var(--text-main);
     }
 
     .nav-btn {
         background: none;
         border: none;
         cursor: pointer;
-        color: $text-light;
+        color: var(--text-muted);
     }
 }
 
@@ -116,7 +117,7 @@ $bg-hover: #F5F5F5;
 
     .weekday {
         font-size: 10px;
-        color: $text-light;
+        color: var(--text-muted);
         font-weight: 600;
         margin-bottom: 8px;
     }
@@ -128,11 +129,12 @@ $bg-hover: #F5F5F5;
         align-items: center;
         justify-content: center;
         font-size: 14px;
+        color: var(--text-main);
         border-radius: 8px;
         cursor: pointer;
 
         &:hover {
-            background: $bg-hover;
+            background: var(--hover-bg);
         }
 
         &.selected {
@@ -174,7 +176,7 @@ $bg-hover: #F5F5F5;
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-right: 1px solid $border-color;
+    border-right: 1px solid var(--border-color);
 
     &:last-child {
         border: none;
@@ -202,7 +204,7 @@ $bg-hover: #F5F5F5;
     border-radius: 4px;
 
     &:hover {
-        background: $bg-hover;
+        background: var(--hover-bg);
     }
 
     &.selected {

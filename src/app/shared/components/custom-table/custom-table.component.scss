@@ -1,13 +1,9 @@
-/* Variables de Color "Enterprise" (Indigo/Slate Theme) */
-$primary-color: #4f46e5;
-/* Indigo moderno */
-$text-primary: #1e293b;
-/* Slate 800 - Casi negro pero más suave */
-$text-secondary: #64748b;
-/* Slate 500 - Gris azulado para subtítulos */
-$bg-hover: #f8fafc;
-/* Slate 50 - Fondo muy claro al pasar el mouse */
-$border-color: #e2e8f0;
+/* Variables de Color vinculadas al tema global */
+$primary-color: var(--primary-color);
+$text-primary: var(--text-main);
+$text-secondary: var(--text-muted);
+$bg-hover: var(--hover-bg);
+$border-color: var(--border-color);
 /* Slate 200 - Borsdes sutiles */
 $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -18,10 +14,30 @@ $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
 /* --- Tarjeta Contenedora --- */
 .card {
-    border: 1px solid $border-color;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important; // Sombra suave estilo Tailwind
+    background-color: var(--card-bg);
     border-radius: 12px;
-    overflow: hidden; // Para que las esquinas de la tabla no se salgan
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Header de la Tarjeta --- */
+.card-header {
+    background-color: transparent;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid $border-color;
+
+    h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-main);
+        letter-spacing: -0.01em;
+        margin: 0;
+    }
+
+    i {
+        font-size: 1.25rem;
+        line-height: 1;
+    }
 }
 
 /* --- Tabla --- */
@@ -41,11 +57,13 @@ $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
 .table {
     margin-bottom: 0;
+    --bs-table-bg: var(--card-bg);
+    background-color: var(--card-bg);
 
     thead {
         th {
-            background-color: #f1f5f9;
-            /* Fondo gris muy suave */
+            background-color: var(--card-bg);
+            /* Fondo consistente con la tarjeta */
             color: $text-secondary;
             font-size: 0.75rem;
             /* 12px */
@@ -54,14 +72,14 @@ $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
             /* Espaciado entre letras elegante */
             text-transform: uppercase;
             padding: 1rem 1rem;
-            border-bottom: 1px solid $border-color;
+            border-bottom: none;
             border-top: none;
             white-space: nowrap;
         }
 
         /* Input de filtros */
         input.form-control {
-            background-color: #ffffff;
+            background-color: var(--input-bg);
             border: 1px solid $border-color;
             font-size: 0.8rem;
             border-radius: 6px;
@@ -97,7 +115,7 @@ $font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
         /* Efecto Hover en filas */
         tr:hover td {
-            background-color: $bg-hover;
+            background-color: rgba(255, 255, 255, 0.05);
         }
     }
 }
@@ -156,11 +174,42 @@ div:hover>label.btn-upload {
     }
 }
 
+
 /* --- Footer & Paginación --- */
 .card-footer {
-    background-color: #fff;
+    background-color: var(--card-bg);
     border-top: 1px solid $border-color;
     padding: 1rem 1.5rem;
+
+    app-custom-select {
+        width: 75px;
+        min-width: 75px;
+
+        ::ng-deep .select-trigger {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0;
+            border-width: 1px;
+            border-color: $border-color;
+
+            &:hover {
+                border-color: $border-color;
+            }
+        }
+
+        ::ng-deep .select-options {
+            top: auto;
+            bottom: calc(100% + 8px);
+        }
+
+        ::ng-deep .option-item {
+            font-size: 0.8rem;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+    }
 }
 
 .pagination {
@@ -170,7 +219,8 @@ div:hover>label.btn-upload {
         .page-link {
             border: none;
             border-radius: 6px;
-            color: $text-secondary;
+            background-color: var(--dropdown-bg);
+            color: $text-primary;
             font-weight: 500;
             font-size: 0.85rem;
             padding: 0.4rem 0.75rem;
@@ -178,14 +228,15 @@ div:hover>label.btn-upload {
 
             &:hover {
                 background-color: $bg-hover;
-                color: $primary-color;
+                color: $text-primary;
             }
         }
 
-        &.active .page-link {
-            background-color: $primary-color;
-            color: white;
-            box-shadow: 0 2px 4px rgba($primary-color, 0.3);
+        &.active .page-link,
+        &.active .page-link:hover {
+            background-color: $primary-color !important;
+            color: var(--text-on-primary) !important;
+            box-shadow: var(--shadow-sm);
         }
 
         &.disabled .page-link {

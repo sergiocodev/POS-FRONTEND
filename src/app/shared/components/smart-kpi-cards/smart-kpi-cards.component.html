@@ -1,0 +1,37 @@
+<div class="smart-kpi-container">
+    <div class="kpi-cards">
+        @for (item of items; track item.label) {
+        <div class="kpi-card">
+            <div class="kpi-icon-wrapper" [ngClass]="item.color">
+                <i class="bi" [ngClass]="item.icon"></i>
+            </div>
+            
+            <div class="kpi-content">
+                <div class="kpi-label">{{ item.label }}</div>
+                <div class="kpi-value-row" [ngClass]="item.color + '-text'">
+                    <span class="kpi-prefix" *ngIf="item.prefix">{{ item.prefix }}</span>
+                    <span class="kpi-value">{{ item.value }}</span>
+                    <span class="kpi-suffix" *ngIf="item.suffix">{{ item.suffix }}</span>
+                </div>
+                
+                <div class="kpi-trend" *ngIf="showTrend && item.trendValue">
+                    <span class="trend-indicator" [ngClass]="item.trendDirection">
+                        <i class="bi" 
+                           [ngClass]="{
+                               'bi-arrow-up-short': item.trendDirection === 'up',
+                               'bi-arrow-down-short': item.trendDirection === 'down',
+                               'bi-dash': item.trendDirection === 'neutral'
+                           }"></i>
+                        {{ item.trendValue }}
+                    </span>
+                    <span class="trend-text" *ngIf="item.trendText">{{ item.trendText }}</span>
+                </div>
+            </div>
+
+            <div class="kpi-chart-placeholder" *ngIf="showChart && item.trendDirection" [ngClass]="item.color">
+                <div class="sparkline-curve" [ngClass]="item.trendDirection"></div>
+            </div>
+        </div>
+        }
+    </div>
+</div>

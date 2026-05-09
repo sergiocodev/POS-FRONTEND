@@ -1,12 +1,12 @@
-<div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column sticky-lg-top"
-    style="top: 1.5rem; max-height: calc(100vh - 3rem);">
+<div
+    class="card border-0 shadow-elevation rounded-4 d-flex flex-column sticky-lg-top checkout-container overflow-hidden">
 
     <div
-        class="card-header bg-transparent border-bottom-0 pt-3 pb-2 px-3 d-flex justify-content-between align-items-center">
+        class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 px-3 justify-content-between align-items-center">
         <h5 class="fw-bold mb-0 d-flex align-items-center">
             <i class="bi bi-receipt-cutoff text-primary me-2 fs-4"></i> Venta Actual
         </h5>
-        <button type="button" class="btn btn-light text-danger btn-sm rounded-pill px-3 fw-medium transition-all"
+        <button type="button" class="btn btn-theme-outline-secondary btn-sm rounded-pill px-3 fw-medium transition-all"
             (click)="onClearCart.emit()" [disabled]="cart().length === 0">
             <i class="bi bi-trash3 me-1"></i> Vaciar
         </button>
@@ -28,21 +28,19 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
-                    <app-searchable-dropdown 
-                        class="flex-grow-1"
-                        [options]="customerOptions()"
+                    <app-searchable-dropdown class="flex-grow-1" [options]="customerOptions()"
                         [selectedId]="selectedCustomer() ? selectedCustomer().id : 'null'"
                         placeholder="Buscar cliente..."
-                        (selectionChange)="onCustomerSelect($event)"
-                    ></app-searchable-dropdown>
-                    <button (click)="onAddCustomer.emit()" class="btn btn-primary ms-2 px-3 py-2" type="button" style="height: 42px;">
+                        (selectionChange)="onCustomerSelect($event)"></app-searchable-dropdown>
+                    <button (click)="onAddCustomer.emit()" class="btn btn-theme-primary ms-2 px-3 py-2" type="button"
+                        style="height: 42px;">
                         <i class="bi bi-person-plus-fill"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Listado de Productos (Carrito) -->
-            <div class="cart-items-container border border-light-subtle rounded-4 p-2 mb-3 overflow-y-auto custom-scrollbar"
+            <div class="cart-items-container border border-white border-opacity-10 rounded-4 p-2 mb-3 overflow-y-auto custom-scrollbar"
                 style="max-height: 35vh;">
                 <div *ngIf="cart().length === 0"
                     class="d-flex flex-column justify-content-center align-items-center text-muted opacity-50 py-4">
@@ -51,9 +49,9 @@
                 </div>
 
                 <div *ngFor="let item of cart(); let i = index; trackBy: trackByCartItem"
-                    class="rounded-3 p-2 mb-2 shadow-sm border border-light animate__animated animate__fadeIn">
+                    class="cart-item rounded-3 p-2 shadow-sm border border-white border-opacity-10 animate__animated animate__fadeIn">
                     <div class="d-flex align-items-center mb-1">
-                        <div class="fw-bold text-dark text-truncate flex-grow-1" style="font-size: 0.75rem;"
+                        <div class="fw-bold text-main text-truncate flex-grow-1" style="font-size: 0.75rem;"
                             [title]="item.product.tradeName">{{
                             item.product.tradeName }}</div>
                         <button type="button" class="btn btn-link text-danger p-0 border-0 ms-2" title="Eliminar"
@@ -89,16 +87,14 @@
                 <!-- Selección de Serie y Documento -->
                 <div class="col-6">
                     <label class="form-label-compact">Documento</label>
-                    <select class="form-select form-select-sm bg-body-secondary border-0"
-                        formControlName="documentType">
-                        <option value="BOLETA">Boleta</option>
-                        <option value="FACTURA">Factura</option>
-                        <option value="NOTA_DE_VENTA">Nota de Venta</option>
-                    </select>
+                    <app-searchable-dropdown [options]="documentOptions()" class="w-100"
+                        [selectedId]="posForm.get('documentType')?.value" [searchable]="false" size="sm"
+                        (selectionChange)="onDocumentTypeSelect($event)">
+                    </app-searchable-dropdown>
                 </div>
                 <div class="col-6">
                     <label class="form-label-compact">Serie</label>
-                    <div class="d-flex align-items-center gap-2 justify-content-start mt-1">
+                    <div class="d-flex align-items-center justify-content-center gap-3" style="height: 32px;">
                         <div *ngFor="let s of seriesOptions[posForm.get('documentType')?.value]" class="series-radio">
                             <input type="radio" [id]="'series-' + s" [value]="s" formControlName="series">
                             <label [for]="'series-' + s">{{ s }}</label>
@@ -110,15 +106,15 @@
                 <div class="col-12">
                     <label class="form-label-compact">Condición de Venta</label>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all"
-                            [class.btn-primary]="posForm.get('paymentCondition')?.value === 'CONTADO'"
-                            [class.btn-outline-primary]="posForm.get('paymentCondition')?.value !== 'CONTADO'"
+                        <button type="button"
+                            class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all btn-payment-condition"
+                            [class.active]="posForm.get('paymentCondition')?.value === 'CONTADO'"
                             (click)="posForm.get('paymentCondition')?.setValue('CONTADO')">
                             CONTADO
                         </button>
-                        <button type="button" class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all"
-                            [class.btn-primary]="posForm.get('paymentCondition')?.value === 'CREDITO'"
-                            [class.btn-outline-primary]="posForm.get('paymentCondition')?.value !== 'CREDITO'"
+                        <button type="button"
+                            class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all btn-payment-condition"
+                            [class.active]="posForm.get('paymentCondition')?.value === 'CREDITO'"
                             [disabled]="isPublicoGeneral()"
                             (click)="posForm.get('paymentCondition')?.setValue('CREDITO')">
                             CRÉDITO
@@ -126,18 +122,16 @@
                     </div>
                 </div>
 
-                <!-- Fecha de Vencimiento (solo Crédito) -->
                 <div class="col-12" *ngIf="posForm.get('paymentCondition')?.value === 'CREDITO'">
                     <label class="form-label-compact">Vencimiento <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm bg-body-secondary border-0"
-                        formControlName="dueDate">
+                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate">
                 </div>
 
                 <!-- Listado de Pagos -->
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label-compact mb-0">Métodos de Pago</label>
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0"
+                        <button type="button" class="btn btn-sm btn-theme-outline-secondary rounded-pill px-2 py-0"
                             style="font-size: 0.65rem;" (click)="addPayment()"
                             [disabled]="remainingAmount() <= 0 && posForm.get('paymentCondition')?.value === 'CONTADO'">
                             <i class="bi bi-plus-lg"></i> Agregar
@@ -151,11 +145,10 @@
                                 class="payment-item border rounded-3 d-flex align-items-center gap-2 px-2 py-1 shadow-sm">
 
                                 <!-- Selector de Método -->
-                                <select class="form-select form-select-sm border-0 bg-transparent fw-bold p-0"
-                                    style="width: auto; min-width: 100px; font-size: 0.75rem; cursor: pointer;"
-                                    [value]="p.method" (change)="updatePaymentMethod(idx, $any($event.target).value)">
-                                    <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
-                                </select>
+                                <app-custom-select class="flex-grow-1" customClass="select-sm select-transparent"
+                                    style="min-width: 140px;" [options]="paymentMethods" [value]="p.method"
+                                    (selectionChange)="updatePaymentMethod(idx, $event)">
+                                </app-custom-select>
 
                                 <div class="payment-divider mx-1"></div>
 
@@ -218,7 +211,7 @@
         </div>
 
         <!-- Área Fija: Totales y Botón de Acción -->
-        <div class="px-3 pb-3 pt-2 border-top shadow-sm">
+        <div class="px-3 pb-3 pt-2 border-top border-white border-opacity-10 shadow-none">
             <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
                 <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
                     <span>Subtotal</span>
@@ -235,7 +228,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-6 rounded-4 shadow-sm"
+            <button type="submit" class="btn btn-theme-primary w-100 py-2 fw-bold fs-6 rounded-4 shadow-sm"
                 [disabled]="isLoading() || cart().length === 0 || posForm.invalid || (posForm.get('paymentCondition')?.value === 'CONTADO' && remainingAmount() > 0)">
                 <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
                 <i *ngIf="!isLoading()" class="bi bi-wallet2 me-2"></i> PROCESAR VENTA

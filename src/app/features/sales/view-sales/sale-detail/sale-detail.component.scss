@@ -1,10 +1,10 @@
 .voucher-card {
     transition: all 0.3s ease;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     background-color: white;
     margin: 0 auto;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    
+
     &.voucher-ticket {
         width: 58mm;
         min-height: 100mm;
@@ -18,8 +18,18 @@
         .ticket-header {
             text-align: center;
             margin-bottom: 10px;
-            h6 { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
-            p { font-size: 10px; margin-bottom: 1px; }
+
+            h6 {
+                font-size: 13px;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+
+            p {
+                font-size: 10px;
+                margin-bottom: 1px;
+            }
+
             .logo-ticket-img {
                 max-width: 100%;
                 height: auto;
@@ -36,15 +46,28 @@
         .table {
             font-size: 11px;
             margin-bottom: 5px;
-            th { border: none; padding: 4px 0; font-weight: bold; }
-            td { border: none; padding: 2px 0; }
+
+            th {
+                border: none;
+                padding: 4px 0;
+                font-weight: bold;
+            }
+
+            td {
+                border: none;
+                padding: 2px 0;
+            }
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
             padding: 2px 0;
-            &.fw-bold { font-weight: bold; font-size: 12px; }
+
+            &.fw-bold {
+                font-weight: bold;
+                font-size: 12px;
+            }
         }
     }
 
@@ -61,7 +84,7 @@
             color: white;
             padding: 20px 10px;
             text-align: center;
-            
+
             .logo-placeholder {
                 width: 70px;
                 height: 45px;
@@ -73,16 +96,24 @@
                 justify-content: center;
                 padding: 4px;
                 overflow: hidden;
-                
+
                 img {
                     max-width: 100%;
                     max-height: 100%;
                     object-fit: contain;
                 }
             }
-            
-            h6 { font-size: 16px; margin-bottom: 5px; }
-            p { font-size: 12px; margin-bottom: 2px; color: rgba(255,255,255,0.9); }
+
+            h6 {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+
+            p {
+                font-size: 12px;
+                margin-bottom: 2px;
+                color: rgba(255, 255, 255, 0.9);
+            }
         }
 
         .voucher-body {
@@ -99,7 +130,7 @@
             border-radius: 15px;
             padding: 15px;
             margin-top: 15px;
-            
+
             .total-row-main {
                 border-top: 1px solid #dee2e6;
                 margin-top: 10px;
@@ -119,6 +150,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+
             img {
                 width: 100%;
                 height: 100%;
@@ -128,8 +160,17 @@
 
         .table {
             font-size: 12px;
-            th { border-bottom: 1px solid #eee; color: #666; font-weight: 500; }
-            td { border: none; padding: 8px 4px; }
+
+            th {
+                border-bottom: 1px solid #eee;
+                color: #666;
+                font-weight: 500;
+            }
+
+            td {
+                border: none;
+                padding: 8px 4px;
+            }
         }
     }
 
@@ -164,6 +205,7 @@
                 justify-content: center;
                 position: relative;
                 overflow: hidden;
+
                 img {
                     max-width: 100%;
                     max-height: 100%;
@@ -174,8 +216,19 @@
             .company-details-center {
                 text-align: center;
                 flex: 1;
-                h4 { color: #000; font-weight: 800; font-size: 24px; margin-bottom: 5px; }
-                p { margin-bottom: 2px; font-size: 13px; font-weight: 600; }
+
+                h4 {
+                    color: #000;
+                    font-weight: 800;
+                    font-size: 24px;
+                    margin-bottom: 5px;
+                }
+
+                p {
+                    margin-bottom: 2px;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
             }
 
             .ruc-id-box {
@@ -184,9 +237,29 @@
                 border-radius: 10px;
                 text-align: center;
                 overflow: hidden;
-                .ruc-number { padding: 8px; font-weight: bold; color: #a52a2a; font-size: 18px; }
-                .doc-title { background-color: #0000ff; color: #fff; padding: 10px; font-weight: bold; font-size: 16px; text-transform: uppercase; }
-                .series-number { padding: 8px; font-weight: bold; color: #a52a2a; font-size: 18px; }
+
+                .ruc-number {
+                    padding: 8px;
+                    font-weight: bold;
+                    color: #a52a2a;
+                    font-size: 18px;
+                }
+
+                .doc-title {
+                    background-color: #0000ff;
+                    color: #fff;
+                    padding: 10px;
+                    font-weight: bold;
+                    font-size: 16px;
+                    text-transform: uppercase;
+                }
+
+                .series-number {
+                    padding: 8px;
+                    font-weight: bold;
+                    color: #a52a2a;
+                    font-size: 18px;
+                }
             }
         }
 
@@ -195,30 +268,56 @@
             border-radius: 8px;
             overflow: hidden;
             margin-bottom: 15px;
-            table { margin-bottom: 0; }
+
+            table {
+                margin-bottom: 0;
+            }
+
             thead {
                 background-color: #0000ff;
                 color: #fff;
-                th { border: none; padding: 10px; font-weight: bold; text-transform: uppercase; }
+
+                th {
+                    border: none;
+                    padding: 10px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
             }
-            tbody td { border-bottom: 1.5px solid #0000ff; padding: 8px 10px; }
-            tbody tr:last-child td { border-bottom: none; }
+
+            tbody td {
+                border-bottom: 1.5px solid #0000ff;
+                padding: 8px 10px;
+            }
+
+            tbody tr:last-child td {
+                border-bottom: none;
+            }
         }
 
         .totals-container-right {
             display: flex;
             justify-content: flex-end;
+
             .totals-box-blue {
                 width: 250px;
                 border: 1.5px solid #0000ff;
                 border-radius: 10px;
                 padding: 12px;
+
                 .total-row {
                     display: flex;
                     justify-content: space-between;
                     margin-bottom: 5px;
                     font-size: 13px;
-                    &.fw-bold { font-weight: bold; font-size: 15px; margin-top: 10px; border-top: 1px solid #0000ff; padding-top: 10px; }
+
+                    &.fw-bold {
+                        font-weight: bold;
+                        font-size: 15px;
+                        margin-top: 10px;
+                        border-top: 1px solid #0000ff;
+                        padding-top: 10px;
+                    }
                 }
             }
         }
@@ -232,6 +331,7 @@
             align-items: center;
             justify-content: center;
             padding: 8px;
+
             img {
                 width: 100%;
                 height: 100%;
@@ -246,7 +346,12 @@
             flex: 1;
             margin-left: 15px;
             text-align: center;
-            p { margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+
+            p {
+                margin-bottom: 5px;
+                font-weight: 600;
+                font-size: 13px;
+            }
         }
     }
 }
@@ -255,9 +360,12 @@
     body * {
         visibility: hidden;
     }
-    .voucher-card, .voucher-card * {
+
+    .voucher-card,
+    .voucher-card * {
         visibility: visible;
     }
+
     .voucher-card {
         position: absolute;
         left: 0;
@@ -278,14 +386,14 @@
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.2s ease;
-    
+
     &.btn-light {
         background-color: transparent;
         border-color: transparent;
         color: #6c757d;
-        
+
         &:hover {
-            background-color: rgba(0,0,0,0.05);
+            background-color: rgba(0, 0, 0, 0.05);
             color: #212529;
         }
     }
@@ -296,7 +404,7 @@
 }
 
 .border-bottom {
-    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .bg-light {

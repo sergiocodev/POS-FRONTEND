@@ -41,14 +41,26 @@ export class CardGridComponent implements OnChanges {
   private imagesLoadedCount = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['products']) {
+    if (changes['products'] || changes['isLoading']) {
+      // Si estamos en skeleton loading, no reportamos carga de imágenes aún
+      if (this.isLoading) {
+        this.imagesLoadingStatus.emit(false);
+        return;
+      }
+
       this.imagesToLoad = this.products.filter(p => p.imageUrl).length;
       this.imagesLoadedCount = 0;
 
       if (this.imagesToLoad > 0) {
-        setTimeout(() => this.imagesLoadingStatus.emit(true));
+        this.imagesLoadingStatus.emit(true);
+        // Safety timeout: dismiss spinner after 5 seconds regardless of image status
+        setTimeout(() => {
+          if (this.imagesLoadedCount < this.imagesToLoad) {
+            this.imagesLoadingStatus.emit(false);
+          }
+        }, 5000);
       } else {
-        setTimeout(() => this.imagesLoadingStatus.emit(false));
+        this.imagesLoadingStatus.emit(false);
       }
     }
   }
@@ -59,7 +71,7 @@ export class CardGridComponent implements OnChanges {
     }
     this.imagesLoadedCount++;
     if (this.imagesLoadedCount >= this.imagesToLoad) {
-      setTimeout(() => this.imagesLoadingStatus.emit(false));
+      this.imagesLoadingStatus.emit(false);
     }
   }
 

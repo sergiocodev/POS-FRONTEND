@@ -1,0 +1,92 @@
+<div class="card custom-report-card text-center p-3">
+
+    <div class="custom-icon-box mx-auto mb-2">
+        <ng-content select="[mainIcon]"></ng-content>
+    </div>
+
+    <div class="card-body p-0">
+        <h5 class="card-title fw-bold text-uppercase custom-title mb-2">
+            {{ title }}
+        </h5>
+
+        <p class="card-text text-muted mb-3 custom-description">
+            {{ description }}
+        </p>
+
+        <!-- Single Dropdown (Backward Compatibility) -->
+        <div class="mb-3" *ngIf="hasDropdown">
+            <ng-container *ngTemplateOutlet="dropdownTpl; context: { config: null }"></ng-container>
+        </div>
+
+        <!-- Multiple Dropdowns -->
+        <div class="mb-3" *ngFor="let config of dropdownConfigs">
+            <ng-container *ngTemplateOutlet="dropdownTpl; context: { config: config }"></ng-container>
+        </div>
+
+        <ng-template #dropdownTpl let-config="config">
+            <div class="mb-2 position-relative">
+                <button class="dropdown-trigger w-100 d-flex justify-content-between align-items-center shadow-none"
+                    [class.isOpen]="openDropdownKey() === (config?.key || 'single')" type="button" 
+                    (click)="toggleDropdown(config?.key || 'single')">
+                    
+                    <div class="d-flex align-items-center gap-1 overflow-hidden flex-wrap">
+                        <ng-container *ngIf="getSelectedOptions(config).length > 0; else noSelection">
+                            <span *ngFor="let opt of getSelectedOptions(config)" class="badge bg-primary d-flex align-items-center gap-1 py-1 px-2 rounded-pill fw-medium">
+                                {{ opt.label }}
+                                <i class="bi bi-x-lg fs-xs cursor-pointer" (click)="$event.stopPropagation(); selectOption(opt, config)"></i>
+                            </span>
+                        </ng-container>
+                        <ng-template #noSelection>
+                            <span class="text-secondary fw-medium">
+                                {{ config?.placeholder || placeholder }}
+                            </span>
+                        </ng-template>
+                    </div>
+
+                    <i class="bi" [class.bi-chevron-down]="openDropdownKey() !== (config?.key || 'single')" 
+                        [class.bi-chevron-up]="openDropdownKey() === (config?.key || 'single')"
+                        [class.text-primary]="openDropdownKey() === (config?.key || 'single')" 
+                        [class.text-secondary]="openDropdownKey() !== (config?.key || 'single')">
+                    </i>
+                </button>
+
+                <div class="dropdown-menu-custom shadow-sm" [class.show]="openDropdownKey() === (config?.key || 'single')" 
+                    *ngIf="openDropdownKey() === (config?.key || 'single')">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control shadow-none"
+                            placeholder="Buscar..." 
+                            [ngModel]="searchTerms()[config?.key || 'single']" 
+                            (ngModelChange)="onSearchChange(config?.key || 'single', $event)"
+                            [ngModelOptions]="{standalone: true}"
+                            (click)="$event.stopPropagation()" />
+                    </div>
+
+                    <ul class="items-list">
+                        <li *ngFor="let option of getFilteredOptions(config); trackBy: trackById">
+                            <button class="dropdown-item-custom" [class.active]="isSelected(option, config)"
+                                (click)="selectOption(option, config)">
+                                <i class="bi" [class.bi-check-lg]="isSelected(option, config)"
+                                    [class.opacity-0]="!isSelected(option, config)">
+                                </i>
+                                <span>{{ option.label }}</span>
+                            </button>
+                        </li>
+                        <li class="no-results" *ngIf="getFilteredOptions(config).length === 0">
+                            <span>No se encontraron resultados.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </ng-template>
+
+
+        <button
+            class="btn custom-btn w-100 d-flex justify-content-center align-items-center gap-2 fw-bold text-uppercase"
+            (click)="onClick()" [disabled]="disabled" [class.opacity-50]="disabled">
+            <ng-content select="[buttonIcon]"></ng-content>
+            {{ buttonText }}
+        </button>
+    </div>
+
+</div>

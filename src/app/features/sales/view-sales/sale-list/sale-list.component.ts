@@ -5,8 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SaleResponse, SaleDocumentType } from '../../../../core/models/sale.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { SummaryCardsComponent, SummaryItem } from '../../../../shared/components/summary-cards/summary-cards.component';
-import { DateRangeSearchComponent } from '../../../../shared/components/date-range-search/date-range-search.component';
 
 @Component({
     selector: 'app-sale-list',
@@ -15,9 +13,7 @@ import { DateRangeSearchComponent } from '../../../../shared/components/date-ran
         CommonModule,
         RouterModule,
         FormsModule,
-        SummaryCardsComponent,
-        CustomTableComponent,
-        DateRangeSearchComponent
+        CustomTableComponent
     ],
     templateUrl: './sale-list.component.html',
     styleUrl: './sale-list.component.scss'
@@ -39,13 +35,11 @@ export class SaleListComponent implements OnInit {
     @Input() totalPages = 0;
     @Input() currentPage = 0;
     @Input() pageSize = 10;
-    @Input() summaryItems: SummaryItem[] = [];
 
     // Outputs to Container
     @Output() pageChange = new EventEmitter<number>();
     @Output() pageSizeChange = new EventEmitter<number>();
     @Output() tableFilterChange = new EventEmitter<any>();
-    @Output() dateFilterChange = new EventEmitter<{ startDate: string, endDate: string }>();
     @Output() viewDetail = new EventEmitter<number>();
     @Output() cancelSale = new EventEmitter<number>();
 
@@ -151,10 +145,6 @@ export class SaleListComponent implements OnInit {
         this.tableFilterChange.emit(filters);
     }
 
-    handleDateFilter(event: { startDate: string, endDate: string }) {
-        this.dateFilterChange.emit(event);
-    }
-
     handleTableAction(event: { action: string, row: SaleResponse }) {
         if (event.action === 'view') {
             this.viewDetail.emit(event.row.id);
@@ -167,10 +157,10 @@ export class SaleListComponent implements OnInit {
 
     getStatusBadgeClass(status: string): string {
         switch (status) {
-            case 'COMPLETED': return 'bg-success-subtle text-success border border-success-subtle';
+            case 'COMPLETED': return 'badge-success';
             case 'CANCELED':
-            case 'VOIDED': return 'bg-danger-subtle text-danger border border-danger-subtle';
-            default: return 'bg-secondary-subtle text-secondary';
+            case 'VOIDED': return 'badge-danger';
+            default: return 'badge-secondary';
         }
     }
 
@@ -185,10 +175,10 @@ export class SaleListComponent implements OnInit {
 
     getSunatBadgeClass(status: string): string {
         switch (status) {
-            case 'ACCEPTED': return 'bg-success';
-            case 'PENDING': return 'bg-warning text-dark';
-            case 'REJECTED': return 'bg-danger';
-            default: return 'bg-info text-dark';
+            case 'ACCEPTED': return 'badge-success';
+            case 'PENDING': return 'badge-warning';
+            case 'REJECTED': return 'badge-danger';
+            default: return 'badge-info';
         }
     }
 
@@ -204,10 +194,10 @@ export class SaleListComponent implements OnInit {
     getPaymentConditionBadgeClass(condition: string): string {
         switch (condition) {
             case 'CASH':
-            case 'CONTADO': return 'bg-info text-dark';
+            case 'CONTADO': return 'badge-info';
             case 'CREDIT':
-            case 'CREDITO': return 'bg-warning text-dark';
-            default: return 'bg-secondary';
+            case 'CREDITO': return 'badge-warning';
+            default: return 'badge-secondary';
         }
     }
 

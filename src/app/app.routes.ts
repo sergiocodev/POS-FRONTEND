@@ -50,14 +50,14 @@ export const routes: Routes = [
                 data: { requiredPermissions: [PermissionConstants.VENTAS_POS] }
             },
             {
-                path: 'account-receivables',
-                loadComponent: () => import('./features/sales/account-receivables/account-receivables.component').then(m => m.AccountReceivablesComponent),
+                path: 'account-receivables/history',
+                loadComponent: () => import('./features/sales/account-receivables/account-receivable-history/account-receivable-history.component').then(m => m.AccountReceivableHistoryComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_CUENTAS_COBRAR] }
             },
             {
-                path: 'account-receivables/history',
-                loadComponent: () => import('./features/sales/account-receivables/account-receivable-history/account-receivable-history.component').then(m => m.AccountReceivableHistoryComponent),
+                path: 'account-receivables',
+                loadComponent: () => import('./features/sales/account-receivables/account-receivables.component').then(m => m.AccountReceivablesComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_CUENTAS_COBRAR] }
             },

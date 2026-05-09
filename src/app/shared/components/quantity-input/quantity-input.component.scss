@@ -1,3 +1,31 @@
+.quantity-container {
+    background-color: var(--input-bg);
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    overflow: hidden;
+
+    .btn-qty {
+        background-color: transparent;
+        color: var(--text-muted);
+        transition: all 0.2s;
+
+        &:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+        }
+    }
+
+    input {
+        background-color: transparent;
+        color: var(--text-main);
+        font-size: 0.85rem;
+        outline: none;
+
+        &.border-start, &.border-end {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+    }
+}
+
 /* Ocultar flechas en Chrome, Safari, Edge, Opera */
 input[type="number"].custom-number-input::-webkit-outer-spin-button,
 input[type="number"].custom-number-input::-webkit-inner-spin-button {

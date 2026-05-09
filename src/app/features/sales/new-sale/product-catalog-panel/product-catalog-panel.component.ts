@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { SaleDocumentType, PaymentMethod, ProductForSaleResponse } from '../../../../core/models/sale.model';
 import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
-import { CheckoutPanelComponent } from '../checkout-panel/checkout-panel.component';
 
 export interface CartItem {
     product: ProductForSaleResponse;
@@ -29,8 +28,7 @@ export interface UnitDisplayData {
     standalone: true,
     imports: [
         CommonModule, FormsModule, ReactiveFormsModule,
-        CardGridComponent,
-        CheckoutPanelComponent
+        CardGridComponent
     ],
     templateUrl: './product-catalog-panel.component.html',
     styleUrl: './product-catalog-panel.component.scss'
@@ -41,18 +39,13 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     // Inputs from Container
     @Input() products: ProductForSaleResponse[] = [];
     @Input() displayProducts: ProductForSaleResponse[] = [];
-    @Input() customers: CustomerResponse[] = [];
     @Input() filteredProducts: ProductForSaleResponse[] = [];
     @Input() cart: CartItem[] = [];
-    @Input() selectedCustomer: CustomerResponse | null = null;
     @Input() isLoading = false;
 
     // Outputs to Container
     @Output() productSearch = new EventEmitter<string>();
-    @Output() processSale = new EventEmitter<any>();
     @Output() updateCart = new EventEmitter<CartItem[]>();
-    @Output() updateSelectedCustomer = new EventEmitter<CustomerResponse | null>();
-    @Output() openCustomerModal = new EventEmitter<void>();
     @Output() imagesLoadingStatus = new EventEmitter<boolean>();
 
     // Local UI State
@@ -207,18 +200,6 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
         this.updateCart.emit(newCart);
     }
 
-    onProcessSale(saleData: any): void {
-        this.processSale.emit(saleData);
-    }
-
-    onOpenCustomerModal(): void {
-        this.openCustomerModal.emit();
-    }
-
-
-    onUpdateSelectedCustomer(customer: CustomerResponse | null): void {
-        this.updateSelectedCustomer.emit(customer);
-    }
 
     // Helper for template
     getDaysToExpire(dateString: string | undefined): number | string {

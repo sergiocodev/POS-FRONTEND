@@ -12,7 +12,9 @@ import { EstablishmentStateService } from '../../../core/services/establishment-
 import { CustomerResponse } from '../../../core/models/customer.model';
 import { CashSessionResponse } from '../../../core/models/cash.model';
 import { SaleRequest, ProductForSaleResponse } from '../../../core/models/sale.model';
-import { CartItem, ProductCatalogPanelComponent } from './product-catalog-panel/product-catalog-panel.component';
+import { CartItem } from './product-catalog-panel/product-catalog-panel.component';
+import { ProductCatalogPanelComponent } from './product-catalog-panel/product-catalog-panel.component';
+import { CheckoutPanelComponent } from './checkout-panel/checkout-panel.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { CustomerFormComponent } from '../customers/customer-form/customer-form.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
@@ -26,6 +28,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
     standalone: true,
     imports: [
         ProductCatalogPanelComponent,
+        CheckoutPanelComponent,
         ModalGenericComponent,
         CustomerFormComponent,
         ModuleHeaderComponent,
@@ -33,7 +36,8 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
         ConfirmModalComponent,
         SpinnerComponent
     ],
-    templateUrl: './new-sale.component.html'
+    templateUrl: './new-sale.component.html',
+    styleUrl: './new-sale.component.scss'
 })
 export class NewSaleComponent implements OnInit {
     private saleService = inject(SaleService);
@@ -60,6 +64,7 @@ export class NewSaleComponent implements OnInit {
 
     // UI/Modal State
     showCustomerModal = signal<boolean>(false);
+    isCartOpen = signal<boolean>(false);
 
     private searchSubject = new Subject<string>();
 
