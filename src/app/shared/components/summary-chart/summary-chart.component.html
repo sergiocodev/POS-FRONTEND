@@ -1,0 +1,64 @@
+<div class="card-container" (click)="onCardClick()">
+    <div class="header">
+        <div class="title-group">
+            <div class="icon-wrapper" [style.background-color]="iconBgColor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" [attr.stroke]="iconColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+            </div>
+            <span class="title">{{ title }}</span>
+        </div>
+
+        <button class="expand-btn" (click)="onExpand($event)" aria-label="Expandir elemento">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+        </button>
+    </div>
+
+    <div class="content">
+        <div class="data-section">
+            <div class="amount-group">
+                <span class="amount">{{ amount | number:'1.2-2' }}</span>
+                <span class="currency">{{ currency }}</span>
+            </div>
+
+            <div class="trend-badge" [ngClass]="{'trend-down': percentage < 0}">
+                <div class="trend-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <ng-container if="percentage >= 0; else downArrow">
+                            <line x1="12" y1="19" x2="12" y2="5"></line>
+                            <polyline points="5 12 12 5 19 12"></polyline>
+                        </ng-container>
+                        <ng-template #downArrow>
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                        </ng-template>
+                    </svg>
+                </div>
+                <span class="trend-value">{{ Math.abs(percentage) }}%</span>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="sparkline">
+                <defs>
+                    <linearGradient [attr.id]="'chart-gradient-' + componentId" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" [attr.stop-color]="trendColor" stop-opacity="0.25" />
+                        <stop offset="100%" [attr.stop-color]="trendColor" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+                <path [attr.d]="chartPath" [attr.fill]="'url(#chart-gradient-' + componentId + ')'" />
+                <path [attr.d]="chartPath" fill="none" [attr.stroke]="trendColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
+</div>
