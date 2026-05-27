@@ -4,9 +4,11 @@ import { CommonModule } from '@angular/common';
 // summary-item.model.ts
 export interface SummaryItem {
   label: string;
-  value: number;
+  value: number | string;
   icon: string;      // Ejemplo: 'F', 'B', 'C'
   cssClass: string;  // Ejemplo: 'card-f', 'card-b'
+  isCurrency?: boolean; // Default to false or true depending on usage
+  subtitle?: string; // Optional subtitle (like '+ 85% del total')
 }
 
 @Component({

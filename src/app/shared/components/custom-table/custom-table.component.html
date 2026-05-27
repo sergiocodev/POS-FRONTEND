@@ -53,6 +53,8 @@
                                 {{ getValue(row, col) }}
                             </span>
 
+                            <div *ngSwitchCase="'html'" [innerHTML]="getValue(row, col)"></div>
+
                             <div *ngSwitchCase="'image'" style="width: 40px; height: 40px;"
                                 [ngClass]="{'mx-auto': col.align === 'center', 'ms-auto': col.align === 'right'}">
                                 <img [src]="row[col.key] || 'assets/placeholder.png'"

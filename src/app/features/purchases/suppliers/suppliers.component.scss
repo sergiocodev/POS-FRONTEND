@@ -1,0 +1,41 @@
+.suppliers-container {
+  padding: 1.5rem;
+
+  :host ::ng-deep {
+    /* Custom icons for the summary cards */
+    .card-a {
+      background-color: #eef2ff !important;
+      color: #4f46e5 !important;
+    }
+    
+    .card-e {
+      background-color: #fffbeb !important;
+      color: #d97706 !important;
+    }
+
+    .card-v {
+      background-color: #fef2f2 !important;
+      color: #dc2626 !important;
+    }
+
+    .card-g {
+      background-color: #f0fdf4 !important;
+      color: #16a34a !important;
+    }
+
+    .card-r {
+      background-color: #eff6ff !important;
+      color: #2563eb !important;
+    }
+
+    /* Subtitle styling for summary cards */
+    .summary-card {
+      .card-subtitle {
+        font-size: 0.75rem;
+        &.text-success { color: #16a34a !important; }
+        &.text-danger { color: #dc2626 !important; }
+        &.text-warning { color: #d97706 !important; }
+      }
+    }
+  }
+}

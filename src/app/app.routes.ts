@@ -71,7 +71,7 @@ export const routes: Routes = [
             // --- COMPRAS ---
             {
                 path: 'suppliers',
-                loadComponent: () => import('./features/suppliers/supplier-list/supplier-list.component').then(m => m.SupplierListComponent),
+                loadComponent: () => import('./features/purchases/suppliers/suppliers.component').then(m => m.SuppliersComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
             },
@@ -89,7 +89,7 @@ export const routes: Routes = [
             },
             {
                 path: 'purchases',
-                loadComponent: () => import('./features/purchases/purchase-list/purchase-list.component').then(m => m.PurchaseListComponent),
+                loadComponent: () => import('./features/purchases/view-purchases/view-purchases.component').then(m => m.ViewPurchasesComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_LISTA] }
             },

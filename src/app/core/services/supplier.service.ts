@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
-import { SupplierRequest, SupplierResponse } from '../models/supplier.model';
+import { SupplierRequest, SupplierResponse, SupplierSummaryResponse, SupplierDetailResponse } from '../models/supplier.model';
 import { ResponseApi } from '../models/response-api.model';
+import { Page } from '../models/pagination.model';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
     providedIn: 'root'
@@ -18,6 +20,17 @@ export class SupplierService {
             this.cache$ = this.http.get<ResponseApi<SupplierResponse[]>>(this.apiUrl).pipe(shareReplay(1));
         }
         return this.cache$;
+    }
+
+    getPaged(page: number, size: number): Observable<ResponseApi<Page<SupplierDetailResponse>>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        return this.http.get<ResponseApi<Page<SupplierDetailResponse>>>(`${this.apiUrl}/paged`, { params });
+    }
+
+    getSummary(): Observable<ResponseApi<SupplierSummaryResponse>> {
+        return this.http.get<ResponseApi<SupplierSummaryResponse>>(`${this.apiUrl}/summary`);
     }
 
     getById(id: number): Observable<ResponseApi<SupplierResponse>> {

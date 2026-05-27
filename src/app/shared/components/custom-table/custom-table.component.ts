@@ -7,7 +7,7 @@ import { CustomSelectComponent } from '../custom-select.component/custom-select.
 
 // --- INTERFACES ---
 
-export type ColumnType = 'text' | 'image' | 'toggle' | 'icon' | 'action' | 'badge' | 'tags' | 'template' | 'index';
+export type ColumnType = 'text' | 'image' | 'toggle' | 'icon' | 'action' | 'badge' | 'tags' | 'template' | 'index' | 'html';
 
 export interface BadgeItem {
   label: string;

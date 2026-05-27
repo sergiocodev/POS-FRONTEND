@@ -78,3 +78,10 @@ export interface PurchaseResponse {
     notes: string;
     items: PurchaseItemResponse[];
 }
+
+export interface PurchaseSummaryResponse {
+    totalFacturas: number;
+    totalBoletas: number;
+    totalGuiaRemision: number;
+    totalNeto: number;
+}

@@ -7,10 +7,17 @@
         <div class="summary-card" [ngClass]="item.cssClass">
             <div class="card-icon">{{ item.icon }}</div>
             <div class="card-info">
-                <span class="card-value">
-                    {{ item.value | currency: currencyCode : currencySymbol }}
-                </span>
                 <span class="card-label">{{ item.label }}</span>
+                <span class="card-value">
+                    @if (item.isCurrency) {
+                        {{ item.value | currency: currencyCode : currencySymbol }}
+                    } @else {
+                        {{ item.value }}
+                    }
+                </span>
+                @if (item.subtitle) {
+                    <span class="card-subtitle mt-1 d-block text-muted" [innerHTML]="item.subtitle"></span>
+                }
             </div>
         </div>
         }
