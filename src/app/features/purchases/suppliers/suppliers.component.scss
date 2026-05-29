@@ -1,41 +1,29 @@
-.suppliers-container {
-  padding: 1.5rem;
+// ══════════════════════════════════════════════════════════════
+// suppliers.component.scss — Supplier Dashboard Styles (Simplified)
+// ══════════════════════════════════════════════════════════════
 
-  :host ::ng-deep {
-    /* Custom icons for the summary cards */
-    .card-a {
-      background-color: #eef2ff !important;
-      color: #4f46e5 !important;
-    }
-    
-    .card-e {
-      background-color: #fffbeb !important;
-      color: #d97706 !important;
-    }
+.btn-new-supplier {
+  background: var(--primary-color);
+  border: none;
+  color: var(--text-on-primary);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
-    .card-v {
-      background-color: #fef2f2 !important;
-      color: #dc2626 !important;
-    }
+  &:hover {
+    background: var(--primary-hover);
+  }
+}
 
-    .card-g {
-      background-color: #f0fdf4 !important;
-      color: #16a34a !important;
-    }
+.suppliers-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-    .card-r {
-      background-color: #eff6ff !important;
-      color: #2563eb !important;
-    }
-
-    /* Subtitle styling for summary cards */
-    .summary-card {
-      .card-subtitle {
-        font-size: 0.75rem;
-        &.text-success { color: #16a34a !important; }
-        &.text-danger { color: #dc2626 !important; }
-        &.text-warning { color: #d97706 !important; }
-      }
-    }
+@media (max-width: 768px) {
+  .suppliers-wrapper {
+    margin: 1rem !important;
   }
 }

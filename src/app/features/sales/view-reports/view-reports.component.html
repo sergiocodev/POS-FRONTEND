@@ -34,8 +34,8 @@
     <!-- TAB: COMPROBANTES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'comprobantes' && !isLoading()) {
-    <div class="row g-4">
-        <div class="col-12 col-md-4 d-flex">
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR COMPROBANTE"
                 description="Visualiza las ventas agrupadas por tipo de comprobante" (actionClick)="onViewPdfReport()">
                 <i class="bi bi-tags fs-1" mainIcon></i>
@@ -51,8 +51,8 @@
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'productos' && !isLoading()) {
 
-    <div class="row g-4 mb-4">
-        <div class="col-12 col-md-4 d-flex">
+    <div class="row g-4 mb-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR CATEGORIA" description="Visualiza las ventas agrupadas por tipo de categoria"
                 [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
                 placeholder="Seleccione Categoría" (selectionChange)="onCategoryChange($event)"
@@ -62,7 +62,7 @@
             </app-card-report>
         </div>
 
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR ESTABLECIMIENTO Y SERIE"
                 description="Visualiza las ventas agrupadas por establecimiento y serie"
                 [dropdownConfigs]="cardDropdownConfigs()" (dropdownChange)="onCardDropdownChange($event)"
@@ -72,7 +72,7 @@
             </app-card-report>
         </div>
 
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR ACCIÓN TERAPÉUTICA, MARCA Y PRODUCTO"
                 description="Visualiza las ventas agrupadas por producto, marca y acción terapéutica"
                 [dropdownConfigs]="productCardDropdownConfigs()" (dropdownChange)="onProductCardDropdownChange($event)"
@@ -88,10 +88,10 @@
     <!-- TAB: CLIENTES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'clientes' && !isLoading()) {
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
 
         <!-- Card Report (PDF Gen) -->
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR CLIENTE" description="Visualiza las ventas agrupadas por cliente"
                 [hasDropdown]="true" [multiple]="true" [options]="customerOptions()" placeholder="Seleccione Cliente"
                 (selectionChange)="onCustomerCardChange($event)" (actionClick)="onViewCustomerPdfReport()"
@@ -108,9 +108,9 @@
     <!-- TAB: VENDEDOR -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'vendedor' && !isLoading()) {
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
 
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR VENDEDOR" description="Visualiza las ventas agrupadas por vendedor"
                 [hasDropdown]="true" [multiple]="true" [options]="sellerOptions()" placeholder="Seleccione Vendedor"
                 (selectionChange)="onSellerCardChange($event)"
@@ -121,7 +121,7 @@
             </app-card-report>
         </div>
 
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR CATEGORÍA" description="Visualiza las ventas agrupadas por categoría"
                 [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
                 placeholder="Seleccione Categoría" (selectionChange)="onCategoryChange($event)"
@@ -131,7 +131,7 @@
             </app-card-report>
         </div>
 
-        <div class="col-12 col-md-4 d-flex">
+        <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR PRODUCTO" description="Visualiza las ventas agrupadas por producto"
                 [dropdownConfigs]="singleProductDropdownConfig()" (dropdownChange)="onProductCardDropdownChange($event)"
                 [disabled]="selectedSellerIds().length === 0" (actionClick)="onViewSellerProductPdfReport()">

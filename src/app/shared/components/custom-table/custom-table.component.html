@@ -136,7 +136,7 @@
 
             <div class="d-flex align-items-center gap-4">
                 <!-- Page Size Selector -->
-                <div class="d-flex align-items-center gap-2">
+                <div *ngIf="showPageSizeSelector" class="d-flex align-items-center gap-2">
                     <small class="text-muted">Filas por página:</small>
                     <app-custom-select
                         [options]="pageSizeOptions"

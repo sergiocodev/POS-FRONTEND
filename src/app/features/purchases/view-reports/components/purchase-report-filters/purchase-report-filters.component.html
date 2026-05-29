@@ -1,0 +1,40 @@
+<div class="filters-card mb-4">
+    <div class="filters-body">
+        <div class="row g-3 align-items-end w-100 mx-0">
+
+            <!-- Dates (takes half the row) -->
+            <div class="col-12 col-md-6">
+                <app-date-range-search [showSearchButton]="false" [initialStartDate]="startDate"
+                    [initialEndDate]="endDate" (filterChange)="onDateRangeChange($event)">
+                </app-date-range-search>
+            </div>
+
+            <!-- Global Establishment Filter (Applies to all tabs in purchases) -->
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Establecimiento</label>
+                <app-searchable-dropdown [options]="establishmentOptions" [selectedId]="selectedEstablishmentId"
+                    size="lg" placeholder="Seleccione Establecimiento"
+                    (selectionChange)="establishmentChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+
+            <!-- Tab-specific Filters -->
+            @if (activeTab === 'proveedores') {
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Proveedor</label>
+                <app-searchable-dropdown [options]="supplierOptions" [selectedId]="selectedSupplierId" size="lg"
+                    placeholder="Seleccione Proveedor"
+                    (selectionChange)="supplierChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+
+            @if (activeTab === 'usuarios') {
+            <div class="col-12 col-md-6">
+                <label class="filter-label">Comprador (Usuario)</label>
+                <app-searchable-dropdown [options]="buyerOptions" [selectedId]="selectedBuyerId" size="lg"
+                    placeholder="Seleccione Comprador"
+                    (selectionChange)="buyerChange.emit($event.id.toString())"></app-searchable-dropdown>
+            </div>
+            }
+        </div>
+    </div>
+</div>

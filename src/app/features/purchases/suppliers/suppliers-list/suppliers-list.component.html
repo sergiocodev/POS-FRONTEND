@@ -1,0 +1,15 @@
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-0">
+    <app-custom-table 
+      [columns]="cols" 
+      [data]="suppliers" 
+      [pageSize]="pageSize"
+      [totalElements]="totalItems"
+      [currentPage]="currentPage"
+      (onAction)="onAction.emit($event)"
+      (onPageChange)="onPageChange.emit($event)"
+      (onPageSizeChange)="onPageSizeChange.emit($event)"
+      (onFilterChange)="onFilterChange.emit($event)">
+    </app-custom-table>
+  </div>
+</div>

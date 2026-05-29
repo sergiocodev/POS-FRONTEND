@@ -1,0 +1,119 @@
+<app-module-header title="Reportes de Compras" iconClass="bi bi-cart-check"></app-module-header>
+
+<div class="container-fluid report-container">
+    <!-- ═══ Tab Navigation ═══ -->
+    <div class="report-tabs-wrapper mb-4">
+        <div class="report-tabs">
+            @for (tab of tabs; track tab.key) {
+            <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="setActiveTab(tab.key)">
+                <i class="bi" [class]="tab.icon"></i>
+                <span>{{ tab.label }}</span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- ═══ Filters Section ═══ -->
+    <app-purchase-report-filters [activeTab]="activeTab()" [establishments]="establishments()" [startDate]="startDate()"
+        [endDate]="endDate()" [selectedEstablishmentId]="selectedEstablishmentId()?.toString() || null"
+        (establishmentChange)="onEstablishmentChange($event)" [suppliers]="suppliers()"
+        [selectedSupplierId]="selectedSupplierId()" (supplierChange)="onSupplierGlobalChange($event)"
+        [buyers]="buyers()" [selectedBuyerId]="selectedBuyerId()" (buyerChange)="onBuyerGlobalChange($event)"
+        (dateRangeChange)="onDateRangeChange($event)" (search)="loadTabData()">
+    </app-purchase-report-filters>
+
+    <!-- ═══ Loading Overlay ═══ -->
+    <app-spinner [show]="isLoading()" message="Generando reporte..."></app-spinner>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: COMPROBANTES -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'comprobantes' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="POR COMPROBANTE DE COMPRA"
+                description="Visualiza las compras agrupadas por tipo de comprobante (Factura, Boleta, etc.)"
+                (actionClick)="onViewPurchasePdfReport()">
+                <i class="bi bi-receipt fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="ESTADO DE PAGOS (DEUDAS)"
+                description="Reporte de compras agrupadas por estado (Cancelado, Crédito, Vencido)"
+                (actionClick)="onViewPurchaseStatusPdfReport()">
+                <i class="bi bi-cash-coin fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: PRODUCTOS -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'productos' && !isLoading()) {
+    <div class="row g-4 mb-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="POR CATEGORÍA" description="Visualiza qué categorías de productos se compran más"
+                [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
+                placeholder="Seleccione Categoría" (selectionChange)="onCategoryChange($event)"
+                (actionClick)="onViewCategoryPdfReport()">
+                <i class="bi bi-tags fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="HISTORIAL DE PRECIOS"
+                description="Analiza cómo ha variado el costo de compra de un producto a lo largo del tiempo"
+                [hasDropdown]="true" [multiple]="false" [options]="productOptions()" placeholder="Seleccione Producto"
+                (selectionChange)="onSingleProductChange($event)" (actionClick)="onViewPriceHistoryPdfReport()">
+                <i class="bi bi-graph-up-arrow fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: PROVEEDORES -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'proveedores' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="COMPRAS POR PROVEEDOR" description="Visualiza el volumen de compra por proveedor"
+                [hasDropdown]="true" [multiple]="true" [options]="supplierOptions()" placeholder="Seleccione Proveedor"
+                (selectionChange)="onSupplierCardChange($event)" (actionClick)="onViewSupplierPdfReport()">
+                <i class="bi bi-truck fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="CUENTAS POR PAGAR (POR PROVEEDOR)"
+                description="Lista de deudas pendientes organizadas por proveedor" [hasDropdown]="true"
+                [multiple]="true" [options]="supplierOptions()" placeholder="Seleccione Proveedor"
+                (selectionChange)="onSupplierCardChange($event)" (actionClick)="onViewAccountsPayablePdfReport()">
+                <i class="bi bi-wallet2 fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: USUARIO (COMPRADOR) -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'usuarios' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report title="POR COMPRADOR (USUARIO)" description="Visualiza qué empleado registró las compras"
+                [hasDropdown]="true" [multiple]="true" [options]="buyerOptions()" placeholder="Seleccione Empleado"
+                (selectionChange)="onBuyerCardChange($event)" (actionClick)="onViewBuyerPdfReport()">
+                <i class="bi bi-person-badge fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+</div>

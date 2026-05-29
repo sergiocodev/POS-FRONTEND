@@ -21,6 +21,7 @@ export class AccountReceivableListComponent implements OnInit {
     @Input() currentPage = 0;
 
     @Output() payAction = new EventEmitter<AccountReceivableResponse>();
+    @Output() viewAction = new EventEmitter<AccountReceivableResponse>();
     @Output() pageChange = new EventEmitter<number>();
     @Output() pageSizeChange = new EventEmitter<number>();
     @Output() filterChange = new EventEmitter<any>();
@@ -88,6 +89,8 @@ export class AccountReceivableListComponent implements OnInit {
     onAction(event: { action: string, row: AccountReceivableResponse }) {
         if (event.action === 'pay') {
             this.payAction.emit(event.row);
+        } else if (event.action === 'view') {
+            this.viewAction.emit(event.row);
         }
     }
 }

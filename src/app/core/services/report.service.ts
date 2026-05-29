@@ -372,4 +372,71 @@ export class ReportService {
         }
         return this.http.get<ResponseApi<PurchaseReport[]>>(`${this.apiUrl}/purchases`, { params });
     }
+
+    // ── Purchase PDF Reports (To Be Implemented in Backend) ──
+
+    getPurchasesFilteredPdf(start: string, end: string, establishmentId: number | null): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        return this.http.get(`${this.apiUrl}/pdf/purchases/comprobantes`, { params, responseType: 'blob' });
+    }
+
+    getPurchasesByStatusPdf(start: string, end: string, establishmentId: number | null): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        return this.http.get(`${this.apiUrl}/pdf/purchases/status`, { params, responseType: 'blob' });
+    }
+
+    getPurchasesByCategoryPdf(start: string, end: string, establishmentId: number | null, categoryIds?: number[]): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        if (categoryIds && categoryIds.length > 0) params = params.set('categoryIds', categoryIds.join(','));
+        return this.http.get(`${this.apiUrl}/pdf/purchases/categories`, { params, responseType: 'blob' });
+    }
+
+    getProductPriceHistoryPdf(start: string, end: string, establishmentId: number | null, productId?: number): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        if (productId) params = params.set('productId', productId.toString());
+        return this.http.get(`${this.apiUrl}/pdf/purchases/price-history`, { params, responseType: 'blob' });
+    }
+
+    getPurchasesBySupplierPdf(start: string, end: string, establishmentId: number | null, supplierIds?: number[]): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        if (supplierIds && supplierIds.length > 0) params = params.set('supplierIds', supplierIds.join(','));
+        return this.http.get(`${this.apiUrl}/pdf/purchases/supplier`, { params, responseType: 'blob' });
+    }
+
+    getAccountsPayableBySupplierPdf(start: string, end: string, establishmentId: number | null, supplierIds?: number[]): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        if (supplierIds && supplierIds.length > 0) params = params.set('supplierIds', supplierIds.join(','));
+        return this.http.get(`${this.apiUrl}/pdf/purchases/accounts-payable`, { params, responseType: 'blob' });
+    }
+
+    getPurchasesByBuyerPdf(start: string, end: string, establishmentId: number | null, buyerIds?: number[]): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        if (buyerIds && buyerIds.length > 0) params = params.set('buyerIds', buyerIds.join(','));
+        return this.http.get(`${this.apiUrl}/pdf/purchases/buyer`, { params, responseType: 'blob' });
+    }
+
+    // ── Cash Box PDF Reports ──
+
+    getCashSessionsPdf(start: string, end: string, establishmentId: number | null): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        return this.http.get(`${this.apiUrl}/pdf/cash/sessions`, { params, responseType: 'blob' });
+    }
+
+    getCashMovementsPdf(start: string, end: string, establishmentId: number | null): Observable<Blob> {
+        let params = new HttpParams().set('start', start).set('end', end);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
+        return this.http.get(`${this.apiUrl}/pdf/cash/movements`, { params, responseType: 'blob' });
+    }
+
+    getCashArqueoPdf(sessionId: number): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/pdf/cash/sessions/${sessionId}/arqueo`, { responseType: 'blob' });
+    }
 }

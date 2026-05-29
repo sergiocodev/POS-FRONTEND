@@ -1,0 +1,26 @@
+<app-custom-table 
+    [columns]="columns" 
+    [data]="movements()" 
+    [pageSize]="pageSize()"
+    [totalElements]="totalItems()"
+    [currentPage]="currentPage() + 1"
+    (onAction)="handleAction($event)"
+    (onPageChange)="handlePageChange($event)"
+    (onPageSizeChange)="handlePageSizeChangeValue($event)"
+    (onFilterChange)="onTableFilter($event)">
+</app-custom-table>
+
+@if (isLoading()) {
+<div class="text-center p-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>
+}
+
+@if (!isLoading() && movements().length === 0) {
+<div class="text-center p-5 text-muted">
+    <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+    No se encontraron movimientos de caja registrados.
+</div>
+}

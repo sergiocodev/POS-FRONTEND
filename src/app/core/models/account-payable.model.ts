@@ -16,11 +16,13 @@ export enum PayablePaymentMethod {
 export interface AccountPayableResponse {
     id: number;
     purchaseId: number;
+    purchaseIdentifier: string;
     supplierName: string;
     totalAmount: number;
     amountPaid: number;
     pendingBalance: number;
     status: PayableStatus;
+    daysUntilDue: number | null;
     dueDate: string | null;
     notes: string;
     createdAt: string;

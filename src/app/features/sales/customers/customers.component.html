@@ -27,7 +27,7 @@
 
 <!-- Modal -->
 <app-modal-generic [title]="selectedCustomerId() ? 'Editar Cliente' : 'Nuevo Cliente'" [isVisible]="isModalOpen()"
-    (close)="closeModal()" size="lg">
+    (close)="closeModal()" size="md">
     @if (isModalOpen()) {
     <app-customer-form [isModal]="true" [customerId]="selectedCustomerId()" (saveSuccess)="handleSaveSuccess()"
         (cancel)="closeModal()">

@@ -13,8 +13,8 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
     selector: 'app-customer-form',
     standalone: true,
     imports: [
-        CommonModule, 
-        ReactiveFormsModule, 
+        CommonModule,
+        ReactiveFormsModule,
         RouterModule,
         ModalAlertComponent,
         ConfirmModalComponent,
@@ -57,9 +57,7 @@ export class CustomerFormComponent implements OnInit {
 
     documentTypes = [
         { value: 'DNI', label: 'DNI' },
-        { value: 'RUC', label: 'RUC' },
-        { value: 'PASSPORT', label: 'Pasaporte' },
-        { value: 'CE', label: 'Carnet Ext.' }
+        { value: 'RUC', label: 'RUC' }
     ];
 
     constructor() {

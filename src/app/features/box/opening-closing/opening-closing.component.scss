@@ -1,0 +1,33 @@
+.card-title {
+    font-size: 0.9rem;
+}
+
+.table {
+    font-size: 0.875rem;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.btn-custom-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+  
+    &:hover {
+      background-color: var(--primary-hover) !important;
+      border-color: var(--primary-hover) !important;
+    }
+}
+  
+.btn-custom-warning {
+    background-color: var(--warning-color) !important;
+    border-color: var(--warning-color) !important;
+    color: white !important;
+  
+    &:hover {
+      background-color: var(--warning-hover) !important;
+      border-color: var(--warning-hover) !important;
+    }
+}

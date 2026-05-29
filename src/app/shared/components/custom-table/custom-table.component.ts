@@ -51,6 +51,7 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   @Input() icon: string = '';
   @Input() showAddButton: boolean = false;
   @Input() addButtonLabel: string = 'Nuevo';
+  @Input() showPageSizeSelector: boolean = true;
 
   // --- OUTPUTS ---
   @Output() onAction = new EventEmitter<{ action: string, row: any }>();
@@ -69,7 +70,7 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
 
   totalPages: number = 1;
   visiblePages: (number | string)[] = [];
-  pageSizeOptions: number[] = [10, 20, 50, 100];
+  pageSizeOptions: number[] = [5, 10, 20, 50, 100];
 
   // Debounce logic
   private filterSubject = new Subject<{ [key: string]: string }>();

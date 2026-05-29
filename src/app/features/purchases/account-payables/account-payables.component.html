@@ -1,0 +1,47 @@
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Cuentas por Pagar" iconClass="bi bi-wallet2"></app-module-header>
+
+
+
+<div class="account-receivable-page animate-fade-in">
+
+    <div class="account-receivable-wrapper m-4">
+        <div class="col-12">
+            <app-smart-kpi-cards [items]="kpiItems()">
+            </app-smart-kpi-cards>
+        </div>
+
+
+        <app-account-payable-list 
+            [payables]="payables()" 
+            [isLoading]="isLoading()"
+            [totalElements]="totalElements()"
+            [pageSize]="pageSize()"
+            [currentPage]="currentPage()"
+            (payAction)="onPayAction($event)"
+            (viewAction)="onViewAction($event)"
+            (pageChange)="onPageChange($event)"
+            (pageSizeChange)="onPageSizeChange($event)"
+            (filterChange)="onFilterChange($event)">
+        </app-account-payable-list>
+    </div>
+
+    <!-- Modal para Pagar -->
+    <app-modal-generic [isVisible]="showPaymentModal()" title="Registrar Pago" size="md" (close)="closePaymentModal()">
+        <app-register-pay
+            *ngIf="showPaymentModal()"
+            [selectedPayable]="selectedPayable()"
+            (cancel)="closePaymentModal()"
+            (success)="onPaymentSuccess()">
+        </app-register-pay>
+    </app-modal-generic>
+
+    <!-- Modal para Historial -->
+    <app-modal-generic [isVisible]="showHistoryModal()" title="Historial de Pagos" size="lg" (close)="closeHistoryModal()">
+        <app-payment-history
+            *ngIf="showHistoryModal()"
+            [selectedPayable]="selectedPayable()"
+            (close)="closeHistoryModal()">
+        </app-payment-history>
+    </app-modal-generic>
+</div>

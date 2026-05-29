@@ -1,0 +1,11 @@
+<app-module-header title="Movimientos de Caja" iconClass="bi bi-cash-stack">
+</app-module-header>
+
+<app-movement-list></app-movement-list>
+
+<app-modal-generic *ngIf="showModal()" [isVisible]="showModal()"
+    [title]="selectedType() === 'inflow' ? 'Registrar Ingreso de Efectivo' : 'Registrar Egreso de Efectivo'"
+    (close)="closeModal()">
+    <app-movement-form [movementType]="selectedType()" (onSave)="onMovementSaved()" (onCancel)="closeModal()">
+    </app-movement-form>
+</app-modal-generic>

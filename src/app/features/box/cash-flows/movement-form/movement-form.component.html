@@ -1,0 +1,96 @@
+<div class="container-fluid py-2">
+    <div class="row">
+        <div class="col-12">
+
+            <form [formGroup]="movementForm" (ngSubmit)="onSubmit()">
+
+                <div *ngIf="errorMessage()" class="alert alert-danger mb-3">
+                    {{ errorMessage() }}
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <label for="amount" class="form-label fw-semibold">
+                            Monto (S/) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">S/</span>
+                            <input type="number" id="amount" formControlName="amount" class="form-control"
+                                [class.is-invalid]="movementForm.get('amount')?.touched && movementForm.get('amount')?.invalid"
+                                placeholder="0.00" step="0.01">
+                            <div class="invalid-feedback">
+                                <span *ngIf="movementForm.get('amount')?.errors?.['required']">El monto es
+                                    requerido</span>
+                                <span *ngIf="movementForm.get('amount')?.errors?.['min']">El monto debe ser mayor a
+                                    0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="conceptId" class="form-label fw-semibold">
+                            Concepto <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex gap-2">
+                            <select id="conceptId" formControlName="conceptId" class="form-select flex-grow-1"
+                                [class.is-invalid]="movementForm.get('conceptId')?.touched && movementForm.get('conceptId')?.invalid">
+                                <option [ngValue]="null" disabled>Seleccione un concepto...</option>
+                                <option *ngFor="let concept of concepts()" [ngValue]="concept.id">
+                                    {{ concept.name }}
+                                </option>
+                            </select>
+                            <button type="button" class="btn btn-custom-primary px-3" (click)="addConcept()"
+                                title="Agregar nuevo concepto">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback d-block"
+                            *ngIf="movementForm.get('conceptId')?.touched && movementForm.get('conceptId')?.invalid">
+                            <span *ngIf="movementForm.get('conceptId')?.errors?.['required']">Debe seleccionar un
+                                concepto</span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="reference" class="form-label fw-semibold">
+                            Referencia <span class="text-muted fw-normal">(Opcional)</span>
+                        </label>
+                        <input type="text" id="reference" formControlName="reference" class="form-control"
+                            placeholder="Ej: Nro. de comprobante, Recibo, etc.">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-semibold">
+                            Descripción / Motivo <span class="text-danger">*</span>
+                        </label>
+                        <textarea id="description" formControlName="description" class="form-control" rows="3"
+                            [class.is-invalid]="movementForm.get('description')?.touched && movementForm.get('description')?.invalid"
+                            placeholder="Ej. Saldo rotativo inicial, pago de servicios, etc."></textarea>
+                        <div class="invalid-feedback">
+                            <span *ngIf="movementForm.get('description')?.errors?.['required']">La descripción es
+                                obligatoria</span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <div class="d-flex gap-2 justify-content-end flex-wrap">
+                            <button type="submit" class="btn btn-custom-primary" [disabled]="isLoading()">
+                                <span *ngIf="!isLoading()">
+                                    {{ type() === 'inflow' ? 'Confirmar Ingreso' : 'Confirmar Egreso' }}
+                                </span>
+                                <span *ngIf="isLoading()">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"
+                                        aria-hidden="true"></span>
+                                    Guardando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

@@ -33,6 +33,10 @@ export class AccountReceivableService {
         return this.http.get<ResponseApi<AccountReceivableResponse[]>>(`${this.apiUrl}/customer/${customerId}`);
     }
 
+    getPaymentsByReceivableId(id: number): Observable<ResponseApi<AccountReceivablePaymentResponse[]>> {
+        return this.http.get<ResponseApi<AccountReceivablePaymentResponse[]>>(`${this.apiUrl}/${id}/payments`);
+    }
+
     pay(id: number, request: AccountReceivablePaymentRequest): Observable<ResponseApi<any>> {
         return this.http.post<ResponseApi<any>>(this.paymentUrl, request);
     }

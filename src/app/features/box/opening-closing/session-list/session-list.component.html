@@ -1,0 +1,53 @@
+<!-- Table templates -->
+<ng-template #dateTpl let-session>
+    <div class="fw-bold">{{ session.openedAt | date:'dd/MM/yyyy' }}</div>
+    <small class="text-muted">{{ session.openedAt | date:'HH:mm' }}</small>
+</ng-template>
+
+<ng-template #boxUserTpl let-session>
+    <div class="fw-bold text-primary">{{ session.cashRegisterName }}</div>
+    <small class="text-muted"><i class="bi bi-person me-1"></i>{{ session.username }}</small>
+</ng-template>
+
+<ng-template #openingBalanceTpl let-session>
+    <span class="fw-medium">{{ session.openingBalance | currency:'PEN':'S/ ' }}</span>
+</ng-template>
+
+<ng-template #expectedBalanceTpl let-session>
+    <span class="fw-medium">{{ session.calculatedBalance | currency:'PEN':'S/ ' }}</span>
+</ng-template>
+
+<ng-template #closingBalanceTpl let-session>
+    <span *ngIf="session.status === 'CLOSED'" class="fw-medium">{{ session.closingBalance | currency:'PEN':'S/ '
+        }}</span>
+    <span *ngIf="session.status === 'OPEN'" class="text-muted">—</span>
+</ng-template>
+
+<ng-template #diffTpl let-session>
+    <span *ngIf="session.status === 'CLOSED'"
+        [ngClass]="session.diffAmount === 0 ? 'text-success' : (session.diffAmount > 0 ? 'text-info' : 'text-danger')"
+        class="fw-bold">
+        {{ session.diffAmount | currency:'PEN':'S/ ' }}
+    </span>
+    <span *ngIf="session.status === 'OPEN'" class="text-muted">—</span>
+</ng-template>
+
+<div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted mb-0">Cargando sesiones...</p>
+    </div>
+
+    <div *ngIf="!isLoading && sessions.length === 0" class="text-center py-5 text-muted">
+        <i class="bi bi-journal-x fs-1 opacity-25 d-block mb-3"></i>
+        No hay historial de cajas disponible para esta sede.
+    </div>
+
+    <div *ngIf="!isLoading && sessions.length > 0">
+        <app-custom-table [columns]="tableColumns" [data]="sessions" [totalElements]="totalItems"
+            [currentPage]="currentPage + 1" [pageSize]="pageSize" [showPageSizeSelector]="false" tableClass="table-hover mb-0"
+            (onPageChange)="handlePageChange($event)" (onPageSizeChange)="handlePageSizeChange($event)">
+        </app-custom-table>
+    </div>
+</div>

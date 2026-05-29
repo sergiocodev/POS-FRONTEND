@@ -1,0 +1,35 @@
+<app-module-header title="Control de Caja" iconClass="bi bi-cash-coin">
+</app-module-header>
+
+<div class="container-fluid py-4">
+
+
+    <app-summary-box></app-summary-box>
+
+    <div *ngIf="!activeSession()" class="d-flex justify-content-end align-items-center gap-2 mb-4">
+        <button class="btn btn-custom-primary shadow-sm" routerLink="/cash/registers">
+            <i class="bi bi-gear-fill me-1"></i> Gestionar Cajas
+        </button>
+
+        <button class="btn btn-custom-primary shadow-sm" (click)="onOpenSession()">
+            <i class="bi bi-door-open-fill me-1"></i> Abrir Caja
+        </button>
+    </div>
+
+    <div class="row">
+        <div [ngClass]="statusData() ? 'col-xl-8 col-lg-7' : 'col-12'">
+
+            <app-session-list [sessions]="sessions()" [isLoading]="isLoading()" [totalItems]="totalItems()"
+                [totalPages]="totalPages()" [currentPage]="currentPage()" [pageSize]="pageSize()"
+                (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)">
+            </app-session-list>
+        </div>
+
+        <div class="col-xl-4 col-lg-5" *ngIf="statusData()">
+            <app-box-details [statusData]="statusData()" [activeSession]="activeSession()"
+                (onCloseBox)="onCloseActiveSession()" (registerInflow)="onRegisterInflow()"
+                (registerOutflow)="onRegisterOutflow()">
+            </app-box-details>
+        </div>
+    </div>
+</div>

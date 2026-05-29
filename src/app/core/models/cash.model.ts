@@ -128,3 +128,13 @@ export interface SessionStatusResponse {
     totalSalesTransferencia: number;
     totalDigital: number;
 }
+
+export interface CashSessionSummaryResponse {
+    label: string;
+    value: string;
+    prefix?: string;
+    suffix?: string;
+    trendValue?: string;
+    trendDirection?: string;
+    trendText?: string;
+}

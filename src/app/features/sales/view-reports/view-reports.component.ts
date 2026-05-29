@@ -491,9 +491,27 @@ export class ViewReportsComponent implements OnInit {
         this.activeTab.set(tab);
     }
 
+    private openPdf(blob: Blob, filename: string): void {
+        this.isLoading.set(false);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    private handlePdfError(): void {
+        this.isLoading.set(false);
+        alert('Error al generar el reporte PDF. Por favor, intente nuevamente.');
+    }
+
     onViewPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) return;
+        if (!estId) { alert('Seleccione un establecimiento'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -502,20 +520,14 @@ export class ViewReportsComponent implements OnInit {
         const series = this.selectedSeries() || undefined;
 
         this.reportService.getSalesFilteredPdf(start, end, estId, docType, series).subscribe({
-            next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas.pdf'),
+            error: () => this.handlePdfError()
         });
     }
 
     onViewCategoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) return;
+        if (!estId) { alert('Seleccione un establecimiento'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -524,20 +536,16 @@ export class ViewReportsComponent implements OnInit {
 
         this.reportService.getSalesByCategoryPdf(start, end, estId, categoryIds.length > 0 ? categoryIds : undefined).subscribe({
             next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
+                this.openPdf(blob, 'reporte_ventas_categorias.pdf');
                 this.selectedCategoryIds.set([]);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.handlePdfError()
         });
     }
 
     onViewEstablishmentSeriesPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) return;
+        if (!estId) { alert('Seleccione un establecimiento'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -551,20 +559,16 @@ export class ViewReportsComponent implements OnInit {
             series.length > 0 ? series : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
+                this.openPdf(blob, 'reporte_ventas_series.pdf');
                 this.selectedSeriesForCard.set([]);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.handlePdfError()
         });
     }
 
     onViewProductBrandTherapeuticPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) return;
+        if (!estId) { alert('Seleccione un establecimiento'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -581,16 +585,12 @@ export class ViewReportsComponent implements OnInit {
             therapeuticActionIds.length > 0 ? therapeuticActionIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
+                this.openPdf(blob, 'reporte_ventas_productos.pdf');
                 this.selectedProductIdsForCard.set([]);
                 this.selectedBrandIdsForCard.set([]);
                 this.selectedTherapeuticActionIdsForCard.set([]);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.handlePdfError()
         });
     }
 
@@ -603,28 +603,24 @@ export class ViewReportsComponent implements OnInit {
             ? this.selectedSellerIdsForSellerCard()
             : this.selectedSellerIds();
 
-        if (estId === null || sellerIds.length === 0) return;
+        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
         const end = this.endDate();
 
         this.reportService.getSellerPdf(start, end, estId, sellerIds).subscribe({
-            next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas_vendedor.pdf'),
+            error: () => this.handlePdfError()
         });
     }
 
     onViewSellerCategoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const sellerIds = this.selectedSellerIds();
-        if (estId === null || sellerIds.length === 0) return;
+        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -636,21 +632,18 @@ export class ViewReportsComponent implements OnInit {
             categoryIds.length > 0 ? categoryIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
+                this.openPdf(blob, 'ventas_vendedor_categorias.pdf');
                 this.selectedCategoryIds.set([]);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.handlePdfError()
         });
     }
 
     onViewSellerProductPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const sellerIds = this.selectedSellerIds();
-        if (estId === null || sellerIds.length === 0) return;
+        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -662,14 +655,10 @@ export class ViewReportsComponent implements OnInit {
             productIds.length > 0 ? productIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
+                this.openPdf(blob, 'ventas_vendedor_productos.pdf');
                 this.selectedProductIdsForCard.set([]);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.handlePdfError()
         });
     }
 
@@ -681,21 +670,16 @@ export class ViewReportsComponent implements OnInit {
             ? this.selectedCustomerIdsForCard() 
             : this.selectedCustomerIds();
 
-        if (estId === null || customerIds.length === 0) return;
+        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (customerIds.length === 0) { alert('Seleccione un cliente'); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
         const end = this.endDate();
 
         this.reportService.getSalesByCustomerPdf(start, end, estId, customerIds).subscribe({
-            next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas_cliente.pdf'),
+            error: () => this.handlePdfError()
         });
     }
 
@@ -762,23 +746,7 @@ export class ViewReportsComponent implements OnInit {
         });
     }
 
-    private loadCategorias(start: string, end: string, estId: number): void {
-        let completed = 0;
-        const checkDone = () => { if (++completed >= 3) this.isLoading.set(false); };
 
-        this.reportService.getSalesByCategory(start, end, estId).subscribe({
-            next: (res) => { this.salesByCategory.set(res.data); checkDone(); },
-            error: () => checkDone()
-        });
-        this.reportService.getSalesByLaboratory(start, end, estId).subscribe({
-            next: (res) => { this.salesByLaboratory.set(res.data); checkDone(); },
-            error: () => checkDone()
-        });
-        this.reportService.getSalesByPaymentMethod(start, end, estId).subscribe({
-            next: (res) => { this.salesByPaymentMethod.set(res.data); checkDone(); },
-            error: () => checkDone()
-        });
-    }
 
     private loadClientes(start: string, end: string, estId: number): void {
         const customerIds = this.selectedCustomerIds();
@@ -787,9 +755,7 @@ export class ViewReportsComponent implements OnInit {
                 this.salesByCustomer.set(res.data);
                 this.isLoading.set(false);
             },
-            error: () => {
-                this.isLoading.set(false);
-            }
+            error: () => this.isLoading.set(false)
         });
     }
 
@@ -803,20 +769,6 @@ export class ViewReportsComponent implements OnInit {
         });
         this.reportService.getSalesByEmployeeCategory(start, end, estId).subscribe({
             next: (res) => { this.salesByEmployeeCategory.set(res.data); checkDone(); },
-            error: () => checkDone()
-        });
-    }
-
-    private loadGrupos(start: string, end: string, estId: number): void {
-        let completed = 0;
-        const checkDone = () => { if (++completed >= 2) this.isLoading.set(false); };
-
-        this.reportService.getSalesByCategory(start, end, estId).subscribe({
-            next: (res) => { this.salesByCategory.set(res.data); checkDone(); },
-            error: () => checkDone()
-        });
-        this.reportService.getSalesByCategoryDetail(start, end, estId).subscribe({
-            next: (res) => { this.salesByCategoryDetail.set(res.data); checkDone(); },
             error: () => checkDone()
         });
     }

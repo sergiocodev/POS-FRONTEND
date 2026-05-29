@@ -22,10 +22,15 @@ export class SupplierService {
         return this.cache$;
     }
 
-    getPaged(page: number, size: number): Observable<ResponseApi<Page<SupplierDetailResponse>>> {
+    getPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<Page<SupplierDetailResponse>>> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('size', size.toString());
+            
+        if (filters.providerInfo) params = params.set('providerInfo', filters.providerInfo);
+        if (filters.category) params = params.set('category', filters.category);
+        if (filters.contactInfo) params = params.set('contactInfo', filters.contactInfo);
+        
         return this.http.get<ResponseApi<Page<SupplierDetailResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
@@ -47,6 +52,10 @@ export class SupplierService {
 
     delete(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
+    }
+
+    searchByDocument(documentNumber: string): Observable<ResponseApi<any>> {
+        return this.http.get<ResponseApi<any>>(`/api/v1/users/search/${documentNumber}`);
     }
 
     invalidateCache(): void {

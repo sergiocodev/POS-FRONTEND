@@ -19,6 +19,7 @@
             [pageSize]="pageSize()"
             [currentPage]="currentPage()"
             (payAction)="onPayAction($event)"
+            (viewAction)="onViewAction($event)"
             (pageChange)="onPageChange($event)"
             (pageSizeChange)="onPageSizeChange($event)"
             (filterChange)="onFilterChange($event)">
@@ -27,50 +28,20 @@
 
     <!-- Modal para Cobrar -->
     <app-modal-generic [isVisible]="showPaymentModal()" title="Registrar Cobro" size="md" (close)="closePaymentModal()">
-        <div class="payment-form" *ngIf="selectedReceivable()">
-            <div class="alert alert-success border-0 rounded-3 bg-light">
-                <strong>Cliente:</strong> {{ selectedReceivable()?.customerName }}<br>
-                <strong>Saldo Pendiente:</strong> S/ {{ selectedReceivable()?.pendingBalance | number:'1.2-2' }}
-            </div>
+        <app-register-pay
+            *ngIf="showPaymentModal()"
+            [selectedReceivable]="selectedReceivable()"
+            (cancel)="closePaymentModal()"
+            (success)="onPaymentSuccess()">
+        </app-register-pay>
+    </app-modal-generic>
 
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">Monto a Cobrar (S/)</label>
-                <input type="number" class="form-control" [ngModel]="paymentAmount()"
-                    (ngModelChange)="paymentAmount.set($event)" placeholder="0.00" min="0.01"
-                    [max]="selectedReceivable()?.pendingBalance || 0">
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">Método de Cobro</label>
-                <select class="form-select" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)">
-                    <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
-                </select>
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">Referencia (Opcional)</label>
-                <input type="text" class="form-control" [ngModel]="paymentReference()"
-                    (ngModelChange)="paymentReference.set($event)"
-                    placeholder="Ej. Número de operación o transferencia">
-            </div>
-
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">Notas (Opcional)</label>
-                <textarea class="form-control" [ngModel]="paymentNotes()" (ngModelChange)="paymentNotes.set($event)"
-                    rows="2" placeholder="Observaciones adicionales..."></textarea>
-            </div>
-
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-light rounded-pill px-4" (click)="closePaymentModal()">
-                    Cancelar
-                </button>
-                <button type="button" class="btn btn-success rounded-pill px-4"
-                    [disabled]="isPaying() || !paymentAmount() || paymentAmount()! <= 0 || paymentAmount()! > (selectedReceivable()?.pendingBalance || 0)"
-                    (click)="processPayment()">
-                    <i class="bi" [ngClass]="isPaying() ? 'bi-hourglass-split' : 'bi-check-circle'"></i>
-                    {{ isPaying() ? 'Procesando...' : 'Confirmar Cobro' }}
-                </button>
-            </div>
-        </div>
+    <!-- Modal para Historial -->
+    <app-modal-generic [isVisible]="showHistoryModal()" title="Historial de Pagos" size="lg" (close)="closeHistoryModal()">
+        <app-payment-history
+            *ngIf="showHistoryModal()"
+            [selectedReceivable]="selectedReceivable()"
+            (close)="closeHistoryModal()">
+        </app-payment-history>
     </app-modal-generic>
 </div>

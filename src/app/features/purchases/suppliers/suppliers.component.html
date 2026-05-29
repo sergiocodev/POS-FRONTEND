@@ -1,34 +1,42 @@
-<div class="module-header">
-  <app-module-header title="Proveedores" iconClass="bi-truck"></app-module-header>
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
+
+<app-module-header title="Gestión de Proveedores" iconClass="bi-truck"></app-module-header>
+
+<div class="suppliers-wrapper m-4">
+
+    <!-- ── KPI Cards ─────────────────────────────────────────── -->
+    <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
+
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn-new-supplier" (click)="openNewForm()">Nuevo Proveedor</button>
+    </div>
+
+    <!-- Table -->
+    <app-suppliers-list
+      [suppliers]="suppliers()"
+      [pageSize]="pageSize()"
+      [totalItems]="totalItems()"
+      [currentPage]="currentPage() + 1"
+      (onAction)="handleTableAction($event)"
+      (onPageChange)="handlePageChange($event)"
+      (onPageSizeChange)="handlePageSizeChangeValue($event)"
+      (onFilterChange)="onTableFilter($event)">
+    </app-suppliers-list>
 </div>
 
-<div class="container-fluid px-4">
-  <!-- KPI Cards -->
-  <div class="row">
-    <div class="col-12">
-      <div class="my-4">
-        <app-smart-kpi-cards [items]="kpiItems()" [showTrend]="true" [showChart]="true"></app-smart-kpi-cards>
-      </div>
-    </div>
-  </div>
-
-  <!-- Table -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-0">
-          <app-custom-table 
-            [columns]="cols" 
-            [data]="suppliers()" 
-            [pageSize]="pageSize()"
-            [totalElements]="totalItems()"
-            [currentPage]="currentPage() + 1"
-            (onAction)="handleTableAction($event)"
-            (onPageChange)="handlePageChange($event)"
-            (onPageSizeChange)="handlePageSizeChangeValue($event)">
-          </app-custom-table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal for Supplier Form -->
+<app-modal-generic 
+  [isVisible]="showFormModal()" 
+  [title]="selectedSupplierId() ? 'Editar Proveedor' : 'Nuevo Proveedor'" 
+  size="md" 
+  (close)="closeFormModal()">
+  @if (showFormModal()) {
+    <app-supplier-form 
+      [supplierId]="selectedSupplierId()"
+      (cancel)="closeFormModal()"
+      (saved)="onFormSaved()">
+    </app-supplier-form>
+  }
+</app-modal-generic>

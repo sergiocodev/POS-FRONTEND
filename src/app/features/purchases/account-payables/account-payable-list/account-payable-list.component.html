@@ -1,0 +1,19 @@
+<div class="row">
+    <app-custom-table 
+        [columns]="columns" 
+        [data]="payables" 
+        [pageSize]="pageSize"
+        [totalElements]="totalElements"
+        [currentPage]="currentPage + 1"
+        (onAction)="onAction($event)"
+        (onPageChange)="pageChange.emit($event)"
+        (onPageSizeChange)="pageSizeChange.emit($event)"
+        (onFilterChange)="filterChange.emit($event)">
+    </app-custom-table>
+</div>
+
+<div *ngIf="isLoading" class="d-flex justify-content-center my-4">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</div>

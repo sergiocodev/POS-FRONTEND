@@ -76,18 +76,6 @@ export const routes: Routes = [
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
             },
             {
-                path: 'suppliers/new',
-                loadComponent: () => import('./features/suppliers/supplier-form/supplier-form.component').then(m => m.SupplierFormComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
-            },
-            {
-                path: 'suppliers/edit/:id',
-                loadComponent: () => import('./features/suppliers/supplier-form/supplier-form.component').then(m => m.SupplierFormComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
-            },
-            {
                 path: 'purchases',
                 loadComponent: () => import('./features/purchases/view-purchases/view-purchases.component').then(m => m.ViewPurchasesComponent),
                 canActivate: [permissionGuard],
@@ -107,19 +95,19 @@ export const routes: Routes = [
             },
             {
                 path: 'account-payables',
-                loadComponent: () => import('./features/account-payables/account-payable-list/account-payable-list.component').then(m => m.AccountPayableListComponent),
+                loadComponent: () => import('./features/purchases/account-payables/account-payables.component').then(m => m.AccountPayablesComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_CUENTAS_PAGAR] }
             },
             {
                 path: 'account-payables/history',
-                loadComponent: () => import('./features/account-payables/payment-history/payment-history.component').then(m => m.PaymentHistoryComponent),
+                loadComponent: () => import('./features/purchases/account-payables/payment-history/payment-history.component').then(m => m.PaymentHistoryComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_CUENTAS_PAGAR] }
             },
             {
                 path: 'reports/purchases',
-                loadComponent: () => import('./features/reports/purchase-report/purchase-report.component').then(m => m.PurchaseReportComponent),
+                loadComponent: () => import('./features/purchases/view-reports/view-reports.component').then(m => m.ViewReportsComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_REPORTES] }
             },
@@ -165,55 +153,38 @@ export const routes: Routes = [
             // --- CAJA ---
             {
                 path: 'cash',
-                loadComponent: () => import('./features/cash/session-list/session-list.component').then(m => m.SessionListComponent),
+                loadComponent: () => import('./features/box/opening-closing/opening-closing.component').then(m => m.OpeningClosingComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] }
             },
             {
                 path: 'cash/open',
-                loadComponent: () => import('./features/cash/session-form/session-form.component').then(m => m.SessionFormComponent),
+                loadComponent: () => import('./features/box/opening-closing/opening-closing.component').then(m => m.OpeningClosingComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] }
             },
             {
                 path: 'cash/close/:id',
-                loadComponent: () => import('./features/cash/session-form/session-form.component').then(m => m.SessionFormComponent),
+                loadComponent: () => import('./features/box/opening-closing/opening-closing.component').then(m => m.OpeningClosingComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] }
             },
             {
-                path: 'cash/movement/:type',
-                loadComponent: () => import('./features/cash/movement-form/movement-form.component').then(m => m.MovementFormComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.CAJA_MOVIMIENTOS] }
-            },
-            {
                 path: 'cash/movements',
-                loadComponent: () => import('./features/cash/movement-list/movement-list.component').then(m => m.MovementListComponent),
+                loadComponent: () => import('./features/box/cash-flows/cash-flows.component').then(m => m.CashFlowsComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_MOVIMIENTOS] }
             },
             {
                 path: 'cash/registers',
-                loadComponent: () => import('./features/cash/registers-list/registers-list.component').then(m => m.RegistersListComponent),
+                loadComponent: () => import('./features/box/box-registers/box-registers.component').then(m => m.BoxRegistersComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_REGISTRADORAS] }
             },
-            {
-                path: 'cash/registers/new',
-                loadComponent: () => import('./features/cash/register-form/register-form.component').then(m => m.RegisterFormComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.CAJA_REGISTRADORAS] }
-            },
-            {
-                path: 'cash/registers/edit/:id',
-                loadComponent: () => import('./features/cash/register-form/register-form.component').then(m => m.RegisterFormComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.CAJA_REGISTRADORAS] }
-            },
+
             {
                 path: 'reports/cash',
-                loadComponent: () => import('./features/reports/cash-report/cash-report.component').then(m => m.CashReportComponent),
+                loadComponent: () => import('./features/box/view-reports/view-reports.component').then(m => m.ViewReportsComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_REPORTES] }
             },

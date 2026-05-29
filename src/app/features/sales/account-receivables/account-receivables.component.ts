@@ -3,25 +3,27 @@ import { CommonModule } from '@angular/common';
 import { AccountReceivableService } from '../../../core/services/account-receivable.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
-import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest } from '../../../core/models/account-receivable.model';
+import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest, AccountReceivablePaymentResponse } from '../../../core/models/account-receivable.model';
 import { AccountReceivableListComponent } from './account-receivable-list/account-receivable-list.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { SmartKpiCardsComponent, SmartKpiItem } from '../../../shared/components/smart-kpi-cards/smart-kpi-cards.component';
-import { FormsModule } from '@angular/forms';
+import { RegisterPayComponent } from './register-pay/register-pay.component';
+import { PaymentHistoryComponent } from './payment-history/payment-history.component';
 
 @Component({
     selector: 'app-account-receivables',
     standalone: true,
     imports: [
         CommonModule,
-        FormsModule,
         AccountReceivableListComponent,
         ModalGenericComponent,
         ModalAlertComponent,
         ModuleHeaderComponent,
         SmartKpiCardsComponent,
+        RegisterPayComponent,
+        PaymentHistoryComponent,
     ],
     templateUrl: './account-receivables.component.html',
     styleUrl: './account-receivables.component.scss'
@@ -45,13 +47,9 @@ export class AccountReceivablesComponent implements OnInit {
     // Modal State for Payment
     showPaymentModal = signal<boolean>(false);
     selectedReceivable = signal<AccountReceivableResponse | null>(null);
-    paymentAmount = signal<number | null>(null);
-    paymentMethod = signal<ReceivablePaymentMethod>(ReceivablePaymentMethod.EFECTIVO);
-    paymentReference = signal<string>('');
-    paymentNotes = signal<string>('');
-    isPaying = signal<boolean>(false);
 
-    paymentMethods = Object.values(ReceivablePaymentMethod);
+    // Modal State for History
+    showHistoryModal = signal<boolean>(false);
 
     ngOnInit(): void {
         this.loadDashboard();
@@ -77,7 +75,7 @@ export class AccountReceivablesComponent implements OnInit {
                     ...item,
                     actions: [
                         { id: 'pay', icon: 'bi-cash-stack', class: 'btn-success', title: 'Cobrar' },
-                        { id: 'view', icon: 'bi-search', class: 'btn-primary', title: 'Ver Detalle' }
+                        { id: 'view', icon: 'bi-search', class: 'btn-primary', title: 'Ver Historial' }
                     ]
                 }));
                 this.receivables.set(mappedData);
@@ -145,70 +143,28 @@ export class AccountReceivablesComponent implements OnInit {
             return;
         }
         this.selectedReceivable.set(receivable);
-        this.paymentAmount.set(receivable.pendingBalance);
         this.showPaymentModal.set(true);
     }
 
     closePaymentModal() {
         this.showPaymentModal.set(false);
         this.selectedReceivable.set(null);
-        this.paymentAmount.set(null);
-        this.paymentMethod.set(ReceivablePaymentMethod.EFECTIVO);
-        this.paymentReference.set('');
-        this.paymentNotes.set('');
     }
 
-    processPayment() {
-        const receivable = this.selectedReceivable();
-        const amount = this.paymentAmount();
+    onPaymentSuccess() {
+        this.closePaymentModal();
+        this.loadReceivables();
+    }
 
-        if (!receivable || !amount || amount <= 0) {
-            this.modalService.alert({ title: 'Error', message: 'Monto inválido', type: 'error' });
-            return;
+    onViewAction(receivable: AccountReceivableResponse) {
+        this.selectedReceivable.set(receivable);
+        this.showHistoryModal.set(true);
+    }
+
+    closeHistoryModal() {
+        this.showHistoryModal.set(false);
+        if (!this.showPaymentModal()) {
+            this.selectedReceivable.set(null);
         }
-
-        if (amount > receivable.pendingBalance) {
-            this.modalService.alert({ title: 'Error', message: 'El monto ingresado es mayor al saldo pendiente', type: 'error' });
-            return;
-        }
-
-        this.isPaying.set(true);
-
-        this.cashSessionService.getActiveSession().subscribe({
-            next: (sessionRes) => {
-                const session = sessionRes.data;
-                if (!session) {
-                    this.isPaying.set(false);
-                    this.modalService.alert({ title: 'Error', message: 'Debe tener una sesión de caja abierta para registrar cobros.', type: 'error' });
-                    return;
-                }
-
-                const payload: AccountReceivablePaymentRequest = {
-                    accountReceivableId: receivable.id,
-                    cashSessionId: session.id,
-                    amount: amount,
-                    paymentMethod: this.paymentMethod(),
-                    reference: this.paymentReference(),
-                    notes: this.paymentNotes()
-                };
-
-                this.accountReceivableService.pay(receivable.id, payload).subscribe({
-                    next: () => {
-                        this.isPaying.set(false);
-                        this.closePaymentModal();
-                        this.modalService.alert({ title: 'Éxito', message: 'Cobro registrado correctamente', type: 'success' });
-                        this.loadReceivables();
-                    },
-                    error: (err: any) => {
-                        this.isPaying.set(false);
-                        this.modalService.alert({ title: 'Error', message: 'Error al registrar el cobro', type: 'error' });
-                    }
-                });
-            },
-            error: (err: any) => {
-                this.isPaying.set(false);
-                this.modalService.alert({ title: 'Error', message: 'Error al verificar sesión de caja', type: 'error' });
-            }
-        });
     }
 }

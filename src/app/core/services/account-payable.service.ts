@@ -16,6 +16,14 @@ export class AccountPayableService {
         return this.http.get<ResponseApi<AccountPayableResponse[]>>(this.apiUrl);
     }
 
+    getAllPaged(params: any): Observable<ResponseApi<Page<AccountPayableResponse>>> {
+        return this.http.get<ResponseApi<Page<AccountPayableResponse>>>(`${this.apiUrl}/paged`, { params });
+    }
+
+    getDashboard(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/dashboard`);
+    }
+
     getBySupplierId(supplierId: number): Observable<ResponseApi<AccountPayableResponse[]>> {
         return this.http.get<ResponseApi<AccountPayableResponse[]>>(`${this.apiUrl}/supplier/${supplierId}`);
     }
@@ -31,5 +39,9 @@ export class AccountPayableService {
     getPaymentHistory(params: any): Observable<ResponseApi<Page<AccountPayablePaymentResponse>>> {
         const url = `${this.apiUrl.replace('account-payables', 'account-payable-payments')}/history`;
         return this.http.get<ResponseApi<Page<AccountPayablePaymentResponse>>>(url, { params });
+    }
+
+    getPaymentsByPayableId(id: number): Observable<ResponseApi<AccountPayablePaymentResponse[]>> {
+        return this.http.get<ResponseApi<AccountPayablePaymentResponse[]>>(`/api/v1/account-payable-payments/payable/${id}`);
     }
 }

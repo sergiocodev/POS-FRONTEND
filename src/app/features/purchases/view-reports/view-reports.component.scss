@@ -1,0 +1,73 @@
+
+
+.report-container {
+    padding: 1.5rem 12px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+// ── Tab Navigation ──
+.report-tabs-wrapper {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 4px 15px rgba(var(--primary-color), 0.3);
+}
+
+.report-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+
+    &::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+    }
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    i {
+        font-size: 1rem;
+    }
+
+    &:hover {
+        color: #fff;
+        background: var(--primary-hover);
+    }
+
+    &.active {
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

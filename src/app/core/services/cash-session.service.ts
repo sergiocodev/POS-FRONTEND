@@ -6,7 +6,7 @@ import {
     CashRegisterResponse, CashRegisterRequest,
     CashInflowRequest, CashOutflowRequest,
     CashMovementResponse, SessionStatusResponse,
-    CashConceptResponse, CloseSessionRequest
+    CashConceptResponse, CloseSessionRequest, CashSessionSummaryResponse
 } from '../models/cash.model';
 import { AuthService } from './auth.service';
 import { ResponseApi } from '../models/response-api.model';
@@ -47,6 +47,26 @@ export class CashSessionService {
 
     getAllSessions(): Observable<ResponseApi<CashSessionResponse[]>> {
         return this.http.get<ResponseApi<CashSessionResponse[]>>(this.sessionUrl);
+    }
+
+    getAllPaged(establishmentId?: number, page: number = 0, size: number = 20): Observable<ResponseApi<any>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
+        
+        return this.http.get<ResponseApi<any>>(`${this.sessionUrl}/paged`, { params });
+    }
+
+    getSummary(establishmentId?: number): Observable<ResponseApi<CashSessionSummaryResponse[]>> {
+        let params = new HttpParams();
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
+        return this.http.get<ResponseApi<CashSessionSummaryResponse[]>>(`${this.sessionUrl}/summary`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<CashSessionResponse>> {

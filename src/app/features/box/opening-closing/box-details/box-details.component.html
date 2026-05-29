@@ -1,0 +1,98 @@
+<div class="box-details-card animate-fade-in" *ngIf="statusData() as data">
+  <div class="card-header-flex">
+    <h2 class="premium-title">DETALLE DE LA CAJA</h2>
+    <ng-container *ngIf="data.status === 'OPEN'; else closedBadge">
+      <span class="premium-badge badge-active">
+        <i class="bi bi-circle-fill me-2 fs-xs blinking"></i>SESIÓN ACTIVA
+      </span>
+    </ng-container>
+    <ng-template #closedBadge>
+      <span class="premium-badge badge-closed">
+        <i class="bi bi-lock-fill me-2 fs-xs"></i>CERRADA
+      </span>
+    </ng-template>
+  </div>
+
+  <div class="premium-register-card mt-4 mb-3">
+    <div class="d-flex align-items-center">
+      <div class="premium-icon-wrapper">
+        <i class="bi bi-inboxes-fill"></i>
+      </div>
+      <div class="register-texts ms-3">
+        <div class="register-name">{{ data.cashRegisterName || 'Caja - Principal' }}</div>
+        <div class="register-branch">{{ activeSession()?.establishmentId ? 'Sucursal Centro' : 'Sucursal Centro' }}
+        </div>
+      </div>
+    </div>
+    <div class="register-actions" *ngIf="data.status === 'OPEN'">
+      <button class="btn premium-btn-success" (click)="registerInflow.emit()" title="Ingreso">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+      <button class="btn premium-btn-danger" (click)="registerOutflow.emit()" title="Egreso">
+        <i class="bi bi-dash-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="premium-details-grid mb-3">
+    <div class="detail-block">
+      <span class="detail-icon"><i class="bi bi-person-badge"></i></span>
+      <div class="detail-content">
+        <span class="detail-label">Responsable</span>
+        <span class="detail-value text-truncate" title="{{ responsable() }}">{{ responsable() }}</span>
+      </div>
+    </div>
+    <div class="detail-block">
+      <span class="detail-icon"><i class="bi bi-clock-history"></i></span>
+      <div class="detail-content">
+        <span class="detail-label">Apertura</span>
+        <span class="detail-value">{{ data.openedAt | date:'dd/MM/yyyy hh:mm a' }}</span>
+      </div>
+    </div>
+    <div class="detail-block">
+      <span class="detail-icon"><i class="bi bi-cash-coin"></i></span>
+      <div class="detail-content">
+        <span class="detail-label">Fondo inicial</span>
+        <span class="detail-value">{{ data.openingBalance | currency:'S/ ':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="premium-summary-card mb-3">
+    <div class="summary-row">
+      <div class="summary-label">
+        <div class="icon-sm green"><i class="bi bi-arrow-down-left"></i></div>
+        <span>Ingresos</span>
+      </div>
+      <span class="summary-value amount-green">{{ ingresos() | currency:'S/ ':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="summary-row">
+      <div class="summary-label">
+        <div class="icon-sm red"><i class="bi bi-arrow-up-right"></i></div>
+        <span>Egresos</span>
+      </div>
+      <span class="summary-value amount-red">{{ egresos() | currency:'S/ ':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="summary-row">
+      <div class="summary-label">
+        <div class="icon-sm blue"><i class="bi bi-cart-check"></i></div>
+        <span>Ventas</span>
+      </div>
+      <span class="summary-value amount-blue">{{ ventas() | currency:'S/ ':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-row total-row mt-2">
+      <span class="total-label">Total en caja</span>
+      <span class="total-value amount-gradient">{{ totalEnCaja() | currency:'S/ ':'symbol':'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <div class="action-buttons-grid">
+    <button class="btn premium-btn-outline" (click)="onViewMovements.emit()">
+      <i class="bi bi-journal-text"></i> Ver movimientos
+    </button>
+    <button class="btn premium-btn-primary" (click)="onCloseBox.emit()">
+      <i class="bi bi-lock-fill"></i> Cierre de caja
+    </button>
+  </div>
+</div>

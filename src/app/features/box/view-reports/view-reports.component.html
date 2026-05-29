@@ -1,0 +1,89 @@
+<app-module-header title="Reportes de Caja" iconClass="bi bi-cash-stack"></app-module-header>
+
+<div class="container-fluid report-container">
+    <!-- ═══ Tab Navigation ═══ -->
+    <div class="report-tabs-wrapper mb-4">
+        <div class="report-tabs">
+            @for (tab of tabs; track tab.key) {
+            <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="setActiveTab(tab.key)">
+                <i class="bi" [class]="tab.icon"></i>
+                <span>{{ tab.label }}</span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- ═══ Filters Section ═══ -->
+    <app-box-report-filters
+        [activeTab]="activeTab()"
+        [establishments]="establishments()"
+        [startDate]="startDate()"
+        [endDate]="endDate()"
+        [selectedEstablishmentId]="selectedEstablishmentId()?.toString() || null"
+        [cashRegisters]="cashRegisters()"
+        [selectedCashRegisterId]="selectedCashRegisterId()"
+        (establishmentChange)="onEstablishmentChange($event)"
+        (cashRegisterChange)="onCashRegisterChange($event)"
+        (dateRangeChange)="onDateRangeChange($event)">
+    </app-box-report-filters>
+
+    <!-- ═══ Loading Overlay ═══ -->
+    <app-spinner [show]="isLoading()" message="Generando reporte..."></app-spinner>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: SESIONES -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'sesiones' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report
+                title="HISTORIAL DE SESIONES"
+                description="Listado de todas las sesiones de caja abiertas y cerradas en el período seleccionado."
+                (actionClick)="onViewSessionsPdf()">
+                <i class="bi bi-clock-history fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: MOVIMIENTOS -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'movimientos' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report
+                title="MOVIMIENTOS DE CAJA"
+                description="Detalle de todos los ingresos y egresos manuales registrados en el período."
+                (actionClick)="onViewMovementsPdf()">
+                <i class="bi bi-arrow-left-right fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- TAB: ARQUEO -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    @if (activeTab() === 'arqueo' && !isLoading()) {
+    <div class="row g-4 justify-content-center">
+        <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
+            <app-card-report
+                title="ARQUEO DE CAJA"
+                description="Reporte detallado de una sesión específica: saldo inicial, teórico, contado y diferencia."
+                [hasDropdown]="true"
+                [multiple]="false"
+                [options]="recentSessions()"
+                placeholder="Seleccione Sesión"
+                (selectionChange)="onSessionChange($event)"
+                (actionClick)="onViewArqueoPdf()">
+                <i class="bi bi-calculator fs-1" mainIcon></i>
+                <i class="bi bi-file-earmark-pdf me-2" buttonIcon></i>
+            </app-card-report>
+        </div>
+    </div>
+    }
+
+</div>

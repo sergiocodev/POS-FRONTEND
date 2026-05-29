@@ -1,0 +1,37 @@
+<app-module-header title="Cajas Registradoras" iconClass="bi bi-gear-fill">
+</app-module-header>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-end gap-2 mb-4">
+        <button class="btn btn-custom-primary shadow-sm" (click)="openNewRegisterModal()">
+            <i class="bi bi-plus-lg me-1"></i> Nueva Caja
+        </button>
+    </div>
+
+    <ng-template #nameTpl let-row>
+        <span class="fw-bold text-primary">{{ row.name }}</span>
+    </ng-template>
+
+    <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted mb-0">Cargando cajas...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredRegisters().length === 0" class="text-center py-5">
+        <p class="text-muted mb-0">No se encontraron cajas registradoras en esta sede.</p>
+    </div>
+
+    <div *ngIf="!isLoading() && filteredRegisters().length > 0">
+        <app-custom-table [columns]="tableColumns" [data]="filteredRegisters()" [pageSize]="10"
+            tableClass="table-hover mb-0" (onAction)="onAction($event)">
+        </app-custom-table>
+    </div>
+</div>
+
+<app-modal-generic *ngIf="showRegisterModal()" [isVisible]="showRegisterModal()"
+    [title]="selectedRegisterId() ? 'Editar Caja Registradora' : 'Nueva Caja Registradora'"
+    (close)="closeRegisterModal()">
+    <app-register-form [registerId]="selectedRegisterId()" (onSave)="onRegisterSaved()"
+        (onCancel)="closeRegisterModal()">
+    </app-register-form>
+</app-modal-generic>
