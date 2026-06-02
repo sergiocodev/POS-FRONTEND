@@ -2,10 +2,19 @@
 <app-modal-alert></app-modal-alert>
 <app-module-header title="Catálogo de Productos" iconClass="bi bi-box-seam"></app-module-header>
 
-<div class="product-catalog-page animate-fade-in">
-    <app-product-list [products]="products()" [isLoading]="isLoading()" [categories]="categories()" [brands]="brands()"
-        [therapeuticActions]="therapeuticActions()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
-        (delete)="onDelete($event)">
+<div class="product-catalog-page animate-fade-in p-3">
+    <app-product-list 
+        [products]="products()" 
+        [isLoading]="isLoading()"
+        [pageSize]="pageSize()"
+        [totalElements]="totalElements()"
+        [currentPage]="currentPage()"
+        (create)="onOpenForm()" 
+        (edit)="onOpenForm($event)"
+        (delete)="onDelete($event)"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+        (filterChange)="onFilterChange($event)">
     </app-product-list>
 
     @if (showForm()) {

@@ -1,43 +1,13 @@
-<div class="product-list-container container-fluid py-4 animate-fade-in position-relative">
+<div class="product-list-container animate-fade-in position-relative">
 
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <button class="btn btn-primary shadow-sm" (click)="onNew()">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-custom-primary" (click)="onNew()">
+            <i class="bi bi-plus-lg me-1"></i>
+            <span class="btn-text">Nuevo Producto</span>
         </button>
     </div>
 
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por digemid, código o nombre...'"
-        [disableClear]="!searchTerm() && selectedCategory() === null && selectedBrand() === null && selectedTherapeuticAction() === null"
-        (clear)="resetFilters()">
 
-        <div class="row g-2 w-100 mt-0">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold small mb-1">Acción Terapéutica</label>
-                <select class="form-select form-select-sm" [ngModel]="selectedTherapeuticAction()"
-                    (ngModelChange)="selectedTherapeuticAction.set($event)">
-                    <option [ngValue]="null">Todas</option>
-                    <option *ngFor="let item of therapeuticActions()" [ngValue]="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold small mb-1">Categoría</label>
-                <select class="form-select form-select-sm" [ngModel]="selectedCategory()"
-                    (ngModelChange)="selectedCategory.set($event)">
-                    <option [ngValue]="null">Todas</option>
-                    <option *ngFor="let item of categories()" [ngValue]="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold small mb-1">Marca</label>
-                <select class="form-select form-select-sm" [ngModel]="selectedBrand()"
-                    (ngModelChange)="selectedBrand.set($event)">
-                    <option [ngValue]="null">Todas</option>
-                    <option *ngFor="let item of brands()" [ngValue]="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-        </div>
-
-    </app-table-filter>
 
     <ng-template #codeTemplate let-row>
         <div class="d-flex flex-column" style="line-height: 1.2;">
@@ -80,8 +50,10 @@
     </ng-template>
 
     <div class="card shadow-sm border-0 overflow-hidden">
-        <app-custom-table [data]="filteredProducts()" [columns]="columns" [pageSize]="10"
-            (onAction)="handleTableAction($event)" (onToggle)="handleTableToggle($event)">
+        <app-custom-table [columns]="columns" [data]="products()" [pageSize]="pageSize()"
+            [totalElements]="totalElements()" [currentPage]="currentPage() + 1" (onAction)="handleTableAction($event)"
+            (onToggle)="handleTableToggle($event)" (onPageChange)="handlePageChange($event)"
+            (onPageSizeChange)="handlePageSizeChange($event)" (onFilterChange)="handleFilterChange($event)">
         </app-custom-table>
 
         @if (isLoading()) {

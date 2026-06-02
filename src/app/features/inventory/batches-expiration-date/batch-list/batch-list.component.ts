@@ -8,7 +8,7 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
 @Component({
     selector: 'app-batch-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, CustomTableComponent, TableFilterComponent],
+    imports: [CommonModule, FormsModule, CustomTableComponent],
     templateUrl: './batch-list.component.html',
     styleUrl: './batch-list.component.scss'
 })
@@ -18,27 +18,18 @@ export class BatchListComponent implements OnInit {
     @ViewChild('expiryDateTemplate', { static: true }) expiryDateTemplate!: TemplateRef<any>;
     @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<any>;
     @ViewChild('daysRemainingTemplate', { static: true }) daysRemainingTemplate!: TemplateRef<any>;
-
     lots = input<ProductLotResponse[]>([]);
     isLoading = input(false);
 
+    pageSize = input<number>(10);
+    totalElements = input<number>(0);
+    currentPage = input<number>(0);
+
     create = output<void>();
 
-    searchTerm = signal('');
-
-    filteredLots = computed(() => {
-        const term = this.searchTerm().toLowerCase();
-        const lotsList = this.lots();
-
-        if (!term) {
-            return lotsList;
-        }
-
-        return lotsList.filter(lot =>
-            lot.productName.toLowerCase().includes(term) ||
-            lot.lotCode.toLowerCase().includes(term)
-        );
-    });
+    pageChange = output<number>();
+    pageSizeChange = output<number>();
+    filterChange = output<any>();
 
     columns: TableColumn[] = [];
 
@@ -48,6 +39,7 @@ export class BatchListComponent implements OnInit {
 
     setupColumns() {
         this.columns = [
+            { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
             {
                 key: 'productName',
                 label: 'Producto',
@@ -83,8 +75,16 @@ export class BatchListComponent implements OnInit {
         ];
     }
 
-    resetFilters(): void {
-        this.searchTerm.set('');
+    handlePageChange(page: number) {
+        this.pageChange.emit(page);
+    }
+
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
+
+    handleFilterChange(filters: any) {
+        this.filterChange.emit(filters);
     }
 
     onCreate() {

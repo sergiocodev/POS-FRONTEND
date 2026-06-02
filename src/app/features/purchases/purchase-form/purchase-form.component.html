@@ -41,7 +41,7 @@
                                 <select class="pf-select" formControlName="supplierId"
                                     [class.pf-invalid]="purchaseForm.get('supplierId')?.touched && purchaseForm.get('supplierId')?.invalid">
                                     <option [ngValue]="null">Seleccione proveedor...</option>
-                                    <option *ngFor="let s of suppliers()" [value]="s.id">{{ s.name }}</option>
+                                    <option *ngFor="let s of suppliers()" [ngValue]="s.id">{{ s.name }}</option>
                                 </select>
                             </div>
                             <p class="pf-hint"
@@ -59,7 +59,7 @@
                                 <select class="pf-select" formControlName="establishmentId"
                                     [class.pf-invalid]="purchaseForm.get('establishmentId')?.touched && purchaseForm.get('establishmentId')?.invalid">
                                     <option [ngValue]="null">Seleccione sede...</option>
-                                    <option *ngFor="let e of establishments()" [value]="e.id">{{ e.name }}</option>
+                                    <option *ngFor="let e of establishments()" [ngValue]="e.id">{{ e.name }}</option>
                                 </select>
                             </div>
                         </div>
@@ -220,7 +220,7 @@
                             <div class="pf-select-wrapper pf-select-wrapper--inline">
                                 <select class="pf-select pf-select--inline" formControlName="productId">
                                     <option [ngValue]="null">Seleccione producto...</option>
-                                    <option *ngFor="let p of products()" [value]="p.id">{{ p.tradeName }}</option>
+                                    <option *ngFor="let p of products()" [ngValue]="p.id">{{ p.tradeName }}</option>
                                 </select>
                             </div>
                         </div>
@@ -231,7 +231,7 @@
                                 <select class="pf-select pf-select--inline" formControlName="productUnitId">
                                     <option [ngValue]="null">Unidad...</option>
                                     <option *ngFor="let u of productUnits()[item.get('productId')?.value] || []"
-                                        [value]="u.id">
+                                        [ngValue]="u.id">
                                         {{ u.unitName }} (x{{ u.factor }})
                                     </option>
                                 </select>

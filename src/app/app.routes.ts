@@ -16,7 +16,7 @@ export const routes: Routes = [
         children: [
             {
                 path: 'home',
-                loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
+                loadComponent: () => import('./features/dashboard/home/home.component').then(m => m.HomeComponent)
             },
             // --- VENTAS ---
             {
@@ -46,7 +46,7 @@ export const routes: Routes = [
             {
                 path: 'sales/pos',
                 loadComponent: () => import('./features/sales/new-sale/new-sale.component').then(m => m.NewSaleComponent),
-                canActivate: [requireOpenCajaGuard, permissionGuard],
+                canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.VENTAS_POS] }
             },
             {
@@ -159,13 +159,13 @@ export const routes: Routes = [
             },
             {
                 path: 'cash/open',
-                loadComponent: () => import('./features/box/opening-closing/opening-closing.component').then(m => m.OpeningClosingComponent),
+                loadComponent: () => import('./features/box/opening-closing/box-details/cash-open/cash-open.component').then(m => m.CashOpenComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] }
             },
             {
                 path: 'cash/close/:id',
-                loadComponent: () => import('./features/box/opening-closing/opening-closing.component').then(m => m.OpeningClosingComponent),
+                loadComponent: () => import('./features/box/opening-closing/box-details/cash-close/cash-close.component').then(m => m.CashCloseComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.CAJA_APERTURA_CIERRE] }
             },
@@ -223,46 +223,26 @@ export const routes: Routes = [
 
             // --- FARMACIA ---
             {
-                path: 'pharmacy/active-ingredients',
-                loadComponent: () => import('./features/pharmacy/active-ingredients/active-ingredients.component').then(m => m.ActiveIngredientsComponent),
+                path: 'pharmacy/catalog',
+                loadComponent: () => import('./features/pharmacy-catalog/pharmacy-catalog.component').then(m => m.PharmacyCatalogComponent),
                 canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_PRINCIPIOS_ACTIVOS] }
+                data: {
+                    requiredPermissions: [
+                        PermissionConstants.FARMACIA,
+                        PermissionConstants.FARMACIA_PRINCIPIOS_ACTIVOS,
+                        PermissionConstants.FARMACIA_LABORATORIOS,
+                        PermissionConstants.FARMACIA_MARCAS,
+                        PermissionConstants.FARMACIA_CATEGORIAS,
+                        PermissionConstants.FARMACIA_PRESENTACIONES,
+                        PermissionConstants.FARMACIA_FORMAS,
+                        PermissionConstants.FARMACIA_ACCIONES
+                    ]
+                }
             },
             {
-                path: 'pharmacy/labs',
-                loadComponent: () => import('./features/pharmacy/laboratories/laboratories.component').then(m => m.LaboratoriesComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_LABORATORIOS] }
-            },
-            {
-                path: 'pharmacy/brands',
-                loadComponent: () => import('./features/pharmacy/brands/brands.component').then(m => m.BrandsComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_MARCAS] }
-            },
-            {
-                path: 'pharmacy/categories',
-                loadComponent: () => import('./features/pharmacy/categories/categories.component').then(m => m.CategoriesComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_CATEGORIAS] }
-            },
-            {
-                path: 'pharmacy/presentations',
-                loadComponent: () => import('./features/pharmacy/presentations/presentations.component').then(m => m.PresentationsComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_PRESENTACIONES] }
-            },
-            {
-                path: 'pharmacy/pharmaceutical-forms',
-                loadComponent: () => import('./features/pharmacy/pharmaceutical-forms/pharmaceutical-forms.component').then(m => m.PharmaceuticalFormsComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_FORMAS] }
-            },
-            {
-                path: 'pharmacy/therapeutic-actions',
-                loadComponent: () => import('./features/pharmacy/therapeutic-actions/therapeutic-actions.component').then(m => m.TherapeuticActionsComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.FARMACIA_ACCIONES] }
+                path: 'pharmacy',
+                redirectTo: 'pharmacy/catalog',
+                pathMatch: 'full'
             },
 
             // --- REDIRECTS ---

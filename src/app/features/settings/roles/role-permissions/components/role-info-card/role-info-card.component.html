@@ -1,0 +1,20 @@
+<div class="card border-0 shadow-sm rounded-3 role-info-card">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="fw-bold text-dark mb-0">Información del rol</h6>
+    </div>
+    <div class="card-body p-4">
+        <div class="mb-4">
+            <label class="form-label fw-bold text-dark small mb-2">Nombre del rol</label>
+            <div class="role-field-box p-2 rounded-3 bg-white text-muted small">
+                {{ role?.name || roleName || '---' }}
+            </div>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label fw-bold text-dark small mb-2">Descripción</label>
+            <div class="role-field-box description-box p-3 rounded-3 bg-white text-muted small">
+                {{ role?.description || 'Sin descripción' }}
+            </div>
+        </div>
+    </div>
+</div>

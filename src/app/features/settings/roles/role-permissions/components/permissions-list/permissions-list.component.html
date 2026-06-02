@@ -1,0 +1,106 @@
+<div class="card-permissions border-0 shadow-sm rounded-3 h-100 ">
+
+    <!-- Card Header -->
+    <div class="card-header p-3 border-bottom d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold text-dark mb-0">Permisos de acceso</h6>
+        <div class="d-flex gap-2" *ngIf="showActions">
+            <button class="btn btn-outline-secondary btn-sm" (click)="cancel.emit()">
+                <i class="bi bi-x-lg me-1"></i> Cancelar
+            </button>
+            <button class="btn btn-primary btn-sm px-4" (click)="save.emit()" [disabled]="isSaving">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+                Guardar
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+
+        <!-- Info Alert -->
+        <div *ngIf="selectedPermissions.length === 0" class="alert alert-info-light d-flex align-items-center p-3 mb-4 rounded-3 animate-fade-in" role="alert">
+            <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
+            <div class="text-primary small">
+                Marque los módulos y submódulos a los que este rol tendrá acceso.
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p class="text-muted small">Cargando catálogo de permisos...</p>
+        </div>
+
+        <ng-container *ngIf="!isLoading">
+
+            <!-- Table Header -->
+            <div class="permissions-header d-flex justify-content-between px-3 py-2 border-bottom">
+                <span class="text-muted fw-bold small">Módulo / Submódulo</span>
+                <span class="text-muted fw-bold small me-5">Acceso</span>
+            </div>
+
+            <!-- Permissions List -->
+            <div class="permissions-list mt-1">
+                <div *ngFor="let module of modules" class="module-group mb-1">
+
+                    <!-- Module Row -->
+                    <div class="module-row d-flex align-items-center justify-content-between px-3 py-3 border-bottom cursor-pointer"
+                        (click)="toggleModuleExpand.emit(module)">
+
+                        <div class="d-flex align-items-center">
+                            <i class="bi text-muted me-2 chevron-icon"
+                                [class.bi-chevron-right]="!isModuleExpanded(module)"
+                                [class.bi-chevron-down]="isModuleExpanded(module)"></i>
+                            <i class="bi bi-folder-fill text-warning me-2 fs-5"></i>
+                            <span class="fw-bold text-dark small module-name text-uppercase">{{ getLabel(module)
+                                }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="form-check mb-0" (click)="$event.stopPropagation()">
+                                <input class="form-check-input permission-checkbox" type="checkbox"
+                                    [checked]="isModuleSelected(module)" (change)="toggleModuleSelect.emit(module)">
+                            </div>
+                            <button
+                                class="btn btn-sm btn-light p-0 d-flex align-items-center justify-content-center toggle-btn"
+                                (click)="$event.stopPropagation(); toggleModuleExpand.emit(module)">
+                                <i class="bi fs-6" [class.bi-plus]="!isModuleExpanded(module)"
+                                    [class.bi-dash]="isModuleExpanded(module)"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-modules List -->
+                    <div class="submodules-container" *ngIf="isModuleExpanded(module)">
+                        <div *ngFor="let permission of getFilteredPermissions(module)"
+                            class="submodule-row d-flex align-items-center justify-content-between py-3 border-bottom ms-4 pe-3 cursor-pointer"
+                            (click)="togglePermission.emit(permission.id)">
+
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-file-earmark-text text-muted me-3 fs-5"></i>
+                                <div class="d-flex flex-column flex-md-row gap-md-4">
+                                    <span class="fw-bold text-dark small text-uppercase">{{ getLabel(permission.name)
+                                        }}</span>
+                                    <span class="text-muted small description-text">{{ permission.description }}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-0 me-4" (click)="$event.stopPropagation()">
+                                <input class="form-check-input permission-checkbox" type="checkbox"
+                                    [checked]="isPermissionSelected(permission.id)"
+                                    (change)="togglePermission.emit(permission.id)">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="modules.length === 0" class="text-center py-5">
+                <i class="bi bi-filter-circle display-4 text-muted mb-3"></i>
+                <p class="text-muted">No se encontraron permisos.</p>
+            </div>
+
+        </ng-container>
+    </div>
+</div>

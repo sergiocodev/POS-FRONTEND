@@ -5,14 +5,14 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(243, 244, 246, 0.4); /* Gris claro muy sutil */
     z-index: 9999;
-    /* Asegura que esté por encima de cualquier modal o nav */
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(2px);
-    /* Efecto cristal moderno */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: fade-in 0.3s ease-out forwards;
 }
 
 /* --- Contenedor En Línea --- */
@@ -28,63 +28,146 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+/* Glassmorphism card effect solo para FullScreen */
+.spinner-overlay .spinner-container {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 2.5rem 4rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 
+                0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: pop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* --- Animación y Diseño del Spinner --- */
 .modern-spinner {
+    --spinner-stroke: calc(var(--spinner-size) * 0.08); /* Grosor responsivo */
     position: relative;
     width: var(--spinner-size);
     height: var(--spinner-size);
-    border: 3px solid rgba(0, 0, 0, 0.05);
-    /* Anillo base muy sutil */
-    border-radius: 50%;
-    border-top-color: var(--spinner-color);
     animation: spin 1s linear infinite;
-
-    /* Segundo anillo superpuesto para efecto elegante */
-    &::after {
-        content: '';
+    
+    .spinner-ring, .spinner-glow {
         position: absolute;
-        top: -3px;
-        left: -3px;
-        right: -3px;
-        bottom: -3px;
-        border: 3px solid transparent;
-        border-top-color: var(--spinner-color);
+        inset: 0;
         border-radius: 50%;
-        opacity: 0.5;
-        animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite alternate;
+        background: conic-gradient(
+            from 0deg,
+            transparent 0%,
+            transparent 15%,
+            var(--spinner-color) 100%
+        );
+        /* Máscara para hacer el centro transparente y dejar solo el anillo */
+        mask-image: radial-gradient(
+            circle, 
+            transparent calc(50% - var(--spinner-stroke) - 0.5px), 
+            black calc(50% - var(--spinner-stroke) + 0.5px)
+        );
+        -webkit-mask-image: radial-gradient(
+            circle, 
+            transparent calc(50% - var(--spinner-stroke) - 0.5px), 
+            black calc(50% - var(--spinner-stroke) + 0.5px)
+        );
+    }
+    
+    .spinner-glow {
+        filter: blur(6px);
+        opacity: 0.6;
+        z-index: -1;
+    }
+
+    /* Punto que encabeza el gradiente dándole un borde redondeado y brillante */
+    .spinner-dot {
+        position: absolute;
+        top: 0;
+        left: calc(50% - (var(--spinner-stroke) / 2));
+        width: var(--spinner-stroke);
+        height: var(--spinner-stroke);
+        background-color: var(--spinner-color);
+        border-radius: 50%;
+        box-shadow: 0 0 12px 2px var(--spinner-color);
     }
 }
 
 /* --- Tipografía del Mensaje --- */
 .spinner-message {
     font-weight: 500;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
     margin-bottom: 0;
-    animation: pulse-text 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    animation: fade-in-up 0.5s ease-out 0.2s forwards;
+    opacity: 0; /* Empieza oculto para la animación */
+
+    .dots {
+        display: inline-block;
+        width: 1.2em; /* Reserva espacio para evitar saltos layout */
+        text-align: left;
+        &::after {
+            content: '';
+            animation: typing-dots 1.5s infinite steps(4, end);
+        }
+    }
+}
+
+/* --- Modo Oscuro Opcional --- */
+@media (prefers-color-scheme: dark) {
+    .spinner-overlay {
+        background-color: rgba(17, 24, 39, 0.7);
+    }
+    .spinner-overlay .spinner-container {
+        background: rgba(31, 41, 55, 0.75);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
 }
 
 /* --- Keyframes --- */
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-    100% {
-        transform: rotate(360deg);
+@keyframes typing-dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+    100% { content: ''; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
 
-@keyframes pulse-text {
-
-    0%,
-    100% {
-        opacity: 1;
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
     }
-
-    50% {
-        opacity: 0.6;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

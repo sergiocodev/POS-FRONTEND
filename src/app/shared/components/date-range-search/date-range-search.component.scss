@@ -14,6 +14,11 @@ $bg-hover: #F5F5F5;
     gap: 16px;
     font-family: 'Inter', sans-serif;
     width: 100%;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 .date-input-group {
@@ -75,11 +80,22 @@ $bg-hover: #F5F5F5;
     box-shadow: var(--shadow-lg);
     z-index: 9999;
     padding: 16px;
+
+    @media (max-width: 576px) {
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100vw - 32px);
+        max-width: 350px;
+    }
 }
 
 .popover-content {
     display: flex;
     gap: 16px;
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+    }
 }
 
 /* Calendario */
@@ -87,6 +103,14 @@ $bg-hover: #F5F5F5;
     width: 250px;
     border-right: 1px solid var(--border-color);
     padding-right: 16px;
+
+    @media (max-width: 576px) {
+        width: 100%;
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 16px;
+    }
 }
 
 .calendar-header {
@@ -169,6 +193,12 @@ $bg-hover: #F5F5F5;
     gap: 8px;
     height: 250px;
     /* Ajustar a la altura del calendario */
+
+    @media (max-width: 576px) {
+        height: 180px;
+        justify-content: center;
+        width: 100%;
+    }
 }
 
 .time-column {
@@ -240,4 +270,9 @@ $bg-hover: #F5F5F5;
     &:hover {
         background: color.adjust($primary-blue, $lightness: -5%);
     }
-}
+
+    @media (max-width: 768px) {
+        width: 100%;
+        justify-content: center;
+    }
+}

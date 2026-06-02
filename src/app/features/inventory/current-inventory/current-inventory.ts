@@ -35,6 +35,12 @@ export class CurrentInventoryComponent implements OnInit {
   inventory = signal<InventoryResponse[]>([]);
   isLoading = signal(false);
 
+  // Pagination State
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalElements = signal(0);
+  tableFilters = signal<any>({});
+
   // Filter
   selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
@@ -61,9 +67,11 @@ export class CurrentInventoryComponent implements OnInit {
     if (!estId) return;
 
     this.isLoading.set(true);
-    this.inventoryService.getStockByEstablishment(estId).subscribe({
+    this.inventoryService.getStockByEstablishment(estId, this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
       next: (res) => {
-        this.inventory.set(res.data);
+        const page = res.data;
+        this.inventory.set(page.content || []);
+        this.totalElements.set(page.totalElements || 0);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -72,6 +80,23 @@ export class CurrentInventoryComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadInventory();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+    this.loadInventory();
+  }
+
+  onFilterChange(filters: any) {
+    this.tableFilters.set(filters);
+    this.currentPage.set(0);
+    this.loadInventory();
   }
 
   onAdjust(item: InventoryResponse) {

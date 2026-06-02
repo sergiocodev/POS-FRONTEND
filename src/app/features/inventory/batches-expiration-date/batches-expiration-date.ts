@@ -39,6 +39,12 @@ export class BatchesExpirationDateComponent implements OnInit {
   isLoading = signal(false);
   isLoadingProducts = signal(false);
 
+  // Pagination State
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalElements = signal(0);
+  tableFilters = signal<any>({});
+
   // Modal State
   showForm = signal(false);
 
@@ -49,9 +55,11 @@ export class BatchesExpirationDateComponent implements OnInit {
 
   loadLots() {
     this.isLoading.set(true);
-    this.inventoryService.getAllLots().subscribe({
+    this.inventoryService.getAllLotsPaged(this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
       next: (res) => {
-        this.lots.set(res.data);
+        const page = res.data;
+        this.lots.set(page.content || []);
+        this.totalElements.set(page.totalElements || 0);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -60,6 +68,23 @@ export class BatchesExpirationDateComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadLots();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+    this.loadLots();
+  }
+
+  onFilterChange(filters: any) {
+    this.tableFilters.set(filters);
+    this.currentPage.set(0);
+    this.loadLots();
   }
 
   loadProducts() {

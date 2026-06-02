@@ -2,7 +2,15 @@
 <app-modal-alert></app-modal-alert>
 <app-module-header title="Movimientos de Almacén" iconClass="bi bi-arrow-left-right"></app-module-header>
 
-<div class="movements-page animate-fade-in">
-    <app-movement-list [movements]="movements()" [isLoading]="isLoading()">
+<div class="movements-page animate-fade-in p-3">
+    <app-movement-list 
+        [movements]="movements()" 
+        [isLoading]="isLoading()"
+        [pageSize]="pageSize()"
+        [totalElements]="totalElements()"
+        [currentPage]="currentPage()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+        (filterChange)="onFilterChange($event)">
     </app-movement-list>
 </div>

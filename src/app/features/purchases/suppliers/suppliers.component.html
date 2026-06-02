@@ -4,39 +4,27 @@
 
 <app-module-header title="Gestión de Proveedores" iconClass="bi-truck"></app-module-header>
 
-<div class="suppliers-wrapper m-4">
+<div class="suppliers-wrapper p-3">
 
-    <!-- ── KPI Cards ─────────────────────────────────────────── -->
-    <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
+  <!-- ── KPI Cards ─────────────────────────────────────────── -->
+  <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
 
-    <div class="d-flex justify-content-end">
-        <button type="button" class="btn-new-supplier" (click)="openNewForm()">Nuevo Proveedor</button>
-    </div>
+  <div class="d-flex justify-content-end">
+    <button type="button" class="btn-new-supplier" (click)="openNewForm()">Nuevo Proveedor</button>
+  </div>
 
-    <!-- Table -->
-    <app-suppliers-list
-      [suppliers]="suppliers()"
-      [pageSize]="pageSize()"
-      [totalItems]="totalItems()"
-      [currentPage]="currentPage() + 1"
-      (onAction)="handleTableAction($event)"
-      (onPageChange)="handlePageChange($event)"
-      (onPageSizeChange)="handlePageSizeChangeValue($event)"
-      (onFilterChange)="onTableFilter($event)">
-    </app-suppliers-list>
+  <!-- Table -->
+  <app-suppliers-list [suppliers]="suppliers()" [pageSize]="pageSize()" [totalItems]="totalItems()"
+    [currentPage]="currentPage() + 1" (onAction)="handleTableAction($event)" (onPageChange)="handlePageChange($event)"
+    (onPageSizeChange)="handlePageSizeChangeValue($event)" (onFilterChange)="onTableFilter($event)">
+  </app-suppliers-list>
 </div>
 
 <!-- Modal for Supplier Form -->
-<app-modal-generic 
-  [isVisible]="showFormModal()" 
-  [title]="selectedSupplierId() ? 'Editar Proveedor' : 'Nuevo Proveedor'" 
-  size="md" 
-  (close)="closeFormModal()">
+<app-modal-generic [isVisible]="showFormModal()" [title]="selectedSupplierId() ? 'Editar Proveedor' : 'Nuevo Proveedor'"
+  size="md" (close)="closeFormModal()">
   @if (showFormModal()) {
-    <app-supplier-form 
-      [supplierId]="selectedSupplierId()"
-      (cancel)="closeFormModal()"
-      (saved)="onFormSaved()">
-    </app-supplier-form>
+  <app-supplier-form [supplierId]="selectedSupplierId()" (cancel)="closeFormModal()" (saved)="onFormSaved()">
+  </app-supplier-form>
   }
 </app-modal-generic>

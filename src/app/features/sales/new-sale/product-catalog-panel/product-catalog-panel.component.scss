@@ -12,6 +12,12 @@ $primary-hover-local: $hover-bg;
     flex-direction: column;
     gap: 1.25rem;
 
+    // On mobile: let the height grow naturally with content
+    @media (max-width: 991.98px) {
+        min-height: 400px;
+    }
+
+    // On desktop: constrain to parent height for sticky scroll
     @media (min-width: 992px) {
         height: 100%;
         min-height: 0;

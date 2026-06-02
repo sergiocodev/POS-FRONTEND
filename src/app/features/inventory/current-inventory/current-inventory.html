@@ -2,9 +2,18 @@
 <app-modal-alert></app-modal-alert>
 <app-module-header title="Inventario Actual" iconClass="bi bi-box-seam"></app-module-header>
 
-<div class="current-inventory-page animate-fade-in">
-    <app-inventory-list [inventory]="inventory()" [isLoading]="isLoading()" (adjust)="onAdjust($event)"
-        (export)="onExport()">
+<div class="current-inventory-page animate-fade-in p-3">
+    <app-inventory-list 
+        [inventory]="inventory()" 
+        [isLoading]="isLoading()"
+        [pageSize]="pageSize()"
+        [totalElements]="totalElements()"
+        [currentPage]="currentPage()"
+        (adjust)="onAdjust($event)"
+        (exportData)="onExport()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+        (filterChange)="onFilterChange($event)">
     </app-inventory-list>
 
     @if (showAdjustmentModal()) {

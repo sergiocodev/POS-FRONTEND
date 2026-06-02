@@ -1,4 +1,4 @@
-<div class="roles-list-container container-fluid py-4 animate-fade-in position-relative">
+<div class="roles-list-container animate-fade-in position-relative" style="padding: 24px;">
 
     <div class="d-flex justify-content-end align-items-center mb-4">
         <button class="btn btn-primary shadow-sm" (click)="createRole()">
@@ -6,10 +6,6 @@
         </button>
     </div>
 
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por nombre o descripción...'"
-        [disableClear]="!searchTerm()" (clear)="resetFilters()">
-
-    </app-table-filter>
 
     <div class="card border-0 shadow-sm overflow-hidden">
         <app-custom-table [columns]="cols" [data]="filteredRoles()" [pageSize]="pageSize"

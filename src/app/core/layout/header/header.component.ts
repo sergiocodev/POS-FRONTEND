@@ -7,12 +7,10 @@ import { EstablishmentService } from '../../services/establishment.service';
 import { EstablishmentStateService } from '../../services/establishment-state.service';
 import { EstablishmentResponse } from '../../models/maintenance.model';
 
-import { LogoComponent } from '../../../shared/components/logo/logo.component';
-
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule, LogoComponent],
+    imports: [CommonModule],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     animations: [
@@ -32,7 +30,6 @@ import { LogoComponent } from '../../../shared/components/logo/logo.component';
     ]
 })
 export class HeaderComponent implements OnInit {
-    @Input() collapsed = false;
     @Output() toggleSidebar = new EventEmitter<void>();
     authService = inject(AuthService);
     themeService = inject(ThemeService);
@@ -126,3 +123,4 @@ export class HeaderComponent implements OnInit {
         return names[0][0].toUpperCase();
     }
 }
+

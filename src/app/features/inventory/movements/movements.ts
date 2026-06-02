@@ -31,6 +31,12 @@ export class MovementsComponent implements OnInit {
     movements = signal<StockMovementResponse[]>([]);
     isLoading = signal(false);
 
+    // Pagination State
+    currentPage = signal(0);
+    pageSize = signal(10);
+    totalElements = signal(0);
+    tableFilters = signal<any>({});
+
     // Filter
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
@@ -53,9 +59,11 @@ export class MovementsComponent implements OnInit {
         if (!estId) return;
 
         this.isLoading.set(true);
-        this.inventoryService.getMovementsByEstablishment(estId).subscribe({
+        this.inventoryService.getMovementsByEstablishmentPaged(estId, this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
             next: (res) => {
-                this.movements.set(res.data);
+                const page = res.data;
+                this.movements.set(page.content || []);
+                this.totalElements.set(page.totalElements || 0);
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -64,5 +72,22 @@ export class MovementsComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    onPageChange(page: number) {
+        this.currentPage.set(page);
+        this.loadMovements();
+    }
+
+    onPageSizeChange(size: number) {
+        this.pageSize.set(size);
+        this.currentPage.set(0);
+        this.loadMovements();
+    }
+
+    onFilterChange(filters: any) {
+        this.tableFilters.set(filters);
+        this.currentPage.set(0);
+        this.loadMovements();
     }
 }

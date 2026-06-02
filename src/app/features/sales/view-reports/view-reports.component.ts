@@ -24,6 +24,7 @@ import { ProductService } from '../../../core/services/product.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { CustomerService } from '../../../core/services/customer.service';
 import { ReportFilters } from './components/report-filters/report-filters';
+import { CustomTabsComponent, CustomTab } from '../../../shared/components/custom-tabs/custom-tabs.component';
 
 export type ReportTab = 'comprobantes' | 'productos' | 'clientes' | 'vendedor';
 
@@ -36,7 +37,8 @@ export type ReportTab = 'comprobantes' | 'productos' | 'clientes' | 'vendedor';
         ModuleHeaderComponent,
         SpinnerComponent,
         CardReportComponent,
-        ReportFilters
+        ReportFilters,
+        CustomTabsComponent
     ],
     templateUrl: './view-reports.component.html',
     styleUrl: './view-reports.component.scss'
@@ -220,7 +222,7 @@ export class ViewReportsComponent implements OnInit {
     ];
 
     // Tab definitions
-    tabs: { key: ReportTab; label: string; icon: string }[] = [
+    tabs: CustomTab[] = [
         { key: 'comprobantes', label: 'Comprobantes', icon: 'bi-receipt' },
         { key: 'productos', label: 'Productos', icon: 'bi-box' },
         { key: 'clientes', label: 'Clientes', icon: 'bi-people' },
@@ -487,8 +489,8 @@ export class ViewReportsComponent implements OnInit {
         }
     }
 
-    setActiveTab(tab: ReportTab): void {
-        this.activeTab.set(tab);
+    setActiveTab(tab: string): void {
+        this.activeTab.set(tab as ReportTab);
     }
 
     private openPdf(blob: Blob, filename: string): void {

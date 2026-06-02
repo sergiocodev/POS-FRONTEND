@@ -9,12 +9,16 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { SessionListComponent } from './session-list/session-list.component';
 import { BoxDetailsComponent } from './box-details/box-details.component';
 import { SummaryBoxComponent } from './summary-box/summary-box.component';
+import { MovementFormComponent } from '../cash-flows/movement-form/movement-form.component';
+import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
+import { CashOpenComponent } from './box-details/cash-open/cash-open.component';
 
 @Component({
     selector: 'app-opening-closing',
     standalone: true,
-    imports: [CommonModule, RouterModule, ModuleHeaderComponent, SessionListComponent, BoxDetailsComponent, SummaryBoxComponent],
+    imports: [CommonModule, RouterModule, ModuleHeaderComponent, SessionListComponent, BoxDetailsComponent, SummaryBoxComponent, MovementFormComponent, ModalGenericComponent, CashOpenComponent],
     templateUrl: './opening-closing.component.html',
+
     styleUrl: './opening-closing.component.scss'
 })
 export class OpeningClosingComponent implements OnInit {
@@ -98,7 +102,16 @@ export class OpeningClosingComponent implements OnInit {
     }
 
     onOpenSession(): void {
-        this.router.navigate(['/cash/open']);
+        this.showOpenModal.set(true);
+    }
+
+    closeOpenModal(): void {
+        this.showOpenModal.set(false);
+    }
+
+    onOpenSaved(): void {
+        this.showOpenModal.set(false);
+        this.loadData();
     }
 
     onCloseActiveSession(): void {
@@ -107,11 +120,30 @@ export class OpeningClosingComponent implements OnInit {
         }
     }
 
+    showOpenModal = signal<boolean>(false);
+    showMovementModal = signal<boolean>(false);
+    movementType = signal<'inflow' | 'outflow'>('inflow');
+
+    onViewMovements(): void {
+        this.router.navigate(['/cash/movements']);
+    }
+
     onRegisterInflow(): void {
-        this.router.navigate(['/cash/movement/inflow']);
+        this.movementType.set('inflow');
+        this.showMovementModal.set(true);
     }
 
     onRegisterOutflow(): void {
-        this.router.navigate(['/cash/movement/outflow']);
+        this.movementType.set('outflow');
+        this.showMovementModal.set(true);
+    }
+
+    closeMovementModal(): void {
+        this.showMovementModal.set(false);
+    }
+
+    onMovementSaved(): void {
+        this.showMovementModal.set(false);
+        this.loadData();
     }
 }

@@ -56,28 +56,30 @@
     }
 }
 
-// Botón con gradiente para que combine con el tema
+// Botón principal
 .custom-btn-gradient {
-    background: linear-gradient(to right, #667eea, #764ba2);
+    background: var(--primary-color);
+    color: var(--text-on-primary, #ffffff);
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-        background: linear-gradient(to right, #764ba2, #667eea); // Invertir gradiente al hover
+        background: var(--primary-hover);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        box-shadow: 0 5px 15px rgba(0, 0, 255, 0.3); // Sombra azulada
     }
 
     &:disabled {
         opacity: 0.7;
-        background: #6c757d; // Gris bootstrap standard al deshabilitar
+        background: var(--border-color); // Gris del tema
+        color: var(--text-muted);
     }
 }
 
 // Ajuste suave para la tarjeta
 .card {
     background: rgba(255, 255, 255, 0.50); // Increased opacity for better contrast
-    //backdrop-filter: blur(10px); // Glassmorphism blur
-    //-webkit-backdrop-filter: blur(10px);
+    //backdrop-filter: blur(10px) !important; // Glassmorphism blur
+    //-webkit-backdrop-filter: blur(10px) !important;
     border: 1px solid rgba(255, 255, 255, 0.5); // Subtle border
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); // Glassmorphism shadow
 
@@ -85,5 +87,45 @@
 
     &:hover {
         transform: translateY(-5px);
+    }
+}
+
+// Estilos de input para Dark Theme
+.form-control {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color);
+
+    &:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(0, 0, 255, 0.15);
+    }
+}
+
+.form-floating {
+    >label {
+        color: var(--text-muted);
+    }
+
+    >.form-control:focus~label,
+    >.form-control:not(:placeholder-shown)~label {
+        color: var(--text-main);
+
+        &::after {
+            background-color: var(--input-bg) !important;
+        }
+    }
+}
+
+.btn-outline-secondary {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+
+    &:hover,
+    &:focus {
+        background-color: var(--hover-bg);
+        color: var(--text-on-primary);
+        border-color: var(--primary-color);
     }
 }

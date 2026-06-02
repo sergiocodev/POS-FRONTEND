@@ -1,18 +1,31 @@
-<div class="inventory-list-container container-fluid py-4 animate-fade-in position-relative">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0 text-dark fw-bold">Lista de Stock</h4>
-        <button class="btn btn-outline-success shadow-sm" (click)="onExport()">
-            <i class="bi bi-file-earmark-excel me-1"></i> Exportar
-        </button>
-    </div>
-
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto o lote...'"
-        [disableClear]="!searchTerm()" (clear)="resetFilters()">
-    </app-table-filter>
+<div class="inventory-list-container animate-fade-in position-relative">
 
     <ng-template #productTemplate let-row>
         <div class="fw-bold text-dark">{{ row.productName }}</div>
+    </ng-template>
+
+    <ng-template #unitTemplate let-row>
+        @if (row.units && row.units.length > 0) {
+            <div class="d-flex flex-column gap-1">
+                @for (unit of row.units; track unit.id) {
+                    <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">{{ unit.unitName }}</span>
+                }
+            </div>
+        } @else {
+            <span>{{ row.unitName || '-' }}</span>
+        }
+    </ng-template>
+
+    <ng-template #priceTemplate let-row>
+        @if (row.units && row.units.length > 0) {
+            <div class="d-flex flex-column gap-1">
+                @for (unit of row.units; track unit.id) {
+                    <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">S/ {{ unit.price }}</span>
+                }
+            </div>
+        } @else {
+            <span>{{ row.salesPrice != null ? 'S/ ' + row.salesPrice : '-' }}</span>
+        }
     </ng-template>
 
     <ng-template #lotTemplate let-row>
@@ -27,14 +40,17 @@
 
     <ng-template #actionsTemplate let-row>
         <div class="d-flex justify-content-end w-100 pe-4">
-            <button class="btn btn-sm btn-outline-primary" (click)="onAdjust(row)" title="Ajustar Stock">
-                <i class="bi bi-pencil-square me-1"></i> Ajustar
+            <button class="btn-action btn-edit d-flex align-items-center justify-content-center" (click)="onAdjust(row)" title="Ajustar Stock">
+                <i class="bi bi-pencil-square"></i>
             </button>
         </div>
     </ng-template>
 
     <div class="card shadow-sm border-0 overflow-hidden">
-        <app-custom-table [data]="filteredInventory()" [columns]="columns" [pageSize]="10">
+        <app-custom-table [data]="inventory()" [columns]="columns" [pageSize]="pageSize()"
+            [totalElements]="totalElements()" [currentPage]="currentPage() + 1"
+            (onPageChange)="handlePageChange($event)" (onPageSizeChange)="handlePageSizeChange($event)"
+            (onFilterChange)="handleFilterChange($event)">
         </app-custom-table>
 
         @if (isLoading()) {

@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
-import { TableFilterComponent } from '../../../../shared/components/table-filter/table-filter.component';
 
 @Component({
     selector: 'app-roles-list',
@@ -12,7 +11,6 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
         CommonModule,
         FormsModule,
         CustomTableComponent,
-        TableFilterComponent
     ],
     providers: [DatePipe],
     templateUrl: './roles-list.component.html',
@@ -31,6 +29,7 @@ export class RolesListComponent implements OnInit {
 
     // Configuración de la tabla
     cols: TableColumn[] = [
+        { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
         { key: 'name', label: 'Rol', type: 'text' },
         { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || 'Sin descripción' },
         { key: 'permissionCount', label: 'Permisos', type: 'text', format: (v: number) => `${v || 0} permisos` },

@@ -33,6 +33,8 @@ export interface ProductLotResponse {
 }
 
 
+import { ProductUnitResponse } from './product.model';
+
 export interface InventoryRequest {
     establishmentId: number;
     lotId: number;
@@ -57,7 +59,10 @@ export interface InventoryResponse {
     locationShelf?: string;
     costPrice: number;
     salesPrice: number;
+    unitName?: string;
+    units?: ProductUnitResponse[];
     lastMovement: string;
+    expiryDate: string;
 }
 
 

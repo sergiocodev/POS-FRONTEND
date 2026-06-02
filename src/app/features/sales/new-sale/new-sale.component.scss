@@ -2,4 +2,27 @@
 
 .pos-container {
     overflow-x: hidden;
+    min-height: calc(100vh - 120px); // Ensures the container fills the screen
+
+    // On mobile, add bottom padding so the FAB doesn't cover the last product card
+    @media (max-width: 991.98px) {
+        padding-bottom: 80px;
+    }
+}
+
+.btn-cart-mobile {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover, &:focus, &:active {
+        background-color: var(--primary-hover) !important;
+        border-color: var(--primary-hover) !important;
+    }
+
+    .badge {
+        background-color: var(--secondary-color) !important;
+        color: #ffffff !important;
+    }
 }

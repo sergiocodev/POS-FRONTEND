@@ -57,4 +57,59 @@ export class PermissionConstants {
     static readonly CONFIGURACION_ESTABLECIMIENTOS = 'CONFIGURACION_ESTABLECIMIENTOS';
     static readonly CONFIGURACION_PERSONAL = 'CONFIGURACION_PERSONAL';
     static readonly CONFIGURACION_IMPUESTOS = 'CONFIGURACION_IMPUESTOS';
+
+    /** Mapa de clave → etiqueta legible (igual que el sidebar) */
+    static readonly LABELS: Record<string, string> = {
+        // Módulos principales
+        'DASHBOARD': 'Dashboard',
+        'VENTAS': 'Ventas',
+        'FACTURACION': 'Facturación Electrónica',
+        'INVENTARIO': 'Inventario',
+        'COMPRAS': 'Compras',
+        'CAJA': 'Caja',
+        'FARMACIA': 'Gestión farmacéutica',
+        'CONFIGURACION': 'Configuraciones',
+        // Ventas
+        'VENTAS_POS': 'Nueva Venta',
+        'VENTAS_LISTA': 'Ver Ventas',
+        'VENTAS_CLIENTES': 'Clientes',
+        'VENTAS_CUENTAS_COBRAR': 'Cuentas por cobrar',
+        'VENTAS_REPORTES': 'Ver Reportes',
+        // Facturación
+        'FACTURACION_COMPROBANTES': 'Comprobantes',
+        'FACTURACION_BAJAS': 'Comunicación de baja',
+        'FACTURACION_NOTAS': 'Notas de crédito/débito',
+        // Inventario
+        'INVENTARIO_CATALOGO': 'Catálogo de productos',
+        'INVENTARIO_ACTUAL': 'Inventario actual',
+        'INVENTARIO_LOTES': 'Lotes y vencimientos',
+        'INVENTARIO_MOVIMIENTOS': 'Movimientos',
+        'INVENTARIO_TRANSFERENCIAS': 'Transferencias',
+        'INVENTARIO_REPORTES': 'Ver Reportes',
+        // Compras
+        'COMPRAS_NUEVA': 'Nueva Compra',
+        'COMPRAS_LISTA': 'Ver compras',
+        'COMPRAS_PROVEEDORES': 'Proveedores',
+        'COMPRAS_CUENTAS_PAGAR': 'Cuentas por pagar',
+        'COMPRAS_REPORTES': 'Ver reportes',
+        // Caja
+        'CAJA_APERTURA_CIERRE': 'Apertura y cierre',
+        'CAJA_MOVIMIENTOS': 'Movimientos de caja',
+        'CAJA_REGISTRADORAS': 'Cajas registradoras',
+        'CAJA_REPORTES': 'Reportes',
+        // Farmacia
+        'FARMACIA_PRINCIPIOS_ACTIVOS': 'Principios activos',
+        'FARMACIA_LABORATORIOS': 'Laboratorios',
+        'FARMACIA_MARCAS': 'Marcas',
+        'FARMACIA_CATEGORIAS': 'Categorias',
+        'FARMACIA_PRESENTACIONES': 'Presentaciones',
+        'FARMACIA_FORMAS': 'Formas farmacéuticas',
+        'FARMACIA_ACCIONES': 'Acciones terapéuticas',
+        // Configuración
+        'CONFIGURACION_USUARIOS': 'Usuarios',
+        'CONFIGURACION_ROLES': 'Roles y permisos',
+        'CONFIGURACION_ESTABLECIMIENTOS': 'Establecimientos',
+        'CONFIGURACION_PERSONAL': 'Personal',
+        'CONFIGURACION_IMPUESTOS': 'Impuestos',
+    };
 }

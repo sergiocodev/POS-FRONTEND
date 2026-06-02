@@ -1,0 +1,21 @@
+.role-info-card {
+    background-color: var(--input-bg) !important;
+
+
+    .card-header {
+        border-bottom: 1px solid #f1f1f1 !important;
+    }
+}
+
+.role-field-box {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    color: #4a5568 !important;
+
+    &.description-box {
+        align-items: flex-start;
+        min-height: 100px;
+        line-height: 1.5;
+    }
+}

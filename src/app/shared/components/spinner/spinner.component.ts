@@ -16,7 +16,7 @@ export class SpinnerComponent {
   @Input() fullScreen: boolean = false;
 
   /** Mensaje opcional a mostrar debajo del spinner */
-  @Input() message: string = 'Procesando...';
+  @Input() message: string = 'Procesando';
 
   /** Tamaño del spinner en píxeles */
   @Input() size: number = 48;

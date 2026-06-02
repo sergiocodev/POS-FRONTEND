@@ -1,16 +1,12 @@
-import { Component, OnInit, inject, signal, computed, input, output, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, inject, signal, input, output, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ProductResponse, CategoryResponse, BrandResponse } from '../../../../core/models/product.model';
-import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
+import { ProductResponse } from '../../../../core/models/product.model';
 import { CustomTableComponent, TableColumn, BadgeItem } from '../../../../shared/components/custom-table/custom-table.component';
-
-import { TableFilterComponent } from '../../../../shared/components/table-filter/table-filter.component';
 
 @Component({
     selector: 'app-product-list',
     standalone: true,
-    imports: [CommonModule, CustomTableComponent, TableFilterComponent, FormsModule],
+    imports: [CommonModule, CustomTableComponent],
     templateUrl: './product-list.component.html',
     styleUrl: './product-list.component.scss'
 })
@@ -20,61 +16,20 @@ export class ProductListComponent implements OnInit {
 
     products = input<ProductResponse[]>([]);
     isLoading = input(false);
-    categories = input<CategoryResponse[]>([]);
-    brands = input<BrandResponse[]>([]);
-    therapeuticActions = input<TherapeuticActionResponse[]>([]);
+    
+    pageSize = input<number>(10);
+    totalElements = input<number>(0);
+    currentPage = input<number>(0);
 
     create = output<void>();
     edit = output<number>();
     delete = output<ProductResponse>();
-
-    searchTerm = signal<string>('');
-
-    // Filter Signals
-    selectedCategory = signal<number | null>(null);
-    selectedBrand = signal<number | null>(null);
-    selectedTherapeuticAction = signal<number | null>(null);
+    
+    pageChange = output<number>();
+    pageSizeChange = output<number>();
+    filterChange = output<any>();
 
     columns: TableColumn[] = [];
-
-    filteredProducts = computed(() => {
-        let result = this.products();
-        const term = this.searchTerm().toLowerCase();
-
-        if (term) {
-            result = result.filter(product =>
-                product.digemidCode?.toLowerCase().includes(term) ||
-                product.code.toLowerCase().includes(term) ||
-                product.tradeName.toLowerCase().includes(term)
-            );
-        }
-
-        const currentCategoryId = this.selectedCategory();
-        if (currentCategoryId !== null) {
-            const category = this.categories().find(c => c.id === currentCategoryId);
-            if (category) {
-                result = result.filter(p => p.categoryName === category.name);
-            }
-        }
-
-        const currentBrandId = this.selectedBrand();
-        if (currentBrandId !== null) {
-            const brand = this.brands().find(b => b.id === currentBrandId);
-            if (brand) {
-                result = result.filter(p => p.brandName === brand.name);
-            }
-        }
-
-        const currentActionId = this.selectedTherapeuticAction();
-        if (currentActionId !== null) {
-            const action = this.therapeuticActions().find(a => a.id === currentActionId);
-            if (action) {
-                result = result.filter(p => p.therapeuticActionNames?.includes(action.name));
-            }
-        }
-
-        return result;
-    });
 
     ngOnInit(): void {
         this.setupColumns();
@@ -111,13 +66,6 @@ export class ProductListComponent implements OnInit {
     }
 
 
-    resetFilters(): void {
-        this.searchTerm.set('');
-        this.selectedCategory.set(null);
-        this.selectedBrand.set(null);
-        this.selectedTherapeuticAction.set(null);
-    }
-
     handleTableAction(event: { action: string, row: ProductResponse }) {
         if (event.action === 'edit') {
             this.edit.emit(event.row.id);
@@ -128,6 +76,18 @@ export class ProductListComponent implements OnInit {
 
     handleTableToggle(event: { row: ProductResponse, key: string, checked: boolean }) {
         // No longer toggling product active status
+    }
+
+    handlePageChange(page: number) {
+        this.pageChange.emit(page);
+    }
+
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
+
+    handleFilterChange(filters: any) {
+        this.filterChange.emit(filters);
     }
 
     onNew(): void {

@@ -1,14 +1,11 @@
-<div class="batch-list-container container-fluid py-4 animate-fade-in position-relative">
+<div class="batch-list-container animate-fade-in position-relative">
 
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <button class="btn btn-primary shadow-sm" (click)="onCreate()">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Lote
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-custom-primary" (click)="onCreate()">
+            <i class="bi bi-plus-lg me-1"></i>
+            <span class="btn-text">Nuevo Lote</span>
         </button>
     </div>
-
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto o lote...'"
-        [disableClear]="!searchTerm()" (clear)="resetFilters()">
-    </app-table-filter>
 
     <ng-template #productTemplate let-row>
         <div class="fw-bold text-dark">{{ row.productName }}</div>
@@ -36,7 +33,9 @@
     </ng-template>
 
     <div class="card shadow-sm border-0 overflow-hidden">
-        <app-custom-table [data]="filteredLots()" [columns]="columns" [pageSize]="10">
+        <app-custom-table [data]="lots()" [columns]="columns" [pageSize]="pageSize()" [totalElements]="totalElements()"
+            [currentPage]="currentPage() + 1" (onPageChange)="handlePageChange($event)"
+            (onPageSizeChange)="handlePageSizeChange($event)" (onFilterChange)="handleFilterChange($event)">
         </app-custom-table>
 
         @if (isLoading()) {

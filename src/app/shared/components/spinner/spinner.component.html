@@ -1,12 +1,15 @@
 <div *ngIf="show" [class.spinner-overlay]="fullScreen" [class.spinner-inline]="!fullScreen">
-    <div class="spinner-container">
-        <!-- El spinner con variables CSS inyectadas para tamaño y color -->
+    <div class="spinner-container" [class.is-fullscreen]="fullScreen">
+        <!-- El spinner moderno con anillos y resplandor -->
         <div class="modern-spinner" [style.--spinner-size.px]="size" [style.--spinner-color]="color">
+            <div class="spinner-glow"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-dot"></div>
         </div>
 
-        <!-- Mensaje opcional con margen superior de Bootstrap (mt-3) -->
-        <p *ngIf="message" class="spinner-message mt-3" [style.color]="color">
-            {{ message }}
+        <!-- Mensaje opcional con animación de puntos suspensivos -->
+        <p *ngIf="message" class="spinner-message" [style.color]="color">
+            {{ message }}<span class="dots"></span>
         </p>
     </div>
 </div>

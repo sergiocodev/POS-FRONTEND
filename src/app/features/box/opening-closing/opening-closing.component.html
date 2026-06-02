@@ -27,9 +27,27 @@
 
         <div class="col-xl-4 col-lg-5" *ngIf="statusData()">
             <app-box-details [statusData]="statusData()" [activeSession]="activeSession()"
-                (onCloseBox)="onCloseActiveSession()" (registerInflow)="onRegisterInflow()"
-                (registerOutflow)="onRegisterOutflow()">
+                (onCloseBox)="onCloseActiveSession()" (onViewMovements)="onViewMovements()"
+                (registerInflow)="onRegisterInflow()" (registerOutflow)="onRegisterOutflow()">
             </app-box-details>
         </div>
     </div>
+
+    <!-- Modal para Ingresos/Egresos rápidos -->
+    <app-modal-generic [isVisible]="showMovementModal()"
+        [title]="movementType() === 'inflow' ? 'Registrar Ingreso de Efectivo' : 'Registrar Egreso de Efectivo'"
+        (close)="closeMovementModal()">
+        @if (showMovementModal()) {
+            <app-movement-form [movementType]="movementType()" (onSave)="onMovementSaved()" (onCancel)="closeMovementModal()">
+            </app-movement-form>
+        }
+    </app-modal-generic>
+
+    <!-- Modal para Abrir Caja -->
+    <app-modal-generic [isVisible]="showOpenModal()" title="Apertura de Caja"
+        (close)="closeOpenModal()">
+        @if (showOpenModal()) {
+            <app-cash-open (saved)="onOpenSaved()" (cancel)="closeOpenModal()"></app-cash-open>
+        }
+    </app-modal-generic>
 </div>

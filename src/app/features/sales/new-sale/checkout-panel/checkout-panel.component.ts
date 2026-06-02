@@ -34,8 +34,12 @@ export class CheckoutPanelComponent {
 
   // Payments Management (Signals)
   payments = signal<any[]>([
-    { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: 0, reference: '' }
+    { id: this.generateId(), method: PaymentMethod.EFECTIVO, amount: 0, reference: '' }
   ]);
+
+  private generateId(): string {
+    return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+  }
 
   // Cálculos Computados
   total = computed(() =>
@@ -155,7 +159,7 @@ export class CheckoutPanelComponent {
 
     this.payments.update(prev => [
       ...prev,
-      { id: crypto.randomUUID(), method: PaymentMethod.EFECTIVO, amount: remaining > 0 ? remaining : 0, reference: '' }
+      { id: this.generateId(), method: PaymentMethod.EFECTIVO, amount: remaining > 0 ? remaining : 0, reference: '' }
     ]);
   }
 

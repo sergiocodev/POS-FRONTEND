@@ -12,6 +12,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { CardReportComponent, CardReportOption } from '../../../shared/components/card-report/card-report.component';
 import { BoxReportFiltersComponent } from './components/box-report-filters/box-report-filters.component';
+import { CustomTabsComponent, CustomTab } from '../../../shared/components/custom-tabs/custom-tabs.component';
 
 export type BoxReportTab = 'sesiones' | 'movimientos' | 'arqueo';
 
@@ -24,7 +25,8 @@ export type BoxReportTab = 'sesiones' | 'movimientos' | 'arqueo';
         ModuleHeaderComponent,
         SpinnerComponent,
         CardReportComponent,
-        BoxReportFiltersComponent
+        BoxReportFiltersComponent,
+        CustomTabsComponent
     ],
     templateUrl: './view-reports.component.html',
     styleUrl: './view-reports.component.scss'
@@ -55,7 +57,7 @@ export class ViewReportsComponent implements OnInit {
     isLoading = signal(false);
 
     // Tab definitions
-    tabs: { key: BoxReportTab; label: string; icon: string }[] = [
+    tabs: CustomTab[] = [
         { key: 'sesiones', label: 'Sesiones', icon: 'bi-clock-history' },
         { key: 'movimientos', label: 'Movimientos', icon: 'bi-arrow-left-right' },
         { key: 'arqueo', label: 'Arqueo', icon: 'bi-calculator' }
@@ -110,8 +112,8 @@ export class ViewReportsComponent implements OnInit {
         });
     }
 
-    setActiveTab(tab: BoxReportTab): void {
-        this.activeTab.set(tab);
+    setActiveTab(tab: string): void {
+        this.activeTab.set(tab as BoxReportTab);
     }
 
     onDateRangeChange(range: { startDate: string; endDate: string }): void {

@@ -1,0 +1,93 @@
+// ── Tab Navigation ──
+.report-tabs-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.report-tabs-wrapper {
+    grid-column: 2;
+    background: var(--card-bg, #fff);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 4px 15px rgba(var(--primary-color), 0.3);
+}
+
+.report-tabs-actions {
+    grid-column: 3;
+    justify-self: end;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.report-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+
+    &::-webkit-scrollbar {
+        height: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+    }
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    i {
+        font-size: 1rem;
+    }
+
+    &:hover {
+        color: #fff;
+        background: var(--primary-hover);
+    }
+
+    &.active {
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+}
+
+// ── Responsive ──
+@media (max-width: 768px) {
+    .tab-btn {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+
+        span {
+            display: none;
+        }
+    }
+
+    .report-tabs-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .report-tabs-wrapper {
+        width: 100%;
+    }
+}

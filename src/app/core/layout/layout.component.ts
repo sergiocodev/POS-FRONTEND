@@ -1,23 +1,27 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
 
-import { LogoComponent } from '../../shared/components/logo/logo.component';
-
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent, LogoComponent],
+    imports: [CommonModule, RouterModule, SidebarComponent, HeaderComponent],
     templateUrl: './layout.component.html',
     styleUrl: './layout.component.scss'
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
     authService = inject(AuthService);
     sidebarCollapsed = false;
     reportsMenuOpen = false;
+
+    ngOnInit() {
+        if (typeof window !== 'undefined') {
+            this.sidebarCollapsed = window.innerWidth <= 991.98;
+        }
+    }
 
     toggleSidebar(): void {
         this.sidebarCollapsed = !this.sidebarCollapsed;

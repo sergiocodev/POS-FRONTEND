@@ -8,37 +8,30 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
 @Component({
     selector: 'app-inventory-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, CustomTableComponent, TableFilterComponent],
+    imports: [CommonModule, FormsModule, CustomTableComponent],
     templateUrl: './inventory-list.component.html',
     styleUrl: './inventory-list.component.scss'
 })
 export class InventoryListComponent implements OnInit {
     @ViewChild('productTemplate', { static: true }) productTemplate!: TemplateRef<any>;
+    @ViewChild('unitTemplate', { static: true }) unitTemplate!: TemplateRef<any>;
+    @ViewChild('priceTemplate', { static: true }) priceTemplate!: TemplateRef<any>;
     @ViewChild('lotTemplate', { static: true }) lotTemplate!: TemplateRef<any>;
     @ViewChild('quantityTemplate', { static: true }) quantityTemplate!: TemplateRef<any>;
     @ViewChild('actionsTemplate', { static: true }) actionsTemplate!: TemplateRef<any>;
-
     inventory = input<InventoryResponse[]>([]);
     isLoading = input(false);
 
+    pageSize = input<number>(10);
+    totalElements = input<number>(0);
+    currentPage = input<number>(0);
+
     adjust = output<InventoryResponse>();
-    export = output<void>();
+    exportData = output<void>();
 
-    searchTerm = signal<string>('');
-
-    filteredInventory = computed(() => {
-        const result = this.inventory();
-        const term = this.searchTerm().toLowerCase();
-
-        if (!term) {
-            return result;
-        }
-
-        return result.filter(item =>
-            item.productName.toLowerCase().includes(term) ||
-            item.lotCode.toLowerCase().includes(term)
-        );
-    });
+    pageChange = output<number>();
+    pageSizeChange = output<number>();
+    filterChange = output<any>();
 
     columns: TableColumn[] = [];
 
@@ -57,6 +50,13 @@ export class InventoryListComponent implements OnInit {
                 templateRef: this.productTemplate
             },
             {
+                key: 'unitName',
+                label: 'Unidad',
+                type: 'template',
+                filterable: true,
+                templateRef: this.unitTemplate
+            },
+            {
                 key: 'lotCode',
                 label: 'Lote',
                 type: 'template',
@@ -64,11 +64,42 @@ export class InventoryListComponent implements OnInit {
                 templateRef: this.lotTemplate
             },
             {
-                key: 'expirationDate',
+                key: 'expiryDate',
                 label: 'Vencimiento',
                 type: 'text',
                 filterable: true,
-                format: () => '-' // As per previous design it showed '-'
+                format: (val: any) => {
+                    if (!val) return '-';
+                    if (typeof val === 'string' && val.includes('-')) {
+                        const parts = val.split('T')[0].split('-');
+                        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    }
+                    if (Array.isArray(val) && val.length >= 3) {
+                        return `${val[2].toString().padStart(2, '0')}/${val[1].toString().padStart(2, '0')}/${val[0]}`;
+                    }
+                    return val;
+                }
+            },
+            {
+                key: 'costPrice',
+                label: 'Costo',
+                type: 'text',
+                filterable: true,
+                format: (val: any) => val != null ? `S/ ${val}` : '-'
+            },
+            {
+                key: 'salesPrice',
+                label: 'Precio',
+                type: 'template',
+                filterable: true,
+                templateRef: this.priceTemplate
+            },
+            {
+                key: 'locationShelf',
+                label: 'Ubicación',
+                type: 'text',
+                filterable: true,
+                format: (val: any) => val || '-'
             },
             {
                 key: 'quantity',
@@ -86,8 +117,16 @@ export class InventoryListComponent implements OnInit {
         ];
     }
 
-    resetFilters(): void {
-        this.searchTerm.set('');
+    handlePageChange(page: number) {
+        this.pageChange.emit(page);
+    }
+
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
+
+    handleFilterChange(filters: any) {
+        this.filterChange.emit(filters);
     }
 
     onAdjust(item: InventoryResponse): void {
@@ -95,6 +134,6 @@ export class InventoryListComponent implements OnInit {
     }
 
     onExport(): void {
-        this.export.emit();
+        this.exportData.emit();
     }
 }

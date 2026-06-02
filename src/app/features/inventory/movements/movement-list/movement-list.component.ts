@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, input, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, signal, computed, input, output, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockMovementResponse, MovementType } from '../../../../core/models/inventory.model';
@@ -8,7 +8,7 @@ import { TableFilterComponent } from '../../../../shared/components/table-filter
 @Component({
     selector: 'app-movement-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, CustomTableComponent, TableFilterComponent],
+    imports: [CommonModule, FormsModule, CustomTableComponent],
     templateUrl: './movement-list.component.html',
     styleUrl: './movement-list.component.scss'
 })
@@ -23,21 +23,13 @@ export class MovementListComponent implements OnInit {
     movements = input<StockMovementResponse[]>([]);
     isLoading = input(false);
 
-    searchTerm = signal('');
-    filteredMovements = computed(() => {
-        const term = this.searchTerm().toLowerCase();
-        const movementsList = this.movements();
+    pageSize = input<number>(10);
+    totalElements = input<number>(0);
+    currentPage = input<number>(0);
 
-        if (!term) {
-            return movementsList;
-        }
-
-        return movementsList.filter(m =>
-            m.productName.toLowerCase().includes(term) ||
-            (m.lotCode && m.lotCode.toLowerCase().includes(term)) ||
-            m.reason.toLowerCase().includes(term)
-        );
-    });
+    pageChange = output<number>();
+    pageSizeChange = output<number>();
+    filterChange = output<any>();
 
     columns: TableColumn[] = [];
 
@@ -47,6 +39,7 @@ export class MovementListComponent implements OnInit {
 
     setupColumns() {
         this.columns = [
+            { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
             {
                 key: 'createdAt',
                 label: 'Fecha',
@@ -97,8 +90,16 @@ export class MovementListComponent implements OnInit {
         ];
     }
 
-    resetFilters(): void {
-        this.searchTerm.set('');
+    handlePageChange(page: number) {
+        this.pageChange.emit(page);
+    }
+
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
+
+    handleFilterChange(filters: any) {
+        this.filterChange.emit(filters);
     }
 
     getTypeClass(type: MovementType): string {

@@ -16,6 +16,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { CardReportComponent, CardReportOption } from '../../../shared/components/card-report/card-report.component';
 import { PurchaseReportFiltersComponent } from './components/purchase-report-filters/purchase-report-filters.component';
+import { CustomTabsComponent, CustomTab } from '../../../shared/components/custom-tabs/custom-tabs.component';
 
 export type PurchaseReportTab = 'comprobantes' | 'productos' | 'proveedores' | 'usuarios';
 
@@ -28,7 +29,8 @@ export type PurchaseReportTab = 'comprobantes' | 'productos' | 'proveedores' | '
         ModuleHeaderComponent,
         SpinnerComponent,
         CardReportComponent,
-        PurchaseReportFiltersComponent
+        PurchaseReportFiltersComponent,
+        CustomTabsComponent
     ],
     templateUrl: './view-reports.component.html',
     styleUrl: './view-reports.component.scss'
@@ -76,7 +78,7 @@ export class ViewReportsComponent implements OnInit {
     isLoading = signal(false);
 
     // Tab definitions
-    tabs: { key: PurchaseReportTab; label: string; icon: string }[] = [
+    tabs: CustomTab[] = [
         { key: 'comprobantes', label: 'Comprobantes', icon: 'bi-receipt' },
         { key: 'productos', label: 'Productos', icon: 'bi-box' },
         { key: 'proveedores', label: 'Proveedores', icon: 'bi-truck' },
@@ -151,8 +153,8 @@ export class ViewReportsComponent implements OnInit {
         });
     }
 
-    setActiveTab(tab: PurchaseReportTab): void {
-        this.activeTab.set(tab);
+    setActiveTab(tab: string): void {
+        this.activeTab.set(tab as PurchaseReportTab);
     }
 
     // ── Global Filter Handlers ──

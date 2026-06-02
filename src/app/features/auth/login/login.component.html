@@ -61,8 +61,8 @@
             <div>{{ errorMessage() }}</div>
           </div>
 
-          <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-primary btn-lg custom-btn-gradient border-0"
+          <div class="d-flex justify-content-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg custom-btn-gradient border-0 px-5"
               [disabled]="loginForm.invalid || isLoading()">
               <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2" role="status"
                 aria-hidden="true"></span>

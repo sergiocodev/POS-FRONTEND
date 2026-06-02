@@ -1,9 +1,4 @@
-<div class="movement-list-container container-fluid py-4 animate-fade-in position-relative">
-
-    <app-table-filter [(searchQuery)]="searchTerm" [placeholder]="'Buscar por producto, lote o motivo...'"
-        [disableClear]="!searchTerm()" (clear)="resetFilters()">
-    </app-table-filter>
-
+<div class="movement-list-container animate-fade-in position-relative">
     <ng-template #dateTemplate let-row>
         <div class="fw-bold text-dark">{{ row.createdAt | date:'dd/MM/yyyy' }}</div>
         <small class="text-muted">{{ row.createdAt | date:'HH:mm' }}</small>
@@ -43,7 +38,15 @@
     </ng-template>
 
     <div class="card shadow-sm border-0 overflow-hidden">
-        <app-custom-table [data]="filteredMovements()" [columns]="columns" [pageSize]="10">
+        <app-custom-table 
+            [data]="movements()" 
+            [columns]="columns" 
+            [pageSize]="pageSize()"
+            [totalElements]="totalElements()"
+            [currentPage]="currentPage() + 1"
+            (onPageChange)="handlePageChange($event)"
+            (onPageSizeChange)="handlePageSizeChange($event)"
+            (onFilterChange)="handleFilterChange($event)">
         </app-custom-table>
 
         @if (isLoading()) {

@@ -6,3 +6,25 @@
 .table> :not(caption)>*>* {
     padding: 1rem 0.5rem;
 }
+
+/* Botones de Acción (estilo heredado de custom-table) */
+.btn-action {
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: #eff6ff;
+        color: var(--primary-color);
+        border-color: rgba(78, 115, 223, 0.2); // primary color with alpha
+    }
+
+    &.btn-edit:hover {
+        background-color: #eff6ff;
+        color: var(--primary-color);
+        border-color: rgba(78, 115, 223, 0.2);
+    }
+}

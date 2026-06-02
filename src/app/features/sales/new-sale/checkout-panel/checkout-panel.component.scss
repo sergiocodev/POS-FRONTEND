@@ -8,10 +8,21 @@
 .checkout-container {
     height: 100%;
 
+    @media (max-width: 991.98px) {
+        border-radius: 0 !important;
+    }
+
     @media (min-width: 992px) {
         top: 1.5rem;
         max-height: calc(100vh - 3rem);
     }
+}
+
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
 }
 
 :host ::ng-deep {

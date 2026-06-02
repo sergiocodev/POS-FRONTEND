@@ -19,6 +19,20 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts`, { params });
     }
 
+    getPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<any>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        
+        Object.keys(filters).forEach(key => {
+            if (filters[key] !== null && filters[key] !== undefined && filters[key] !== '') {
+                params = params.set(key, filters[key]);
+            }
+        });
+
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/paged`, { params });
+    }
+
     getById(id: number): Observable<ResponseApi<ProductResponse>> {
         return this.http.get<ResponseApi<ProductResponse>>(`${this.apiUrl}/${id}`);
     }

@@ -1,4 +1,9 @@
+<div class="mobile-overlay" *ngIf="!collapsed" (click)="closeOnMobile()"></div>
 <div class="sidebar-container" [class.collapsed]="collapsed">
+
+    <div class="sidebar-header d-flex align-items-center p-3" *ngIf="!collapsed">
+        <app-logo [collapsed]="collapsed"></app-logo>
+    </div>
 
 
     <nav class="sidebar-nav">
@@ -8,12 +13,9 @@
 
                 <li class="nav-item" *ngIf="!item.children">
                     <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
-                        [title]="collapsed ? item.label : ''">
+                        [title]="collapsed ? item.label : ''" (click)="navigateMobile(item.route, $event)">
                         <i class="bi {{item.icon}} nav-icon"></i>
                         <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
-
-
-                        <span class="tooltip-text" *ngIf="collapsed">{{item.label}}</span>
                     </a>
                 </li>
 
@@ -30,7 +32,7 @@
                     <div class="submenu" *ngIf="item.expanded && !collapsed" [@slideInOut]>
                         <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active"
                             [routerLinkActiveOptions]="child.routerLinkActiveOptions || { exact: false }"
-                            class="nav-link sub-link">
+                            class="nav-link sub-link" (click)="navigateMobile(child.route, $event)">
                             <span class="bullet"></span>
                             <span class="nav-text">{{child.label}}</span>
                         </a>

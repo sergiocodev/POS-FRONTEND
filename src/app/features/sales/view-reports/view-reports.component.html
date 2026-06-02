@@ -2,16 +2,11 @@
 
 <div class="container-fluid report-container">
     <!-- ═══ Tab Navigation ═══ -->
-    <div class="report-tabs-wrapper my-4">
-        <div class="report-tabs">
-            @for (tab of tabs; track tab.key) {
-            <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="setActiveTab(tab.key)">
-                <i class="bi" [class]="tab.icon"></i>
-                <span>{{ tab.label }}</span>
-            </button>
-            }
-        </div>
-    </div>
+    <app-custom-tabs
+        [tabs]="tabs"
+        [activeTab]="activeTab()"
+        (tabChange)="setActiveTab($event)">
+    </app-custom-tabs>
 
     <!-- ═══ Filters Section ═══ -->
     <app-report-filters [activeTab]="activeTab()" [establishments]="establishments()" [startDate]="startDate()"

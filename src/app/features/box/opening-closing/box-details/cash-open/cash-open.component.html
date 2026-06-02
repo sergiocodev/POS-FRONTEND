@@ -1,0 +1,40 @@
+<div class="px-2 pb-2">
+    <div class="alert alert-danger" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+    </div>
+
+    <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()">
+        <div class="mb-4">
+            <label class="form-label fw-bold small text-muted text-uppercase">Seleccionar Caja</label>
+            <select class="form-select border-0 bg-light py-2 px-3 fs-5" formControlName="cashRegisterId"
+                [class.is-invalid]="sessionForm.get('cashRegisterId')?.touched && sessionForm.get('cashRegisterId')?.invalid">
+                <option [ngValue]="null">Elija una caja disponible</option>
+                <option *ngFor="let r of registers()" [value]="r.id">{{ r.name }} - {{ r.establishmentName }}</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-bold small text-muted text-uppercase">Saldo Inicial (Efectivo)</label>
+            <div class="input-group input-group-lg shadow-sm border rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0 pe-0 text-muted">S/</span>
+                <input type="number" class="form-control border-0 py-3 ps-2 fw-bold" formControlName="openingBalance" placeholder="0.00">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-bold small text-muted text-uppercase">Notas (Opcional)</label>
+            <textarea class="form-control border-0 bg-light py-2 px-3" formControlName="notes" rows="3"
+                placeholder="Observaciones sobre la sesión..."></textarea>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+            <button type="button" class="btn btn-light fw-bold px-4" (click)="onCancel()" [disabled]="isLoading()">
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary fw-bold px-4" [disabled]="isLoading()">
+                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                CONFIRMAR APERTURA
+            </button>
+        </div>
+    </form>
+</div>

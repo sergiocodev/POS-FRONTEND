@@ -2,8 +2,17 @@
 <app-modal-alert></app-modal-alert>
 <app-module-header title="Lotes y Vencimientos" iconClass="bi bi-calendar-event"></app-module-header>
 
-<div class="batches-expiration-page animate-fade-in">
-    <app-batch-list [lots]="lots()" [isLoading]="isLoading()" (create)="onOpenForm()">
+<div class="batches-expiration-page animate-fade-in p-3">
+    <app-batch-list 
+        [lots]="lots()" 
+        [isLoading]="isLoading()"
+        [pageSize]="pageSize()"
+        [totalElements]="totalElements()"
+        [currentPage]="currentPage()"
+        (create)="onOpenForm()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+        (filterChange)="onFilterChange($event)">
     </app-batch-list>
 
     @if (showForm()) {

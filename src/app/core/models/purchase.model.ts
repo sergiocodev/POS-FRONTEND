@@ -11,7 +11,7 @@ export enum PurchaseStatus {
 }
 
 export enum PaymentCondition {
-    CASH = 'CONTADO',
+    CASH = 'CASH',
     CREDIT = 'CREDIT'
 }
 
@@ -37,6 +37,8 @@ export interface PurchaseItemResponse {
     id: number;
     productName: string;
     productUnitId: number;
+    unitName: string;
+    factor: number;
     lotCode: string;
     expiryDate: string;
     quantity: number;

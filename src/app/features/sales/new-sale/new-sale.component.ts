@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, effect, untracked, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { forkJoin, Subject, timer, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { forkJoin, Subject, timer, map, debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 
 // Services & Models
 import { SaleService } from '../../../core/services/sale.service';
@@ -22,6 +22,7 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { CashOpenComponent } from '../../box/opening-closing/box-details/cash-open/cash-open.component';
 
 @Component({
     selector: 'app-new-sale',
@@ -34,7 +35,8 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
         ModuleHeaderComponent,
         ModalAlertComponent,
         ConfirmModalComponent,
-        SpinnerComponent
+        SpinnerComponent,
+        CashOpenComponent
     ],
     templateUrl: './new-sale.component.html',
     styleUrl: './new-sale.component.scss'
@@ -64,6 +66,7 @@ export class NewSaleComponent implements OnInit {
 
     // UI/Modal State
     showCustomerModal = signal<boolean>(false);
+    showOpenModal = signal<boolean>(false);
     isCartOpen = signal<boolean>(false);
 
     private searchSubject = new Subject<string>();
@@ -114,7 +117,9 @@ export class NewSaleComponent implements OnInit {
         forkJoin({
             products: this.saleService.listProductsForSale(establishmentId),
             customers: this.customerService.getAll(),
-            activeSession: this.cashSessionService.getActiveSession()
+            activeSession: this.cashSessionService.getActiveSession().pipe(
+                catchError(() => of(null)) // Catch errors like 404 No Active Session
+            )
         }).subscribe({
             next: (data) => {
                 const allUnits = data.products.data;
@@ -132,16 +137,41 @@ export class NewSaleComponent implements OnInit {
                     }
                 }
 
-                this.activeSession.set(data.activeSession.data);
+                const session = data.activeSession?.data;
+
+                // Validar estrictamente que haya sesión y esté ABIERTA
+                if (session && session.status === 'OPEN') {
+                    this.activeSession.set(session);
+                } else {
+                    this.activeSession.set(null);
+                    this.modalService.alert({
+                        title: 'Error',
+                        message: 'Debe abrir una caja antes de realizar ventas',
+                        type: 'warning',
+                        buttonText: 'Ok'
+                    }).then(() => {
+                        this.showOpenModal.set(true);
+                    });
+                }
+
                 this.isLoading.set(false);
             },
             error: (err) => {
                 console.error('Error loading POS data:', err);
                 this.isLoading.set(false);
-                this.modalService.alert({ title: 'Error', message: 'Debe abrir una caja antes de realizar ventas.', type: 'error' });
-                setTimeout(() => this.router.navigate(['/cash']), 2000);
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los datos del sistema.', type: 'error' });
             }
         });
+    }
+
+    onOpenSaved(): void {
+        this.showOpenModal.set(false);
+        this.loadInitialData(); // Recargamos para obtener los productos y clientes
+    }
+
+    onOpenCanceled(): void {
+        this.showOpenModal.set(false);
+        this.router.navigate(['/home']); // Redirigimos al home si decide no abrir la caja
     }
 
     private deduplicateForGrid(all: ProductForSaleResponse[]): ProductForSaleResponse[] {

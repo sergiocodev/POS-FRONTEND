@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { PermissionConstants } from '../../constants/permission-constants';
+import { LogoComponent } from '../../../shared/components/logo/logo.component';
 
 interface MenuItem {
     label: string;
@@ -20,7 +21,7 @@ interface MenuItem {
 @Component({
     selector: 'app-sidebar',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, LogoComponent],
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.scss'],
     animations: [
@@ -39,6 +40,7 @@ interface MenuItem {
 export class SidebarComponent {
     authService = inject(AuthService);
     themeService = inject(ThemeService);
+    private router = inject(Router);
 
     get isDarkMode() {
         return this.themeService.isDarkMode();
@@ -123,16 +125,16 @@ export class SidebarComponent {
         {
             label: 'Gestión farmacéutica',
             icon: 'bi-capsule',
-            expanded: false,
-            requiredPermissions: [PermissionConstants.FARMACIA],
-            children: [
-                { label: 'Principios activos', route: '/pharmacy/active-ingredients', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_PRINCIPIOS_ACTIVOS] },
-                { label: 'Laboratorios', route: '/pharmacy/labs', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_LABORATORIOS] },
-                { label: 'Marcas', route: '/pharmacy/brands', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_MARCAS] },
-                { label: 'Categorias', route: '/pharmacy/categories', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_CATEGORIAS] },
-                { label: 'Presentaciones', route: '/pharmacy/presentations', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_PRESENTACIONES] },
-                { label: 'Formas farmacéuticas', route: '/pharmacy/pharmaceutical-forms', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_FORMAS] },
-                { label: 'Acciones terapéuticas', route: '/pharmacy/therapeutic-actions', icon: 'bi-dot', requiredPermissions: [PermissionConstants.FARMACIA_ACCIONES] }
+            route: '/pharmacy/catalog',
+            requiredPermissions: [
+                PermissionConstants.FARMACIA,
+                PermissionConstants.FARMACIA_PRINCIPIOS_ACTIVOS,
+                PermissionConstants.FARMACIA_LABORATORIOS,
+                PermissionConstants.FARMACIA_MARCAS,
+                PermissionConstants.FARMACIA_CATEGORIAS,
+                PermissionConstants.FARMACIA_PRESENTACIONES,
+                PermissionConstants.FARMACIA_FORMAS,
+                PermissionConstants.FARMACIA_ACCIONES
             ]
         },
         {
@@ -200,6 +202,26 @@ export class SidebarComponent {
             }, 300);
         } else {
             item.expanded = !item.expanded;
+        }
+    }
+
+    closeOnMobile() {
+        if (window.innerWidth <= 991.98) {
+            setTimeout(() => {
+                this.collapsed = true;
+                this.collapsedChange.emit(this.collapsed);
+            }, 150);
+        }
+    }
+
+    navigateMobile(route: string | undefined, event: Event) {
+        // En móviles, forzamos la navegación por JS para sortear el fallo del routerLink
+        if (route && window.innerWidth <= 991.98) {
+            event.preventDefault();
+            this.router.navigateByUrl(route).then(() => {
+                this.collapsed = true;
+                this.collapsedChange.emit(this.collapsed);
+            });
         }
     }
 

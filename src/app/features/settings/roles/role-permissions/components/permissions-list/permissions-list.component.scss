@@ -1,0 +1,114 @@
+.card-permissions {
+    background-color: var(--input-bg) !important;
+}
+
+// Info Alert
+.alert-info-light {
+    background-color: #f0f7ff;
+    border: 1px solid #e1effe;
+    color: #1c64f2;
+
+    .text-primary {
+        color: #1e429f !important;
+    }
+}
+
+// Permissions Table Header
+.permissions-header {
+    background-color: var(--input-bg) !important;
+
+}
+
+// Module Row
+.module-row {
+    transition: background-color 0.2s;
+    border-color: #f1f1f1 !important;
+
+    &:hover {
+        //background-color: #fbfbfb;
+    }
+
+    .module-name {
+        letter-spacing: 0.5px;
+        color: #2d3748;
+    }
+
+    .chevron-icon {
+        font-size: 0.75rem;
+        width: 1.25rem;
+    }
+}
+
+// Sub-module Row
+.submodule-row {
+    transition: background-color 0.2s;
+    border-color: #f1f1f1 !important;
+    padding-left: 3rem !important;
+
+    &:hover {
+        //background-color: #fcfcfc;
+    }
+
+    .description-text {
+        color: #a0aec0;
+        font-weight: normal;
+    }
+}
+
+// Checkboxes
+.permission-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0;
+    cursor: pointer;
+    border: 1px solid #cbd5e0;
+
+    &:checked {
+        background-color: #2b6cb0;
+        border-color: #2b6cb0;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+        border-color: #63b3ed;
+    }
+}
+
+// Toggle button (+ / -)
+.toggle-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background-color: #f7fafc;
+    border: 1px solid #edf2f7;
+    color: #718096;
+    font-weight: bold;
+
+    &:hover {
+        background-color: #edf2f7;
+        color: #2d3748;
+    }
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .submodule-row {
+        padding-left: 1.5rem !important;
+        flex-direction: column;
+        align-items: flex-start !important;
+
+        .form-check {
+            margin-top: 0.5rem;
+            align-self: flex-end;
+        }
+    }
+
+    .description-text {
+        display: block;
+        margin-top: 0.25rem;
+    }
+}

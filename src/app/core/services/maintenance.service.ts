@@ -35,6 +35,14 @@ export class MaintenanceService {
         return this.brandsCache$;
     }
 
+    getPagedBrands(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/brands/paged?${params}`);
+    }
+
     createNewBrand(name: string): Observable<ResponseApi<BrandResponse>> {
         return this.http.post<ResponseApi<BrandResponse>>('/api/v1/brands/CreateNewBrand', { name });
     }
@@ -130,6 +138,15 @@ export class MaintenanceService {
         return this.activeIngredientsCache$;
     }
 
+    getPagedActiveIngredients(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+            if (filters.description) params += `&description=${encodeURIComponent(filters.description)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/active-ingredients?${params}`);
+    }
+
     createNewActiveIngredient(name: string, description?: string): Observable<ResponseApi<ActiveIngredientResponse>> {
         return this.http.post<ResponseApi<ActiveIngredientResponse>>('/api/v1/active-ingredients/CreateNewActiveIngredient', { name, description });
     }
@@ -147,6 +164,14 @@ export class MaintenanceService {
             this.pharmaceuticalFormsCache$ = this.http.get<ResponseApi<PharmaceuticalFormResponse[]>>('/api/v1/pharmaceutical-forms/GetAllPharmaceuticalForms').pipe(shareReplay(1));
         }
         return this.pharmaceuticalFormsCache$;
+    }
+
+    getPagedPharmaceuticalForms(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/pharmaceutical-forms/paged?${params}`);
     }
 
     createNewPharmaceuticalForm(name: string, description?: string): Observable<ResponseApi<PharmaceuticalFormResponse>> {
@@ -168,6 +193,14 @@ export class MaintenanceService {
         return this.therapeuticActionsCache$;
     }
 
+    getPagedTherapeuticActions(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/therapeutic-actions/paged?${params}`);
+    }
+
     createNewTherapeuticAction(name: string, description?: string): Observable<ResponseApi<TherapeuticActionResponse>> {
         return this.http.post<ResponseApi<TherapeuticActionResponse>>('/api/v1/therapeutic-actions/CreateNewTherapeuticAction', { name, description });
     }
@@ -178,6 +211,30 @@ export class MaintenanceService {
 
     deleteTherapeuticActionById(id: number): Observable<ResponseApi<void>> {
         return this.http.delete<ResponseApi<void>>(`/api/v1/therapeutic-actions/DeleteTherapeuticActionById/${id}`);
+    }
+
+    getPagedCategories(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/category/paged?${params}`);
+    }
+
+    getPagedLaboratories(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/laboratory/paged?${params}`);
+    }
+
+    getPagedPresentations(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
+        let params = `page=${page}&size=${size}`;
+        if (filters) {
+            if (filters.description) params += `&description=${encodeURIComponent(filters.description)}`;
+        }
+        return this.http.get<ResponseApi<any>>(`/api/v1/presentations/paged?${params}`);
     }
 
     invalidateAllCaches(): void {

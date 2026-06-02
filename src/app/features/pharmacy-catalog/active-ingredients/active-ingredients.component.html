@@ -1,0 +1,26 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Principios Activos" iconClass="bi bi-capsule"></app-module-header>
+
+<div class="active-ingredients-page animate-fade-in p-3">
+    <div class="d-flex justify-content-end align-items-center pb-3">
+        <button class="btn btn-custom-primary" (click)="onOpenForm()">
+            Nuevo Principio Activo
+        </button>
+    </div>
+
+    <app-active-ingredients-list [activeIngredients]="activeIngredients()" [isLoading]="isLoading()"
+        [totalItems]="totalItems()" [currentPage]="currentPage() + 1" [pageSize]="pageSize()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDeleteIngredient($event)" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)" (tableFilterChange)="onTableFilter($event)">
+    </app-active-ingredients-list>
+
+    <!-- Modal para Crear/Editar Principio Activo -->
+    <app-modal-generic [isVisible]="showIngredientForm()"
+        [title]="selectedIngredientId() ? 'Editar Principio Activo' : 'Nuevo Principio Activo'" size="md"
+        (close)="onFormCancelled()">
+        <app-active-ingredient-form *ngIf="showIngredientForm()" [ingredientId]="selectedIngredientId()"
+            (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-active-ingredient-form>
+    </app-modal-generic>
+</div>

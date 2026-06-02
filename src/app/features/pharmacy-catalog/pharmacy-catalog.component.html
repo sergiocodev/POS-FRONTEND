@@ -1,0 +1,79 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isInitialLoading()" [fullScreen]="true" message="Cargando catálogo..."></app-spinner>
+
+<app-module-header title="Catálogo Farmacéutico" iconClass="bi bi-capsule"></app-module-header>
+
+<div class="catalog-page animate-fade-in p-3">
+    <!-- Tab Navigation -->
+    <app-custom-tabs [tabs]="tabs()" [activeTab]="activeTabKey()" (tabChange)="onTabChangeByKey($event)">
+    </app-custom-tabs>
+
+    <div class="d-flex justify-content-end mb-3 mt-3">
+        <button class="btn btn-custom-primary" (click)="onOpenForm()">
+            <i class="bi bi-plus-lg me-1"></i>
+            <span class="btn-text">{{ activeTab().createLabel }}</span>
+        </button>
+    </div>
+
+    <!-- Table Content -->
+    <div class="catalog-content animate-tab-in" [attr.data-tab]="activeTabKey()">
+        <div class="card border-0 shadow-sm overflow-hidden position-relative">
+            <app-custom-table [columns]="activeTab().columns || []" [data]="data()" [pageSize]="pageSize()"
+                [totalElements]="totalItems()" [currentPage]="currentPage() + 1" (onAction)="handleTableAction($event)"
+                (onPageChange)="onPageChange($event)" (onPageSizeChange)="onPageSizeChange($event)"
+                (onFilterChange)="onTableFilter($event)">
+            </app-custom-table>
+
+            @if (isLoading()) {
+            <div class="loading-overlay">
+                <app-spinner [show]="true" [fullScreen]="false" [size]="40" message=""></app-spinner>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Dynamic Form Modal -->
+    @if (showForm()) {
+    <app-modal-generic [isVisible]="showForm()"
+        [title]="selectedItemId() ? activeTab().editFormTitle || '' : activeTab().formTitle || ''" size="md"
+        (close)="onFormCancelled()">
+
+        @switch (activeTabKey()) {
+        @case ('active-ingredients') {
+        <app-active-ingredient-form [ingredientId]="selectedItemId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-active-ingredient-form>
+        }
+        @case ('brands') {
+        <app-brand-form [brandId]="selectedItemId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-brand-form>
+        }
+        @case ('categories') {
+        <app-category-form [categoryId]="selectedItemId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-category-form>
+        }
+        @case ('laboratories') {
+        <app-laboratory-form [laboratoryId]="selectedItemId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
+        </app-laboratory-form>
+        }
+        @case ('presentations') {
+        <app-presentation-form [presentationId]="selectedItemId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-presentation-form>
+        }
+        @case ('pharmaceutical-forms') {
+        <app-pharmaceutical-form-form [formId]="selectedItemId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-pharmaceutical-form-form>
+        }
+        @case ('therapeutic-actions') {
+        <app-therapeutic-action-form [actionId]="selectedItemId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-therapeutic-action-form>
+        }
+        }
+
+    </app-modal-generic>
+    }
+</div>

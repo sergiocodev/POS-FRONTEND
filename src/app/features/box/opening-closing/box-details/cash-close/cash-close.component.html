@@ -1,0 +1,239 @@
+<app-module-header title="Cierre de Caja" iconClass="bi bi-box-arrow-right">
+</app-module-header>
+
+<div class="container-fluid px-lg-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center mt-4 mb-4 gap-3" *ngIf="sessionStatusData()">
+        <div class="glass-panel px-4 py-2 d-flex flex-column flex-sm-row align-items-center gap-3 rounded-pill shadow-sm border-primary border-opacity-25 position-relative overflow-hidden" style="transition: all 0.3s ease;">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1), transparent); z-index: 0; pointer-events: none;"></div>
+            
+            <div class="d-flex align-items-center gap-2 position-relative z-1">
+                <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 36px; height: 36px;">
+                    <i class="bi bi-box-seam-fill fs-5"></i>
+                </div>
+                <span class="fw-bolder fs-6 text-primary">{{ sessionStatusData()?.cashRegisterName }}</span>
+            </div>
+            
+            <div class="vr bg-primary opacity-25 d-none d-sm-block position-relative z-1" style="min-height: 24px;"></div>
+            
+            <div class="d-flex align-items-center gap-2 position-relative z-1">
+                <div class="d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 text-secondary rounded-circle" style="width: 36px; height: 36px;">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <span class="fw-medium text-body-secondary">Apertura: <span class="fw-bold text-body">{{ sessionStatusData()?.openedAt | date:'HH:mm' }}</span></span>
+            </div>
+
+            <div class="vr bg-primary opacity-25 d-none d-sm-block position-relative z-1" style="min-height: 24px;"></div>
+            
+            <div class="position-relative z-1">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-50 rounded-pill px-3 py-2 d-flex align-items-center gap-2 shadow-sm">
+                    <span class="spinner-grow spinner-grow-sm text-success opacity-75" style="width: 0.5rem; height: 0.5rem;" role="status"></span>
+                    <span class="fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Turno Activo</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- LEFT COLUMN: Breakdown -->
+        <div class="col-12 col-xl-7">
+            <div class="premium-card p-4 h-100 d-flex flex-column">
+
+                <!-- Saldo Inicial Prominent -->
+                <div class="text-center mb-4 pb-4 border-bottom">
+                    <p class="text-uppercase fw-bold text-muted small mb-1">Saldo Inicial (Apertura)</p>
+                    <h2 class="display-5 fw-bolder text-success mb-0 lh-1">{{ sessionStatusData()?.openingBalance |
+                        currency:'PEN':'S/ ' }}</h2>
+                    <p class="small text-muted mt-2 mb-0">Dinero en efectivo con el que se abrió la caja en este turno.
+                    </p>
+                </div>
+
+                <div class="row g-4 flex-grow-1">
+                    <!-- Entradas -->
+                    <div class="col-md-6 d-flex flex-column">
+                        <div
+                            class="glass-panel p-3 border-success border-opacity-25 h-100 position-relative overflow-hidden d-flex flex-column">
+
+                            <h6 class="fw-bold text-success text-uppercase small mb-3">Entradas del Turno (+)</h6>
+
+                            <div class="metric-row">
+                                <span class="text-muted small">Ventas Contado</span>
+                                <span class="fw-medium">{{ sessionStatusData()?.totalCashSales | currency:'PEN':'S/ '
+                                    }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="text-muted small">Cobros Créditos</span>
+                                <span class="fw-medium">{{ sessionStatusData()?.totalArCashPayments | currency:'PEN':'S/
+                                    ' }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="text-muted small">Ingresos Ext.</span>
+                                <span class="fw-medium">{{ sessionStatusData()?.totalCashInflows | currency:'PEN':'S/ '
+                                    }}</span>
+                            </div>
+
+                            <div
+                                class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-success border-opacity-25">
+                                <span class="fw-bold text-success small text-uppercase">Total Entradas</span>
+                                <span class="fs-5 fw-bold text-success">
+                                    {{ (sessionStatusData()?.totalCashSales || 0) +
+                                    (sessionStatusData()?.totalArCashPayments || 0) +
+                                    (sessionStatusData()?.totalCashInflows || 0) | currency:'PEN':'S/ ' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Salidas -->
+                    <div class="col-md-6 d-flex flex-column">
+                        <div
+                            class="glass-panel p-3 border-danger border-opacity-25 h-100 position-relative overflow-hidden d-flex flex-column">
+
+                            <h6 class="fw-bold text-danger text-uppercase small mb-3">Salidas (-)</h6>
+
+                            <div class="metric-row">
+                                <span class="text-muted small">Pagos a Prov.</span>
+                                <span class="fw-medium">{{ sessionStatusData()?.totalApCashPayments | currency:'PEN':'S/
+                                    ' }}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="text-muted small">Egresos Ext.</span>
+                                <span class="fw-medium">{{ sessionStatusData()?.totalCashOutflows | currency:'PEN':'S/ '
+                                    }}</span>
+                            </div>
+
+                            <div
+                                class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-danger border-opacity-25">
+                                <span class="fw-bold text-danger small text-uppercase">Total Salidas</span>
+                                <span class="fs-5 fw-bold text-danger">
+                                    {{ (sessionStatusData()?.totalApCashPayments || 0) +
+                                    (sessionStatusData()?.totalCashOutflows || 0) | currency:'PEN':'S/ ' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Transactions -->
+                <div class="mt-4 glass-panel p-3 border-primary border-opacity-25">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-primary small text-uppercase mb-0">
+                            <i class="bi bi-phone-vibrate me-1"></i> Transacciones Digitales
+                        </h6>
+                        <span class="badge bg-primary rounded-pill">Total: {{ sessionStatusData()?.totalDigital |
+                            currency:'PEN':'S/ ' }}</span>
+                    </div>
+                    <div class="row text-center g-2">
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-body-tertiary">
+                                <div class="small text-muted mb-1">Yape</div>
+                                <div class="fw-bold">{{ sessionStatusData()?.totalSalesYape | currency:'PEN':'S/ ' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-body-tertiary">
+                                <div class="small text-muted mb-1">Plin</div>
+                                <div class="fw-bold">{{ sessionStatusData()?.totalSalesPlin | currency:'PEN':'S/ ' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-body-tertiary">
+                                <div class="small text-muted mb-1">Tarjetas</div>
+                                <div class="fw-bold">{{ sessionStatusData()?.totalSalesTarjeta | currency:'PEN':'S/ ' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-body-tertiary">
+                                <div class="small text-muted mb-1">Transf.</div>
+                                <div class="fw-bold">{{ sessionStatusData()?.totalSalesTransferencia |
+                                    currency:'PEN':'S/ ' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Actions & Balances -->
+        <div class="col-12 col-xl-5">
+            <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()" class="premium-card p-4 d-flex flex-column h-100">
+                <div class="alert alert-danger d-flex align-items-center" *ngIf="errorMessage()">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
+                    <div>{{ errorMessage() }}</div>
+                </div>
+
+                <!-- Total Teórico -->
+                <div class="text-center mb-4 pt-3">
+                    <p class="text-uppercase fw-bold text-muted small mb-1">Efectivo Teórico Esperado</p>
+                    <h1 class="display-4 fw-bolder text-primary mb-0 lh-1">{{ calculatedBalance() | currency:'PEN':'S/ '
+                        }}</h1>
+                    <p class="small text-muted mt-2 mb-0 px-md-4">Este es el monto que el sistema calcula que debería
+                        haber físicamente en caja.</p>
+                </div>
+
+                <!-- Input Físico -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-uppercase small text-muted ms-2">Efectivo Físico
+                        Contado</label>
+                    <div class="cash-input-wrapper d-flex align-items-center px-4"
+                        [ngClass]="{'border-danger': sessionForm.get('closingBalance')?.touched && sessionForm.get('closingBalance')?.invalid}">
+                        <span class="fs-2 text-muted fw-bold pe-2">S/</span>
+                        <input type="number" class="cash-input flex-grow-1" formControlName="closingBalance"
+                            placeholder="0.00">
+                    </div>
+                </div>
+
+                <!-- Diferencia Glow Indicator -->
+                <div class="status-glow rounded-4 p-4 text-center mb-4" [ngClass]="{
+                        'perfect': differenceAmount() === 0,
+                        'excess': differenceAmount() > 0,
+                        'shortage': differenceAmount() < 0
+                    }">
+                    <p class="text-uppercase fw-bold small mb-1 opacity-75"
+                        [ngClass]="differenceAmount() === 0 ? 'text-success' : (differenceAmount() > 0 ? 'text-primary' : 'text-danger')">
+                        <i class="bi"
+                            [ngClass]="differenceAmount() === 0 ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'"></i>
+                        Estado del Arqueo
+                    </p>
+                    <h2 class="fw-bolder mb-0 lh-1"
+                        [ngClass]="differenceAmount() === 0 ? 'text-success' : (differenceAmount() > 0 ? 'text-primary' : 'text-danger')">
+                        {{ differenceAmount() > 0 ? '+' : '' }}{{ differenceAmount() | currency:'PEN':'S/ ' }}
+                    </h2>
+                    <span class="small opacity-75 fw-medium d-block mt-1"
+                        [ngClass]="differenceAmount() === 0 ? 'text-success' : (differenceAmount() > 0 ? 'text-primary' : 'text-danger')">
+                        <ng-container *ngIf="differenceAmount() === 0">La caja cuadra perfectamente</ng-container>
+                        <ng-container *ngIf="differenceAmount() > 0">Sobrante de dinero encontrado</ng-container>
+                        <ng-container *ngIf="differenceAmount() < 0">Faltante de dinero en caja</ng-container>
+                    </span>
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-auto">
+                    <label class="form-label fw-bold small text-muted text-uppercase ms-2">Justificación
+                        (Opcional)</label>
+                    <textarea class="form-control bg-body-tertiary border-0 rounded-3 p-3" formControlName="notes"
+                        rows="2" placeholder="Observaciones sobre diferencias de arqueo..."></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4 pt-4 border-top d-flex flex-column flex-sm-row gap-3">
+                    <button type="button" class="btn btn-light fw-bold px-4 py-3 rounded-pill" routerLink="/cash"
+                        [disabled]="isLoading()">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="btn btn-danger flex-grow-1 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2 py-3"
+                        [disabled]="isLoading()">
+                        <span *ngIf="isLoading()" class="spinner-border spinner-border-sm"></span>
+                        <i class="bi bi-lock-fill fs-5" *ngIf="!isLoading()"></i>
+                        CONFIRMAR CIERRE
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

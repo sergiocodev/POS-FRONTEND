@@ -1,0 +1,25 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-module-header title="Marcas" iconClass="bi bi-tag-fill"></app-module-header>
+
+<div class="brands-page animate-fade-in p-3">
+    <div class="d-flex justify-content-end align-items-center pb-3">
+        <button class="btn btn-custom-primary" (click)="onOpenForm()">
+            Nueva Marca
+        </button>
+    </div>
+
+    <app-brands-list [brands]="brands()" [isLoading]="isLoading()" [totalItems]="totalItems()"
+        [currentPage]="currentPage() + 1" [pageSize]="pageSize()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
+        (delete)="onDeleteBrand($event)" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
+        (tableFilterChange)="onTableFilter($event)">
+    </app-brands-list>
+
+    <!-- Modal para Crear/Editar Marca -->
+    <app-modal-generic [isVisible]="showBrandForm()" [title]="selectedBrandId() ? 'Editar Marca' : 'Nueva Marca'"
+        size="sm" (close)="onFormCancelled()">
+        <app-brand-form *ngIf="showBrandForm()" [brandId]="selectedBrandId()" (saved)="onFormSaved()"
+            (cancelled)="onFormCancelled()">
+        </app-brand-form>
+    </app-modal-generic>
+</div>

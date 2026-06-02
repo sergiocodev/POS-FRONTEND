@@ -3,16 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductFormComponent } from './product-form/product-form.component';
 import { ProductService } from '../../../core/services/product.service';
-import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
-import { ProductResponse, CategoryResponse, BrandResponse, ActiveIngredientResponse, TaxTypeResponse, PresentationResponse } from '../../../core/models/product.model';
-import { PharmaceuticalFormResponse } from '../../../core/models/pharmaceutical-form.model';
-import { TherapeuticActionResponse } from '../../../core/models/therapeutic-action.model';
+import { ProductResponse } from '../../../core/models/product.model';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
-import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-product-catalog',
@@ -31,61 +27,32 @@ import { forkJoin } from 'rxjs';
 })
 export class ProductCatalogComponent implements OnInit {
     private productService = inject(ProductService);
-    private maintenanceService = inject(MaintenanceService);
     private modalService = inject(ModalService);
 
     // State
     products = signal<ProductResponse[]>([]);
     isLoading = signal(false);
 
-    // Lookup Data
-    categories = signal<CategoryResponse[]>([]);
-    brands = signal<BrandResponse[]>([]);
-    therapeuticActions = signal<TherapeuticActionResponse[]>([]);
-    laboratories = signal<any[]>([]); // Need to check LaboratoryResponse type
-    presentations = signal<PresentationResponse[]>([]);
-    taxTypes = signal<TaxTypeResponse[]>([]);
-    activeIngredients = signal<ActiveIngredientResponse[]>([]);
-    pharmaceuticalForms = signal<PharmaceuticalFormResponse[]>([]);
+    currentPage = signal(0);
+    pageSize = signal(10);
+    totalElements = signal(0);
+    tableFilters = signal<any>({});
 
     // Modal State
     showForm = signal(false);
     selectedProductId = signal<number | null>(null);
 
     ngOnInit() {
-        this.loadMasterData();
         this.loadProducts();
-    }
-
-    loadMasterData() {
-        forkJoin({
-            categories: this.maintenanceService.getAllCategory(),
-            brands: this.maintenanceService.getAllBrands(),
-            therapeuticActions: this.maintenanceService.getAllTherapeuticActions(),
-            laboratories: this.maintenanceService.getAllLaboratory(),
-            presentations: this.maintenanceService.getAllPresentations(),
-            taxTypes: this.maintenanceService.getAllTaxTypes(),
-            activeIngredients: this.maintenanceService.getAllActiveIngredients(),
-            pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms()
-        }).subscribe({
-            next: (data) => {
-                this.categories.set(data.categories.data);
-                this.brands.set(data.brands.data);
-                this.therapeuticActions.set(data.therapeuticActions.data);
-                this.laboratories.set(data.laboratories.data);
-                this.presentations.set(data.presentations.data);
-                this.taxTypes.set(data.taxTypes.data);
-                this.activeIngredients.set(data.activeIngredients.data);
-                this.pharmaceuticalForms.set(data.pharmaceuticalForms.data);
-            }
-        });
     }
 
     loadProducts() {
         this.isLoading.set(true);
-        this.productService.getAll().subscribe({
+        this.productService.getPaged(this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
             next: (res) => {
-                this.products.set(res.data);
+                const page = res.data;
+                this.products.set(page.content || []);
+                this.totalElements.set(page.totalElements || 0);
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -94,6 +61,23 @@ export class ProductCatalogComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    onPageChange(page: number) {
+        this.currentPage.set(page);
+        this.loadProducts();
+    }
+
+    onPageSizeChange(size: number) {
+        this.pageSize.set(size);
+        this.currentPage.set(0);
+        this.loadProducts();
+    }
+
+    onFilterChange(filters: any) {
+        this.tableFilters.set(filters);
+        this.currentPage.set(0);
+        this.loadProducts();
     }
 
     onOpenForm(id: number | null = null) {

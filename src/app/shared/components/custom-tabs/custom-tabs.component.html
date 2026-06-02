@@ -1,0 +1,17 @@
+<div class="report-tabs-layout">
+    <div class="report-tabs-wrapper">
+        <div class="report-tabs">
+            @for (tab of tabs(); track tab.key) {
+            <button class="tab-btn" [class.active]="activeTab() === tab.key" (click)="onTabClick(tab.key)">
+                @if (tab.icon) {
+                <i class="bi" [class]="tab.icon"></i>
+                }
+                <span>{{ tab.label }}</span>
+            </button>
+            }
+        </div>
+    </div>
+    <div class="report-tabs-actions">
+        <ng-content></ng-content>
+    </div>
+</div>
