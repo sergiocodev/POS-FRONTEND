@@ -2,19 +2,8 @@ import { Component, OnInit, inject, signal, computed, Input, Output, EventEmitte
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CustomerResponse } from '../../../../core/models/customer.model';
-import { SaleDocumentType, PaymentMethod, ProductForSaleResponse } from '../../../../core/models/sale.model';
+import { SaleDocumentType, PaymentMethod, ProductForSaleResponse, CartItem } from '../../../../core/models/sale.model';
 import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
-
-export interface CartItem {
-    product: ProductForSaleResponse;
-    quantity: number;
-    price: number;
-    adjustment: number;
-    adjustmentInput: number;
-    adjustmentType: 'amount' | 'percentage';
-    total: number;
-    stock: number;
-}
 
 export interface UnitDisplayData {
     unit: ProductForSaleResponse;

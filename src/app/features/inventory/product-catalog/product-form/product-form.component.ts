@@ -1,7 +1,9 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, from, of } from 'rxjs';
+import { switchMap, finalize, map, catchError } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductService } from '../../../../core/services/product.service';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { UploadService } from '../../../../core/services/upload.service';
@@ -31,6 +33,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     private maintenanceService = inject(MaintenanceService);
     private uploadService = inject(UploadService);
     private productUnitService = inject(ProductUnitService);
+    private destroyRef = inject(DestroyRef);
 
     @Input() idProduct: number | null = null;
     @Input() isModal: boolean = false;
@@ -74,9 +77,11 @@ export class ProductFormComponent implements OnInit, OnChanges {
             units: this.fb.array([])
         });
 
-        this.productForm.get('imageUrl')?.valueChanges.subscribe(() => {
-            this.imageError.set(false);
-        });
+        this.productForm.get('imageUrl')?.valueChanges
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => {
+                this.imageError.set(false);
+            });
     }
 
     ngOnInit(): void {
@@ -162,7 +167,12 @@ export class ProductFormComponent implements OnInit, OnChanges {
             activeIngredients: this.maintenanceService.getAllActiveIngredients(),
             pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms(),
             therapeuticActions: this.maintenanceService.getAllTherapeuticActions()
-        }).subscribe({
+        }).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => {
+                if (!this.isEditMode()) this.isLoading.set(false);
+            })
+        ).subscribe({
             next: (data) => {
                 this.brands.set(data.brands.data);
                 this.categories.set(data.categories.data);
@@ -172,19 +182,18 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 this.activeIngredients.set(data.activeIngredients.data);
                 this.pharmaceuticalForms.set(data.pharmaceuticalForms.data);
                 this.therapeuticActions.set(data.therapeuticActions.data);
-                if (!this.isEditMode()) this.isLoading.set(false);
             },
             error: (error) => {
                 this.errorMessage.set('Error al cargar datos referenciales.');
-                this.isLoading.set(false);
             }
         });
     }
 
     loadProduct(id: number): void {
         this.isLoading.set(true);
-        this.productService.getById(id).subscribe({
-            next: (response) => {
+        this.productService.getById(id).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap(response => {
                 const product = response.data;
                 this.productForm.patchValue({
                     code: product.code,
@@ -216,32 +225,29 @@ export class ProductFormComponent implements OnInit, OnChanges {
                         }));
                     });
                 }
-                
-                // Fetch units dynamically
-                this.productUnitService.getByProductId(product.id).subscribe({
-                    next: (units) => {
-                        while(this.units.length !== 0) this.units.removeAt(0);
-                        units.forEach(u => {
-                            this.units.push(this.fb.group({
-                                id: [u.id],
-                                unitName: [u.unitName, Validators.required],
-                                factor: [u.factor, [Validators.required, Validators.min(1)]],
-                                barcode: [u.barcode],
-                                sunatCode: [u.sunatCode],
-                                price: [u.price, [Validators.required, Validators.min(0)]],
-                                isBaseUnit: [u.isBaseUnit]
-                            }));
-                        });
-                        this.isLoading.set(false);
-                    },
-                    error: () => {
-                        this.isLoading.set(false);
-                    }
+
+                return this.productUnitService.getByProductId(product.id).pipe(
+                    map(units => ({ product, units }))
+                );
+            }),
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
+            next: ({ units }) => {
+                while (this.units.length !== 0) this.units.removeAt(0);
+                units.forEach(u => {
+                    this.units.push(this.fb.group({
+                        id: [u.id],
+                        unitName: [u.unitName, Validators.required],
+                        factor: [u.factor, [Validators.required, Validators.min(1)]],
+                        barcode: [u.barcode],
+                        sunatCode: [u.sunatCode],
+                        price: [u.price, [Validators.required, Validators.min(0)]],
+                        isBaseUnit: [u.isBaseUnit]
+                    }));
                 });
             },
             error: (error) => {
                 this.errorMessage.set('Error al cargar el producto.');
-                this.isLoading.set(false);
             }
         });
     }
@@ -250,16 +256,17 @@ export class ProductFormComponent implements OnInit, OnChanges {
         const file: File = event.target.files[0];
         if (file) {
             this.isLoading.set(true);
-            this.uploadService.upload(file, 'productos').subscribe({
+            this.uploadService.upload(file, 'productos').pipe(
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.isLoading.set(false))
+            ).subscribe({
                 next: (res) => {
                     this.productForm.patchValue({ imageUrl: res.data.url });
                     this.imageError.set(false);
-                    this.isLoading.set(false);
                 },
                 error: (err) => {
                     console.error('Error uploading file:', err);
                     this.errorMessage.set('No se pudo subir la imagen del producto.');
-                    this.isLoading.set(false);
                 }
             });
         }
@@ -280,56 +287,59 @@ export class ProductFormComponent implements OnInit, OnChanges {
             ? this.productService.update(this.idProduct!, productData)
             : this.productService.create(productData);
 
-        request$.subscribe({
-            next: (res) => {
+        request$.pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap(res => {
                 const productId = this.isEditMode() ? this.idProduct! : res.data.id;
-                this.saveUnits(productId).then(() => {
-                    this.isLoading.set(false);
-                    this.saved.emit();
-                }).catch(() => {
-                    this.isLoading.set(false);
+                return this.saveUnits(productId).pipe(
+                    map(() => true), // Éxito en las unidades
+                    catchError(err => {
+                        console.error(err);
+                        return of(false); // Falla en las unidades, pero producto guardado
+                    })
+                );
+            }),
+            finalize(() => {
+                this.isLoading.set(false);
+                this.saved.emit();
+            })
+        ).subscribe({
+            next: (unitsSuccess) => {
+                if (!unitsSuccess) {
                     this.errorMessage.set('Producto guardado, pero hubo error al guardar las unidades.');
-                    this.saved.emit();
-                });
+                }
             },
             error: (error) => {
-                this.isLoading.set(false);
                 this.errorMessage.set('Error al guardar el producto.');
             }
         });
     }
 
-    private async saveUnits(productId: number): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const units: any[] = this.productForm.value.units || [];
-            
-            const unitObv$ = units.map(u => {
-                const req: ProductUnitRequest = {
-                    productId: productId,
-                    unitName: u.unitName,
-                    factor: u.factor,
-                    barcode: u.barcode,
-                    sunatCode: u.sunatCode,
-                    price: u.price,
-                    isBaseUnit: u.isBaseUnit || false
-                };
-                if (u.id) {
-                    return this.productUnitService.update(u.id, req);
-                } else {
-                    return this.productUnitService.create(req);
-                }
-            });
+    private saveUnits(productId: number): import('rxjs').Observable<any> {
+        const units: any[] = this.productForm.value.units || [];
 
-            if (unitObv$.length === 0) {
-                resolve();
-                return;
+        const unitObv$ = units.map(u => {
+            const req: ProductUnitRequest = {
+                productId: productId,
+                unitName: u.unitName,
+                factor: u.factor,
+                barcode: u.barcode,
+                sunatCode: u.sunatCode,
+                price: u.price,
+                isBaseUnit: u.isBaseUnit || false
+            };
+            if (u.id) {
+                return this.productUnitService.update(u.id, req);
+            } else {
+                return this.productUnitService.create(req);
             }
-
-            forkJoin(unitObv$).subscribe({
-                next: () => resolve(),
-                error: (err) => reject(err)
-            });
         });
+
+        if (unitObv$.length === 0) {
+            return of(null);
+        }
+
+        return forkJoin(unitObv$);
     }
 
     onCancel(): void {

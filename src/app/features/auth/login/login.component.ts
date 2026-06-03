@@ -1,7 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -15,6 +17,7 @@ export class LoginComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService); // Tu servicio
     private router = inject(Router);
+    private destroyRef = inject(DestroyRef);
 
     loginForm: FormGroup;
     errorMessage = signal<string>('');
@@ -41,13 +44,14 @@ export class LoginComponent {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
-        this.authService.login(this.loginForm.value).subscribe({
+        this.authService.login(this.loginForm.value).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
             next: () => this.router.navigate(['/home']),
             error: (err) => {
-                this.isLoading.set(false);
                 this.errorMessage.set(err.error?.message || 'Error de credenciales');
-            },
-            complete: () => this.isLoading.set(false)
+            }
         });
     }
 

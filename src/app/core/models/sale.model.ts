@@ -166,3 +166,29 @@ export interface SaleSummaryResponse {
     totalNotaVenta: number;
     totalNeto: number;
 }
+
+export interface CartItem {
+    product: ProductForSaleResponse;
+    quantity: number;
+    price: number;
+    adjustment: number;
+    adjustmentInput: number;
+    adjustmentType: 'amount' | 'percentage';
+    total: number;
+    stock: number;
+}
+
+export interface SaleFormData {
+    documentType: SaleDocumentType;
+    series: string;
+    paymentCondition: PaymentCondition | string;
+    dueDate?: string;
+    items: CartItem[];
+    customer: CompanyMinimalResponse | any; // Any until we strongly type customer or import CustomerResponse
+    total: number;
+    payments: Array<{
+        paymentMethod: PaymentMethod;
+        amount: number;
+        reference?: string;
+    }>;
+}

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, signal, computed, effect, untracked, input } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { QuantityInputComponent } from '../../../../shared/components/quantity-input/quantity-input.component';
-import { PaymentMethod, PaymentCondition } from '../../../../core/models/sale.model';
+import { PaymentMethod, PaymentCondition, SaleFormData } from '../../../../core/models/sale.model';
 import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select.component/custom-select.component';
 
@@ -19,7 +19,7 @@ export class CheckoutPanelComponent {
   customers = input<any[]>([]);
   isLoading = input<boolean>(false);
 
-  @Output() onProcessSale = new EventEmitter<any>();
+  @Output() onProcessSale = new EventEmitter<SaleFormData>();
   @Output() onClearCart = new EventEmitter<void>();
   @Output() onAddCustomer = new EventEmitter<void>();
   @Output() onCartChange = new EventEmitter<any[]>();

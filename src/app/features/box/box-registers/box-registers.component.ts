@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal, effect, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, ViewChild, TemplateRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { CashSessionService } from '../../../core/services/cash-session.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
@@ -17,6 +19,7 @@ import { RegisterFormComponent } from './register-form/register-form.component';
 export class BoxRegistersComponent implements OnInit {
     private cashService = inject(CashSessionService);
     private establishmentStateService = inject(EstablishmentStateService);
+    private destroyRef = inject(DestroyRef);
 
     @ViewChild('nameTpl', { static: true }) nameTpl!: TemplateRef<any>;
 
@@ -51,7 +54,10 @@ export class BoxRegistersComponent implements OnInit {
 
     loadRegisters(): void {
         this.isLoading.set(true);
-        this.cashService.getRegisters().subscribe({
+        this.cashService.getRegisters().pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
             next: (response) => {
                 const mappedData = response.data.map(item => ({
                     ...item,
@@ -62,11 +68,9 @@ export class BoxRegistersComponent implements OnInit {
                 }));
                 this.registers.set(mappedData);
                 this.applyFilter();
-                this.isLoading.set(false);
             },
             error: (err) => {
                 console.error('Error loading registers:', err);
-                this.isLoading.set(false);
             }
         });
     }
@@ -90,7 +94,9 @@ export class BoxRegistersComponent implements OnInit {
 
     onDelete(id: number): void {
         if (confirm('¿Está seguro de eliminar esta caja registradora?')) {
-            this.cashService.deleteRegister(id).subscribe({
+            this.cashService.deleteRegister(id).pipe(
+                takeUntilDestroyed(this.destroyRef)
+            ).subscribe({
                 next: () => this.loadRegisters()
             });
         }
