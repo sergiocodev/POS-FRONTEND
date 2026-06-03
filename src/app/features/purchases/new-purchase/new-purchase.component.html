@@ -1,0 +1,12 @@
+<app-purchase-form
+  [isLoading]="isLoading()"
+  [isEditMode]="isEditMode()"
+  [errorMessage]="errorMessage()"
+  [products]="products()"
+  [suppliers]="suppliers()"
+  [establishments]="establishments()"
+  [productUnits]="productUnits()"
+  [purchase]="purchase()"
+  (loadProductUnits)="onLoadProductUnits($event)"
+  (savePurchase)="onSavePurchase($event)"
+></app-purchase-form>

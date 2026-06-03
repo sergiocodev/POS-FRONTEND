@@ -16,7 +16,7 @@ export class ProductService {
         let params = new HttpParams();
         if (categoryId !== undefined) params = params.set('categoryId', categoryId);
         if (brandId !== undefined) params = params.set('brandId', brandId);
-        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/GetAllProducts`, { params });
+        return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}`, { params });
     }
 
     getPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<any>> {

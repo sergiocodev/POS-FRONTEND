@@ -83,13 +83,13 @@ export const routes: Routes = [
             },
             {
                 path: 'purchases/new',
-                loadComponent: () => import('./features/purchases/purchase-form/purchase-form.component').then(m => m.PurchaseFormComponent),
+                loadComponent: () => import('./features/purchases/new-purchase/new-purchase.component').then(m => m.NewPurchaseComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_NUEVA] }
             },
             {
                 path: 'purchases/edit/:id',
-                loadComponent: () => import('./features/purchases/purchase-form/purchase-form.component').then(m => m.PurchaseFormComponent),
+                loadComponent: () => import('./features/purchases/new-purchase/new-purchase.component').then(m => m.NewPurchaseComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_NUEVA] }
             },
