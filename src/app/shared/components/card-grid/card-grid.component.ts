@@ -19,6 +19,7 @@ export interface Product {
   lotCode?: string;
   lotId?: number;
   locationShelf?: string;
+  availableUnits?: string[];
 }
 
 @Component({

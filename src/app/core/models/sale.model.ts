@@ -98,6 +98,24 @@ export interface ProductForSaleResponse {
     unitName: string;
     factor: number;
     taxRate: number;
+    availableUnits?: string[];
+}
+
+export interface BarcodeScanResponse {
+    productId: number;
+    productUnitId: number;
+    unitName: string;
+    factor: number;
+    tradeName: string;
+    barcode: string;
+    salesPrice: number;
+    lotId: number;
+    lotCode: string;
+    expiryDate: string;
+    availableStock: number;
+    message: string;
+    imageUrl?: string;
+    taxRate: number;
 }
 
 export interface SaleRequest {

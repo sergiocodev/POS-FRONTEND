@@ -84,7 +84,7 @@
 .dark-theme {
 
   // --- Colores principales ---
-  --primary-color: #0421D9;
+  --primary-color: #2323FF;
   --primary-hover: #00008e;
   --secondary-color: #ff007c;
   --secondary-hover: #aa0454;
@@ -125,6 +125,10 @@
 
   .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
+  }
+
+  .generic-name {
+    color: var(--text-on-primary) !important;
   }
 }
 

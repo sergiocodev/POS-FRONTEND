@@ -46,9 +46,16 @@
                         <span class="generic-name" *ngIf="prod.genericName">
                             {{ prod.genericName }}
                         </span>
-                        <span class="presentation-tag" *ngIf="prod.presentation">
-                            {{ prod.presentation }}
-                        </span>
+                        <div class="units-container" *ngIf="prod.availableUnits && prod.availableUnits.length > 0; else singleUnit">
+                            <span class="unit-tag" *ngFor="let unit of prod.availableUnits" [title]="unit">
+                                {{ unit }}
+                            </span>
+                        </div>
+                        <ng-template #singleUnit>
+                            <span class="presentation-tag" *ngIf="prod.presentation">
+                                {{ prod.presentation }}
+                            </span>
+                        </ng-template>
                     </div>
 
                     <!-- Footer Section -->

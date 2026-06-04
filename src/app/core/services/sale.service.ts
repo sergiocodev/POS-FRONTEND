@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SaleRequest, SaleResponse, EstablishmentResponse, ProductForSaleResponse, SaleSummaryResponse } from '../models/sale.model';
+import { SaleRequest, SaleResponse, EstablishmentResponse, ProductForSaleResponse, SaleSummaryResponse, BarcodeScanResponse } from '../models/sale.model';
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
 
@@ -97,6 +97,12 @@ export class SaleService {
     searchProductsForPOS(query: string, establishmentId: number): Observable<ResponseApi<ProductForSaleResponse[]>> {
         return this.http.get<ResponseApi<ProductForSaleResponse[]>>(`${this.apiUrl}/SearchProductsForPOS`, {
             params: { query, establishmentId: establishmentId.toString() }
+        });
+    }
+
+    getProductByBarcodeScan(barcode: string, establishmentId: number): Observable<ResponseApi<BarcodeScanResponse>> {
+        return this.http.get<ResponseApi<BarcodeScanResponse>>(`${this.apiUrl}/GetProductByBarcodeScan`, {
+            params: { barcode, establishmentId: establishmentId.toString() }
         });
     }
 

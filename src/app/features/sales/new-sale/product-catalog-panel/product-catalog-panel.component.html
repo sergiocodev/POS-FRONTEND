@@ -1,12 +1,16 @@
 <div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-2">
+    <div class="card-body p-0" style="padding: 12px !important;">
         <div class="input-group input-group-lg">
             <span class="input-group-text bg-transparent border-0 text-primary ps-3">
                 <i class="bi bi-search"></i>
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                 placeholder="Buscar producto por nombre o código..." [(ngModel)]="productSearchTerm"
-                (input)="onProductSearch()">
+                (input)="onProductSearch()" (keyup.enter)="onBarcodeScan()">
+            <button class="btn btn-outline-secondary border-0 text-primary px-3 bg-transparent" type="button"
+                (click)="openScanner()" title="Escanear con cámara">
+                <i class="bi bi-camera fs-5"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -87,5 +91,47 @@
             }
         </div>
 
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- Camera Scanner Modal Overlay                            -->
+<!-- ======================================================= -->
+<div class="unit-modal-backdrop" *ngIf="isScannerOpen()">
+    <div class="scanner-modal-panel d-flex flex-column bg-dark text-white p-3 rounded-4 shadow-lg position-relative"
+        style="width: 100%; max-width: 500px; max-height: 90vh;">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Escanear Código</h5>
+            <button class="btn btn-sm btn-light rounded-circle p-2 lh-1 d-flex" (click)="closeScanner()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Scanner -->
+        <div class="scanner-container rounded-3 overflow-hidden bg-black flex-grow-1 d-flex align-items-center justify-content-center position-relative"
+            style="min-height: 300px;">
+            <div *ngIf="hasPermission() === false"
+                class="text-center p-4 text-danger d-flex flex-column align-items-center">
+                <i class="bi bi-camera-video-off fs-1 mb-2"></i>
+                <h6 class="fw-bold">Acceso Denegado</h6>
+                <small>No se puede acceder a la cámara. Asegúrate de dar los permisos.</small>
+            </div>
+
+            <zxing-scanner *ngIf="scannerEnabled() && hasPermission() !== false" [device]="currentDevice()"
+                [autofocusEnabled]="true" (camerasFound)="camerasFoundHandler($event)"
+                (camerasNotFound)="camerasNotFoundHandler($event)" (permissionResponse)="onHasPermission($event)"
+                (scanSuccess)="onScanSuccess($event)" (scanError)="onScanError($event)" style="width: 100%;">
+            </zxing-scanner>
+            <!-- A subtle overlay targeting box -->
+            <div *ngIf="hasPermission() !== false" class="position-absolute border border-success opacity-50"
+                style="width: 80%; height: 120px; top: 50%; left: 10%; transform: translateY(-50%); border-width: 2px !important; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); pointer-events: none;">
+            </div>
+        </div>
+
+        <div class="text-center mt-3 text-white-50 small">
+            <i class="bi bi-info-circle me-1"></i> Apunta la cámara de tu celular al código de barras
+        </div>
     </div>
 </div>

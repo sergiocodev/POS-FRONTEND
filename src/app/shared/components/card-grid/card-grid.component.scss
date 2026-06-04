@@ -421,3 +421,32 @@ $bg-image: $bg-body;
         color: $primary;
     }
 }
+
+// =============================================
+// Contenedor de Unidades de Medida
+// =============================================
+.units-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 4px;
+    width: 100%;
+}
+
+.unit-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: $accent;
+    background: rgba($accent, 0.08);
+    border: 1px solid rgba($accent, 0.15);
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

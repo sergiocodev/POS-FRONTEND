@@ -2,7 +2,7 @@
     class="card border-0 shadow-elevation rounded-4 d-flex flex-column sticky-lg-top checkout-container overflow-hidden">
 
     <div
-        class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 px-3 justify-content-between align-items-center">
+        class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 justify-content-between align-items-center" style="padding-left: 12px; padding-right: 12px;">
         <h5 class="fw-bold mb-0 d-flex align-items-center">
             <i class="bi bi-receipt-cutoff text-primary me-2 fs-4"></i> Venta Actual
         </h5>
@@ -16,7 +16,7 @@
     <form [formGroup]="posForm" (ngSubmit)="submitSale()" class="card-body p-0 d-flex flex-column overflow-hidden">
 
         <!-- Área Desplazable: Cliente, Carrito y Configuración de Venta -->
-        <div class="flex-grow-1 overflow-y-auto px-3 pt-3 custom-scrollbar">
+        <div class="flex-grow-1 overflow-y-auto pt-3 custom-scrollbar" style="padding-left: 12px; padding-right: 12px;">
 
             <!-- Cliente -->
             <div class="mb-3">
@@ -213,7 +213,7 @@
         </div>
 
         <!-- Área Fija: Totales y Botón de Acción -->
-        <div class="px-3 pb-3 pt-2 border-top border-white border-opacity-10 shadow-none">
+        <div class="pb-3 pt-2 border-top border-white border-opacity-10 shadow-none" style="padding-left: 12px; padding-right: 12px;">
             <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
                 <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
                     <span>Subtotal</span>

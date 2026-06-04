@@ -106,9 +106,10 @@ $primary-hover-local: $hover-bg;
 }
 
 .unit-modal-panel {
-    background: #fff;
+    background: var(--card-bg);
+    color: var(--text-main);
     border-radius: 1.25rem;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--shadow-lg);
     width: min(520px, 95vw);
     max-height: 85vh;
     overflow-y: auto;
@@ -136,15 +137,15 @@ $primary-hover-local: $hover-bg;
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1.5rem 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .unit-modal-lot {
     font-size: 0.78rem;
-    color: $text-muted;
+    color: var(--text-muted);
     padding: 0.6rem 1.5rem;
-    background: rgba($color-primary, 0.04);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .unit-cards-grid {
@@ -159,19 +160,18 @@ $primary-hover-local: $hover-bg;
     flex-direction: column;
     gap: 0.35rem;
     padding: 1rem 0.9rem;
-    border: 2px solid rgba(0, 0, 0, 0.07);
+    border: 1px solid var(--border-color);
     border-radius: 1rem;
-    background: #fafafa;
+    background: var(--input-bg);
     cursor: pointer;
     text-align: left;
     transition: all 0.18s ease;
     outline: none;
 
     &:hover {
-        border-color: $color-primary;
-        background: rgba($color-primary, 0.05);
+        border-color: var(--primary-color);
         transform: translateY(-3px);
-        box-shadow: 0 6px 18px rgba($color-primary, 0.18);
+        box-shadow: var(--shadow-md);
     }
 
     &:active {
@@ -182,7 +182,7 @@ $primary-hover-local: $hover-bg;
 .unit-card-name {
     font-size: 0.9rem;
     font-weight: 700;
-    color: $text-main;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -191,8 +191,9 @@ $primary-hover-local: $hover-bg;
 .unit-factor-badge {
     font-size: 0.68rem;
     font-weight: 600;
-    background: rgba($color-primary, 0.12);
-    color: $color-primary;
+    background: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
     border-radius: 0.4rem;
     padding: 0.1rem 0.35rem;
     margin-left: 0.2rem;
@@ -201,12 +202,12 @@ $primary-hover-local: $hover-bg;
 .unit-card-price {
     font-size: 1.1rem;
     font-weight: 800;
-    color: $color-primary;
+    color: var(--primary-color);
 }
 
 .unit-card-stock {
     font-size: 0.73rem;
-    color: $text-muted;
+    color: var(--text-muted);
     display: flex;
     flex-direction: column;
     gap: 0.1rem;
@@ -219,7 +220,7 @@ $primary-hover-local: $hover-bg;
 
 .unit-card-equiv {
     font-size: 0.68rem;
-    color: rgba($text-muted, 0.8);
+    color: var(--secondary-color);
     margin-top: 0.15rem;
     font-style: italic;
 }

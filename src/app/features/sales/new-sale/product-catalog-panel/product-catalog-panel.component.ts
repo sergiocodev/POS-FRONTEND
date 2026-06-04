@@ -1,9 +1,12 @@
 import { Component, OnInit, inject, signal, computed, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { SaleDocumentType, PaymentMethod, ProductForSaleResponse, CartItem } from '../../../../core/models/sale.model';
 import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
+import { SaleService } from '../../../../core/services/sale.service';
+import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 
 export interface UnitDisplayData {
     unit: ProductForSaleResponse;
@@ -17,13 +20,16 @@ export interface UnitDisplayData {
     standalone: true,
     imports: [
         CommonModule, FormsModule, ReactiveFormsModule,
-        CardGridComponent
+        CardGridComponent,
+        ZXingScannerModule
     ],
     templateUrl: './product-catalog-panel.component.html',
     styleUrl: './product-catalog-panel.component.scss'
 })
 export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     private fb = inject(FormBuilder);
+    private saleService = inject(SaleService);
+    private establishmentStateService = inject(EstablishmentStateService);
 
     // Inputs from Container
     @Input() products: ProductForSaleResponse[] = [];
@@ -46,6 +52,12 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     unitModalProduct = signal<ProductForSaleResponse | null>(null);
     availableUnits = signal<ProductForSaleResponse[]>([]);
     unitDisplayData = signal<UnitDisplayData[]>([]);
+
+    // Scanner Local State
+    isScannerOpen = signal<boolean>(false);
+    scannerEnabled = signal<boolean>(true);
+    hasPermission = signal<boolean | null>(null);
+    currentDevice = signal<MediaDeviceInfo | undefined>(undefined);
 
     // Computed Values
     total = computed(() => this.cart.reduce((sum, item) => sum + item.total, 0));
@@ -70,17 +82,62 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
 
     onProductSearch(): void {
         const term = this.productSearchTerm.trim().toLowerCase();
+        // Normal text search (emitted to parent, debounced there)
+        this.productSearch.emit(term);
+    }
 
-        // Barcode scanner check: if exact barcode exists, add directly
-        const exactBarcodeMatches = this.products.filter(p => p.barcode?.toLowerCase() === term);
-        if (exactBarcodeMatches.length === 1) {
-            this.addToCartDirect(exactBarcodeMatches[0]);
-            this.productSearchTerm = '';
-            this.productSearch.emit('');
-            return;
-        }
+    onBarcodeScan(): void {
+        const term = this.productSearchTerm.trim().toLowerCase();
+        if (!term) return;
 
-        this.productSearch.emit(this.productSearchTerm);
+        const estId = this.establishmentStateService.getSelectedEstablishment();
+        if (!estId) return;
+
+        // Use the native backend API to ensure FEFO and get exact unit
+        this.saleService.getProductByBarcodeScan(term, estId).subscribe({
+            next: (res) => {
+                const data = res.data;
+                if (data && data.productId && data.productUnitId) {
+                    // Match found! Reconstruct it or find it in local products to add to cart
+                    const matchedProduct = this.products.find(p =>
+                        p.productId === data.productId &&
+                        p.productUnitId === data.productUnitId &&
+                        p.lotId === data.lotId
+                    );
+
+                    if (matchedProduct) {
+                        this.addToCartDirect(matchedProduct);
+                        this.productSearchTerm = '';
+                        this.productSearch.emit('');
+                    } else {
+                        // Edge case: product found in backend API but not in the local this.products array (maybe pagination in future)
+                        // For now we map it manually
+                        const fallbackProduct: ProductForSaleResponse = {
+                            id: data.productId, // Mock ID
+                            productId: data.productId,
+                            productUnitId: data.productUnitId,
+                            tradeName: data.tradeName,
+                            unitName: data.unitName,
+                            factor: data.factor,
+                            barcode: data.barcode,
+                            salesPrice: data.salesPrice,
+                            lotId: data.lotId,
+                            lotCode: data.lotCode,
+                            expirationDate: data.expiryDate,
+                            stock: data.availableStock,
+                            taxRate: data.taxRate,
+                            description: '', presentation: '', concentration: '', category: '', laboratory: ''
+                        };
+                        this.addToCartDirect(fallbackProduct);
+                        this.productSearchTerm = '';
+                        this.productSearch.emit('');
+                    }
+                }
+            },
+            error: (err) => {
+                console.error("Barcode scan failed", err);
+            }
+        });
     }
 
     openUnitSelector(product: ProductForSaleResponse): void {
@@ -199,5 +256,74 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         return Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    // Scanner Methods
+    openScanner(): void {
+        this.isScannerOpen.set(true);
+        this.scannerEnabled.set(true);
+        this.hasPermission.set(null); // Reset
+    }
+
+    closeScanner(): void {
+        this.isScannerOpen.set(false);
+        this.scannerEnabled.set(false);
+        this.currentDevice.set(undefined);
+    }
+
+    onHasPermission(has: boolean): void {
+        this.hasPermission.set(has);
+        if (!has) {
+            console.error('No se concedieron permisos de cámara');
+        }
+    }
+
+    camerasFoundHandler(cameras: MediaDeviceInfo[]): void {
+        if (cameras && cameras.length > 0) {
+            // Intentar buscar la cámara trasera por defecto
+            const backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('trasera') || c.label.toLowerCase().includes('environment'));
+            this.currentDevice.set(backCamera || cameras[0]);
+        }
+    }
+
+    camerasNotFoundHandler(event: any): void {
+        console.error('No se encontraron cámaras', event);
+        this.hasPermission.set(false);
+    }
+
+    private playBeep(): void {
+        try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (!AudioContextClass) return;
+            const audioCtx = new AudioContextClass();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // 800Hz beep
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1); // Beep duration 0.1s
+        } catch (e) {
+            console.warn('AudioContext no soportado o silenciado por el navegador');
+        }
+    }
+
+    onScanSuccess(result: string): void {
+        if (!result) return;
+        this.playBeep();
+        this.closeScanner();
+        this.productSearchTerm = result;
+        this.onBarcodeScan();
+    }
+    
+    onScanError(error: any): void {
+        // Ignored or logged implicitly by library
     }
 }
