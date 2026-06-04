@@ -3,22 +3,22 @@
     <div class="card-header bg-transparent border-bottom py-3" *ngIf="title || showAddButton">
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-                <i *ngIf="icon" [class]="icon + ' me-2 text-primary fs-5'"></i>
+                <i *ngIf="icon" [class]="icon + ' me-2 text-primary fs-5'" aria-hidden="true"></i>
                 <h5 class="mb-0 fw-bold text-dark">{{ title }}</h5>
             </div>
             <div class="d-flex gap-2">
                 <ng-content select="[tableActions]"></ng-content>
                 <button *ngIf="showAddButton" class="btn btn-primary btn-sm d-flex align-items-center rounded-2 px-3"
-                    (click)="onAdd.emit()">
-                    <i class="bi bi-plus-lg me-1"></i> {{ addButtonLabel }}
+                    (click)="onAdd.emit()" [attr.aria-label]="addButtonLabel">
+                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> {{ addButtonLabel }}
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="title || 'Contenedor de tabla de datos'">
 
-        <table class="table align-middle mb-0" [ngClass]="tableClass">
+        <table class="table align-middle mb-0" [ngClass]="tableClass" [attr.aria-label]="title || 'Tabla de datos'">
 
             <thead class="border-bottom">
                 <tr>
@@ -33,6 +33,7 @@
                     <th *ngFor="let col of columns" class="p-2 border-0">
                         <input *ngIf="col.filterable" type="text"
                             class="form-control form-control-sm shadow-none border" [placeholder]="'Buscar...'"
+                            [attr.aria-label]="'Buscar por ' + col.label"
                             [(ngModel)]="filterValues[col.key]" (ngModelChange)="onFilterUIChange()">
                     </th>
                 </tr>
@@ -57,12 +58,12 @@
 
                             <div *ngSwitchCase="'image'" style="width: 40px; height: 40px;"
                                 [ngClass]="{'mx-auto': col.align === 'center', 'ms-auto': col.align === 'right'}">
-                                <img [src]="row[col.key] || 'assets/placeholder.png'"
-                                    class="w-100 h-100 rounded-circle object-fit-cover bg-light border">
+                                <img [src]="$any(row)[col.key] || 'assets/placeholder.png'"
+                                    class="w-100 h-100 rounded-circle object-fit-cover bg-light border" alt="Imagen de la fila">
                             </div>
 
                             <span *ngSwitchCase="'badge'" class="badge rounded-pill fw-normal"
-                                [ngClass]="col.classCallback ? col.classCallback(row[col.key], row) : 'bg-secondary'">
+                                [ngClass]="col.classCallback ? col.classCallback($any(row)[col.key], row) : 'bg-secondary'">
                                 {{ getValue(row, col) }}
                             </span>
 
@@ -75,37 +76,39 @@
                             </div>
 
                             <div *ngSwitchCase="'toggle'" class="form-check form-switch d-inline-block">
-                                <input class="form-check-input" type="checkbox" role="switch" [checked]="row[col.key]"
+                                <input class="form-check-input" type="checkbox" role="switch" [checked]="$any(row)[col.key]"
+                                    [attr.aria-label]="'Alternar estado para ' + col.label"
                                     style="cursor: pointer;"
-                                    (change)="onToggle.emit({row: row, key: col.key, checked: $any($event.target).checked})">
+                                    (change)="onToggle.emit({row: row, key: $any(col.key), checked: $any($event.target).checked})"
+                                    (keyup.enter)="$any($event.target).click()">
                             </div>
 
                             <div *ngSwitchCase="'action'" class="d-flex gap-2"
                                 [ngClass]="{'justify-content-center': col.align === 'center', 'justify-content-end': col.align === 'right'}">
                                 <!-- Botones Personalizados -->
-                                <ng-container *ngIf="row['actions'] && row['actions'].length > 0">
-                                    <button *ngFor="let act of row['actions']"
+                                <ng-container *ngIf="$any(row)['actions'] && $any(row)['actions'].length > 0">
+                                    <button *ngFor="let act of $any(row)['actions']"
                                         class="btn-action d-flex align-items-center justify-content-center"
                                         [ngClass]="act.class || ''" (click)="onAction.emit({action: act.id, row: row})"
-                                        [title]="act.title || ''">
-                                        <i class="bi" [ngClass]="act.icon"></i>
+                                        [title]="act.title || ''" [attr.aria-label]="act.title || act.id">
+                                        <i class="bi" [ngClass]="act.icon" aria-hidden="true"></i>
                                     </button>
                                 </ng-container>
 
                                 <!-- Botones por Defecto (si no hay acciones personalizadas) -->
-                                <ng-container *ngIf="!row['actions'] || row['actions'].length === 0">
-                                    <button *ngIf="row['permissionCount'] !== undefined" class="btn-action"
+                                <ng-container *ngIf="!$any(row)['actions'] || $any(row)['actions'].length === 0">
+                                    <button *ngIf="$any(row)['permissionCount'] !== undefined" class="btn-action"
                                         (click)="onAction.emit({action: 'permissions', row: row})"
-                                        title="Gestionar permisos">
-                                        <i class="bi bi-key"></i>
+                                        title="Gestionar permisos" aria-label="Gestionar permisos">
+                                        <i class="bi bi-key" aria-hidden="true"></i>
                                     </button>
                                     <button class="btn-action btn-edit"
-                                        (click)="onAction.emit({action: 'edit', row: row})" title="Editar">
-                                        <i class="bi bi-pencil"></i>
+                                        (click)="onAction.emit({action: 'edit', row: row})" title="Editar" aria-label="Editar registro">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
                                     </button>
                                     <button class="btn-action btn-delete"
-                                        (click)="onAction.emit({action: 'delete', row: row})" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
+                                        (click)="onAction.emit({action: 'delete', row: row})" title="Eliminar" aria-label="Eliminar registro">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
                                     </button>
                                 </ng-container>
                             </div>
@@ -130,41 +133,48 @@
 
     <div class="card-footer border-top-0 py-3" *ngIf="isServerSide ? totalElements > 0 : filteredData.length > 0">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 text-center text-md-start">
-            <small class="text-muted text-nowrap">
+            <small class="text-muted text-nowrap" aria-live="polite">
                 {{ isServerSide ? totalElements : filteredData.length }} registros en total
             </small>
 
             <div class="d-flex flex-column flex-sm-row align-items-center gap-3 gap-md-4">
                 <!-- Page Size Selector -->
                 <div *ngIf="showPageSizeSelector" class="d-flex align-items-center gap-2">
-                    <small class="text-muted text-nowrap">Filas por página:</small>
+                    <label id="page-size-label" class="text-muted text-nowrap small mb-0">Filas por página:</label>
                     <app-custom-select
                         [options]="pageSizeOptions"
                         [value]="pageSize"
                         customClass="page-size-select"
+                        aria-labelledby="page-size-label"
                         (selectionChange)="onPageSizeSelectChange($event)">
                     </app-custom-select>
                 </div>
 
                 <!-- Pagination -->
-                <ul class="pagination pagination-sm mb-0 flex-wrap justify-content-center" *ngIf="totalPages > 1">
-                    <li class="page-item" [class.disabled]="currentPage === 1">
-                        <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage - 1)">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                    </li>
-                    <li class="page-item" *ngFor="let p of visiblePages" [class.active]="p === currentPage"
-                        [class.disabled]="p === '...'">
-                        <button class="page-link border-0 rounded mx-1" (click)="changePage(p)">
-                            {{ p }}
-                        </button>
-                    </li>
-                    <li class="page-item" [class.disabled]="currentPage === totalPages">
-                        <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage + 1)">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </li>
-                </ul>
+                <nav aria-label="Navegación de páginas de la tabla" *ngIf="totalPages > 1">
+                    <ul class="pagination pagination-sm mb-0 flex-wrap justify-content-center">
+                        <li class="page-item" [class.disabled]="currentPage === 1">
+                            <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage - 1)" aria-label="Página anterior" [attr.aria-disabled]="currentPage === 1" [tabIndex]="currentPage === 1 ? -1 : 0">
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                        <li class="page-item" *ngFor="let p of visiblePages" [class.active]="p === currentPage"
+                            [class.disabled]="p === '...'">
+                            <button class="page-link border-0 rounded mx-1" (click)="changePage(p)"
+                                [attr.aria-label]="p === '...' ? 'Páginas omitidas' : 'Ir a la página ' + p"
+                                [attr.aria-current]="p === currentPage ? 'page' : null"
+                                [disabled]="p === '...'"
+                                [tabIndex]="p === '...' ? -1 : 0">
+                                {{ p }}
+                            </button>
+                        </li>
+                        <li class="page-item" [class.disabled]="currentPage === totalPages">
+                            <button class="page-link border-0 text-dark ripple" (click)="changePage(currentPage + 1)" aria-label="Página siguiente" [attr.aria-disabled]="currentPage === totalPages" [tabIndex]="currentPage === totalPages ? -1 : 0">
+                                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

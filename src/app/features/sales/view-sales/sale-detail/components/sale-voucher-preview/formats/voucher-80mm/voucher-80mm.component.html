@@ -1,0 +1,97 @@
+<div class="voucher-80mm-content w-100">
+    <div class="voucher-header-gradient">
+        <div class="logo-placeholder">
+            <img src="images/iconosiges.ico" alt="Logo" style="max-height: 100%; max-width: 100%;">
+        </div>
+        <h6 class="fw-bold text-uppercase">{{ sale.company?.name || sale.establishmentName }}</h6>
+        <p>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>
+        <p class="fw-bold">RUC: {{ sale.company?.ruc || '20602518559' }}</p>
+        <p>Tel: {{ sale.company?.phone || '949978036' }}</p>
+    </div>
+
+    <div class="voucher-body">
+        <div class="text-center mb-3">
+            <h6 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">{{ sale.documentType }} ELECTRÓNICA
+            </h6>
+            <h4 class="text-primary-custom mb-1">{{ sale.series }}-{{ sale.number }}</h4>
+            <p class="x-small" style="color: #666;">Emisión: {{ sale.date | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+        </div>
+
+        <div class="customer-info border-top border-bottom py-3 mb-3">
+            <p class="mb-1"><strong>Cliente:</strong> {{ sale.customerName || 'VARIOS' }}</p>
+            <p class="mb-1"><strong>RUC/DNI:</strong> {{ sale.customerDocumentNumber || '00000000' }}
+            </p>
+            <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition ===
+                'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) || 'CONTADO') }}</p>
+        </div>
+
+        <table class="table table-sm mb-3">
+            <thead>
+                <tr>
+                    <th class="text-start">Cant.</th>
+                    <th class="text-start">Descripción</th>
+                    <th class="text-end">P.U.</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of sale.items">
+                    <td class="text-start fw-bold">{{ item.quantity }}</td>
+                    <td class="text-start">{{ item.productName }}</td>
+                    <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount
+                        || 0)) / item.quantity | number:'1.2-2' }} </td>
+                    <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount ||
+                        0)) | number:'1.2-2' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="totals-box shadow-xs" style="color: #666;">
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>Op. Gravadas S/</span>
+                <span>{{ sale.subTotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>Op. Inafectas S/</span>
+                <span>0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>Op. Exoneradas S/</span>
+                <span>0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>IGV S/</span>
+                <span>{{ sale.tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>ICBPER S/</span>
+                <span>0.00</span>
+            </div>
+            <div class="total-row-main d-flex justify-content-between">
+                <span>TOTAL S/</span>
+                <span>{{ sale.total | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <div class="mt-3 small">
+            <p class="mb-1"><strong>SON:</strong> {{ 'TRES CON 20/100 SOLES' }}</p>
+            <p><strong>Observación:</strong> NINGUNO</p>
+        </div>
+
+        <div class="mt-3 text-center px-3">
+
+            <div class="qr-placeholder d-flex align-items-center justify-content-center">
+                <img src="images/pictures/qr.png" alt="QR" style="max-height: 100%; max-width: 100%;">
+            </div>
+
+            <p class="fw-bold small mb-1">Representación Impresa de la {{ sale.documentType }} Electrónica</p>
+            <p class="x-small mb-1" style="color: #666;">Consulte su comprobante en:</p>
+            <p class="small text-danger mb-2">PRUEBA URL QR</p>
+
+            <div class="border-top pt-2">
+                <p class="fw-bold small mb-0">Sistema de Gestión Comercial</p>
+                <p class="x-small" style="margin-bottom: 5px; color: #666;">SIGES | www.siges.tsolperu.com</p>
+            </div>
+        </div>
+    </div>
+</div>

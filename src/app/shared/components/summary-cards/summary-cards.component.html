@@ -1,11 +1,21 @@
 <div class="summary-container">
     @if (title) {
-    <div class="summary-title">{{ title }}</div>
+    <div class="summary-title">
+        <span>{{ title }}</span>
+    </div>
     }
     <div class="summary-cards">
         @for (item of items; track item.label) {
         <div class="summary-card" [ngClass]="item.cssClass">
-            <div class="card-icon">{{ item.icon }}</div>
+            
+            <div class="card-top">
+                <div class="card-icon-wrapper">
+                    <div class="card-icon">
+                        <i [class]="item.icon"></i>
+                    </div>
+                </div>
+            </div>
+
             <div class="card-info">
                 <span class="card-label">{{ item.label }}</span>
                 <span class="card-value">
@@ -16,8 +26,15 @@
                     }
                 </span>
                 @if (item.subtitle) {
-                    <span class="card-subtitle mt-1 d-block text-muted" [innerHTML]="item.subtitle"></span>
+                    <div class="card-subtitle-wrapper">
+                        <span class="card-subtitle" [innerHTML]="item.subtitle"></span>
+                    </div>
                 }
+            </div>
+            
+            <!-- Marca de agua elegante -->
+            <div class="card-watermark">
+                <i [class]="item.icon"></i>
             </div>
         </div>
         }

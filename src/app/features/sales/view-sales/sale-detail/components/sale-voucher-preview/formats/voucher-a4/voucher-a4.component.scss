@@ -1,0 +1,181 @@
+:host {
+    display: block;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm !important;
+    background-color: #fff;
+    color: #000;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+}
+
+.blue-border-box {
+    border: 1.5px solid #0000ff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+    height: 100%;
+}
+
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+
+    .logo-large {
+        width: 140px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .company-details-center {
+        text-align: center;
+        flex: 1;
+
+        h4 {
+            color: #000;
+            font-weight: 800;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        p {
+            margin-bottom: 2px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    }
+
+    .ruc-id-box {
+        width: 250px;
+        border: 2px solid #0000ff;
+        border-radius: 10px;
+        text-align: center;
+        overflow: hidden;
+
+        .ruc-number {
+            padding: 8px;
+            font-weight: bold;
+            color: #a52a2a;
+            font-size: 18px;
+        }
+
+        .doc-title {
+            background-color: #0000ff;
+            color: #fff;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .series-number {
+            padding: 8px;
+            font-weight: bold;
+            color: #a52a2a;
+            font-size: 18px;
+        }
+    }
+}
+
+.table-blue {
+    border: 1.5px solid #0000ff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+
+    table {
+        margin-bottom: 0;
+    }
+
+    thead {
+        background-color: #0000ff;
+        color: #fff;
+
+        th {
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    }
+
+    tbody td {
+        border-bottom: 1.5px solid #0000ff;
+        padding: 8px 10px;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+}
+
+.totals-container-right {
+    display: flex;
+    justify-content: flex-end;
+
+    .totals-box-blue {
+        width: 250px;
+        border: 1.5px solid #0000ff;
+        border-radius: 10px;
+        padding: 12px;
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+
+            &.fw-bold {
+                font-weight: bold;
+                font-size: 15px;
+                margin-top: 10px;
+                border-top: 1px solid #0000ff;
+                padding-top: 10px;
+            }
+        }
+    }
+}
+
+.qr-box-blue {
+    width: 120px;
+    height: 120px;
+    border: 1.5px solid #0000ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.info-box-blue {
+    border: 1.5px solid #0000ff;
+    border-radius: 10px;
+    padding: 15px;
+    flex: 1;
+    margin-left: 15px;
+    text-align: center;
+
+    p {
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+}

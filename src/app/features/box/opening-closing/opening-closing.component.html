@@ -47,7 +47,7 @@
     <app-modal-generic [isVisible]="showOpenModal()" title="Apertura de Caja"
         (close)="closeOpenModal()">
         @if (showOpenModal()) {
-            <app-cash-open (saved)="onOpenSaved()" (cancel)="closeOpenModal()"></app-cash-open>
+            <app-cash-open (saved)="onOpenSaved()"></app-cash-open>
         }
     </app-modal-generic>
 </div>

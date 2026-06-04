@@ -49,17 +49,17 @@ export class ViewPurchasesComponent implements OnInit {
     summaryItems = computed<SummaryItem[]>(() => {
         const s = this.serverSummary();
         if (!s) return [
-            { label: 'Total Facturas', value: 0, icon: 'F', cssClass: 'card-f' },
-            { label: 'Total Boletas', value: 0, icon: 'B', cssClass: 'card-b' },
-            { label: 'Guía Remisión', value: 0, icon: 'G', cssClass: 'card-c' },
-            { label: 'Total Neto', value: 0, icon: 'N', cssClass: 'card-n' },
+            { label: 'Total Facturas', value: 0, icon: 'bi-file-earmark-text', cssClass: 'card-f', isCurrency: true },
+            { label: 'Total Boletas', value: 0, icon: 'bi-receipt', cssClass: 'card-b', isCurrency: true },
+            { label: 'Guía Remisión', value: 0, icon: 'bi-truck', cssClass: 'card-c', isCurrency: true },
+            { label: 'Total Neto', value: 0, icon: 'bi-cash-coin', cssClass: 'card-n', isCurrency: true },
         ];
 
         return [
-            { label: 'Total Facturas', value: s.totalFacturas, icon: 'F', cssClass: 'card-f' },
-            { label: 'Total Boletas', value: s.totalBoletas, icon: 'B', cssClass: 'card-b' },
-            { label: 'Guía Remisión', value: s.totalGuiaRemision, icon: 'G', cssClass: 'card-c' },
-            { label: 'Total Neto', value: s.totalNeto, icon: 'N', cssClass: 'card-n', isCurrency: true },
+            { label: 'Total Facturas', value: s.totalFacturas, icon: 'bi-file-earmark-text', cssClass: 'card-f', isCurrency: true },
+            { label: 'Total Boletas', value: s.totalBoletas, icon: 'bi-receipt', cssClass: 'card-b', isCurrency: true },
+            { label: 'Guía Remisión', value: s.totalGuiaRemision, icon: 'bi-truck', cssClass: 'card-c', isCurrency: true },
+            { label: 'Total Neto', value: s.totalNeto, icon: 'bi-cash-coin', cssClass: 'card-n', isCurrency: true },
         ];
     });
 

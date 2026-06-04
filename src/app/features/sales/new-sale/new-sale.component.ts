@@ -108,6 +108,7 @@ export class NewSaleComponent implements OnInit {
     showCustomerModal = signal<boolean>(false);
     showOpenModal = signal<boolean>(false);
     isCartOpen = signal<boolean>(false);
+    preselectedCustomerId = signal<number | null>(null);
 
     constructor() {
         // Effect to handle missing cash session
@@ -204,9 +205,13 @@ export class NewSaleComponent implements OnInit {
         });
     }
 
-    onCustomerSaveSuccess(): void {
+    onCustomerSaveSuccess(newCustomerId: number): void {
         this.showCustomerModal.set(false);
         this.modalService.alert({ title: 'Éxito', message: 'Cliente guardado correctamente', type: 'success' });
+        if (newCustomerId) {
+            this.preselectedCustomerId.set(newCustomerId);
+        }
+        this.customerService.invalidateCache();
         this.refreshData();
     }
     

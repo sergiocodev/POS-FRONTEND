@@ -1,0 +1,147 @@
+.sidebar-container {
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: center;
+
+  i {
+    font-size: 18px;
+    color: var(--text-muted);
+  }
+
+  &:hover:not(.active) {
+    background-color: var(--hover-bg);
+  }
+
+  &.active {
+    background-color: #0a21c0;
+    /* Deep blue from image */
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(10, 33, 192, 0.4);
+
+    i {
+      color: #ffffff;
+    }
+  }
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 0 10px 20px 10px;
+}
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 16px;
+  }
+
+  &.btn-clone {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border: 1px solid #042e75;
+    /* Dark blue outline */
+
+    &:hover {
+      background-color: #0b5ed7;
+    }
+  }
+
+  &.btn-invalidate {
+    background-color: #dc3545;
+    color: #ffffff;
+    border: 1px solid #730612;
+    /* Dark red outline */
+
+    &:hover {
+      background-color: #bb2d3b;
+    }
+  }
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 767.98px) {
+  .sidebar-container {
+    padding: 12px;
+    height: auto;
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    gap: 8px;
+    
+    /* Hide scrollbar for a cleaner look */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .menu-item {
+    white-space: nowrap;
+    padding: 10px 14px;
+    flex: 0 0 auto;
+  }
+
+  .sidebar-divider {
+    margin: 0 0 12px 0;
+  }
+
+  .sidebar-actions {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}

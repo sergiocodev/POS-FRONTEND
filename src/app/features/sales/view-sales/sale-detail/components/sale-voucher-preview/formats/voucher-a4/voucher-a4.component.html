@@ -1,0 +1,109 @@
+<div class="p-4 w-100">
+    <div class="header-logo-container">
+        <div class="logo-large">
+            <img src="images/iconosiges.ico" alt="Logo">
+        </div>
+        <div class="company-details-center mx-4">
+            <h4 class="text-uppercase">{{ sale.company?.name || 'Centro Comercial Central - SEDE' }}</h4>
+            <p>{{ sale.company?.secondaryName || 'RECSA INTERNATIONAL TRADE E.I.R.L.' }}</p>
+            <p>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>
+            <p>TELÉFONO: {{ sale.company?.phone || '949978036' }}</p>
+        </div>
+        <div class="ruc-id-box">
+            <div class="ruc-number">{{ sale.company?.ruc || '20602518559' }}</div>
+            <div class="doc-title">{{ sale.documentType }} ELECTRÓNICA</div>
+            <div class="series-number">{{ sale.series }}-{{ sale.number }}</div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-7">
+            <div class="blue-border-box">
+                <div class="d-flex mb-2">
+                    <span class="fw-bold me-2" style="min-width: 80px;">Cliente:</span>
+                    <span class="text-uppercase">{{ sale.customerName || 'VARIOS' }}</span>
+                </div>
+                <div class="d-flex mb-2">
+                    <span class="fw-bold me-2" style="min-width: 80px;">RUC/DNI:</span>
+                    <span>{{ sale.customerDocumentNumber || '00000000' }}</span>
+                </div>
+                <div class="d-flex">
+                    <span class="fw-bold me-2" style="min-width: 80px;">Pago:</span>
+                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) || 'CONTADO') }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="blue-border-box">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold">Fec. Emisión:</span>
+                    <span>{{ sale.date | date:'yyyy-MM-dd' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold">Hora:</span>
+                    <span>{{ sale.date | date:'HH:mm:ss' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-bold">Moneda:</span>
+                    <span>{{ 'SOL' }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Pago:</span>
+                    <span class="text-uppercase">{{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) || 'CONTADO') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-blue">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th class="text-start">DESCRIPCIÓN</th>
+                    <th class="text-center">CANTIDAD</th>
+                    <th class="text-end">P.U</th>
+                    <th class="text-end">IMPORTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of sale.items">
+                    <td class="text-start">{{ item.productName }}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-end text-muted">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) / item.quantity | number:'1.2-2' }}</td>
+                    <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) | number:'1.2-2' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totals-container-right mb-4">
+        <div class="totals-box-blue">
+            <div class="total-row"><span>OP. GRAVADAS:</span><span>{{ sale.subTotal | number:'1.2-2' }}</span></div>
+            <div class="total-row"><span>OP. INAFECTAS:</span><span>0.00</span></div>
+            <div class="total-row"><span>OP. EXONERADAS:</span><span>0.00</span></div>
+            <div class="total-row"><span>I.G.V.:</span><span>{{ sale.tax | number:'1.2-2' }}</span></div>
+            <div class="total-row"><span>ICBPER:</span><span>0.00</span></div>
+            <div class="total-row fw-bold"><span>TOTAL S/</span><span>{{ sale.total | number:'1.2-2' }}</span></div>
+        </div>
+    </div>
+
+    <p class="fw-bold mb-1">SON: <span class="fw-normal text-uppercase">TRES CON 20/100 SOLES</span></p>
+    <p class="fw-bold mb-3">Observación: <span class="fw-normal">NINGUNO</span></p>
+
+    <div class="blue-border-box mb-4 py-2" style="height: auto;">
+        <p class="mb-0 fw-bold">SON: <span class="fw-normal text-uppercase">TRES CON 20/100 SOLES</span></p>
+    </div>
+
+    <div class="d-flex align-items-start">
+        <div class="qr-box-blue">
+            <img src="images/pictures/qr.png" alt="QR Code">
+        </div>
+        <div class="info-box-blue">
+            <p class="mb-1 text-center">Representación Impresa de la {{ sale.documentType }} Electrónica</p>
+            <p class="mb-2 text-center small text-muted">Código Hash: kUgX2wy55QdvkOypihTeSMOdsIKf2YLIkB5sME=</p>
+            <p class="mb-2 text-center small">Consulte su comprobante en:</p>
+            <p class="fw-bold text-center mb-0">Sistema de Gestión Comercial</p>
+            <p class="text-center text-primary-custom mb-0 small" style="color: #0000ff !important;">SIGES | PRUEBA URL QR</p>
+        </div>
+    </div>
+</div>

@@ -32,7 +32,7 @@ export class CustomerFormComponent implements OnInit {
 
     @Input() isModal: boolean = false;
     @Input() customerId: number | null = null;
-    @Output() saveSuccess = new EventEmitter<void>();
+    @Output() saveSuccess = new EventEmitter<number>();
     @Output() cancel = new EventEmitter<void>();
 
     customerForm: FormGroup;
@@ -208,10 +208,10 @@ export class CustomerFormComponent implements OnInit {
             : this.customerService.create(customerData);
 
         request$.subscribe({
-            next: () => {
+            next: (response) => {
                 this.isLoading.set(false);
                 if (this.isModal) {
-                    this.saveSuccess.emit();
+                    this.saveSuccess.emit(response.data?.id);
                 } else {
                     this.modalService.alert({ title: 'Éxito', message: 'Cliente guardado correctamente', type: 'success' })
                         .then(() => this.router.navigate(['/customers']));

@@ -1,0 +1,32 @@
+<div class="sidebar-container">
+  <div class="sidebar-menu">
+    <button class="menu-item" [class.active]="selectedTab === 'document'" (click)="tabChange.emit('document')">
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Ver Documento</span>
+    </button>
+    
+    <button class="menu-item" [class.active]="selectedTab === 'debit'" (click)="tabChange.emit('debit')">
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Nota de débito</span>
+    </button>
+    
+    <button class="menu-item" [class.active]="selectedTab === 'credit'" (click)="tabChange.emit('credit')">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>Nota de crédito</span>
+    </button>
+  </div>
+  
+  <div class="sidebar-divider"></div>
+  
+  <div class="sidebar-actions">
+    <button class="action-btn btn-clone" (click)="clone.emit()">
+      <i class="bi bi-copy"></i>
+      <span>Clonar</span>
+    </button>
+    
+    <button class="action-btn btn-invalidate" (click)="invalidate.emit()">
+      <i class="bi bi-slash-circle"></i>
+      <span>Invalidar</span>
+    </button>
+  </div>
+</div>

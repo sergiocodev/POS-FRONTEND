@@ -144,7 +144,7 @@ export class MaintenanceService {
             if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
             if (filters.description) params += `&description=${encodeURIComponent(filters.description)}`;
         }
-        return this.http.get<ResponseApi<any>>(`/api/v1/active-ingredients?${params}`);
+        return this.http.get<ResponseApi<any>>(`/api/v1/active-ingredients/paged?${params}`);
     }
 
     createNewActiveIngredient(name: string, description?: string): Observable<ResponseApi<ActiveIngredientResponse>> {

@@ -29,7 +29,7 @@
 </div>
 
 <!-- Sale Detail Modal -->
-<app-modal-generic [title]="'Ajuste de Comprobante'" [isVisible]="isDetailVisible()" [size]="'full'"
+<app-modal-generic [title]="'Ajuste de Comprobante'" [isVisible]="isDetailVisible()" [size]="'xl'"
     (close)="isDetailVisible.set(false)">
     <app-sale-detail *ngIf="selectedSale()" [sale]="selectedSale()" (actionSuccess)="loadSales()"
         (cancel)="onCancelSale($event)" (close)="isDetailVisible.set(false)">

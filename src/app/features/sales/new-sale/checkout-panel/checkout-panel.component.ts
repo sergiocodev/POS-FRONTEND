@@ -18,6 +18,7 @@ export class CheckoutPanelComponent {
   cart = input<any[]>([]);
   customers = input<any[]>([]);
   isLoading = input<boolean>(false);
+  preselectedCustomerId = input<number | null>(null);
 
   @Output() onProcessSale = new EventEmitter<SaleFormData>();
   @Output() onClearCart = new EventEmitter<void>();
@@ -125,6 +126,18 @@ export class CheckoutPanelComponent {
         const defaultCust = customers.find(c => c.documentNumber === '00000000');
         if (defaultCust) {
           untracked(() => this.selectedCustomer.set(defaultCust));
+        }
+      }
+    });
+
+    // Handle newly added customer selection
+    effect(() => {
+      const preselectedId = this.preselectedCustomerId();
+      const customersList = this.customers();
+      if (preselectedId && customersList.length > 0) {
+        const cust = customersList.find(c => c.id === preselectedId);
+        if (cust) {
+          untracked(() => this.selectedCustomer.set(cust));
         }
       }
     });

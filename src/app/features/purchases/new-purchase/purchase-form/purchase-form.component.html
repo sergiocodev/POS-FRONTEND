@@ -128,7 +128,7 @@
                         </div>
 
                         <!-- Método de Pago -->
-                        <div class="pf-field" *ngIf="purchaseForm.get('initialPayment')?.value > 0">
+                        <div class="pf-field" *ngIf="(purchaseForm.get('initialPayment')?.value || 0) > 0">
                             <label class="pf-label">
                                 <i class="bi bi-credit-card"></i> Método de Pago
                             </label>
@@ -230,7 +230,7 @@
                             <div class="pf-select-wrapper pf-select-wrapper--inline">
                                 <select class="pf-select pf-select--inline" formControlName="productUnitId">
                                     <option [ngValue]="null">Unidad...</option>
-                                    <option *ngFor="let u of productUnits()[item.get('productId')?.value] || []"
+                                    <option *ngFor="let u of productUnits()[(item.get('productId')?.value || 0)] || []"
                                         [ngValue]="u.id">
                                         {{ u.unitName }} (x{{ u.factor }})
                                     </option>
@@ -273,8 +273,7 @@
                         <!-- Subtotal -->
                         <div class="pf-col pf-col--total">
                             <span class="pf-subtotal">
-                                S/ {{ (item.get('quantity')?.value * item.get('unitCost')?.value) || 0 | number:'1.2-2'
-                                }}
+                                S/ {{ ((item.get('quantity')?.value || 0) * (item.get('unitCost')?.value || 0)) | number:'1.2-2' }}
                             </span>
                         </div>
 

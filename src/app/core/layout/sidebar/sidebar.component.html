@@ -1,45 +1,66 @@
 <div class="mobile-overlay" *ngIf="!collapsed" (click)="closeOnMobile()"></div>
-<div class="sidebar-container" [class.collapsed]="collapsed">
 
-    <div class="sidebar-header d-flex align-items-center p-3" *ngIf="!collapsed">
-        <app-logo [collapsed]="collapsed"></app-logo>
-    </div>
+<aside class="sidebar d-flex flex-column" [class.collapsed]="collapsed">
+
+  <!-- Toggle button para desktop -->
+  <button class="toggle-btn shadow-sm" (click)="toggleSidebar()" title="Alternar menú">
+    <i class="bi" [ngClass]="collapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+  </button>
+
+  <!-- Cabecera -->
+  <div class="sidebar-header d-flex align-items-center justify-content-center p-3" *ngIf="!collapsed">
+    <app-logo [collapsed]="collapsed"></app-logo>
+  </div>
+
+  <!-- Navegación -->
+  <nav class="sidebar-nav flex-grow-1 overflow-y-auto px-2 py-2">
+    <ul class="nav flex-column gap-2">
+      <ng-container *ngFor="let item of menuItems()">
+
+        <!-- Ítem simple -->
+        <li class="nav-item" *ngIf="!item.children">
+          <a [routerLink]="item.route" routerLinkActive="active"
+            class="nav-link d-flex align-items-center rounded-3 px-2 py-2" [title]="collapsed ? item.label : ''"
+            (click)="navigateMobile(item.route, $event)">
+            <div class="icon-box d-flex align-items-center justify-content-center flex-shrink-0">
+              <i class="bi {{item.icon}}"></i>
+            </div>
+            <span class="nav-text fw-medium ms-3 text-truncate" *ngIf="!collapsed" [@fadeInOut]>{{item.label}}</span>
+          </a>
+        </li>
+
+        <!-- Ítem con submenú (Agrupador) -->
+        <li class="nav-item" *ngIf="item.children">
+          <div class="nav-link group-link d-flex align-items-center rounded-3 px-2 py-2" (click)="toggleSubmenu(item)"
+            [class.active-group]="item.expanded" [title]="collapsed ? item.label : ''" role="button" tabindex="0">
+            <div class="icon-box d-flex align-items-center justify-content-center flex-shrink-0">
+              <i class="bi {{item.icon}}"></i>
+            </div>
+            <span class="nav-text fw-medium ms-3 text-truncate" *ngIf="!collapsed" [@fadeInOut]>{{item.label}}</span>
+            <i class="bi bi-chevron-down ms-auto dropdown-arrow transition-transform" *ngIf="!collapsed"
+              [class.rotate-180]="item.expanded"></i>
+          </div>
+
+          <!-- Submenú tipo Acordeón -->
+          <div class="submenu overflow-hidden" *ngIf="item.expanded && !collapsed" [@slideInOut]>
+            <ul class="nav flex-column gap-1 ms-3 ps-3 border-start submenu-border py-2 my-1">
+              <li class="nav-item" *ngFor="let child of item.children">
+                <a [routerLink]="child.route" routerLinkActive="active"
+                  [routerLinkActiveOptions]="child.routerLinkActiveOptions || { exact: false }"
+                  class="nav-link sub-link d-flex align-items-center rounded-3 px-2 py-1"
+                  (click)="navigateMobile(child.route, $event)">
+                  <div class="bullet rounded-circle flex-shrink-0"></div>
+                  <span class="nav-text fs-sm ms-2 text-truncate">{{child.label}}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+      </ng-container>
+    </ul>
+  </nav>
 
 
-    <nav class="sidebar-nav">
-        <ul class="nav-list">
-            <ng-container *ngFor="let item of menuItems()">
 
-
-                <li class="nav-item" *ngIf="!item.children">
-                    <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
-                        [title]="collapsed ? item.label : ''" (click)="navigateMobile(item.route, $event)">
-                        <i class="bi {{item.icon}} nav-icon"></i>
-                        <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
-                    </a>
-                </li>
-
-
-                <li class="nav-item" *ngIf="item.children">
-                    <div class="nav-link group-link" (click)="toggleSubmenu(item)" [class.active-group]="item.expanded"
-                        [title]="collapsed ? item.label : ''">
-                        <i class="bi {{item.icon}} nav-icon"></i>
-                        <span class="nav-text" *ngIf="!collapsed" [@slideInOut]>{{item.label}}</span>
-                        <i class="bi bi-chevron-down dropdown-arrow" *ngIf="!collapsed" [@rotate]="item.expanded"></i>
-                    </div>
-
-
-                    <div class="submenu" *ngIf="item.expanded && !collapsed" [@slideInOut]>
-                        <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active"
-                            [routerLinkActiveOptions]="child.routerLinkActiveOptions || { exact: false }"
-                            class="nav-link sub-link" (click)="navigateMobile(child.route, $event)">
-                            <span class="bullet"></span>
-                            <span class="nav-text">{{child.label}}</span>
-                        </a>
-                    </div>
-                </li>
-
-            </ng-container>
-        </ul>
-    </nav>
-</div>
+</aside>

@@ -1,6 +1,6 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
-<app-spinner [show]="isLoading()" [fullScreen]="true" message="Cargando productos..."></app-spinner>
+<app-spinner [show]="isLoading()" [fullScreen]="true" message="Procesando..."></app-spinner>
 
 
 <div class="shadow-sm z-1">
@@ -23,7 +23,8 @@
             <div class="col-lg-5 col-xl-4 d-none d-lg-flex flex-column">
                 <div class="h-100 d-flex flex-column overflow-hidden">
                     <app-checkout-panel class="flex-grow-1" [cart]="cart()" [customers]="customers()"
-                        [isLoading]="isLoading()" (onProcessSale)="onProcessSale($event)" (onClearCart)="cart.set([])"
+                        [preselectedCustomerId]="preselectedCustomerId()" [isLoading]="isLoading()"
+                        (onProcessSale)="onProcessSale($event)" (onClearCart)="cart.set([])"
                         (onAddCustomer)="showCustomerModal.set(true)" (onCartChange)="cart.set($event)">
                     </app-checkout-panel>
                 </div>
@@ -76,8 +77,9 @@
     <!-- Offcanvas Body -->
     <div class="offcanvas-body p-0 d-flex flex-column overflow-hidden">
         <app-checkout-panel class="flex-grow-1" [cart]="cart()" [customers]="customers()" [isLoading]="isLoading()"
-            (onProcessSale)="onProcessSale($event)" (onClearCart)="cart.set([])"
-            (onAddCustomer)="showCustomerModal.set(true)" (onCartChange)="cart.set($event)">
+            [preselectedCustomerId]="preselectedCustomerId()" (onProcessSale)="onProcessSale($event)"
+            (onClearCart)="cart.set([])" (onAddCustomer)="showCustomerModal.set(true)"
+            (onCartChange)="cart.set($event)">
         </app-checkout-panel>
     </div>
 </div>
@@ -107,7 +109,8 @@
 <app-modal-generic [isVisible]="showCustomerModal()" title="Nuevo Cliente" size="lg"
     (close)="showCustomerModal.set(false)">
     @if (showCustomerModal()) {
-    <app-customer-form [isModal]="true" (saveSuccess)="onCustomerSaveSuccess()" (cancel)="showCustomerModal.set(false)">
+    <app-customer-form [isModal]="true" (saveSuccess)="onCustomerSaveSuccess($event)"
+        (cancel)="showCustomerModal.set(false)">
     </app-customer-form>
     }
 </app-modal-generic>

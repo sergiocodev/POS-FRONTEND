@@ -12,7 +12,6 @@ import { CashRegisterResponse } from '../../../../../core/models/cash.model';
   styleUrl: './cash-open.component.scss',
 })
 export class CashOpenComponent implements OnInit {
-  @Output() cancel = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
@@ -40,9 +39,6 @@ export class CashOpenComponent implements OnInit {
     });
   }
 
-  onCancel(): void {
-    this.cancel.emit();
-  }
 
   onSubmit(): void {
     if (this.sessionForm.invalid) {

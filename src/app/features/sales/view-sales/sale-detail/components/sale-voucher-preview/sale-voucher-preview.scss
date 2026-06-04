@@ -1,0 +1,56 @@
+.voucher-card {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    margin: 0 auto;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden;
+
+    &.voucher-ticket {
+        width: 58mm;
+        min-height: 100mm;
+    }
+
+    &.voucher-80mm {
+        width: 80mm;
+        min-height: 120mm;
+    }
+
+    &.voucher-a4 {
+        width: 210mm;
+        min-height: 297mm;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .voucher-card,
+    .voucher-card * {
+        visibility: visible;
+    }
+
+    .voucher-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none !important;
+        width: 100%;
+        
+        &.voucher-ticket,
+        &.voucher-80mm,
+        &.voucher-a4 {
+            width: auto;
+            min-height: auto;
+        }
+    }
+
+    @page {
+        margin: 0;
+    }
+}

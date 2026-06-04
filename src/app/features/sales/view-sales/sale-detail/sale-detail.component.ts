@@ -1,11 +1,14 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SaleResponse } from '../../../../core/models/sale.model';
+import { SaleVoucherPreview } from './components/sale-voucher-preview/sale-voucher-preview';
+import { SaleSidebar } from './components/sale-sidebar/sale-sidebar';
+import { SaleToolbar } from './components/sale-toolbar/sale-toolbar';
 
 @Component({
   selector: 'app-sale-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SaleVoucherPreview, SaleSidebar, SaleToolbar],
   templateUrl: './sale-detail.component.html',
   styleUrl: './sale-detail.component.scss',
 })
@@ -16,7 +19,7 @@ export class SaleDetailComponent {
   @Output() cancel = new EventEmitter<number>();
 
   selectedTab = signal<string>('document');
-  selectedFormat = signal<string>('TICKET');
+  selectedFormat = signal<string>('80MM');
 
   onClose() {
     this.close.emit();

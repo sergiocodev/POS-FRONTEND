@@ -124,7 +124,7 @@
 
                 <div class="col-12" *ngIf="posForm.get('paymentCondition')?.value === 'CREDITO'">
                     <label class="form-label-compact">Vencimiento <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate">
+                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate" (keydown.enter)="$event.preventDefault()">
                 </div>
 
                 <!-- Listado de Pagos -->
@@ -160,7 +160,8 @@
                                     <input type="number"
                                         class="form-control bg-transparent border-0 fw-bold py-0 h-auto shadow-none no-arrows"
                                         style="font-size: 0.85rem; width: 60px;" [value]="p.amount"
-                                        (input)="updatePaymentAmount(idx, $any($event.target).valueAsNumber)">
+                                        (input)="updatePaymentAmount(idx, $any($event.target).valueAsNumber)"
+                                        (keydown.enter)="$event.preventDefault()">
                                 </div>
 
                                 <!-- Botón Eliminar (si hay más de uno) -->
@@ -175,7 +176,8 @@
                                 <input type="text"
                                     class="form-control form-control-sm border-0 py-0 animate__animated animate__fadeIn"
                                     style="font-size: 0.65rem; height: 22px;" placeholder="Ref. (opcional)"
-                                    [value]="p.reference" (input)="updateReference(idx, $any($event.target).value)">
+                                    [value]="p.reference" (input)="updateReference(idx, $any($event.target).value)"
+                                    (keydown.enter)="$event.preventDefault()">
                             </div>
                         </div>
                     </div>

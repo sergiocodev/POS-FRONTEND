@@ -26,14 +26,18 @@ interface MenuItem {
     styleUrls: ['./sidebar.component.scss'],
     animations: [
         trigger('slideInOut', [
-            state('true', style({ height: '*', opacity: 1 })),
-            state('false', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
-            transition('false <=> true', animate('300ms ease-in-out'))
+            state('true', style({ height: '*', opacity: 1, visibility: 'visible' })),
+            state('false', style({ height: '0px', opacity: 0, visibility: 'hidden' })),
+            transition('false <=> true', animate('350ms cubic-bezier(0.25, 1, 0.5, 1)'))
         ]),
-        trigger('rotate', [
-            state('true', style({ transform: 'rotate(180deg)' })),
-            state('false', style({ transform: 'rotate(0deg)' })),
-            transition('false <=> true', animate('300ms ease'))
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('250ms 150ms ease-out', style({ opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('100ms ease-in', style({ opacity: 0 }))
+            ])
         ])
     ]
 })
@@ -198,11 +202,29 @@ export class SidebarComponent {
             this.collapsed = false;
             this.collapsedChange.emit(false);
             setTimeout(() => {
+                this.collapseAllExcept(item);
                 item.expanded = !item.expanded;
             }, 300);
         } else {
+            this.collapseAllExcept(item);
             item.expanded = !item.expanded;
         }
+    }
+
+    private collapseAllExcept(item: MenuItem) {
+        // Aseguramos de colapsar la copia original para que persista al recomputar
+        this.allMenuItems.forEach(m => {
+            if (m.label !== item.label && m.expanded) {
+                m.expanded = false;
+            }
+        });
+        
+        // Colapsar en la lista actual visible
+        this.menuItems().forEach(m => {
+            if (m !== item && m.expanded) {
+                m.expanded = false;
+            }
+        });
     }
 
     closeOnMobile() {

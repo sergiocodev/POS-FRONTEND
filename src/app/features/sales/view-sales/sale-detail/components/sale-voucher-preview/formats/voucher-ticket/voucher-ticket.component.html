@@ -1,0 +1,76 @@
+<div class="w-100">
+    <div class="ticket-header">
+        <p class="company-name text-uppercase mb-1 fw-bold">{{ sale.company?.name || 'Centro Comercial Central - SEDE'
+            }}</p>
+        <p class="ruc-text fw-bold">RUC: {{ sale.company?.ruc || '20602518559' }}</p>
+        <p class="address-text">{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>
+        <div class="mt-2 text-uppercase">
+            <p class="mb-0 fw-bold">{{ sale.documentType }} ELECTRONICA</p>
+            <p class="mb-0 fw-bold">{{ sale.series }}-{{ sale.number }}</p>
+        </div>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <div class="d-flex flex-row justify-content-between x-small-text mb-1">
+        <span>{{ sale.date | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+        <span>Tienda: Principal</span>
+    </div>
+    <div class="x-small-text text-start">
+        <p class="mb-1">Cliente: {{ sale.customerName || 'VARIOS' }}</p>
+        <p class="mb-1">RUC/DNI: {{ sale.customerDocumentNumber || '00000000' }}</p>
+        <p class="mb-0">Pago: {{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition ===
+            'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) || 'CONTADO') }}</p>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <table class="table table-sm table-borderless mb-0">
+        <thead>
+            <tr>
+                <th class="text-start fw-bold" style="width: 45%;">DESCRIPCION</th>
+                <th class="text-center fw-bold" style="width: 13%;">CANT</th>
+                <th class="text-end fw-bold" style="width: 20%;">P.U.</th>
+                <th class="text-end fw-bold" style="width: 22%;">SUB</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of sale.items">
+                <td class="text-start">{{ item.productName }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) /
+                    item.quantity | number:'1.2-2' }}</td>
+                <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) |
+                    number:'1.2-2' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="dashed-line"></div>
+
+    <div class="totals-section mt-1">
+        <div class="total-row"><span>OP. GRAVADAS:</span><span>{{ sale.subTotal | number:'1.2-2' }}</span></div>
+        <div class="total-row"><span>OP. INAFECTAS:</span><span>0.00</span></div>
+        <div class="total-row"><span>OP. EXONERADAS:</span><span>0.00</span></div>
+        <div class="total-row"><span>I.G.V:</span><span>{{ sale.tax | number:'1.2-2' }}</span></div>
+        <div class="total-row"><span>ICBPER:</span><span>0.00</span></div>
+        <div class="total-row mt-1"><span>TOTAL:</span><span>{{ sale.total | number:'1.2-2' }}</span></div>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <div class="footer-section x-small-text text-start">
+        <p class="mb-2">SON: {{ 'TRES CON 20/100 SOLES' }}</p>
+        <p class="mb-0">Observación: NINGUNO</p>
+
+        <div class="dashed-line"></div>
+
+        <div class="text-center mt-3">
+            <p class="mb-1 fw-bold">Representación Impresa de la {{ sale.documentType }} de Venta Electrónica</p>
+            <p class="mb-1">Consulte su comprobante en:</p>
+            <p class="mb-3">PRUEBA URL QR</p>
+            <p class="mb-0">Sistema de Gestión Comercial</p>
+            <p>SIGES | www.siges.tsolperu.com</p>
+        </div>
+    </div>
+</div>

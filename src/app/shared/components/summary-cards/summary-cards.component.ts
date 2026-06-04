@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 export interface SummaryItem {
   label: string;
   value: number | string;
-  icon: string;      // Ejemplo: 'F', 'B', 'C'
+  icon: string;      // Ejemplo: 'bi-receipt', 'bi-cash'
   cssClass: string;  // Ejemplo: 'card-f', 'card-b'
   isCurrency?: boolean; // Default to false or true depending on usage
   subtitle?: string; // Optional subtitle (like '+ 85% del total')

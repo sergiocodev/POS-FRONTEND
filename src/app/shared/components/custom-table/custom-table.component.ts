@@ -14,17 +14,17 @@ export interface BadgeItem {
   class: string; // Ej: 'bg-primary text-white'
 }
 
-export interface TableColumn {
-  key: string;           // Nombre de la propiedad en el JSON
+export interface TableColumn<T = any> {
+  key: Extract<keyof T, string> | string;           // Nombre de la propiedad en el JSON
   label: string;         // Título de la columna
   type?: ColumnType;     // Tipo de celda (defecto: text)
   width?: string;        // Ancho opcional (ej: '150px')
   filterable?: boolean;  // Mostrar input de filtro
 
   // Transformadores
-  format?: (value: any, row?: any) => string;                   // Para formatear texto (ej: monedas)
-  classCallback?: (value: any, row?: any) => string; // Para clases dinámicas (tipo 'badge' o 'icon')
-  tagsCallback?: (row: any) => BadgeItem[];          // Para generar múltiples etiquetas (tipo 'tags')
+  format?: (value: any, row: T) => string;                   // Para formatear texto (ej: monedas)
+  classCallback?: (value: any, row: T) => string; // Para clases dinámicas (tipo 'badge' o 'icon')
+  tagsCallback?: (row: T) => BadgeItem[];          // Para generar múltiples etiquetas (tipo 'tags')
 
   // Para celdas personalizadas complejas (Tu caso de Producto)
   templateRef?: TemplateRef<any>;
@@ -38,10 +38,10 @@ export interface TableColumn {
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss',
 })
-export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
+export class CustomTableComponent<T = any> implements OnInit, OnChanges, OnDestroy {
   // --- INPUTS ---
-  @Input() columns: TableColumn[] = [];
-  @Input() data: any[] = [];
+  @Input() columns: TableColumn<T>[] = [];
+  @Input() data: T[] = [];
   @Input() pageSize: number = 10;
   @Input() totalElements: number = 0;
   @Input() currentPage: number = 1;
@@ -54,18 +54,18 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
   @Input() showPageSizeSelector: boolean = true;
 
   // --- OUTPUTS ---
-  @Output() onAction = new EventEmitter<{ action: string, row: any }>();
+  @Output() onAction = new EventEmitter<{ action: string, row: T }>();
   @Output() onPageChange = new EventEmitter<number>();
   @Output() onPageSizeChange = new EventEmitter<number>();
-  @Output() onToggle = new EventEmitter<{ row: any, key: string, checked: boolean }>();
+  @Output() onToggle = new EventEmitter<{ row: T, key: string, checked: boolean }>();
   @Output() onFilterChange = new EventEmitter<{ [key: string]: string }>();
   @Output() onAdd = new EventEmitter<void>();
 
   isServerSide: boolean = false;
 
   // --- LÓGICA INTERNA ---
-  filteredData: any[] = [];
-  paginatedData: any[] = [];
+  filteredData: T[] = [];
+  paginatedData: T[] = [];
   filterValues: { [key: string]: string } = {};
 
   totalPages: number = 1;
@@ -117,8 +117,8 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
       this.filteredData = this.data.filter(row => {
         return this.columns.every(col => {
           if (!col.filterable) return true;
-          const search = (this.filterValues[col.key] || '').toLowerCase();
-          const value = String(row[col.key] || '').toLowerCase();
+          const search = (this.filterValues[col.key as string] || '').toLowerCase();
+          const value = String((row as any)[col.key] || '').toLowerCase();
           return value.includes(search);
         });
       });
@@ -204,8 +204,8 @@ export class CustomTableComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  getValue(row: any, col: TableColumn): any {
-    const val = row[col.key];
+  getValue(row: T, col: TableColumn<T>): any {
+    const val = (row as any)[col.key];
     return col.format ? col.format(val, row) : val;
   }
 }

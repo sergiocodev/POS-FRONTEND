@@ -4,37 +4,60 @@
     </div>
 
     <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()">
-        <div class="mb-4">
-            <label class="form-label fw-bold small text-muted text-uppercase">Seleccionar Caja</label>
-            <select class="form-select border-0 bg-light py-2 px-3 fs-5" formControlName="cashRegisterId"
-                [class.is-invalid]="sessionForm.get('cashRegisterId')?.touched && sessionForm.get('cashRegisterId')?.invalid">
-                <option [ngValue]="null">Elija una caja disponible</option>
-                <option *ngFor="let r of registers()" [value]="r.id">{{ r.name }} - {{ r.establishmentName }}</option>
-            </select>
-        </div>
+        <div class="row g-3">
+            <div class="col-12">
+                <label for="cashRegisterId" class="form-label fw-semibold">
+                    Seleccionar Caja <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="cashRegisterId" formControlName="cashRegisterId"
+                    [class.is-invalid]="sessionForm.get('cashRegisterId')?.touched && sessionForm.get('cashRegisterId')?.invalid">
+                    <option [ngValue]="null">Elija una caja disponible</option>
+                    <option *ngFor="let r of registers()" [value]="r.id">{{ r.name }} - {{ r.establishmentName }}</option>
+                </select>
+                <div class="invalid-feedback d-block"
+                    *ngIf="sessionForm.get('cashRegisterId')?.invalid && sessionForm.get('cashRegisterId')?.touched">
+                    <span *ngIf="sessionForm.get('cashRegisterId')?.errors?.['required']">Campo requerido</span>
+                </div>
+            </div>
 
-        <div class="mb-4">
-            <label class="form-label fw-bold small text-muted text-uppercase">Saldo Inicial (Efectivo)</label>
-            <div class="input-group input-group-lg shadow-sm border rounded-3 overflow-hidden">
-                <span class="input-group-text bg-white border-0 pe-0 text-muted">S/</span>
-                <input type="number" class="form-control border-0 py-3 ps-2 fw-bold" formControlName="openingBalance" placeholder="0.00">
+            <div class="col-12">
+                <label for="openingBalance" class="form-label fw-semibold">
+                    Saldo Inicial (Efectivo) <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">S/</span>
+                    <input type="number" class="form-control" id="openingBalance" formControlName="openingBalance" placeholder="0.00"
+                        [class.is-invalid]="sessionForm.get('openingBalance')?.invalid && sessionForm.get('openingBalance')?.touched">
+                </div>
+                <div class="invalid-feedback d-block"
+                    *ngIf="sessionForm.get('openingBalance')?.invalid && sessionForm.get('openingBalance')?.touched">
+                    <span *ngIf="sessionForm.get('openingBalance')?.errors?.['required']">Campo requerido</span>
+                    <span *ngIf="sessionForm.get('openingBalance')?.errors?.['min']">El monto no puede ser menor a 0</span>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <label for="notes" class="form-label fw-semibold">
+                    Notas (Opcional)
+                </label>
+                <textarea class="form-control" id="notes" formControlName="notes" rows="3"
+                    placeholder="Observaciones sobre la sesión..."></textarea>
             </div>
         </div>
 
-        <div class="mb-4">
-            <label class="form-label fw-bold small text-muted text-uppercase">Notas (Opcional)</label>
-            <textarea class="form-control border-0 bg-light py-2 px-3" formControlName="notes" rows="3"
-                placeholder="Observaciones sobre la sesión..."></textarea>
-        </div>
-
-        <div class="d-flex gap-2 justify-content-end mt-4">
-            <button type="button" class="btn btn-light fw-bold px-4" (click)="onCancel()" [disabled]="isLoading()">
-                Cancelar
-            </button>
-            <button type="submit" class="btn btn-primary fw-bold px-4" [disabled]="isLoading()">
-                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
-                CONFIRMAR APERTURA
-            </button>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                    <button type="submit" class="btn btn-custom-primary"
+                        [disabled]="isLoading() || sessionForm.invalid">
+                        <span *ngIf="!isLoading()">Confirmar Apertura</span>
+                        <span *ngIf="isLoading()">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Guardando...
+                        </span>
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 </div>

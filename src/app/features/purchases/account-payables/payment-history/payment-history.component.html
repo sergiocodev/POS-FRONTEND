@@ -1,34 +1,42 @@
 <div class="history-container" *ngIf="selectedPayable">
     <div class="d-flex flex-column gap-3 mb-4">
-        <div class="premium-summary-card">
+        <div class="premium-summary-card"
+            [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-card' : 'success-card'">
             <div class="client-info">
-                <div class="avatar-circle">
+                <div class="avatar-circle"
+                    [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="details">
                     <h6>Proveedor</h6>
                     <h4>{{ selectedPayable.supplierName }}</h4>
-                    <p><i class="bi bi-receipt"></i> Compra ID: {{ selectedPayable.purchaseId }}</p>
+                    <p><i class="bi bi-receipt"></i> Compra: {{ selectedPayable.purchaseIdentifier }}</p>
                 </div>
             </div>
-            <div class="amount-info">
-                <h6>Monto Total</h6>
+            <div class="amount-info"
+                [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-amount' : 'success-amount'">
+                <h6 [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">Monto Total</h6>
                 <h2>S/ {{ selectedPayable.totalAmount | number:'1.2-2' }}</h2>
             </div>
         </div>
 
-        <div class="premium-summary-card danger-card">
+        <div class="premium-summary-card"
+            [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-card' : 'success-card'">
             <div class="client-info">
-                <div class="avatar-circle text-danger">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
+                <div class="avatar-circle"
+                    [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
+                    <i class="bi" [ngClass]="selectedPayable.pendingBalance <= 0 ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
                 </div>
                 <div class="details">
                     <h6>Estado Actual</h6>
-                    <h4 class="text-danger">Por Pagar</h4>
+                    <h4 [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
+                        {{ selectedPayable.pendingBalance <= 0 ? 'Pagado' : (selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'Vencido' : 'Por Pagar') }}
+                    </h4>
                 </div>
             </div>
-            <div class="amount-info danger-amount">
-                <h6 class="text-danger">Saldo Pendiente</h6>
+            <div class="amount-info"
+                [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-amount' : 'success-amount'">
+                <h6 [ngClass]="selectedPayable.pendingBalance > 0 && selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">Saldo Pendiente</h6>
                 <h2>S/ {{ selectedPayable.pendingBalance | number:'1.2-2' }}</h2>
             </div>
         </div>
@@ -48,8 +56,10 @@
     </div>
 
     <div class="d-flex justify-content-end mt-3">
-        <button type="button" class="btn btn-secondary rounded-pill px-4" (click)="closeHistoryModal()">
-            Cerrar
+        <button type="button" class="btn btn-custom-primary" (click)="closeHistoryModal()">
+            <span>
+                Cerrar
+            </span>
         </button>
     </div>
 </div>

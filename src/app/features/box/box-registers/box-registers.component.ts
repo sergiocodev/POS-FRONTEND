@@ -8,6 +8,7 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { RegisterFormComponent } from './register-form/register-form.component';
+import { CashRegisterResponse } from '../../../core/models/cash.model';
 
 @Component({
     selector: 'app-box-registers',
@@ -23,15 +24,15 @@ export class BoxRegistersComponent implements OnInit {
 
     @ViewChild('nameTpl', { static: true }) nameTpl!: TemplateRef<any>;
 
-    registers = signal<any[]>([]);
-    filteredRegisters = signal<any[]>([]);
+    registers = signal<(CashRegisterResponse & { actions?: any[] })[]>([]);
+    filteredRegisters = signal<(CashRegisterResponse & { actions?: any[] })[]>([]);
     isLoading = signal<boolean>(false);
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     showRegisterModal = signal<boolean>(false);
     selectedRegisterId = signal<number | null>(null);
 
-    tableColumns: TableColumn[] = [];
+    tableColumns: TableColumn<CashRegisterResponse & { actions?: any[] }>[] = [];
 
     constructor() {
         effect(() => {
@@ -84,7 +85,7 @@ export class BoxRegistersComponent implements OnInit {
         }
     }
 
-    onAction(event: { action: string, row: any }) {
+    onAction(event: { action: string, row: CashRegisterResponse }): void {
         if (event.action === 'edit') {
             this.openEditRegisterModal(event.row.id);
         } else if (event.action === 'delete') {

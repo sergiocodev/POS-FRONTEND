@@ -1,8 +1,9 @@
 <div class="position-relative">
     <button class="dropdown-trigger w-100 d-flex justify-content-between align-items-center shadow-none"
         [class]="'size-' + size()" [class.isOpen]="isOpen()" [class.disabled]="disabled()" type="button" (click)="!disabled() && toggleDropdown()">
-        <span [class.text-body]="selectedOption() !== null" [class.text-secondary]="selectedOption() === null"
-            class="fw-medium">
+        <span class="fw-medium selected-text"
+            [class.text-body]="selectedOption() !== null" 
+            [class.text-secondary]="selectedOption() === null">
             {{ displayText() }}
         </span>
         <i class="bi" [class.bi-chevron-down]="!isOpen()" [class.bi-chevron-up]="isOpen()"
@@ -17,14 +18,15 @@
         <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" class="form-control shadow-none"
-                [placeholder]="searchPlaceholder()" [(ngModel)]="searchTerm" (click)="$event.stopPropagation()" />
+                [placeholder]="searchPlaceholder()" [(ngModel)]="searchTerm" (click)="$event.stopPropagation()"
+                (keydown.enter)="$event.preventDefault()" />
         </div>
         }
 
         <ul class="items-list">
             @for (option of filteredOptions(); track option.id) {
             <li>
-                <button class="dropdown-item-custom" [class.active]="selectedOption()?.id === option.id"
+                <button type="button" class="dropdown-item-custom" [class.active]="selectedOption()?.id === option.id"
                     (click)="selectOption(option)">
                     <i class="bi" [class.bi-check-lg]="selectedOption()?.id === option.id"
                         [class.opacity-0]="selectedOption()?.id !== option.id">

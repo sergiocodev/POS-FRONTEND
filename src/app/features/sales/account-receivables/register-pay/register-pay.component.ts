@@ -15,7 +15,6 @@ import { ModalService } from '../../../../shared/components/confirm-modal/servic
 })
 export class RegisterPayComponent implements OnChanges {
   @Input() selectedReceivable: AccountReceivableResponse | null = null;
-  @Output() cancel = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
   private accountReceivableService = inject(AccountReceivableService);
@@ -36,10 +35,6 @@ export class RegisterPayComponent implements OnChanges {
           this.paymentReference.set('');
           this.paymentNotes.set('');
       }
-  }
-
-  closePaymentModal() {
-      this.cancel.emit();
   }
 
   processPayment() {

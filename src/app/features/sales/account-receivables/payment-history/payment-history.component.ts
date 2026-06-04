@@ -11,6 +11,7 @@ import { CustomTableComponent, TableColumn } from '../../../../shared/components
   imports: [CommonModule, CustomTableComponent],
   templateUrl: './payment-history.component.html',
   styleUrl: './payment-history.component.scss'
+  // Force recompile
 })
 export class PaymentHistoryComponent implements OnChanges {
   @Input() selectedReceivable: AccountReceivableResponse | null = null;

@@ -50,19 +50,17 @@ export class ViewSalesComponent implements OnInit {
     summaryItems = computed<SummaryItem[]>(() => {
         const s = this.serverSummary();
         if (!s) return [
-            { label: 'Total Facturas', value: 0, icon: 'F', cssClass: 'card-f' },
-            { label: 'Total Boletas', value: 0, icon: 'B', cssClass: 'card-b' },
-            { label: 'Nota de Crédito', value: 0, icon: 'C', cssClass: 'card-c' },
-            { label: 'Nota de Venta', value: 0, icon: 'V', cssClass: 'card-v' },
-            { label: 'Total Neto', value: 0, icon: 'N', cssClass: 'card-n' },
+            { label: 'Total Facturas', value: 0, icon: 'bi-file-earmark-text', cssClass: 'card-f', isCurrency: true },
+            { label: 'Total Boletas', value: 0, icon: 'bi-receipt', cssClass: 'card-b', isCurrency: true },
+            { label: 'Nota de Venta', value: 0, icon: 'bi-journal-text', cssClass: 'card-v', isCurrency: true },
+            { label: 'Total Neto', value: 0, icon: 'bi-cash-coin', cssClass: 'card-n', isCurrency: true },
         ];
 
         return [
-            { label: 'Total Facturas', value: s.totalFacturas, icon: 'F', cssClass: 'card-f' },
-            { label: 'Total Boletas', value: s.totalBoletas, icon: 'B', cssClass: 'card-b' },
-            { label: 'Nota de Crédito', value: s.totalNotaCredito, icon: 'C', cssClass: 'card-c' },
-            { label: 'Nota de Venta', value: s.totalNotaVenta, icon: 'V', cssClass: 'card-v' },
-            { label: 'Total Neto', value: s.totalNeto, icon: 'N', cssClass: 'card-n' },
+            { label: 'Total Facturas', value: s.totalFacturas, icon: 'bi-file-earmark-text', cssClass: 'card-f', isCurrency: true },
+            { label: 'Total Boletas', value: s.totalBoletas, icon: 'bi-receipt', cssClass: 'card-b', isCurrency: true },
+            { label: 'Nota de Venta', value: s.totalNotaVenta, icon: 'bi-journal-text', cssClass: 'card-v', isCurrency: true },
+            { label: 'Total Neto', value: s.totalNeto, icon: 'bi-cash-coin', cssClass: 'card-n', isCurrency: true },
         ];
     });
 

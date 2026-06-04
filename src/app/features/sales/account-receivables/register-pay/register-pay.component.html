@@ -1,16 +1,33 @@
 <div class="payment-form" *ngIf="selectedReceivable">
-    <div class="premium-summary-card success-card mb-4">
+    <div class="premium-summary-card mb-4"
+        [ngClass]="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue < 0 ? 'danger-card' : 'success-card'">
         <div class="client-info">
-            <div class="avatar-circle text-success">
+            <div class="avatar-circle"
+                [ngClass]="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
                 <i class="bi bi-cash-coin"></i>
             </div>
             <div class="details">
                 <h6>Cobro a Cliente</h6>
                 <h4>{{ selectedReceivable.customerName }}</h4>
+                <p *ngIf="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue < 0"
+                    class="text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Vencida!
+                </p>
+                <p *ngIf="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue == 0"
+                    class="text-warning fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Vence Hoy!
+                </p>
+                <p *ngIf="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue > 0"
+                    class="text-success fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Por Vencer!
+                </p>
             </div>
         </div>
-        <div class="amount-info success-amount">
-            <h6 class="text-success">Saldo Pendiente</h6>
+        <div class="amount-info"
+            [ngClass]="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue < 0 ? 'danger-amount' : 'success-amount'">
+            <h6
+                [ngClass]="selectedReceivable.daysUntilDue != null && selectedReceivable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
+                Saldo Pendiente</h6>
             <h2>S/ {{ selectedReceivable.pendingBalance | number:'1.2-2' }}</h2>
         </div>
     </div>
@@ -32,25 +49,27 @@
     <div class="form-group mb-3">
         <label class="form-label fw-bold">Referencia (Opcional)</label>
         <input type="text" class="form-control" [ngModel]="paymentReference()"
-            (ngModelChange)="paymentReference.set($event)"
-            placeholder="Ej. Número de operación o transferencia">
+            (ngModelChange)="paymentReference.set($event)" placeholder="Ej. Número de operación o transferencia">
     </div>
 
     <div class="form-group mb-3">
         <label class="form-label fw-bold">Notas (Opcional)</label>
-        <textarea class="form-control" [ngModel]="paymentNotes()" (ngModelChange)="paymentNotes.set($event)"
-            rows="2" placeholder="Observaciones adicionales..."></textarea>
+        <textarea class="form-control" [ngModel]="paymentNotes()" (ngModelChange)="paymentNotes.set($event)" rows="2"
+            placeholder="Observaciones adicionales..."></textarea>
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="button" class="btn btn-light rounded-pill px-4" (click)="closePaymentModal()">
-            Cancelar
-        </button>
-        <button type="button" class="btn btn-success rounded-pill px-4"
+
+        <button type="button" class="btn btn-custom-primary"
             [disabled]="isPaying() || !paymentAmount() || paymentAmount()! <= 0 || paymentAmount()! > (selectedReceivable.pendingBalance || 0)"
             (click)="processPayment()">
-            <i class="bi" [ngClass]="isPaying() ? 'bi-hourglass-split' : 'bi-check-circle'"></i>
-            {{ isPaying() ? 'Procesando...' : 'Confirmar Cobro' }}
+            <span *ngIf="!isPaying()">
+                Confirmar Cobro
+            </span>
+            <span *ngIf="isPaying()">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Procesando...
+            </span>
         </button>
     </div>
 </div>

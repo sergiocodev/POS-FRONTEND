@@ -62,6 +62,10 @@
     }
 
     .selected-text {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+        margin-right: 0.5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

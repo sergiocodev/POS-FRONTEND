@@ -1,0 +1,96 @@
+:host {
+    display: block;
+    width: 100%;
+    min-height: 100mm;
+    padding: 7px !important;
+    /* Reduced padding to free up horizontal space */
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 10px;
+    /* Reduced base font size */
+    line-height: 1.2;
+    /* Slightly tighter line height */
+    color: #000;
+    background-color: #fff;
+    margin: 0;
+    box-sizing: border-box;
+
+    * {
+        font-family: 'Courier New', Courier, monospace !important;
+        font-weight: normal !important;
+    }
+
+    .fw-bold,
+    b,
+    strong {
+        font-weight: bold !important;
+    }
+}
+
+.ticket-header {
+    text-align: center;
+    margin-bottom: 8px;
+
+    .company-name {
+        font-size: 12px !important;
+    }
+
+    p {
+        margin-bottom: 2px;
+    }
+
+    .address-text {
+        font-size: 9px !important;
+    }
+
+    .ruc-text {
+        font-size: 11px !important;
+    }
+
+    .contact-text {
+        font-size: 8px !important;
+    }
+}
+
+.dashed-line {
+    border-top: 1px dashed #000;
+    margin: 6px 0;
+    width: 100%;
+}
+
+.table {
+    font-size: 10px;
+    margin-bottom: 5px;
+    width: 100%;
+    table-layout: fixed;
+    /* Added to force column widths */
+
+    th {
+        border: none;
+        padding: 4px 0;
+    }
+
+    td {
+        border: none;
+        padding: 2px 0;
+        word-wrap: break-word;
+        /* Allow long words to break */
+        overflow-wrap: break-word;
+    }
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.x-small-text {
+    font-size: 9px !important;
+    text-align: left;
+}
+
+.footer-section {
+    p {
+        margin-bottom: 2px;
+    }
+}

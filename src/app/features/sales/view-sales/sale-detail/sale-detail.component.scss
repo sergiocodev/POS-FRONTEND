@@ -1,3 +1,9 @@
+.main {
+    border-radius: 12px;
+    background-color: var(--dropdown-bg);
+    border: 1px solid var(--border-color) !important;
+}
+
 .voucher-card {
     transition: all 0.3s ease;
     border: 1px solid rgba(0, 0, 0, 0.05);

@@ -1,16 +1,33 @@
 <div class="payment-form" *ngIf="selectedPayable">
-    <div class="premium-summary-card success-card mb-4">
+    <div class="premium-summary-card mb-4"
+        [ngClass]="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-card' : 'success-card'">
         <div class="client-info">
-            <div class="avatar-circle text-success">
+            <div class="avatar-circle"
+                [ngClass]="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
                 <i class="bi bi-wallet2"></i>
             </div>
             <div class="details">
                 <h6>Pago a Proveedor</h6>
                 <h4>{{ selectedPayable.supplierName }}</h4>
+                <p *ngIf="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0"
+                    class="text-danger fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Vencida!
+                </p>
+                <p *ngIf="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue == 0"
+                    class="text-warning fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Vence Hoy!
+                </p>
+                <p *ngIf="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue > 0"
+                    class="text-success fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ¡Deuda Por Vencer!
+                </p>
             </div>
         </div>
-        <div class="amount-info success-amount">
-            <h6 class="text-success">Saldo Pendiente</h6>
+        <div class="amount-info"
+            [ngClass]="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'danger-amount' : 'success-amount'">
+            <h6
+                [ngClass]="selectedPayable.daysUntilDue != null && selectedPayable.daysUntilDue < 0 ? 'text-danger' : 'text-success'">
+                Saldo Pendiente</h6>
             <h2>S/ {{ selectedPayable.pendingBalance | number:'1.2-2' }}</h2>
         </div>
     </div>
@@ -43,14 +60,17 @@
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="button" class="btn btn-light rounded-pill px-4" (click)="closePaymentModal()">
-            Cancelar
-        </button>
-        <button type="button" class="btn btn-success rounded-pill px-4"
+
+        <button type="button" class="btn btn-custom-primary"
             [disabled]="isPaying() || !paymentAmount() || paymentAmount()! <= 0 || paymentAmount()! > (selectedPayable.pendingBalance || 0)"
             (click)="processPayment()">
-            <i class="bi" [ngClass]="isPaying() ? 'bi-hourglass-split' : 'bi-check-circle'"></i>
-            {{ isPaying() ? 'Procesando...' : 'Confirmar Pago' }}
+            <span *ngIf="!isPaying()">
+                Confirmar Pago
+            </span>
+            <span *ngIf="isPaying()">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Procesando...
+            </span>
         </button>
     </div>
 </div>
