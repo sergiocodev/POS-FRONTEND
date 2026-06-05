@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/auth.model';
 import { ResponseApi } from '../models/response-api.model';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -11,6 +12,7 @@ import { Router } from '@angular/router';
 export class AuthService {
     private http = inject(HttpClient);
     private router = inject(Router);
+    private apiUrl = `${environment.apiUrl}/auth`;
 
     // SECURITY: Access token in sessionStorage (cleared on tab close, not shared across tabs)
     // Refresh token in localStorage (needed for background refresh)
@@ -22,7 +24,7 @@ export class AuthService {
     currentUser = signal<User | null>(this.getUserFromStorage());
 
     login(request: LoginRequest): Observable<ResponseApi<LoginResponse>> {
-        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/login', request).pipe(
+        return this.http.post<ResponseApi<LoginResponse>>(`${this.apiUrl}/login`, request).pipe(
             tap(response => {
                 if (response.status === 200 && response.data) {
                     this.saveAuthData(response.data);
@@ -32,7 +34,7 @@ export class AuthService {
     }
 
     register(request: RegisterRequest): Observable<ResponseApi<LoginResponse>> {
-        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/register', request).pipe(
+        return this.http.post<ResponseApi<LoginResponse>>(`${this.apiUrl}/register`, request).pipe(
             tap(response => {
                 if (response.status === 201 && response.data) {
                     this.saveAuthData(response.data);
@@ -44,7 +46,7 @@ export class AuthService {
   logout(): void {
     const token = this.getToken();
     if (token) {
-      this.http.post<ResponseApi<void>>('/api/v1/auth/logout', { token }).subscribe({
+      this.http.post<ResponseApi<void>>(`${this.apiUrl}/logout`, { token }).subscribe({
         next: () => {
           sessionStorage.removeItem(this.TOKEN_KEY);
           localStorage.removeItem(this.REFRESH_TOKEN_KEY);
@@ -96,7 +98,7 @@ export class AuthService {
             throw new Error('No refresh token available');
         }
 
-        return this.http.post<ResponseApi<LoginResponse>>('/api/v1/auth/refresh', { refreshToken }).pipe(
+        return this.http.post<ResponseApi<LoginResponse>>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
             tap(response => {
                 if (response.status === 200 && response.data) {
                     this.saveAuthData(response.data);
