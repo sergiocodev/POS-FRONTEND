@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { SaleRequest, SaleResponse, EstablishmentResponse, ProductForSaleResponse, SaleSummaryResponse, BarcodeScanResponse } from '../models/sale.model';
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SaleService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/sales';
+    private apiUrl = `${environment.apiUrl}/sales`;
 
     create(request: SaleRequest): Observable<ResponseApi<SaleResponse>> {
         return this.http.post<ResponseApi<SaleResponse>>(this.apiUrl, request);

@@ -9,13 +9,14 @@ import {
     AssignPermissionsRequest
 } from '../models/maintenance.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RoleService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/roles';
+    private apiUrl = `${environment.apiUrl}/roles`;
 
     private cache$?: Observable<ResponseApi<RoleResponse[]>>;
 

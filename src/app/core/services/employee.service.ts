@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { EmployeeRequest, EmployeeResponse } from '../models/employee.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class EmployeeService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/employees';
+    private apiUrl = `${environment.apiUrl}/employees`;
 
     private cache$?: Observable<ResponseApi<EmployeeResponse[]>>;
 

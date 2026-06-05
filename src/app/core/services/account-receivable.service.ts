@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { AccountReceivableResponse, AccountReceivablePaymentRequest, AccountReceivablePaymentResponse } from '../models/account-receivable.model';
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountReceivableService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/account-receivables';
+    private apiUrl = `${environment.apiUrl}/account-receivables`;
     private paymentUrl = '/api/v1/account-receivable-payments';
 
     getAll(): Observable<ResponseApi<AccountReceivableResponse[]>> {

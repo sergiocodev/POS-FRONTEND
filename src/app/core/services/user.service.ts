@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserRequest, UserResponse, UserAssignRolesRequest, ExternalLookupResponse } from '../models/user.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 
 @Injectable({
@@ -10,7 +11,7 @@ import { ResponseApi } from '../models/response-api.model';
 })
 export class UserService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/users';
+    private apiUrl = `${environment.apiUrl}/users`;
 
     /**
      * Obtiene la lista paginada de usuarios activos.

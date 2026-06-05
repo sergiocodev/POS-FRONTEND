@@ -15,13 +15,14 @@ import {
     FullDashboardResponse
 } from '../models/dashboard.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DashboardService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/dashboard';
+    private apiUrl = `${environment.apiUrl}/dashboard`;
 
     getSummaryCards(establishmentId: number): Observable<ResponseApi<DashboardSummaryResponse>> {
         return this.http.get<ResponseApi<DashboardSummaryResponse>>(

@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { EstablishmentRequest, EstablishmentResponse } from '../models/maintenance.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class EstablishmentService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/establishments';
+    private apiUrl = `${environment.apiUrl}/establishments`;
 
     private cache$?: Observable<ResponseApi<EstablishmentResponse[]>>;
 

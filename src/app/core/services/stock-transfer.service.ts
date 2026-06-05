@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ResponseApi } from '../models/response-api.model';
 import { StockTransferRequest, StockTransferResponse } from '../models/stock-transfer.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class StockTransferService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/stock-transfers';
+    private apiUrl = `${environment.apiUrl}/stock-transfers`;
 
     create(request: StockTransferRequest): Observable<StockTransferResponse> {
         return this.http.post<StockTransferResponse>(this.apiUrl, request);

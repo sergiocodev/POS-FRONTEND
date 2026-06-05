@@ -3,13 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PermissionResponse, CreatePermissionRequest } from '../models/maintenance.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PermissionService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/permissions';
+    private apiUrl = `${environment.apiUrl}/permissions`;
 
     getAll(module?: string, search?: string): Observable<ResponseApi<PermissionResponse[]>> {
         let params = new HttpParams();

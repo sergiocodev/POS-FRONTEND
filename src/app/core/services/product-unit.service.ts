@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductUnitRequest, ProductUnitResponse } from '../models/product.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProductUnitService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/product-units';
+    private apiUrl = `${environment.apiUrl}/product-units`;
 
     create(request: ProductUnitRequest): Observable<ProductUnitResponse> {
         return this.http.post<ProductUnitResponse>(this.apiUrl, request);

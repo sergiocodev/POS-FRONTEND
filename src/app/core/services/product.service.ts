@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { ProductRequest, ProductResponse } from '../models/product.model';
 import { ProductLotResponse } from '../models/inventory.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProductService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/products';
+    private apiUrl = `${environment.apiUrl}/products`;
 
     getAll(categoryId?: number, brandId?: number): Observable<ResponseApi<ProductResponse[]>> {
         let params = new HttpParams();

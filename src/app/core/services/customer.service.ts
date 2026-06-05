@@ -4,13 +4,14 @@ import { Observable, shareReplay } from 'rxjs';
 import { CustomerRequest, CustomerResponse, ExternalLookupResponse } from '../models/customer.model';
 import { CustomerDashboardResponse } from '../models/customer-dashboard.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CustomerService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/customers';
+    private apiUrl = `${environment.apiUrl}/customers`;
 
     private cache$?: Observable<ResponseApi<CustomerResponse[]>>;
 

@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { PurchaseRequest, PurchaseResponse, PurchaseSummaryResponse } from '../models/purchase.model';
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PurchaseService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/purchases';
+    private apiUrl = `${environment.apiUrl}/purchases`;
 
     create(request: PurchaseRequest, userId: number): Observable<ResponseApi<PurchaseResponse>> {
         return this.http.post<ResponseApi<PurchaseResponse>>(`${this.apiUrl}?userId=${userId}`, request);

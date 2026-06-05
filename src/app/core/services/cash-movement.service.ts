@@ -3,13 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { CashMovement, CashMovementRequest } from '../../core/models/cash-movement.model';
 import { ResponseApi } from '../../core/models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CashMovementService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/cash-movements';
+    private apiUrl = `${environment.apiUrl}/cash-movements`;
 
     getAll(page: number = 0, size: number = 10, filters: any = {}): Observable<ResponseApi<any>> {
         let params = new HttpParams()

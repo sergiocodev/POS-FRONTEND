@@ -7,13 +7,14 @@ import {
     VoidedSunatStatus
 } from '../models/voided-document.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class VoidedDocumentService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/voided-documents';
+    private apiUrl = `${environment.apiUrl}/voided-documents`;
 
     create(request: VoidedDocumentRequest): Observable<ResponseApi<VoidedDocumentResponse>> {
         return this.http.post<ResponseApi<VoidedDocumentResponse>>(this.apiUrl, request);

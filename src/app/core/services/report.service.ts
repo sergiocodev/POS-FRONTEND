@@ -16,13 +16,14 @@ import {
     SalesByCustomerReport
 } from '../models/report.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReportService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/reports';
+    private apiUrl = `${environment.apiUrl}/reports`;
 
     // ── Inventory Reports ──
 

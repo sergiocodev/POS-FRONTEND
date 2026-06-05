@@ -5,13 +5,14 @@ import { SupplierRequest, SupplierResponse, SupplierSummaryResponse, SupplierDet
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
 import { HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SupplierService {
     private http = inject(HttpClient);
-    private apiUrl = '/api/v1/suppliers';
+    private apiUrl = `${environment.apiUrl}/suppliers`;
 
     private cache$?: Observable<ResponseApi<SupplierResponse[]>>;
 
