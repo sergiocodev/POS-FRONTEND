@@ -10,6 +10,8 @@ import {
 } from '../models/cash.model';
 import { AuthService } from './auth.service';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
     providedIn: 'root'
@@ -18,10 +20,10 @@ export class CashSessionService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
 
-    private sessionUrl = '/api/v1/cash-sessions';
-    private registerUrl = '/api/v1/cash-registers';
-    private cashUrl = '/api/v1/cash';
-    private conceptUrl = '/api/v1/cash-concepts';
+    private sessionUrl = `${environment.apiUrl}/cash-sessions`;
+    private registerUrl = `${environment.apiUrl}/cash-registers`;
+    private cashUrl = `${environment.apiUrl}/cash`;
+    private conceptUrl = `${environment.apiUrl}/cash-concepts`;
 
 
     getRegisters(): Observable<ResponseApi<CashRegisterResponse[]>> {

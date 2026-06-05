@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { ResponseApi } from '../models/response-api.model';
 import { Page } from '../models/pagination.model';
+import { environment } from '../../../environments/environment';
+
 
 /**
  * Base service providing common HTTP patterns: paginated requests, error handling.
@@ -12,7 +14,7 @@ import { Page } from '../models/pagination.model';
  * ```typescript
  * @Injectable({ providedIn: 'root' })
  * export class BrandService extends BaseHttpService<BrandResponse> {
- *   protected override readonly apiUrl = '/api/v1/brands';
+ *   protected override readonly apiUrl = `${environment.apiUrl}/brands`;
  * }
  * ```
  *

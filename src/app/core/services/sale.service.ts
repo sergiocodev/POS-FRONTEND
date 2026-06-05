@@ -86,7 +86,7 @@ export class SaleService {
     }
 
     getEstablishments(): Observable<ResponseApi<EstablishmentResponse[]>> {
-        return this.http.get<ResponseApi<EstablishmentResponse[]>>('/api/v1/establishments');
+        return this.http.get<ResponseApi<EstablishmentResponse[]>>(`${environment.apiUrl}/establishments`);
     }
 
     listProductsForSale(establishmentId: number): Observable<ResponseApi<ProductForSaleResponse[]>> {

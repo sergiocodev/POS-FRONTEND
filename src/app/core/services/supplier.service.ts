@@ -56,7 +56,7 @@ export class SupplierService {
     }
 
     searchByDocument(documentNumber: string): Observable<ResponseApi<any>> {
-        return this.http.get<ResponseApi<any>>(`/api/v1/users/search/${documentNumber}`);
+        return this.http.get<ResponseApi<any>>(`${environment.apiUrl}/users/search/${documentNumber}`);
     }
 
     invalidateCache(): void {

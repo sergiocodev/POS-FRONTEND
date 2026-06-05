@@ -49,7 +49,7 @@ export class CustomerService {
     }
 
     searchByDocument(documentNumber: string): Observable<ResponseApi<ExternalLookupResponse>> {
-        return this.http.get<ResponseApi<ExternalLookupResponse>>(`/api/v1/users/search/${documentNumber}`);
+        return this.http.get<ResponseApi<ExternalLookupResponse>>(`${environment.apiUrl}/users/search/${documentNumber}`);
     }
 
     getDashboard(): Observable<ResponseApi<CustomerDashboardResponse>> {

@@ -1,0 +1,65 @@
+<div class="dropdown-menu open">
+    <div class="menu-header">
+        <div class="header-content">
+            <div class="avatar-wrapper">
+                @if (authService.currentUser()?.profilePicture && !imageError()) {
+                <img [src]="authService.currentUser()?.profilePicture" alt="Profile"
+                    (error)="imageError.set(true)" />
+                } @else {
+                <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.fullName || 'User' }}&background=0033cc&color=fff&bold=true&size=112"
+                    alt="Profile" />
+                }
+            </div>
+            <div class="user-details">
+                <h4 class="name">{{ authService.currentUser()?.fullName || 'PAMELA GLORIA TONE RECLIAY' }}
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-body">
+        <div class="section-label">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>Establecimiento asignado</span>
+        </div>
+
+        <div class="care-centers-list">
+            @for (center of availableServiceCenters(); track center.id) {
+            <div class="care-center-item" (click)="selectCareCenter.emit(center.id)"
+                [class.selected]="center.id === selectedServiceCenterId()">
+                <div class="item-icon">
+                    <i class="bi"
+                        [ngClass]="center.id === selectedServiceCenterId() ? 'bi-check-lg' : 'bi-geo-alt'"></i>
+                </div>
+                <span class="center-name">{{ center.name }}</span>
+                @if (center.id === selectedServiceCenterId()) {
+                <span class="selected-badge">Activo</span>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="menu-actions">
+            <div class="menu-item" (click)="myAccount.emit()">
+                <div class="item-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <span>Cuenta</span>
+                <i class="bi bi-chevron-right arrow-icon"></i>
+            </div>
+
+            <div class="menu-item logout" (click)="logout.emit()">
+                <div class="item-icon">
+                    <i class="bi bi-box-arrow-right"></i>
+                </div>
+                <span>Cerrar sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-footer">
+        <p>© 2026 SIOC • Sistema de Gestión</p>
+    </div>
+</div>

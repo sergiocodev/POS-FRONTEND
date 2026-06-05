@@ -43,6 +43,6 @@ export class AccountPayableService {
     }
 
     getPaymentsByPayableId(id: number): Observable<ResponseApi<AccountPayablePaymentResponse[]>> {
-        return this.http.get<ResponseApi<AccountPayablePaymentResponse[]>>(`/api/v1/account-payable-payments/payable/${id}`);
+        return this.http.get<ResponseApi<AccountPayablePaymentResponse[]>>(`${environment.apiUrl}/account-payable-payments/payable/${id}`);
     }
 }

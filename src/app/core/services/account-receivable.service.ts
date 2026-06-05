@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
 export class AccountReceivableService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/account-receivables`;
-    private paymentUrl = '/api/v1/account-receivable-payments';
+    private paymentUrl = `${environment.apiUrl}/account-receivable-payments`;
 
     getAll(): Observable<ResponseApi<AccountReceivableResponse[]>> {
         return this.http.get<ResponseApi<AccountReceivableResponse[]>>(this.apiUrl);

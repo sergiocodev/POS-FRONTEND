@@ -7,6 +7,8 @@ import {
     StockMovementResponse, StockMovementRequest
 } from '../models/inventory.model';
 import { ResponseApi } from '../models/response-api.model';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
     providedIn: 'root'
@@ -15,9 +17,9 @@ export class InventoryService {
     private http = inject(HttpClient);
 
 
-    private inventoryUrl = '/api/v1/inventory';
-    private lotsUrl = '/api/v1/product-lots';
-    private movementsUrl = '/api/v1/stock-movements';
+    private inventoryUrl = `${environment.apiUrl}/inventory`;
+    private lotsUrl = `${environment.apiUrl}/product-lots`;
+    private movementsUrl = `${environment.apiUrl}/stock-movements`;
 
 
     getAllStock(): Observable<ResponseApi<InventoryResponse[]>> {

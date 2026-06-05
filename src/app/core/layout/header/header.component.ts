@@ -6,11 +6,12 @@ import { ThemeService } from '../../services/theme.service';
 import { EstablishmentService } from '../../services/establishment.service';
 import { EstablishmentStateService } from '../../services/establishment-state.service';
 import { EstablishmentResponse } from '../../models/maintenance.model';
+import { ProfileDropdown } from './components/profile-dropdown/profile-dropdown';
 
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, ProfileDropdown],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     animations: [
