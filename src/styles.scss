@@ -253,6 +253,14 @@ body {
   }
 }
 
+.form-floating > .form-control::placeholder {
+  color: transparent !important;
+}
+
+.form-floating > .form-control:focus::placeholder {
+  color: var(--text-muted) !important;
+}
+
 // --- Bootstrap Modal Overrides ---
 .modal-content {
   background-color: var(--card-bg) !important;
