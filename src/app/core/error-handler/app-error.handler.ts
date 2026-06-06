@@ -16,12 +16,17 @@ export class AppErrorHandler implements ErrorHandler {
         // Log to console for developers
         console.error('[AppErrorHandler]', error);
 
+        // Ignorable errors that shouldn't trigger a popup
+        const ignoreWords = ['ResizeObserver', 'play() request was interrupted', 'user didn\'t interact', 'Cannot read properties of null (reading \'videoWidth\')', 'video source', 'AudioContext'];
+        if (ignoreWords.some(w => message.includes(w))) {
+            return;
+        }
+
         // Show user-friendly notification for runtime errors
-        // (skip during tests or for expected HTTP errors which have their own handling)
         if (this.modalService && typeof window !== 'undefined') {
             this.modalService.alert({
                 title: 'Ha ocurrido un error',
-                message: 'Se produjo un error inesperado. Por favor, recarga la página si el problema persiste.',
+                message: `Se produjo un error inesperado: ${message}`,
                 type: 'error'
             });
         }

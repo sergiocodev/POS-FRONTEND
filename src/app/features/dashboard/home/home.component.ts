@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -29,6 +29,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     private subscription?: Subscription;
 
     isDarkMode = this.themeService.isDarkMode;
+    selectedEstablishmentId = this.establishmentState.selectedEstablishmentId;
+
+    constructor() {
+        effect(() => {
+            this.selectedEstablishmentId(); // track signal
+            this.loadDashboard();
+        }, { allowSignalWrites: true });
+    }
 
     // KPI cards
     kpiCards: { label: string; value: string; change: string; positive: boolean; icon: string; iconColor: string }[] = [];
@@ -78,7 +86,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     expirations: { name: string; lot: string; daysLeft: number; date: string; urgent: boolean }[] = [];
 
     ngOnInit() {
-        this.loadDashboard();
+        // loadDashboard is called by effect
     }
 
     ngOnDestroy() {
@@ -86,7 +94,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     private loadDashboard() {
-        const estId = this.establishmentState.getSelectedEstablishment() ?? 1;
+        const estId = this.selectedEstablishmentId() ?? 1;
         this.loading = true;
 
         this.subscription = this.dashboardService.getFullDashboard(estId).subscribe({

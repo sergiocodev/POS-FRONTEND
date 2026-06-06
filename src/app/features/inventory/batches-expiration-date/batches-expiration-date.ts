@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BatchListComponent } from './batch-list/batch-list.component';
 import { BatchFormComponent } from './batch-form/batch-form.component';
 import { InventoryService } from '../../../core/services/inventory.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { ProductLotResponse } from '../../../core/models/inventory.model';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
@@ -31,7 +32,10 @@ import { ProductResponse } from '../../../core/models/product.model';
 export class BatchesExpirationDateComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private productService = inject(ProductService);
+  private establishmentStateService = inject(EstablishmentStateService);
   private modalService = inject(ModalService);
+
+  selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
   // State
   lots = signal<ProductLotResponse[]>([]);
@@ -48,14 +52,25 @@ export class BatchesExpirationDateComponent implements OnInit {
   // Modal State
   showForm = signal(false);
 
+  constructor() {
+    effect(() => {
+      this.selectedEstablishmentId(); // track signal
+      this.currentPage.set(0);
+      this.loadLots();
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit() {
     this.loadLots();
     this.loadProducts();
   }
 
   loadLots() {
+    const estId = this.selectedEstablishmentId();
+    if (!estId) return;
+
     this.isLoading.set(true);
-    this.inventoryService.getAllLotsPaged(this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
+    this.inventoryService.getAllLotsPaged(estId, this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
       next: (res) => {
         const page = res.data;
         this.lots.set(page.content || []);

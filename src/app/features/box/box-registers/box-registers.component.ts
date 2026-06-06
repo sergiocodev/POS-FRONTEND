@@ -55,7 +55,8 @@ export class BoxRegistersComponent implements OnInit {
 
     loadRegisters(): void {
         this.isLoading.set(true);
-        this.cashService.getRegisters().pipe(
+        const estId = this.selectedEstablishmentId();
+        this.cashService.getRegisters(estId).pipe(
             takeUntilDestroyed(this.destroyRef),
             finalize(() => this.isLoading.set(false))
         ).subscribe({

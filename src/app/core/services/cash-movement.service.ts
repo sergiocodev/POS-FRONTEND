@@ -24,6 +24,7 @@ export class CashMovementService {
         if (filters.type) params = params.set('type', filters.type);
         if (filters.reference) params = params.set('reference', filters.reference);
         if (filters.username) params = params.set('username', filters.username);
+        if (filters.establishmentId) params = params.set('establishmentId', filters.establishmentId);
             
         return this.http.get<ResponseApi<any>>(this.apiUrl, { params });
     }

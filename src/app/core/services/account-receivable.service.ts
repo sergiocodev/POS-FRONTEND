@@ -22,8 +22,8 @@ export class AccountReceivableService {
         return this.http.get<ResponseApi<Page<AccountReceivableResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
-    getDashboard(): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/dashboard`);
+    getDashboard(params?: any): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/dashboard`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<AccountReceivableResponse>> {

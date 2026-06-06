@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { CashMovementService } from '../../../../core/services/cash-movement.service';
 import { CashMovement } from '../../../../core/models/cash-movement.model';
+import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
 
 
@@ -15,8 +16,11 @@ import { CustomTableComponent, TableColumn } from '../../../../shared/components
 })
 export class MovementListComponent implements OnInit {
     private movementService = inject(CashMovementService);
+    private establishmentStateService = inject(EstablishmentStateService);
     private currencyPipe = inject(CurrencyPipe);
     private datePipe = inject(DatePipe);
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     movements = signal<CashMovement[]>([]);
     isLoading = signal<boolean>(false);
@@ -58,13 +62,25 @@ export class MovementListComponent implements OnInit {
         }
     ];
 
+    constructor() {
+        effect(() => {
+            this.selectedEstablishmentId(); // track
+            this.currentPage.set(0);
+            this.loadMovements();
+        }, { allowSignalWrites: true });
+    }
+
     ngOnInit(): void {
-        this.loadMovements();
+        // loadMovements called by effect
     }
 
     loadMovements(): void {
+        const estId = this.selectedEstablishmentId();
+        if (!estId) return;
+
         this.isLoading.set(true);
-        this.movementService.getAll(this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
+        const filters = { ...this.tableFilters(), establishmentId: estId };
+        this.movementService.getAll(this.currentPage(), this.pageSize(), filters).subscribe({
             next: (response) => {
                 const page = response.data;
                 this.movements.set(page.content || []);

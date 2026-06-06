@@ -243,8 +243,27 @@ export class ViewReportsComponent implements OnInit {
     });
 
     constructor() {
+        let isFirstRun = true;
         effect(() => {
-            // Only fetch series, do not load tab data automatically
+            this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                return;
+            }
+            
+            // Reset data arrays before loading
+            this.salesFiltered.set([]);
+            this.salesSummary.set(null);
+            this.salesByProduct.set([]);
+            this.salesByPaymentMethod.set([]);
+            this.salesByLaboratory.set([]);
+            this.salesByCategory.set([]);
+            this.salesByEmployee.set([]);
+            this.salesByEmployeeCategory.set([]);
+            this.salesByCategoryDetail.set([]);
+            this.salesByCustomer.set([]);
+            
+            this.loadTabData();
         }, { allowSignalWrites: true });
 
         effect(() => {
@@ -493,6 +512,12 @@ export class ViewReportsComponent implements OnInit {
         this.activeTab.set(tab as ReportTab);
     }
 
+    private getPdfTimestamp(): string {
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+
     private openPdf(blob: Blob, filename: string): void {
         this.isLoading.set(false);
         const url = URL.createObjectURL(blob);
@@ -522,7 +547,7 @@ export class ViewReportsComponent implements OnInit {
         const series = this.selectedSeries() || undefined;
 
         this.reportService.getSalesFilteredPdf(start, end, estId, docType, series).subscribe({
-            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas.pdf'),
+            next: (blob: Blob) => this.openPdf(blob, `Reporte_Ventas_Comprobantes_${this.getPdfTimestamp()}.pdf`),
             error: () => this.handlePdfError()
         });
     }
@@ -538,7 +563,7 @@ export class ViewReportsComponent implements OnInit {
 
         this.reportService.getSalesByCategoryPdf(start, end, estId, categoryIds.length > 0 ? categoryIds : undefined).subscribe({
             next: (blob: Blob) => {
-                this.openPdf(blob, 'reporte_ventas_categorias.pdf');
+                this.openPdf(blob, `Reporte_Ventas_Por_Categoria_${this.getPdfTimestamp()}.pdf`);
                 this.selectedCategoryIds.set([]);
             },
             error: () => this.handlePdfError()
@@ -561,7 +586,7 @@ export class ViewReportsComponent implements OnInit {
             series.length > 0 ? series : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                this.openPdf(blob, 'reporte_ventas_series.pdf');
+                this.openPdf(blob, `Reporte_Ventas_Por_Serie_${this.getPdfTimestamp()}.pdf`);
                 this.selectedSeriesForCard.set([]);
             },
             error: () => this.handlePdfError()
@@ -587,7 +612,7 @@ export class ViewReportsComponent implements OnInit {
             therapeuticActionIds.length > 0 ? therapeuticActionIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                this.openPdf(blob, 'reporte_ventas_productos.pdf');
+                this.openPdf(blob, `Reporte_Ventas_Por_Producto_${this.getPdfTimestamp()}.pdf`);
                 this.selectedProductIdsForCard.set([]);
                 this.selectedBrandIdsForCard.set([]);
                 this.selectedTherapeuticActionIdsForCard.set([]);
@@ -613,7 +638,7 @@ export class ViewReportsComponent implements OnInit {
         const end = this.endDate();
 
         this.reportService.getSellerPdf(start, end, estId, sellerIds).subscribe({
-            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas_vendedor.pdf'),
+            next: (blob: Blob) => this.openPdf(blob, `Reporte_Ventas_Por_Vendedor_${this.getPdfTimestamp()}.pdf`),
             error: () => this.handlePdfError()
         });
     }
@@ -634,7 +659,7 @@ export class ViewReportsComponent implements OnInit {
             categoryIds.length > 0 ? categoryIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                this.openPdf(blob, 'ventas_vendedor_categorias.pdf');
+                this.openPdf(blob, `Reporte_Ventas_Vendedor_Por_Categoria_${this.getPdfTimestamp()}.pdf`);
                 this.selectedCategoryIds.set([]);
             },
             error: () => this.handlePdfError()
@@ -657,7 +682,7 @@ export class ViewReportsComponent implements OnInit {
             productIds.length > 0 ? productIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
-                this.openPdf(blob, 'ventas_vendedor_productos.pdf');
+                this.openPdf(blob, `Reporte_Ventas_Vendedor_Por_Producto_${this.getPdfTimestamp()}.pdf`);
                 this.selectedProductIdsForCard.set([]);
             },
             error: () => this.handlePdfError()
@@ -680,7 +705,7 @@ export class ViewReportsComponent implements OnInit {
         const end = this.endDate();
 
         this.reportService.getSalesByCustomerPdf(start, end, estId, customerIds).subscribe({
-            next: (blob: Blob) => this.openPdf(blob, 'reporte_ventas_cliente.pdf'),
+            next: (blob: Blob) => this.openPdf(blob, `Reporte_Ventas_Por_Cliente_${this.getPdfTimestamp()}.pdf`),
             error: () => this.handlePdfError()
         });
     }

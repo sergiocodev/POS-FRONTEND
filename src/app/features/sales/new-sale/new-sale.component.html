@@ -38,7 +38,7 @@
 <div class="offcanvas offcanvas-end d-lg-none" [class.show]="isCartOpen()"
     [style.visibility]="isCartOpen() ? 'visible' : 'hidden'"
     [style.transform]="isCartOpen() ? 'translateX(0)' : 'translateX(100%)'"
-    style="width: min(420px, 100vw); transition: transform 0.3s ease, visibility 0.3s ease;" tabindex="-1"
+    style="width: min(420px, 100vw); transition: transform 0.3s ease, visibility 0.3s ease; top: 50px;" tabindex="-1"
     id="checkoutOffcanvasMobile">
     <!-- Offcanvas Header -->
     <div class="offcanvas-header border-bottom border-white border-opacity-10 px-4 py-3"
@@ -86,7 +86,7 @@
 
 <!-- Offcanvas Backdrop for Mobile -->
 @if (isCartOpen()) {
-<div class="offcanvas-backdrop fade show d-lg-none" (click)="isCartOpen.set(false)"></div>
+<div class="offcanvas-backdrop fade show d-lg-none" (click)="isCartOpen.set(false)" style="top: 50px;"></div>
 }
 
 <!-- Floating Action Button for Mobile -->

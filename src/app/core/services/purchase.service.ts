@@ -30,7 +30,8 @@ export class PurchaseService {
         size: number = 20,
         startDate?: string,
         endDate?: string,
-        filters: any = {}
+        filters: any = {},
+        establishmentId?: number | null
     ): Observable<ResponseApi<Page<PurchaseResponse>>> {
         let params = new HttpParams()
             .set('page', page)
@@ -38,6 +39,7 @@ export class PurchaseService {
         
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
 
         if (filters.supplierName) params = params.set('supplierName', filters.supplierName);
         if (filters.supplierDocumentNumber) params = params.set('supplierDocument', filters.supplierDocumentNumber);
@@ -55,12 +57,14 @@ export class PurchaseService {
     getSummary(
         startDate?: string,
         endDate?: string,
-        filters: any = {}
+        filters: any = {},
+        establishmentId?: number | null
     ): Observable<ResponseApi<PurchaseSummaryResponse>> {
         let params = new HttpParams();
         
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
 
         if (filters.supplierName) params = params.set('supplierName', filters.supplierName);
         if (filters.supplierDocumentNumber) params = params.set('supplierDocument', filters.supplierDocumentNumber);

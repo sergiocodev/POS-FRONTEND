@@ -64,14 +64,22 @@ export class HeaderComponent implements OnInit {
         this.establishmentService.getAll().subscribe({
             next: (response) => {
                 const establishments = response.data;
+                this.availableServiceCenters.set(establishments);
 
-                const activeEstablishments = establishments;
-                this.availableServiceCenters.set(activeEstablishments);
+                if (establishments.length > 0) {
+                    // Respect previously saved selection from localStorage
+                    const savedId = this.establishmentStateService.getSelectedEstablishment();
+                    const savedExists = savedId && establishments.some(e => e.id === savedId);
 
-
-                if (activeEstablishments.length > 0) {
-                    this.selectedServiceCenterId.set(activeEstablishments[0].id);
-                    this.establishmentStateService.setSelectedEstablishment(activeEstablishments[0].id);
+                    if (savedExists) {
+                        // Sync the local header signal with the already-saved state
+                        this.selectedServiceCenterId.set(savedId);
+                    } else {
+                        // First load or saved establishment was deleted: auto-select first
+                        const firstId = establishments[0].id;
+                        this.selectedServiceCenterId.set(firstId);
+                        this.establishmentStateService.setSelectedEstablishment(firstId);
+                    }
                 }
             },
             error: (error) => {

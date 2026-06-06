@@ -7,6 +7,7 @@ import { PurchaseRequest, PurchaseResponse, PurchaseDocumentType, PaymentConditi
 import { ProductResponse, ProductUnitResponse } from '../../../../core/models/product.model';
 import { SupplierResponse } from '../../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../../core/models/sale.model';
+import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 export interface PurchaseItemForm {
@@ -45,6 +46,7 @@ export interface PurchaseForm {
 export class PurchaseFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private destroyRef = inject(DestroyRef);
+    private establishmentStateService = inject(EstablishmentStateService);
 
     isLoading = input<boolean>(false);
     isEditMode = input<boolean>(false);
@@ -96,11 +98,15 @@ export class PurchaseFormComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupPaymentListeners();
-        // Since effect will handle applyPurchase if purchase is provided,
-        // we should only add a blank item if not in edit mode
+        // Pre-fill establishmentId with the active establishment for new purchases
         setTimeout(() => {
             if (!this.isEditMode() && this.items.length === 0) {
                 this.addItem();
+                // Set active establishment if not already set
+                const activeEstId = this.establishmentStateService.getSelectedEstablishment();
+                if (activeEstId && !this.purchaseForm.controls.establishmentId.value) {
+                    this.purchaseForm.controls.establishmentId.setValue(activeEstId);
+                }
             }
         });
     }

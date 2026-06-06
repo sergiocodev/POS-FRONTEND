@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountReceivableService } from '../../../core/services/account-receivable.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest, AccountReceivablePaymentResponse } from '../../../core/models/account-receivable.model';
 import { AccountReceivableListComponent } from './account-receivable-list/account-receivable-list.component';
@@ -31,7 +32,10 @@ import { PaymentHistoryComponent } from './payment-history/payment-history.compo
 export class AccountReceivablesComponent implements OnInit {
     private accountReceivableService = inject(AccountReceivableService);
     private cashSessionService = inject(CashSessionService);
+    private establishmentStateService = inject(EstablishmentStateService);
     private modalService = inject(ModalService);
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     receivables = signal<AccountReceivableResponse[]>([]);
@@ -51,6 +55,15 @@ export class AccountReceivablesComponent implements OnInit {
     // Modal State for History
     showHistoryModal = signal<boolean>(false);
 
+    constructor() {
+        effect(() => {
+            this.selectedEstablishmentId(); // track signal
+            this.currentPage.set(0);
+            this.loadDashboard();
+            this.loadReceivables();
+        }, { allowSignalWrites: true });
+    }
+
     ngOnInit(): void {
         this.loadDashboard();
         this.loadReceivables();
@@ -65,7 +78,8 @@ export class AccountReceivablesComponent implements OnInit {
             saleIdentifier: this.filterValues().saleIdentifier || '',
             createdAt: this.filterValues().createdAt || '',
             status: this.filterValues().status || '',
-            dueDate: this.filterValues().dueDate || ''
+            dueDate: this.filterValues().dueDate || '',
+            establishmentId: this.selectedEstablishmentId() || ''
         };
 
         this.accountReceivableService.getAllPaged(params).subscribe({
@@ -107,7 +121,10 @@ export class AccountReceivablesComponent implements OnInit {
     }
 
     loadDashboard() {
-        this.accountReceivableService.getDashboard().subscribe({
+        const params = {
+            establishmentId: this.selectedEstablishmentId() || ''
+        };
+        this.accountReceivableService.getDashboard(params).subscribe({
             next: (response: any) => {
                 const data = response.data ? response.data : response;
 

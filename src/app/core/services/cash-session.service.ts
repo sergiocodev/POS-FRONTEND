@@ -26,8 +26,12 @@ export class CashSessionService {
     private conceptUrl = `${environment.apiUrl}/cash-concepts`;
 
 
-    getRegisters(): Observable<ResponseApi<CashRegisterResponse[]>> {
-        return this.http.get<ResponseApi<CashRegisterResponse[]>>(this.registerUrl);
+    getRegisters(establishmentId?: number | null): Observable<ResponseApi<CashRegisterResponse[]>> {
+        let params = new HttpParams();
+        if (establishmentId) {
+            params = params.set('establishmentId', establishmentId.toString());
+        }
+        return this.http.get<ResponseApi<CashRegisterResponse[]>>(this.registerUrl, { params });
     }
 
     getRegisterById(id: number): Observable<ResponseApi<CashRegisterResponse>> {
@@ -75,9 +79,10 @@ export class CashSessionService {
         return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/${id}`);
     }
 
-    getActiveSession(): Observable<ResponseApi<CashSessionResponse>> {
+    getActiveSession(establishmentId?: number): Observable<ResponseApi<CashSessionResponse>> {
         const userId = this.authService.currentUser()?.id;
-        const params = new HttpParams().set('userId', userId?.toString() || '');
+        let params = new HttpParams().set('userId', userId?.toString() || '');
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
         return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/active`, { params });
     }
 
@@ -94,16 +99,18 @@ export class CashSessionService {
         return this.http.post<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/${id}/close`, {}, { params });
     }
 
-    getStatus(userId: number): Observable<ResponseApi<CashSessionResponse>> {
-        const params = new HttpParams().set('userId', userId.toString());
+    getStatus(userId: number, establishmentId?: number): Observable<ResponseApi<CashSessionResponse>> {
+        let params = new HttpParams().set('userId', userId.toString());
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
         return this.http.get<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/status`, { params });
     }
 
-    closeActiveSession(userId: number, closingBalance: number, diffAmount: number): Observable<ResponseApi<CashSessionResponse>> {
-        const params = new HttpParams()
+    closeActiveSession(userId: number, closingBalance: number, diffAmount: number, establishmentId?: number): Observable<ResponseApi<CashSessionResponse>> {
+        let params = new HttpParams()
             .set('userId', userId.toString())
             .set('closingBalance', closingBalance.toString())
             .set('diffAmount', diffAmount.toString());
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
         return this.http.post<ResponseApi<CashSessionResponse>>(`${this.sessionUrl}/close`, {}, { params });
     }
 
@@ -121,8 +128,9 @@ export class CashSessionService {
         return this.http.post<ResponseApi<CashMovementResponse>>(`${this.cashUrl}/RegisterCashOutflow`, request);
     }
 
-    getCurrentSessionStatus(userId: number): Observable<ResponseApi<SessionStatusResponse>> {
-        const params = new HttpParams().set('userId', userId.toString());
+    getCurrentSessionStatus(userId: number, establishmentId?: number): Observable<ResponseApi<SessionStatusResponse>> {
+        let params = new HttpParams().set('userId', userId.toString());
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
         return this.http.get<ResponseApi<SessionStatusResponse>>(`${this.cashUrl}/GetCurrentSessionStatus`, { params });
     }
 

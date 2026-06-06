@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SaleService } from '../../../core/services/sale.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { SaleResponse, SaleSummaryResponse } from '../../../core/models/sale.model';
 import { SaleListComponent } from './sale-list/sale-list.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
@@ -26,6 +27,9 @@ import { DateRangeSearchComponent } from '../../../shared/components/date-range-
 export class ViewSalesComponent implements OnInit {
     private saleService = inject(SaleService);
     private router = inject(Router);
+    private establishmentStateService = inject(EstablishmentStateService);
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     sales = signal<SaleResponse[]>([]);
@@ -69,6 +73,23 @@ export class ViewSalesComponent implements OnInit {
         this.loadSummary();
     }
 
+    constructor() {
+        let isFirstRun = true;
+        // React when establishment changes
+        effect(() => {
+            this.selectedEstablishmentId(); // track signal
+            
+            if (isFirstRun) {
+                isFirstRun = false;
+                return; // Let ngOnInit handle the initial data load
+            }
+
+            this.currentPage.set(0);
+            this.loadSales();
+            this.loadSummary();
+        }, { allowSignalWrites: true });
+    }
+
     private formatDate(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -80,7 +101,7 @@ export class ViewSalesComponent implements OnInit {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
-        this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters()).subscribe({
+        this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
             next: (response) => {
                 const page = response.data;
                 this.sales.set(page.content || []);
@@ -97,7 +118,7 @@ export class ViewSalesComponent implements OnInit {
     }
 
     loadSummary(): void {
-        this.saleService.getSummary(this.startDate(), this.endDate(), this.tableFilters()).subscribe({
+        this.saleService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
             next: (response) => {
                 this.serverSummary.set(response.data);
             },

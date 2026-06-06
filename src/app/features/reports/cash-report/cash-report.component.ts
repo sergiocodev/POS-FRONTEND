@@ -24,11 +24,17 @@ export class CashReportComponent implements OnInit {
     endDate = '';
 
     constructor() {
+        let isFirstRun = true;
         effect(() => {
-            if (this.selectedEstablishmentId()) {
-                this.loadReport();
+            this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                return;
             }
-        });
+            this.sessions.set([]);
+            this.startDate = '';
+            this.endDate = '';
+        }, { allowSignalWrites: true });
     }
 
     ngOnInit(): void {

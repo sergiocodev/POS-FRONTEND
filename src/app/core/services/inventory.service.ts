@@ -65,7 +65,7 @@ export class InventoryService {
         return this.http.get<ResponseApi<ProductLotResponse[]>>(this.lotsUrl);
     }
 
-    getAllLotsPaged(page: number = 0, size: number = 10, filters: any = {}): Observable<ResponseApi<any>> {
+    getAllLotsPaged(establishmentId: number, page: number = 0, size: number = 10, filters: any = {}): Observable<ResponseApi<any>> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('size', size.toString());
@@ -76,7 +76,7 @@ export class InventoryService {
             }
         });
 
-        return this.http.get<ResponseApi<any>>(`${this.lotsUrl}/paged`, { params });
+        return this.http.get<ResponseApi<any>>(`${this.lotsUrl}/paged?establishmentId=${establishmentId}`, { params });
     }
 
     getLotsByProduct(productId: number): Observable<ResponseApi<ProductLotResponse[]>> {

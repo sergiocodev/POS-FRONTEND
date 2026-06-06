@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PurchaseService } from '../../../core/services/purchase.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { PurchaseResponse, PurchaseSummaryResponse } from '../../../core/models/purchase.model';
 import { PurchaseListComponent } from './purchase-list/purchase-list.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
@@ -25,6 +26,9 @@ import { DateRangeSearchComponent } from '../../../shared/components/date-range-
 })
 export class ViewPurchasesComponent implements OnInit {
     private purchaseService = inject(PurchaseService);
+    private establishmentStateService = inject(EstablishmentStateService);
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     purchases = signal<PurchaseResponse[]>([]);
@@ -68,6 +72,23 @@ export class ViewPurchasesComponent implements OnInit {
         this.loadSummary();
     }
 
+    constructor() {
+        let isFirstRun = true;
+        // React when establishment changes
+        effect(() => {
+            this.selectedEstablishmentId(); // track signal
+            
+            if (isFirstRun) {
+                isFirstRun = false;
+                return; // Let ngOnInit handle the initial data load
+            }
+
+            this.currentPage.set(0);
+            this.loadPurchases();
+            this.loadSummary();
+        }, { allowSignalWrites: true });
+    }
+
     private formatDate(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -79,7 +100,7 @@ export class ViewPurchasesComponent implements OnInit {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
-        this.purchaseService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters()).subscribe({
+        this.purchaseService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
             next: (response) => {
                 const page = response.data;
                 this.purchases.set(page.content || []);
@@ -96,7 +117,7 @@ export class ViewPurchasesComponent implements OnInit {
     }
 
     loadSummary(): void {
-        this.purchaseService.getSummary(this.startDate(), this.endDate(), this.tableFilters()).subscribe({
+        this.purchaseService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
             next: (response) => {
                 this.serverSummary.set(response.data);
             },

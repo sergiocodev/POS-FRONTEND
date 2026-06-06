@@ -26,12 +26,15 @@ export class InventoryReportComponent implements OnInit {
     expiringDays = signal<number>(30);
 
     constructor() {
-
+        let isFirstRun = true;
         effect(() => {
-            if (this.selectedEstablishmentId()) {
-                this.loadReport();
+            this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                return;
             }
-        });
+            this.reportData.set([]);
+        }, { allowSignalWrites: true });
     }
 
     ngOnInit(): void {

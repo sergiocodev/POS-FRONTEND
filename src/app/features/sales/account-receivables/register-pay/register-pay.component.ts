@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePaymentRequest } from '../../../../core/models/account-receivable.model';
 import { AccountReceivableService } from '../../../../core/services/account-receivable.service';
 import { CashSessionService } from '../../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class RegisterPayComponent implements OnChanges {
 
   private accountReceivableService = inject(AccountReceivableService);
   private cashSessionService = inject(CashSessionService);
+  private establishmentStateService = inject(EstablishmentStateService);
   private modalService = inject(ModalService);
 
   paymentAmount = signal<number | null>(null);
@@ -53,7 +55,9 @@ export class RegisterPayComponent implements OnChanges {
 
       this.isPaying.set(true);
 
-      this.cashSessionService.getActiveSession().subscribe({
+      const estId = this.establishmentStateService.selectedEstablishmentId();
+
+      this.cashSessionService.getActiveSession(estId ? Number(estId) : undefined).subscribe({
           next: (sessionRes) => {
               const session = sessionRes.data;
               if (!session) {

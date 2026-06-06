@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../../core/services/report.service';
@@ -63,6 +63,21 @@ export class ViewReportsComponent implements OnInit {
         { key: 'arqueo', label: 'Arqueo', icon: 'bi-calculator' }
     ];
 
+    constructor() {
+        let isFirstRun = true;
+        effect(() => {
+            const estId = this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                if (estId) this.loadRecentSessions();
+                return;
+            }
+            if (estId) {
+                this.loadRecentSessions();
+            }
+        }, { allowSignalWrites: true });
+    }
+
     ngOnInit(): void {
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0);
@@ -87,7 +102,8 @@ export class ViewReportsComponent implements OnInit {
         });
 
         // Load Cash Registers
-        this.cashSessionService.getRegisters().subscribe({
+        const estId = this.selectedEstablishmentId();
+        this.cashSessionService.getRegisters(estId).subscribe({
             next: (res) => this.cashRegisters.set(res.data || []),
             error: () => {}
         });
@@ -146,7 +162,7 @@ export class ViewReportsComponent implements OnInit {
         if (!estId) { alert('Seleccione un establecimiento'); return; }
         this.isLoading.set(true);
         this.reportService.getCashSessionsPdf(this.startDate(), this.endDate(), estId).subscribe({
-            next: (blob) => this.openPdf(blob, 'reporte_sesiones_caja.pdf'),
+            next: (blob) => this.openPdf(blob, `Reporte_Sesiones_Caja_${this.getPdfTimestamp()}.pdf`),
             error: () => { this.isLoading.set(false); alert('Error al generar el reporte'); }
         });
     }
@@ -156,7 +172,7 @@ export class ViewReportsComponent implements OnInit {
         if (!estId) { alert('Seleccione un establecimiento'); return; }
         this.isLoading.set(true);
         this.reportService.getCashMovementsPdf(this.startDate(), this.endDate(), estId).subscribe({
-            next: (blob) => this.openPdf(blob, 'reporte_movimientos_caja.pdf'),
+            next: (blob) => this.openPdf(blob, `Reporte_Movimientos_Caja_${this.getPdfTimestamp()}.pdf`),
             error: () => { this.isLoading.set(false); alert('Error al generar el reporte'); }
         });
     }
@@ -166,9 +182,15 @@ export class ViewReportsComponent implements OnInit {
         if (!sessionId) { alert('Seleccione una sesión para el arqueo'); return; }
         this.isLoading.set(true);
         this.reportService.getCashArqueoPdf(sessionId).subscribe({
-            next: (blob) => this.openPdf(blob, `arqueo_caja_${sessionId}.pdf`),
+            next: (blob) => this.openPdf(blob, `Arqueo_Caja_${sessionId}_${this.getPdfTimestamp()}.pdf`),
             error: () => { this.isLoading.set(false); alert('Error al generar el arqueo'); }
         });
+    }
+
+    private getPdfTimestamp(): string {
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     }
 
     private openPdf(blob: Blob, filename: string): void {

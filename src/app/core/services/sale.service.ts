@@ -29,7 +29,8 @@ export class SaleService {
         size: number = 20,
         startDate?: string,
         endDate?: string,
-        filters: any = {}
+        filters: any = {},
+        establishmentId?: number | null
     ): Observable<ResponseApi<Page<SaleResponse>>> {
         let params = new HttpParams()
             .set('page', page)
@@ -37,6 +38,7 @@ export class SaleService {
         
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
 
         // Map frontend table column keys to backend expected params
         if (filters.customerName) params = params.set('customerName', filters.customerName);
@@ -110,12 +112,14 @@ export class SaleService {
     getSummary(
         startDate?: string,
         endDate?: string,
-        filters: any = {}
+        filters: any = {},
+        establishmentId?: number | null
     ): Observable<ResponseApi<SaleSummaryResponse>> {
         let params = new HttpParams();
         
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
+        if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
 
         if (filters.customerName) params = params.set('customerName', filters.customerName);
         if (filters.customerDocumentNumber) params = params.set('customerDocument', filters.customerDocumentNumber);

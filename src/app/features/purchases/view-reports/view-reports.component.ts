@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../../core/services/report.service';
@@ -84,6 +84,25 @@ export class ViewReportsComponent implements OnInit {
         { key: 'proveedores', label: 'Proveedores', icon: 'bi-truck' },
         { key: 'usuarios', label: 'Compradores', icon: 'bi-person-badge' }
     ];
+
+    constructor() {
+        let isFirstRun = true;
+        // React when the establishment changes from the header
+        effect(() => {
+            const estId = this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                return;
+            }
+            if (estId) {
+                // Reset card-level selections when establishment changes
+                this.selectedCategoryIds.set([]);
+                this.selectedProductId.set(null);
+                this.selectedSupplierIdsForCard.set([]);
+                this.selectedBuyerIdsForCard.set([]);
+            }
+        }, { allowSignalWrites: true });
+    }
 
     ngOnInit(): void {
         const today = new Date();

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountPayableService } from '../../../core/services/account-payable.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { AccountPayableResponse, PayablePaymentMethod, AccountPayablePaymentRequest, AccountPayablePaymentResponse } from '../../../core/models/account-payable.model';
 import { AccountPayableListComponent } from './account-payable-list/account-payable-list.component';
@@ -31,7 +32,10 @@ import { PaymentHistoryComponent } from './payment-history/payment-history.compo
 export class AccountPayablesComponent implements OnInit {
     private accountPayableService = inject(AccountPayableService);
     private cashSessionService = inject(CashSessionService);
+    private establishmentStateService = inject(EstablishmentStateService);
     private modalService = inject(ModalService);
+
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     payables = signal<AccountPayableResponse[]>([]);
@@ -51,6 +55,15 @@ export class AccountPayablesComponent implements OnInit {
     // Modal State for History
     showHistoryModal = signal<boolean>(false);
 
+    constructor() {
+        effect(() => {
+            this.selectedEstablishmentId(); // track signal
+            this.currentPage.set(0);
+            this.loadDashboard();
+            this.loadPayables();
+        }, { allowSignalWrites: true });
+    }
+
     ngOnInit(): void {
         this.loadDashboard();
         this.loadPayables();
@@ -65,7 +78,8 @@ export class AccountPayablesComponent implements OnInit {
             purchaseIdentifier: this.filterValues().purchaseIdentifier || '',
             createdAt: this.filterValues().createdAt || '',
             status: this.filterValues().status || '',
-            dueDate: this.filterValues().dueDate || ''
+            dueDate: this.filterValues().dueDate || '',
+            establishmentId: this.selectedEstablishmentId() || ''
         };
 
         this.accountPayableService.getAllPaged(params).subscribe({
@@ -107,7 +121,10 @@ export class AccountPayablesComponent implements OnInit {
     }
 
     loadDashboard() {
-        this.accountPayableService.getDashboard().subscribe({
+        const params = {
+            establishmentId: this.selectedEstablishmentId() || ''
+        };
+        this.accountPayableService.getDashboard(params).subscribe({
             next: (response: any) => {
                 const data = response.data ? response.data : response;
 

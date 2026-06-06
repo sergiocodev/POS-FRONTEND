@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StockTransferListComponent } from './stock-transfer-list/stock-transfer-list.component';
 import { StockTransferFormComponent } from './stock-transfer-form/stock-transfer-form.component';
@@ -56,6 +56,16 @@ export class StockTransfersComponent implements OnInit {
   showForm = signal(false);
   showDetails = signal(false);
   selectedTransfer = signal<StockTransferResponse | null>(null);
+
+  constructor() {
+    effect(() => {
+      const estId = this.establishmentState.selectedEstablishmentId();
+      if (estId) {
+        this.loadTransfers();
+        this.loadMasterData();
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadTransfers();

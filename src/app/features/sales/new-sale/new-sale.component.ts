@@ -65,8 +65,11 @@ export class NewSaleComponent implements OnInit {
                 return forkJoin({
                     products: this.saleService.listProductsForSale(id),
                     customers: this.customerService.getAll(),
-                    activeSession: this.cashSessionService.getActiveSession().pipe(
-                        catchError(() => of(null))
+                    activeSession: this.cashSessionService.getActiveSession(id).pipe(
+                        catchError((err) => {
+                            const errorMsg = err?.error?.message || 'Error al validar sesión de caja';
+                            return of({ error: true, message: errorMsg, data: null });
+                        })
                     )
                 });
             }),
@@ -77,7 +80,13 @@ export class NewSaleComponent implements OnInit {
     // State Signals derived from posData
     products = computed(() => this.posData()?.products?.data ?? []);
     customers = computed(() => this.posData()?.customers?.data ?? []);
-    activeSession = computed(() => this.posData()?.activeSession?.data ?? null);
+    activeSession = computed(() => {
+        const sessionRes = this.posData()?.activeSession;
+        if (sessionRes && (sessionRes as any).error) {
+            return { isError: true, message: (sessionRes as any).message };
+        }
+        return sessionRes?.data ?? null;
+    });
     displayProducts = computed(() => this.saleLogicService.deduplicateProductsForGrid(this.products()));
 
     // Search Logic
@@ -117,15 +126,25 @@ export class NewSaleComponent implements OnInit {
             if (data === undefined) return; // Initial loading state
 
             const session = this.activeSession();
-            if (data && (!session || session.status !== 'OPEN')) {
+            const isErrorSession = session && (session as any).isError;
+            const isValidSession = session && !isErrorSession && (session as CashSessionResponse).status === 'OPEN';
+
+            if (data && (!session || isErrorSession || !isValidSession)) {
                 untracked(() => {
+                    const errorMsg = isErrorSession ? (session as any).message : 'Debe abrir una caja antes de realizar ventas';
                     this.modalService.alert({
                         title: 'Error',
-                        message: 'Debe abrir una caja antes de realizar ventas',
+                        message: errorMsg,
                         type: 'warning',
                         buttonText: 'Ok'
                     }).then(() => {
-                        this.showOpenModal.set(true);
+                        // Only show the open modal if it's the generic missing session, 
+                        // not if they have an active session in another branch (which needs them to switch branches)
+                        if (!isErrorSession) {
+                            this.showOpenModal.set(true);
+                        } else {
+                            this.router.navigate(['/home']);
+                        }
                     });
                 });
             }
@@ -160,15 +179,17 @@ export class NewSaleComponent implements OnInit {
 
     onProcessSale(saleData: SaleFormData): void {
         const establishmentId = this.establishmentStateService.getSelectedEstablishment();
-        if (!establishmentId || !this.activeSession()) {
+        if (!establishmentId || !this.activeSession() || (this.activeSession() as any).isError) {
             this.modalService.alert({ title: 'Error', message: 'No hay un establecimiento o sesión de caja activa.', type: 'error' });
             return;
         }
 
         this.isLoading.set(true);
+        const session = this.activeSession() as CashSessionResponse;
+        
         const request: SaleRequest = {
             establishmentId: establishmentId,
-            cashSessionId: this.activeSession()!.id,
+            cashSessionId: session.id,
             customerId: saleData.customer?.id,
             documentType: saleData.documentType,
             series: saleData.series,
@@ -185,7 +206,7 @@ export class NewSaleComponent implements OnInit {
             })),
             payments: saleData.payments.map((p) => ({
                 ...p,
-                cashSessionId: this.activeSession()!.id
+                cashSessionId: session.id
             })),
             paymentCondition: saleData.paymentCondition,
             dueDate: saleData.dueDate

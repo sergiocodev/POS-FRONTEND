@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { CashSessionService } from '../../../core/services/cash-session.service';
@@ -26,6 +26,8 @@ export class OpeningClosingComponent implements OnInit {
     private authService = inject(AuthService);
     private establishmentStateService = inject(EstablishmentStateService);
     private router = inject(Router);
+
+    @ViewChild(SummaryBoxComponent) summaryBox!: SummaryBoxComponent;
 
     sessions = signal<CashSessionResponse[]>([]);
     activeSession = signal<CashSessionResponse | null>(null);
@@ -59,6 +61,10 @@ export class OpeningClosingComponent implements OnInit {
         this.isLoading.set(true);
         const estId = this.selectedEstablishmentId() ? Number(this.selectedEstablishmentId()) : undefined;
 
+        if (this.summaryBox) {
+            this.summaryBox.loadSummary();
+        }
+
         this.cashService.getAllPaged(estId, this.currentPage(), this.pageSize()).subscribe({
             next: (response) => {
                 const pageData = response.data;
@@ -73,10 +79,10 @@ export class OpeningClosingComponent implements OnInit {
             }
         });
 
-        this.cashService.getActiveSession().subscribe({
+        this.cashService.getActiveSession(estId).subscribe({
             next: (response) => {
                 this.activeSession.set(response.data);
-                this.cashService.getCurrentSessionStatus(userId).subscribe({
+                this.cashService.getCurrentSessionStatus(userId, estId).subscribe({
                     next: (statusRes) => {
                         this.statusData.set(statusRes.data);
                     },

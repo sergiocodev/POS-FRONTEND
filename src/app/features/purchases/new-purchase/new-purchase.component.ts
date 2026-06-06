@@ -7,6 +7,7 @@ import { ProductService } from '../../../core/services/product.service';
 import { SupplierService } from '../../../core/services/supplier.service';
 import { SaleService } from '../../../core/services/sale.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ProductUnitService } from '../../../core/services/product-unit.service';
 import { PurchaseRequest, PurchaseResponse } from '../../../core/models/purchase.model';
 import { ProductResponse, ProductUnitResponse } from '../../../core/models/product.model';
@@ -28,6 +29,7 @@ export class NewPurchaseComponent implements OnInit {
   private saleService = inject(SaleService);
   private authService = inject(AuthService);
   private productUnitService = inject(ProductUnitService);
+  private establishmentStateService = inject(EstablishmentStateService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 

@@ -25,12 +25,17 @@ export class PurchaseReportComponent implements OnInit {
     endDate = '';
 
     constructor() {
-
+        let isFirstRun = true;
         effect(() => {
-            if (this.selectedEstablishmentId()) {
-                this.loadReport();
+            this.selectedEstablishmentId();
+            if (isFirstRun) {
+                isFirstRun = false;
+                return;
             }
-        });
+            this.purchases.set([]);
+            this.startDate = '';
+            this.endDate = '';
+        }, { allowSignalWrites: true });
     }
 
     ngOnInit(): void {

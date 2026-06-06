@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, Output, EventEmitter } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CashSessionService } from '../../../../../core/services/cash-session.service';
+import { EstablishmentStateService } from '../../../../../core/services/establishment-state.service';
 import { CashRegisterResponse } from '../../../../../core/models/cash.model';
 
 @Component({
@@ -16,6 +17,7 @@ export class CashOpenComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private cashService = inject(CashSessionService);
+  private establishmentStateService = inject(EstablishmentStateService);
 
   sessionForm: FormGroup = this.fb.group({
     cashRegisterId: [null, [Validators.required]],
@@ -32,7 +34,8 @@ export class CashOpenComponent implements OnInit {
   }
 
   loadRegisters(): void {
-    this.cashService.getRegisters().subscribe({
+    const estId = this.establishmentStateService.selectedEstablishmentId();
+    this.cashService.getRegisters(estId).subscribe({
       next: (response) => {
         this.registers.set(response.data);
       }

@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router, RouterModule } from '@angular/router';
 import { CashSessionService } from '../../../../../core/services/cash-session.service';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { EstablishmentStateService } from '../../../../../core/services/establishment-state.service';
 import { SessionStatusResponse, CloseSessionRequest } from '../../../../../core/models/cash.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
@@ -21,6 +22,7 @@ export class CashCloseComponent implements OnInit {
   private cashService = inject(CashSessionService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private establishmentStateService = inject(EstablishmentStateService);
 
   sessionForm: FormGroup = this.fb.group({
     closingBalance: [0, [Validators.required, Validators.min(0)]],
@@ -53,7 +55,8 @@ export class CashCloseComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    this.cashService.getCurrentSessionStatus(userId).subscribe({
+    const estId = this.establishmentStateService.selectedEstablishmentId();
+    this.cashService.getCurrentSessionStatus(userId, estId ? Number(estId) : undefined).subscribe({
       next: (response) => {
         this.sessionStatusData.set(response.data);
         this.isLoading.set(false);
