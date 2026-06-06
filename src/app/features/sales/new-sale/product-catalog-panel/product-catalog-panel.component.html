@@ -120,6 +120,7 @@
             </div>
 
             <zxing-scanner *ngIf="scannerEnabled() && hasPermission() !== false" [device]="currentDevice()"
+                [formats]="allowedFormats"
                 [autofocusEnabled]="true" (camerasFound)="camerasFoundHandler($event)"
                 (camerasNotFound)="camerasNotFoundHandler($event)" (permissionResponse)="onHasPermission($event)"
                 (scanSuccess)="onScanSuccess($event)" (scanError)="onScanError($event)" style="width: 100%;">

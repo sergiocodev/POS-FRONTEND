@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, Input, Output, EventEmitte
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { BarcodeFormat } from '@zxing/library';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { SaleDocumentType, PaymentMethod, ProductForSaleResponse, CartItem } from '../../../../core/models/sale.model';
 import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
@@ -58,6 +59,7 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     scannerEnabled = signal<boolean>(true);
     hasPermission = signal<boolean | null>(null);
     currentDevice = signal<MediaDeviceInfo | undefined>(undefined);
+    allowedFormats = [ BarcodeFormat.EAN_13 ];
 
     // Computed Values
     total = computed(() => this.cart.reduce((sum, item) => sum + item.total, 0));
