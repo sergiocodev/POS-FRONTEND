@@ -196,22 +196,23 @@
                     </div>
                 </div>
 
-                <div class="pf-items-header">
-                    <span class="pf-col pf-col--product">Producto</span>
-                    <span class="pf-col pf-col--unit">Unidad</span>
-                    <span class="pf-col pf-col--lot">Lote</span>
-                    <span class="pf-col pf-col--date">Vencimiento</span>
-                    <span class="pf-col pf-col--num">Cant.</span>
-                    <span class="pf-col pf-col--num">Bonif.</span>
-                    <span class="pf-col pf-col--cost">Costo Unit.</span>
-                    <span class="pf-col pf-col--total">Subtotal</span>
-                    <span class="pf-col pf-col--action" *ngIf="!isEditMode()"></span>
-                </div>
+                <div class="pf-table-wrapper">
+                    <div class="pf-items-header">
+                        <span class="pf-col pf-col--product">Producto</span>
+                        <span class="pf-col pf-col--unit">Unidad</span>
+                        <span class="pf-col pf-col--lot">Lote</span>
+                        <span class="pf-col pf-col--date">Vencimiento</span>
+                        <span class="pf-col pf-col--num">Cant.</span>
+                        <span class="pf-col pf-col--num">Bonif.</span>
+                        <span class="pf-col pf-col--cost">Costo Unit.</span>
+                        <span class="pf-col pf-col--total">Subtotal</span>
+                        <span class="pf-col pf-col--action" *ngIf="!isEditMode()"></span>
+                    </div>
 
-                <!-- Items -->
-                <div class="pf-items-list" formArrayName="items">
-                    <div class="pf-item-row" *ngFor="let item of items.controls; let i = index; let last = last"
-                        [formGroupName]="i" [class.pf-item-row--last]="last">
+                    <!-- Items -->
+                    <div class="pf-items-list" formArrayName="items">
+                        <div class="pf-item-row" *ngFor="let item of items.controls; let i = index; let last = last"
+                            [formGroupName]="i" [class.pf-item-row--last]="last">
 
                         <div class="pf-item-num">{{ i + 1 }}</div>
 
@@ -286,6 +287,7 @@
                         </div>
 
                     </div>
+                </div>
                 </div>
 
                 <!-- Total Footer -->

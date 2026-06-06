@@ -115,6 +115,25 @@ $bg-field: $input-bg;
         display: flex;
         justify-content: flex-end;
     }
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+        gap: 0.5rem;
+        
+        &__spacer {
+            display: none;
+        }
+        
+        &__actions {
+            width: 100%;
+            justify-content: stretch;
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
 }
 
 .pf-section-title {
@@ -361,12 +380,20 @@ $bg-field: $input-bg;
 // ════════════════════════════════════════
 // Items Column Headers
 // ════════════════════════════════════════
+.pf-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+}
+
 .pf-items-header {
     display: flex;
     align-items: center;
     padding: 0.6rem 1.5rem 0.6rem 3.5rem;
     background: transparent;
     gap: 0.5rem;
+    min-width: 950px;
 }
 
 // ════════════════════════════════════════
@@ -374,6 +401,7 @@ $bg-field: $input-bg;
 // ════════════════════════════════════════
 .pf-items-list {
     padding: 0 0.75rem 0.5rem;
+    min-width: 950px;
 }
 
 .pf-item-row {
@@ -524,6 +552,13 @@ $bg-field: $input-bg;
     background: var(--card-bg);
     border-top: 1px solid $border;
     margin-top: 0.5rem;
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+        text-align: center;
+    }
 }
 
 .pf-total-items-count {
