@@ -52,6 +52,7 @@ export class PermissionConstants {
     static readonly FARMACIA_ACCIONES = 'FARMACIA_ACCIONES';
 
     // Submódulos de CONFIGURACION
+    static readonly CONFIGURACION_EMPRESA = 'CONFIGURACION_EMPRESA';
     static readonly CONFIGURACION_USUARIOS = 'CONFIGURACION_USUARIOS';
     static readonly CONFIGURACION_ROLES = 'CONFIGURACION_ROLES';
     static readonly CONFIGURACION_ESTABLECIMIENTOS = 'CONFIGURACION_ESTABLECIMIENTOS';
@@ -106,6 +107,7 @@ export class PermissionConstants {
         'FARMACIA_FORMAS': 'Formas farmacéuticas',
         'FARMACIA_ACCIONES': 'Acciones terapéuticas',
         // Configuración
+        'CONFIGURACION_EMPRESA': 'Empresa',
         'CONFIGURACION_USUARIOS': 'Usuarios',
         'CONFIGURACION_ROLES': 'Roles y permisos',
         'CONFIGURACION_ESTABLECIMIENTOS': 'Establecimientos',

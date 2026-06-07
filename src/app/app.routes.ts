@@ -194,7 +194,7 @@ export const routes: Routes = [
                 path: 'settings/company',
                 loadComponent: () => import('./features/settings/company/company.component').then(m => m.CompanyComponent),
                 canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.CONFIGURACION_ESTABLECIMIENTOS] }
+                data: { requiredPermissions: [PermissionConstants.CONFIGURACION_EMPRESA] }
             },
             {
                 path: 'settings/users',
