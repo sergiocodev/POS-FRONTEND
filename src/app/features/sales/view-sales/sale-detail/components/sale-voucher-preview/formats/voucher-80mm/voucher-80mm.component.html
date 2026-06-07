@@ -1,7 +1,7 @@
 <div class="voucher-80mm-content w-100">
     <div class="voucher-header-gradient">
         <div class="logo-placeholder">
-            <img src="images/iconosiges.ico" alt="Logo" style="max-height: 100%; max-width: 100%;">
+            <img [src]="sale.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo" style="max-height: 100%; max-width: 100%; object-fit: contain;">
         </div>
         <h6 class="fw-bold text-uppercase">{{ sale.company?.name || sale.establishmentName }}</h6>
         <p>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>

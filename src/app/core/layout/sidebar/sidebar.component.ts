@@ -147,6 +147,7 @@ export class SidebarComponent {
             expanded: false,
             requiredPermissions: [PermissionConstants.CONFIGURACION],
             children: [
+                { label: 'Empresa', route: '/settings/company', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_ESTABLECIMIENTOS] },
                 { label: 'Usuarios', route: '/settings/users', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_USUARIOS] },
                 { label: 'Roles y permisos', route: '/settings/roles', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_ROLES] },
                 { label: 'Establecimientos', route: '/settings/establishments', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_ESTABLECIMIENTOS] },

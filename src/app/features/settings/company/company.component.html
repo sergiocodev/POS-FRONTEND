@@ -1,0 +1,137 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading() || isSaving() || isUploading()" [fullScreen]="true"></app-spinner>
+
+<app-module-header title="Configuración de Empresa" iconClass="bi bi-building"></app-module-header>
+
+<div class="company-wrapper mx-2 my-3 mx-md-4 my-md-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-3 p-md-4">
+
+                    <form [formGroup]="companyForm" (ngSubmit)="saveCompany()" *ngIf="!isLoading()">
+                        
+                        <!-- Logo Upload Section -->
+                        <div class="logo-upload-section mb-5">
+                            <div class="logo-section-label">
+                                <i class="bi bi-image-fill label-icon"></i>
+                                <span>Logo de la Empresa</span>
+                            </div>
+                            <div class="logo-upload-container">
+                                <!-- Upload Zone -->
+                                <div class="logo-upload-zone" (click)="fileInput.click()">
+                                    <div class="logo-zone-inner">
+                                        <img *ngIf="logoPreviewUrl()" [src]="logoPreviewUrl()" class="logo-preview-img" alt="Logo Preview">
+                                        <div *ngIf="!logoPreviewUrl()" class="logo-placeholder">
+                                            <div class="upload-icon-wrapper">
+                                                <i class="bi bi-cloud-arrow-up"></i>
+                                            </div>
+                                            <span class="upload-label">Subir logo</span>
+                                        </div>
+                                    </div>
+                                    <!-- Edit Badge -->
+                                    <div class="logo-edit-badge">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </div>
+                                </div>
+                                <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" class="d-none">
+
+                                <!-- Hint Info -->
+                                <div class="logo-hint-box">
+                                    <div class="hint-header">
+                                        <i class="bi bi-info-circle-fill hint-icon"></i>
+                                        <span class="hint-title">Recomendaciones de imagen</span>
+                                    </div>
+                                    <ul class="hint-list">
+                                        <li><i class="bi bi-aspect-ratio"></i> Resolución cuadrada (500 × 500 px o superior)</li>
+                                        <li><i class="bi bi-file-earmark-image"></i> Formatos aceptados: <strong>PNG</strong> o <strong>JPG</strong></li>
+                                        <li><i class="bi bi-hdd"></i> Peso máximo: <strong>2 MB</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="mb-4 text-muted opacity-25">
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <label for="ruc" class="form-label fw-semibold">
+                                    RUC <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="ruc" formControlName="ruc" placeholder="Ingrese 11 dígitos" maxlength="11" [class.is-invalid]="companyForm.get('ruc')?.invalid && companyForm.get('ruc')?.touched">
+                                <div class="invalid-feedback d-block" *ngIf="companyForm.get('ruc')?.invalid && companyForm.get('ruc')?.touched">
+                                    <span *ngIf="companyForm.get('ruc')?.errors?.['required']">El RUC es requerido</span>
+                                    <span *ngIf="companyForm.get('ruc')?.errors?.['minlength'] || companyForm.get('ruc')?.errors?.['maxlength']">El RUC debe tener 11 dígitos</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-8">
+                                <label for="name" class="form-label fw-semibold">
+                                    Razón Social <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" formControlName="name" placeholder="Ej: MI EMPRESA S.A.C." [class.is-invalid]="companyForm.get('name')?.invalid && companyForm.get('name')?.touched">
+                                <div class="invalid-feedback d-block" *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched">
+                                    <span *ngIf="companyForm.get('name')?.errors?.['required']">La razón social es obligatoria</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="address" class="form-label fw-semibold">
+                                    Dirección Fiscal
+                                </label>
+                                <textarea class="form-control" id="address" formControlName="address" rows="2" placeholder="Ej: Av. Principal 123"></textarea>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="urbanization" class="form-label fw-semibold">
+                                    Urbanización
+                                </label>
+                                <input type="text" class="form-control" id="urbanization" formControlName="urbanization" placeholder="Opcional">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="ubigeo" class="form-label fw-semibold">
+                                    Código Ubigeo
+                                </label>
+                                <input type="text" class="form-control" id="ubigeo" formControlName="ubigeo" placeholder="Ej: 150101">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="phone" class="form-label fw-semibold">
+                                    Teléfono
+                                </label>
+                                <input type="tel" class="form-control" id="phone" formControlName="phone" placeholder="Ej: 999888777">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="email" class="form-label fw-semibold">
+                                    Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control" id="email" formControlName="email" placeholder="correo@empresa.com" [class.is-invalid]="companyForm.get('email')?.invalid && companyForm.get('email')?.touched">
+                                <div class="invalid-feedback d-block" *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched">
+                                    <span *ngIf="companyForm.get('email')?.errors?.['email']">Ingresa un correo válido</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                    <button type="submit" class="btn btn-custom-primary text-white w-100 w-md-auto" [disabled]="isSaving() || isUploading() || companyForm.invalid">
+                                        <span *ngIf="!isSaving() && !isUploading()">Guardar Cambios</span>
+                                        <span *ngIf="isSaving() || isUploading()">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            {{ isUploading() ? 'Subiendo logo...' : 'Guardando...' }}
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

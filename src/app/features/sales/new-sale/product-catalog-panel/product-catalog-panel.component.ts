@@ -83,24 +83,25 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges): void { }
 
     onProductSearch(): void {
-        const term = this.productSearchTerm.trim().toLowerCase();
-        // Normal text search (emitted to parent, debounced there)
+        const term = this.productSearchTerm.trim();
+        // Send the raw term — backend uses LOWER() for text fields and exact match for barcode
         this.productSearch.emit(term);
     }
 
     onBarcodeScan(): void {
-        const term = this.productSearchTerm.trim().toLowerCase();
+        // Do NOT lowercase the barcode — barcodes with letters (Code128, etc.) are case-sensitive
+        const term = this.productSearchTerm.trim();
         if (!term) return;
 
         const estId = this.establishmentStateService.getSelectedEstablishment();
         if (!estId) return;
 
-        // Use the native backend API to ensure FEFO and get exact unit
+        // Use the dedicated barcode API (ensures FEFO lot selection and exact unit match)
         this.saleService.getProductByBarcodeScan(term, estId).subscribe({
             next: (res) => {
                 const data = res.data;
                 if (data && data.productId && data.productUnitId) {
-                    // Match found! Reconstruct it or find it in local products to add to cart
+                    // Try to match against the locally loaded products list first
                     const matchedProduct = this.products.find(p =>
                         p.productId === data.productId &&
                         p.productUnitId === data.productUnitId &&
@@ -112,10 +113,10 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
                         this.productSearchTerm = '';
                         this.productSearch.emit('');
                     } else {
-                        // Edge case: product found in backend API but not in the local this.products array (maybe pagination in future)
-                        // For now we map it manually
+                        // Fallback: product found in backend but not in local array
+                        // (e.g. secondary unit like Blíster not in initial load)
                         const fallbackProduct: ProductForSaleResponse = {
-                            id: data.productId, // Mock ID
+                            id: 0, // Inventory ID unknown in fallback; 0 is safe placeholder
                             productId: data.productId,
                             productUnitId: data.productUnitId,
                             tradeName: data.tradeName,
@@ -137,7 +138,7 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
                 }
             },
             error: (err) => {
-                console.error("Barcode scan failed", err);
+                console.error('Barcode scan failed', err);
             }
         });
     }
