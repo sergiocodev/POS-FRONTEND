@@ -24,6 +24,7 @@ export class ProductListComponent implements OnInit {
     create = output<void>();
     edit = output<number>();
     delete = output<ProductResponse>();
+    bulkImport = output<void>();
     
     pageChange = output<number>();
     pageSizeChange = output<number>();
@@ -92,6 +93,10 @@ export class ProductListComponent implements OnInit {
 
     onNew(): void {
         this.create.emit();
+    }
+
+    onBulkImport(): void {
+        this.bulkImport.emit();
     }
 
     getProductBadges(product: ProductResponse): BadgeItem[] {

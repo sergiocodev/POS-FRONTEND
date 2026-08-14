@@ -1,6 +1,10 @@
 <div class="product-list-container animate-fade-in position-relative">
 
-    <div class="d-flex justify-content-end mb-3">
+    <div class="d-flex justify-content-end mb-3 gap-2">
+        <button class="btn btn-outline-success" (click)="onBulkImport()">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+            <span class="btn-text">Importar Excel</span>
+        </button>
         <button class="btn btn-custom-primary" (click)="onNew()">
             <i class="bi bi-plus-lg me-1"></i>
             <span class="btn-text">Nuevo Producto</span>

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductFormComponent } from './product-form/product-form.component';
+import { ProductBulkImportComponent } from './product-bulk-import/product-bulk-import.component';
 import { ProductService } from '../../../core/services/product.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { ProductResponse } from '../../../core/models/product.model';
@@ -18,6 +19,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
         CommonModule,
         ProductListComponent,
         ProductFormComponent,
+        ProductBulkImportComponent,
         ModalGenericComponent,
         ModuleHeaderComponent,
         ConfirmModalComponent,
@@ -43,6 +45,7 @@ export class ProductCatalogComponent implements OnInit {
     // Modal State
     showForm = signal(false);
     selectedProductId = signal<number | null>(null);
+    showBulkImport = signal(false);
 
     ngOnInit() {
         this.loadProducts();
@@ -99,6 +102,20 @@ export class ProductCatalogComponent implements OnInit {
         this.selectedProductId.set(null);
     }
 
+    // Bulk Import
+    onOpenBulkImport() {
+        this.showBulkImport.set(true);
+    }
+
+    onBulkImportSaved() {
+        this.showBulkImport.set(false);
+        this.loadProducts();
+        this.modalService.alert({ title: 'Éxito', message: 'Importación masiva completada', type: 'success' });
+    }
+
+    onBulkImportCancelled() {
+        this.showBulkImport.set(false);
+    }
 
     async onDelete(product: ProductResponse) {
         const confirmed = await this.modalService.confirm({
@@ -122,3 +139,4 @@ export class ProductCatalogComponent implements OnInit {
         }
     }
 }
+

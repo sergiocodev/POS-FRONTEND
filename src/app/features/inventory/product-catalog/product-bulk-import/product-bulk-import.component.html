@@ -1,0 +1,242 @@
+<div class="bulk-import-container">
+    <!-- Step Indicator -->
+    <div class="step-indicator mb-4">
+        <div class="step-track">
+            <div class="step" [class.active]="currentStep() === 'upload'" [class.completed]="currentStep() !== 'upload'">
+                <div class="step-circle">
+                    @if (currentStep() === 'upload') {
+                    <i class="bi bi-1-circle-fill"></i>
+                    } @else {
+                    <i class="bi bi-check-circle-fill"></i>
+                    }
+                </div>
+                <span class="step-label">Subir archivo</span>
+            </div>
+            <div class="step-line" [class.active]="currentStep() !== 'upload'"></div>
+            <div class="step" [class.active]="currentStep() === 'processing'"
+                [class.completed]="currentStep() === 'results'">
+                <div class="step-circle">
+                    @if (currentStep() === 'results') {
+                    <i class="bi bi-check-circle-fill"></i>
+                    } @else {
+                    <i class="bi bi-2-circle-fill"></i>
+                    }
+                </div>
+                <span class="step-label">Procesando</span>
+            </div>
+            <div class="step-line" [class.active]="currentStep() === 'results'"></div>
+            <div class="step" [class.active]="currentStep() === 'results'">
+                <div class="step-circle">
+                    <i class="bi bi-3-circle-fill"></i>
+                </div>
+                <span class="step-label">Resultados</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 1: Upload -->
+    @if (currentStep() === 'upload') {
+    <div class="upload-section animate-fade-in">
+        <!-- Download template card -->
+        <div class="template-card mb-4">
+            <div class="d-flex align-items-center">
+                <div class="template-icon">
+                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold">Plantilla de importación</h6>
+                    <p class="mb-0 text-muted small">Descargue la plantilla Excel, llénela con sus productos y súbala
+                        aquí.</p>
+                </div>
+                <button class="btn btn-outline-success btn-sm" (click)="downloadTemplate()">
+                    <i class="bi bi-download me-1"></i> Descargar Plantilla
+                </button>
+            </div>
+        </div>
+
+        <!-- Drag & drop zone -->
+        <div class="dropzone" [class.drag-over]="isDragOver()" [class.has-file]="selectedFile()"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+
+            @if (!selectedFile()) {
+            <div class="dropzone-content text-center">
+                <div class="dropzone-icon">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <h5 class="mt-3 fw-bold">Arrastra tu archivo aquí</h5>
+                <p class="text-muted mb-3">o haz clic para seleccionar</p>
+                <label class="btn btn-custom-primary btn-sm">
+                    <i class="bi bi-folder2-open me-1"></i> Seleccionar archivo
+                    <input type="file" accept=".xlsx" (change)="onFileSelected($event)" hidden>
+                </label>
+                <p class="text-muted mt-3 small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Solo archivos .xlsx (máx. 10MB)
+                </p>
+            </div>
+            } @else {
+            <div class="file-preview d-flex align-items-center">
+                <div class="file-icon">
+                    <i class="bi bi-file-earmark-excel"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <div class="fw-bold">{{ selectedFile()!.name }}</div>
+                    <small class="text-muted">{{ formatFileSize(selectedFile()!.size) }}</small>
+                </div>
+                <button class="btn btn-outline-danger btn-sm" (click)="removeFile()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            }
+        </div>
+
+        <!-- Action buttons -->
+        @if (selectedFile()) {
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn btn-outline-secondary" (click)="cancelled.emit()">
+                <i class="bi bi-x-lg me-1"></i> Cancelar
+            </button>
+            <button class="btn btn-custom-primary" (click)="startImport()">
+                <i class="bi bi-upload me-1"></i> Iniciar Importación
+            </button>
+        </div>
+        }
+
+        <!-- Info card -->
+        <div class="info-card mt-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2"></i>Información importante</h6>
+            <ul class="info-list mb-0">
+                <li><i class="bi bi-check2 text-success me-2"></i>Las marcas, categorías, laboratorios y presentaciones
+                    se crean automáticamente si no existen.</li>
+                <li><i class="bi bi-check2 text-success me-2"></i>Las formas farmacéuticas deben existir previamente en
+                    el sistema.</li>
+                <li><i class="bi bi-check2 text-success me-2"></i>Si un producto con el mismo código ya existe, será
+                    <strong>actualizado</strong>.</li>
+                <li><i class="bi bi-check2 text-success me-2"></i>El tipo de impuesto se asigna automáticamente (IGV).
+                </li>
+            </ul>
+        </div>
+    </div>
+    }
+
+    <!-- STEP 2: Processing -->
+    @if (currentStep() === 'processing') {
+    <div class="processing-section animate-fade-in text-center py-5">
+        <div class="processing-animation">
+            <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Procesando...</span>
+            </div>
+            <div class="spinner-grow text-success ms-2" role="status">
+                <span class="visually-hidden">Procesando...</span>
+            </div>
+            <div class="spinner-grow text-info ms-2" role="status">
+                <span class="visually-hidden">Procesando...</span>
+            </div>
+        </div>
+        <h5 class="mt-4 fw-bold">Procesando importación...</h5>
+        <p class="text-muted">Esto puede tomar unos momentos dependiendo de la cantidad de productos.</p>
+        <div class="processing-file mt-3">
+            <i class="bi bi-file-earmark-excel me-2"></i>
+            {{ selectedFile()?.name }}
+        </div>
+    </div>
+    }
+
+    <!-- STEP 3: Results -->
+    @if (currentStep() === 'results' && importResult()) {
+    <div class="results-section animate-fade-in">
+        <!-- Summary cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="summary-card total">
+                    <div class="summary-icon"><i class="bi bi-list-ol"></i></div>
+                    <div class="summary-value">{{ importResult()!.totalRows }}</div>
+                    <div class="summary-label">Total procesados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card created">
+                    <div class="summary-icon"><i class="bi bi-plus-circle"></i></div>
+                    <div class="summary-value">{{ importResult()!.createdCount }}</div>
+                    <div class="summary-label">Creados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card updated">
+                    <div class="summary-icon"><i class="bi bi-arrow-repeat"></i></div>
+                    <div class="summary-value">{{ importResult()!.updatedCount }}</div>
+                    <div class="summary-label">Actualizados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card errors">
+                    <div class="summary-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="summary-value">{{ importResult()!.errorCount }}</div>
+                    <div class="summary-label">Errores</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success rate bar -->
+        <div class="success-rate-card mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold">Tasa de éxito</span>
+                <span class="fw-bold" [class.text-success]="getSuccessRate() >= 80"
+                    [class.text-warning]="getSuccessRate() >= 50 && getSuccessRate() < 80"
+                    [class.text-danger]="getSuccessRate() < 50">
+                    {{ getSuccessRate() }}%
+                </span>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" [style.width.%]="getSuccessRate()"
+                    [class.bg-success]="getSuccessRate() >= 80"
+                    [class.bg-warning]="getSuccessRate() >= 50 && getSuccessRate() < 80"
+                    [class.bg-danger]="getSuccessRate() < 50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Error details table -->
+        @if (importResult()!.errors.length > 0) {
+        <div class="error-details-card">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                Detalle de errores ({{ importResult()!.errors.length }})
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Fila</th>
+                            <th style="width: 120px;">Código</th>
+                            <th style="width: 200px;">Nombre</th>
+                            <th>Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (error of importResult()!.errors; track error.rowNumber) {
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ error.rowNumber }}</span></td>
+                            <td class="fw-semibold">{{ error.code || '—' }}</td>
+                            <td>{{ error.tradeName || '—' }}</td>
+                            <td><span class="text-danger small">{{ error.errorMessage }}</span></td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        }
+
+        <!-- Action buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-outline-secondary" (click)="resetImport()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Nueva importación
+            </button>
+            <button class="btn btn-custom-primary" (click)="finishImport()">
+                <i class="bi bi-check-lg me-1"></i> Finalizar
+            </button>
+        </div>
+    </div>
+    }
+</div>

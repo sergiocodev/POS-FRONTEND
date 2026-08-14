@@ -13,6 +13,7 @@
         (create)="onOpenForm()" 
         (edit)="onOpenForm($event)"
         (delete)="onDelete($event)"
+        (bulkImport)="onOpenBulkImport()"
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)"
         (filterChange)="onFilterChange($event)">
@@ -24,6 +25,16 @@
         <app-product-form [idProduct]="selectedProductId()" [isModal]="true" (saved)="onFormSaved()"
             (cancelled)="onFormCancelled()">
         </app-product-form>
+    </app-modal-generic>
+    }
+
+    @if (showBulkImport()) {
+    <app-modal-generic [isVisible]="showBulkImport()" title="Importación Masiva de Productos"
+        size="xl" (close)="onBulkImportCancelled()">
+        <app-product-bulk-import 
+            (saved)="onBulkImportSaved()"
+            (cancelled)="onBulkImportCancelled()">
+        </app-product-bulk-import>
     </app-modal-generic>
     }
 </div>

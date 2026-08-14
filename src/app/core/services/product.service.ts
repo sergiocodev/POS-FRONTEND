@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductRequest, ProductResponse } from '../models/product.model';
 import { ProductLotResponse } from '../models/inventory.model';
+import { BulkImportResult } from '../models/bulk-import.model';
 import { ResponseApi } from '../models/response-api.model';
 import { environment } from '../../../environments/environment';
 
@@ -60,4 +61,19 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductLotResponse[]>>(`${this.apiUrl}/${id}/lots`);
     }
 
+    // ======== IMPORTACIÓN MASIVA ========
+
+    downloadTemplate(): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/bulk-import/template`, {
+            responseType: 'blob'
+        });
+    }
+
+    bulkImport(file: File): Observable<ResponseApi<BulkImportResult>> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<ResponseApi<BulkImportResult>>(`${this.apiUrl}/bulk-import`, formData);
+    }
+
 }
+
