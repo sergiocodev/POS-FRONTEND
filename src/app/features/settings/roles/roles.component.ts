@@ -11,6 +11,7 @@ import { RoleService } from '../../../core/services/role.service';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { RoleResponse } from '../../../core/models/maintenance.model';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-roles',
@@ -23,7 +24,8 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
         ModuleHeaderComponent,
         ConfirmModalComponent,
         ModalAlertComponent,
-        ModalGenericComponent
+        ModalGenericComponent,
+        SpinnerComponent
     ],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
@@ -35,6 +37,12 @@ export class RolesComponent implements OnInit {
     // State
     roles = signal<RoleResponse[]>([]);
     isLoading = signal(false);
+
+    // Pagination
+    currentPage = signal(1);
+    pageSize = signal(10);
+    totalItems = signal(0);
+    searchTerm = signal('');
 
     // Modal Forms State
     showRoleForm = signal(false);
@@ -50,9 +58,15 @@ export class RolesComponent implements OnInit {
 
     loadData() {
         this.isLoading.set(true);
-        this.roleService.getAll().subscribe({
+        this.roleService.getAllPaged(this.currentPage() - 1, this.pageSize(), this.searchTerm()).subscribe({
             next: (response) => {
-                this.roles.set(response.data);
+                if (response.data && response.data.content) {
+                    this.roles.set(response.data.content);
+                    this.totalItems.set(response.data.totalElements);
+                } else {
+                    this.roles.set([]);
+                    this.totalItems.set(0);
+                }
                 this.isLoading.set(false);
             },
             error: (error) => {
@@ -65,6 +79,17 @@ export class RolesComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    onPageChange(page: number) {
+        this.currentPage.set(page);
+        this.loadData();
+    }
+
+    onSearch(term: string) {
+        this.searchTerm.set(term);
+        this.currentPage.set(1);
+        this.loadData();
     }
 
     // --- Actions from List ---

@@ -1,22 +1,11 @@
-<app-custom-table 
-    [columns]="columns" 
-    [data]="movements()" 
-    [pageSize]="pageSize()"
-    [totalElements]="totalItems()"
-    [currentPage]="currentPage() + 1"
-    (onAction)="handleAction($event)"
-    (onPageChange)="handlePageChange($event)"
-    (onPageSizeChange)="handlePageSizeChangeValue($event)"
-    (onFilterChange)="onTableFilter($event)">
-</app-custom-table>
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
 
-@if (isLoading()) {
-<div class="text-center p-5">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando...</span>
-    </div>
-</div>
-}
+<app-custom-table [columns]="columns" [data]="movements()" [pageSize]="pageSize()" [totalElements]="totalItems()"
+    [currentPage]="currentPage() + 1" (onAction)="handleAction($event)" (onPageChange)="handlePageChange($event)"
+    (onPageSizeChange)="handlePageSizeChangeValue($event)" (onFilterChange)="onTableFilter($event)">
+</app-custom-table>
 
 @if (!isLoading() && movements().length === 0) {
 <div class="text-center p-5 text-muted">

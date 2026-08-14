@@ -1,4 +1,4 @@
-<div *ngIf="modalService.alertIsVisible" class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true"
+<div *ngIf="modalService.alertIsVisible()" class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true"
     style="background-color: rgba(0,0,0,0.5); z-index: 1060;">
 
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -7,7 +7,7 @@
 
             <div class="modal-body px-0">
                 <div class="mb-3 icon-container">
-                    <ng-container [ngSwitch]="modalService.alertConfig.type">
+                    <ng-container [ngSwitch]="modalService.alertConfig().type">
 
                         <svg *ngSwitchCase="'success'" width="80" height="80" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -37,13 +37,13 @@
                     </ng-container>
                 </div>
 
-                <h4 class="fw-bold text-dark mb-2">{{ modalService.alertConfig.title }}</h4>
+                <h4 class="fw-bold text-dark mb-2">{{ modalService.alertConfig().title }}</h4>
 
-                <p class="text-muted mb-4" [innerHTML]="modalService.alertConfig.message"></p>
+                <p class="text-muted mb-4" [innerHTML]="modalService.alertConfig().message"></p>
 
                 <div class="d-flex justify-content-center">
                     <button type="button" class="btn btn-primary btn-lg rounded-pill fw-bold" (click)="onClose()">
-                        {{ modalService.alertConfig.buttonText }}
+                        {{ modalService.alertConfig().buttonText }}
                     </button>
                 </div>
             </div>

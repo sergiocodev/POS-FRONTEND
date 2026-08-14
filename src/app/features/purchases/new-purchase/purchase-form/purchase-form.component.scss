@@ -119,11 +119,11 @@ $bg-field: $input-bg;
     @media (max-width: 576px) {
         flex-direction: column;
         gap: 0.5rem;
-        
+
         &__spacer {
             display: none;
         }
-        
+
         &__actions {
             width: 100%;
             justify-content: stretch;

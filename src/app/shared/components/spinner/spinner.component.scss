@@ -1,26 +1,28 @@
-/* --- Contenedor Pantalla Completa --- */
+/* --- Overlay & Layout --- */
 .spinner-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(243, 244, 246, 0.4); /* Gris claro muy sutil */
+    inset: 0;
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    animation: fade-in 0.3s ease-out forwards;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Contenedor En Línea --- */
+@media (prefers-color-scheme: dark) {
+    .spinner-overlay {
+        background: rgba(15, 23, 42, 0.65);
+    }
+}
+
 .spinner-inline {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 3rem;
     width: 100%;
 }
 
@@ -28,133 +30,208 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
+    gap: 1.8rem;
 }
 
-/* Glassmorphism card effect solo para FullScreen */
+/* Glassmorphism Card (Eliminado para Fullscreen para dejar el spinner flotando limpio) */
 .spinner-overlay .spinner-container {
-    background: rgba(255, 255, 255, 0.85);
-    padding: 2.5rem 4rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 
-                0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    animation: pop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    animation: scale-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Animación y Diseño del Spinner --- */
-.modern-spinner {
-    --spinner-stroke: calc(var(--spinner-size) * 0.08); /* Grosor responsivo */
+/* --- Premium Spinner Core --- */
+.premium-spinner-wrapper {
     position: relative;
     width: var(--spinner-size);
     height: var(--spinner-size);
-    animation: spin 1s linear infinite;
-    
-    .spinner-ring, .spinner-glow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 1. Aurora Glow Background */
+.aurora-glow {
+    position: absolute;
+    inset: -50%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--primary-color) 0%, var(--secondary-color) 30%, transparent 60%);
+    opacity: 0.3;
+    filter: blur(20px);
+    animation: pulse-glow 3s ease-in-out infinite alternate;
+}
+
+/* 2. HUD System (High-Tech Cyber Scanner) */
+.hud-system {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+/* Núcleo radiante del escáner */
+.hud-glow {
+    position: absolute;
+    inset: -30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--primary-color) 0%, transparent 60%);
+    filter: blur(25px);
+    opacity: 0.2;
+    animation: hud-flicker 4s infinite;
+}
+
+/* Anillo exterior asimétrico */
+.hud-ring-outer {
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    /* GROSOR AUMENTADO AQUÍ (de 3px a 5px) */
+    border: 5px solid transparent;
+    border-top: 5px solid var(--secondary-color);
+    border-right: 5px solid var(--primary-color);
+    border-bottom: 5px solid var(--secondary-color);
+    opacity: 0.8;
+    animation: hud-spin 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite;
+    filter: drop-shadow(0 0 8px var(--secondary-color));
+}
+
+/* Anillo interior punteado fino */
+.hud-ring-inner {
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 6px dotted var(--primary-color);
+    opacity: 0.6;
+    animation: hud-spin-reverse 8s linear infinite;
+}
+
+/* Brackets mecánicos rotatorios (Cuatro esquinas) */
+.hud-brackets {
+    position: absolute;
+    inset: -35px;
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    mask-image: conic-gradient(black 0deg 20deg,
+            transparent 20deg 70deg,
+            black 70deg 110deg,
+            transparent 110deg 160deg,
+            black 160deg 200deg,
+            transparent 200deg 250deg,
+            black 250deg 290deg,
+            transparent 290deg 340deg,
+            black 340deg 360deg);
+    -webkit-mask-image: conic-gradient(black 0deg 20deg,
+            transparent 20deg 70deg,
+            black 70deg 110deg,
+            transparent 110deg 160deg,
+            black 160deg 200deg,
+            transparent 200deg 250deg,
+            black 250deg 290deg,
+            transparent 290deg 340deg,
+            black 340deg 360deg);
+    animation: hud-spin-step 5s steps(8) infinite;
+    filter: drop-shadow(0 0 10px var(--primary-color));
+}
+
+/* Mira de fijación fina */
+.hud-crosshair {
+    position: absolute;
+    inset: -45px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: hud-spin-reverse 15s linear infinite;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+    }
+
+    &::before {
+        top: -6px;
+        bottom: -6px;
+        left: calc(50% - 2px);
+        /* Centrado perfecto para 4px */
+        width: 4px;
+        /* GROSOR DE MUESCAS SUPERIOR/INFERIOR */
+        background: linear-gradient(to bottom, var(--secondary-color) 12px, transparent 12px, transparent calc(100% - 12px), var(--secondary-color) calc(100% - 12px));
+    }
+
+    &::after {
+        left: -6px;
+        right: -6px;
+        top: calc(50% - 2px);
+        /* Centrado perfecto para 4px */
+        height: 4px;
+        /* GROSOR DE MUESCAS LATERALES */
+        background: linear-gradient(to right, var(--secondary-color) 12px, transparent 12px, transparent calc(100% - 12px), var(--secondary-color) calc(100% - 12px));
+    }
+}
+
+/* 3. Central Brand Logo */
+.brand-logo-container {
+    position: absolute;
+    /* Reducimos un poco el logo para que los anillos tengan más espacio para cruzar por delante */
+    width: 60%;
+    height: 60%;
+    margin: auto;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: var(--card-bg);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.12),
+        0 0 0 4px var(--bg-body);
+    animation: float-logo 3.5s ease-in-out infinite;
+
+    .logo-backdrop {
         position: absolute;
         inset: 0;
         border-radius: 50%;
-        background: conic-gradient(
-            from 0deg,
-            transparent 0%,
-            transparent 15%,
-            var(--spinner-color) 100%
-        );
-        /* Máscara para hacer el centro transparente y dejar solo el anillo */
-        mask-image: radial-gradient(
-            circle, 
-            transparent calc(50% - var(--spinner-stroke) - 0.5px), 
-            black calc(50% - var(--spinner-stroke) + 0.5px)
-        );
-        -webkit-mask-image: radial-gradient(
-            circle, 
-            transparent calc(50% - var(--spinner-stroke) - 0.5px), 
-            black calc(50% - var(--spinner-stroke) + 0.5px)
-        );
-    }
-    
-    .spinner-glow {
-        filter: blur(6px);
-        opacity: 0.6;
-        z-index: -1;
+        backdrop-filter: blur(6px);
     }
 
-    /* Punto que encabeza el gradiente dándole un borde redondeado y brillante */
-    .spinner-dot {
-        position: absolute;
-        top: 0;
-        left: calc(50% - (var(--spinner-stroke) / 2));
-        width: var(--spinner-stroke);
-        height: var(--spinner-stroke);
-        background-color: var(--spinner-color);
-        border-radius: 50%;
-        box-shadow: 0 0 12px 2px var(--spinner-color);
+    .brand-logo {
+        position: relative;
+        z-index: 2;
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
     }
 }
 
-/* --- Tipografía del Mensaje --- */
-.spinner-message {
-    font-weight: 500;
-    font-size: 1.05rem;
-    letter-spacing: 0.3px;
-    margin-bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    animation: fade-in-up 0.5s ease-out 0.2s forwards;
-    opacity: 0; /* Empieza oculto para la animación */
-
-    .dots {
-        display: inline-block;
-        width: 1.2em; /* Reserva espacio para evitar saltos layout */
-        text-align: left;
-        &::after {
-            content: '';
-            animation: typing-dots 1.5s infinite steps(4, end);
-        }
-    }
-}
-
-/* --- Modo Oscuro Opcional --- */
 @media (prefers-color-scheme: dark) {
-    .spinner-overlay {
-        background-color: rgba(17, 24, 39, 0.7);
-    }
-    .spinner-overlay .spinner-container {
-        background: rgba(31, 41, 55, 0.75);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    .brand-logo-container {
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.4),
+            0 0 0 4px rgba(30, 41, 59, 0.6);
     }
 }
+
 
 /* --- Keyframes --- */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes typing-dots {
-    0% { content: ''; }
-    25% { content: '.'; }
-    50% { content: '..'; }
-    75% { content: '...'; }
-    100% { content: ''; }
-}
-
 @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes pop-in {
     from {
         opacity: 0;
-        transform: scale(0.92) translateY(10px);
     }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scale-up {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(15px);
+    }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -164,10 +241,85 @@
 @keyframes fade-in-up {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes hud-flicker {
+
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+        opacity: 0.15;
+    }
+
+    20%,
+    24%,
+    55% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes hud-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes hud-spin-reverse {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes hud-spin-step {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse-glow {
+    from {
+        opacity: 0.1;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 0.25;
+        transform: scale(1.15);
+    }
+}
+
+@keyframes float-logo {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1) translateZ(1px);
+    }
+
+    50% {
+        transform: translateY(-4px) scale(1.04) translateZ(1px);
     }
 }

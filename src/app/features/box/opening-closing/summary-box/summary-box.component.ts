@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
+import { of } from 'rxjs';
+import { catchError, tap, take } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { CashSessionService } from '../../../../core/services/cash-session.service';
 import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
@@ -21,19 +23,20 @@ export class SummaryBoxComponent implements OnInit {
   constructor() {
     effect(() => {
       if (this.selectedEstablishmentId()) {
-        this.loadSummary();
+        untracked(() => this.loadSummary());
       }
     }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
-    this.loadSummary();
+    this.loadSummary().subscribe();
   }
 
   loadSummary() {
     const estId = this.selectedEstablishmentId() ? Number(this.selectedEstablishmentId()) : undefined;
-    this.cashService.getSummary(estId).subscribe({
-      next: (res) => {
+    return this.cashService.getSummary(estId).pipe(
+      take(1),
+      tap((res) => {
         const data = res.data as any[];
         const styles: any = {
           'CAJAS ABIERTAS': { icon: 'bi-door-open', color: 'green' },
@@ -48,8 +51,11 @@ export class SummaryBoxComponent implements OnInit {
         }));
 
         this.kpiItems.set(mappedData);
-      },
-      error: (err) => console.error('Error loading summary', err)
-    });
+      }),
+      catchError((err) => {
+        console.error('Error loading summary', err);
+        return of(null);
+      })
+    );
   }
 }

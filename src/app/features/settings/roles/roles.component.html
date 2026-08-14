@@ -1,11 +1,17 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
 <app-module-header title="Roles y Permisos" iconClass="bi bi-shield-lock"></app-module-header>
 
-<div class="roles-page animate-fade-in">
+<div class="roles-wrapper animate-fade-in">
 
-    <!-- Tabla de roles -->
-    <app-roles-list [roles]="roles()" [isLoading]="isLoading()" (create)="onOpenForm()" (edit)="onOpenForm($event)"
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn-new-role" (click)="onOpenForm()">Nuevo Rol</button>
+    </div>
+
+    <app-roles-list [roles]="roles()" [isLoading]="isLoading()" [totalItems]="totalItems()"
+        [currentPage]="currentPage()" [pageSize]="pageSize()" (pageChange)="onPageChange($event)"
+        (searchChange)="onSearch($event)" (create)="onOpenForm()" (edit)="onOpenForm($event)"
         (permissions)="onOpenPermissions($event)" (delete)="onDeleteRole($event)">
     </app-roles-list>
 

@@ -1,15 +1,9 @@
 
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="position-relative">
-            <app-custom-table [columns]="columns" [data]="customers" [pageSize]="pageSize" [totalElements]="totalItems"
-                [currentPage]="currentPage + 1" (onAction)="onTableAction($event)"
-                (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
-                (onPageSizeChange)="handlePageSizeChange($event)">
-            </app-custom-table>
-
-
-        </div>
-    </div>
+<div class="mb-4 position-relative">
+    <app-custom-table [columns]="columns" [data]="customers" [pageSize]="pageSize" [totalElements]="totalItems"
+        [currentPage]="currentPage + 1" (onAction)="onTableAction($event)"
+        (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
+        (onPageSizeChange)="handlePageSizeChange($event)">
+    </app-custom-table>
 </div>

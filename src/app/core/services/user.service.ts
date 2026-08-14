@@ -21,6 +21,14 @@ export class UserService {
         return this.http.get<ResponseApi<UserResponse[]>>(`${this.apiUrl}?page=${page}&size=${size}`);
     }
 
+    getAllPaged(page: number = 0, size: number = 10, filters?: any): Observable<ResponseApi<any>> {
+        let url = `${this.apiUrl}/paged?page=${page}&size=${size}`;
+        if (filters?.username) url += `&username=${filters.username}`;
+        if (filters?.email) url += `&email=${filters.email}`;
+        if (filters?.fullName) url += `&fullName=${filters.fullName}`;
+        return this.http.get<ResponseApi<any>>(url);
+    }
+
     getById(id: number): Observable<ResponseApi<UserResponse>> {
         return this.http.get<ResponseApi<UserResponse>>(`${this.apiUrl}/${id}`);
     }

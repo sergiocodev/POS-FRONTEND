@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, ViewChild, TemplateRef, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked, ViewChild, TemplateRef, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -7,19 +7,24 @@ import { EstablishmentStateService } from '../../../core/services/establishment-
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { RegisterFormComponent } from './register-form/register-form.component';
 import { CashRegisterResponse } from '../../../core/models/cash.model';
 
 @Component({
     selector: 'app-box-registers',
     standalone: true,
-    imports: [CommonModule, ModuleHeaderComponent, CustomTableComponent, ModalGenericComponent, RegisterFormComponent],
+    imports: [CommonModule, ModuleHeaderComponent, CustomTableComponent, ModalGenericComponent, RegisterFormComponent, ConfirmModalComponent, ModalAlertComponent, SpinnerComponent],
     templateUrl: './box-registers.component.html',
     styleUrl: './box-registers.component.scss'
 })
 export class BoxRegistersComponent implements OnInit {
     private cashService = inject(CashSessionService);
     private establishmentStateService = inject(EstablishmentStateService);
+    private modalService = inject(ModalService);
     private destroyRef = inject(DestroyRef);
 
     @ViewChild('nameTpl', { static: true }) nameTpl!: TemplateRef<any>;
@@ -37,7 +42,7 @@ export class BoxRegistersComponent implements OnInit {
     constructor() {
         effect(() => {
             if (this.selectedEstablishmentId()) {
-                this.loadRegisters();
+                untracked(() => this.loadRegisters());
             }
         });
     }
@@ -94,12 +99,25 @@ export class BoxRegistersComponent implements OnInit {
         }
     }
 
-    onDelete(id: number): void {
-        if (confirm('¿Está seguro de eliminar esta caja registradora?')) {
+    async onDelete(id: number) {
+        const confirmed = await this.modalService.confirm({
+            title: 'Eliminar Caja Registradora',
+            message: '¿Está seguro de eliminar esta caja registradora? Esta acción no se puede deshacer.',
+            btnColor: 'danger',
+            confirmText: 'Eliminar'
+        });
+
+        if (confirmed) {
             this.cashService.deleteRegister(id).pipe(
                 takeUntilDestroyed(this.destroyRef)
             ).subscribe({
-                next: () => this.loadRegisters()
+                next: () => {
+                    this.loadRegisters();
+                    this.modalService.alert({ title: 'Éxito', message: 'Caja eliminada correctamente', type: 'success' });
+                },
+                error: (err) => {
+                    this.modalService.alert({ title: 'Error', message: 'No se pudo eliminar la caja', type: 'error' });
+                }
             });
         }
     }

@@ -174,19 +174,19 @@ export class AuthService {
         if (!user || !user.roles) {
             return false;
         }
-        return user.roles.includes(role);
+        const cleanRole = role.replace(/^ROLE_/i, '').toUpperCase();
+        return user.roles.some(r => r.replace(/^ROLE_/i, '').toUpperCase() === cleanRole);
     }
-
 
     hasAnyRole(roles: string[]): boolean {
         if (!roles || roles.length === 0) {
             return true;
         }
-        const user = this.currentUser();
-        if (!user || !user.roles) {
-            return false;
-        }
-        return roles.some(role => user.roles.includes(role));
+        return roles.some(role => this.hasRole(role));
+    }
+
+    isAdmin(): boolean {
+        return this.hasAnyRole(['Administrador', 'ADMIN', 'ROLE_Administrador', 'ROLE_ADMIN']);
     }
 
 

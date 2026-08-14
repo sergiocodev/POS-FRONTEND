@@ -1,137 +1,218 @@
 <div class="d-flex flex-column h-100 fadeIn">
-  <div class="px-4 py-3 flex-grow-1 overflow-auto">
-      <form [formGroup]="form" (ngSubmit)="save()">
-          <div class="row g-4 mb-4">
-              <div class="col-md-6">
-                  <div class="card border-0 shadow-sm h-100">
-                      <div class="card-body">
-                          <h6 class="card-title mb-4">Detalles del Destino</h6>
-                          
-                          <div class="mb-3">
-                              <label class="form-label">Sucursal Destino</label>
-                              <select class="form-select" formControlName="targetEstablishmentId"
-                                  [class.is-invalid]="form.get('targetEstablishmentId')?.invalid && form.get('targetEstablishmentId')?.touched">
-                                  <option value="">Seleccione una sucursal</option>
-                                  <option *ngFor="let est of establishments()" [value]="est.id">
-                                      {{est.name}}
-                                  </option>
-                              </select>
-                              <div class="invalid-feedback">Seleccione una sucursal destino</div>
-                          </div>
+    <form [formGroup]="form" (ngSubmit)="save()" class="d-flex flex-column h-100">
 
-                          <div class="mb-3">
-                              <label class="form-label">Notas / Observaciones</label>
-                              <textarea class="form-control" formControlName="notes" rows="3" placeholder="Opcional"></textarea>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+        <!-- Main Scrollable Area -->
+        <div class="flex-grow-1 overflow-y-auto overflow-x-hidden px-1">
 
-              <div class="col-md-6">
-                  <div class="card border-0 shadow-sm h-100">
-                      <div class="card-body">
-                          <h6 class="card-title mb-4">Agregar Productos</h6>
-                          
-                          <div class="position-relative">
-                              <input type="text" class="form-control" 
-                                     placeholder="Buscar producto o lote..." 
-                                     [ngModel]="searchTerm()" 
-                                     (ngModelChange)="searchTerm.set($event)"
-                                     [ngModelOptions]="{standalone: true}">
-                                     
-                              <div class="position-absolute w-100 mt-1 shadow bg-white z-3 rounded border list-group" 
-                                   *ngIf="filteredInventory.length > 0">
-                                  <button type="button" class="list-group-item list-group-item-action py-2"
-                                          *ngFor="let item of filteredInventory"
-                                          (click)="addItem(item)">
-                                      <div class="d-flex justify-content-between align-items-center">
-                                          <div>
-                                              <div class="fw-semibold">{{item.productName}}</div>
-                                              <small class="text-muted">Lote: {{item.lotCode || 'N/A'}}<span *ngIf="item.locationShelf"> - {{item.locationShelf}}</span></small>
-                                          </div>
-                                          <span class="badge bg-primary rounded-pill">{{item.quantity}} disp</span>
-                                      </div>
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
 
-          <!-- Items Table -->
-          <div class="card border-0 shadow-sm mb-4">
-              <div class="card-body p-0">
-                  <div class="table-responsive">
-                      <table class="table table-hover align-middle mb-0">
-                          <thead class="bg-light">
-                              <tr>
-                                  <th class="py-3 px-4 border-bottom-0">Producto</th>
-                                  <th class="py-3 px-4 border-bottom-0">Lote</th>
-                                  <th class="py-3 px-4 border-bottom-0">Disp.</th>
-                                  <th class="py-3 px-4 border-bottom-0" style="width: 150px;">Unidad</th>
-                                  <th class="py-3 px-4 border-bottom-0" style="width: 120px;">A Transferir</th>
-                                  <th class="py-3 px-4 border-bottom-0 text-end" style="width: 100px;">Acciones</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              <tr *ngFor="let item of selectedItems(); let i = index">
-                                  <td class="px-4">{{item.productName}}</td>
-                                  <td class="px-4">
-                                      <span class="badge bg-light text-dark border">{{item.lotCode || 'S/L'}}</span>
-                                  </td>
-                                  <td class="px-4">
-                                      <div class="d-flex flex-column">
-                                        <span>{{item.quantity}}</span>
-                                        <small class="text-muted" style="font-size: 0.75rem;">unid. base</small>
-                                      </div>
-                                  </td>
-                                  <td class="px-4">
-                                      <div class="d-flex align-items-center">
-                                          <div class="spinner-border spinner-border-sm text-primary me-2" *ngIf="item.loadingUnits"></div>
-                                          <select class="form-select form-select-sm" 
-                                                  *ngIf="!item.loadingUnits"
-                                                  [ngModel]="item.selectedUnitId"
-                                                  (ngModelChange)="updateUnit(i, $event)"
-                                                  [ngModelOptions]="{standalone: true}">
-                                              <option *ngFor="let u of item.units" [value]="u.id">
-                                                  {{u.unitName}} (x{{u.factor}})
-                                              </option>
-                                          </select>
-                                      </div>
-                                  </td>
-                                  <td class="px-4">
-                                      <input type="number" class="form-control form-control-sm text-center fw-semibold text-primary"
-                                          [value]="item.transferQuantity"
-                                          (change)="updateQuantity(i, $any($event.target).value)"
-                                          min="1">
-                                  </td>
-                                  <td class="px-4 text-end">
-                                      <button type="button" class="btn btn-sm btn-outline-danger border-0" (click)="removeItem(i)">
-                                          <i class="bi bi-trash3"></i>
-                                      </button>
-                                  </td>
-                              </tr>
-                              <tr *ngIf="selectedItems().length === 0">
-                                  <td colspan="5" class="text-center py-5 text-muted">
-                                      No hay productos agregados a la transferencia
-                                  </td>
-                              </tr>
-                          </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
+            <div class="row g-4">
+                <!-- Sidebar Details -->
+                <div class="col-lg-4">
+                    <div class="premium-card h-100 d-flex flex-column">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                                <div class="icon-circle bg-primary-subtle text-primary me-3">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-0">Detalles del Destino</h5>
+                            </div>
 
-          <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-light" (click)="cancel()">Cancelar</button>
-              <button type="submit" class="btn btn-primary" [disabled]="isSaving() || isLoadingData()">
-                  <i class="bi bi-person-check me-2" *ngIf="!isSaving()"></i>
-                  <span class="spinner-border spinner-border-sm me-2" *ngIf="isSaving()"></span>
-                  {{ isSaving() ? 'Guardando...' : 'Crear Transferencia' }}
-              </button>
-          </div>
-      </form>
-  </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label fw-semibold">Sucursal Destino <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" formControlName="targetEstablishmentId"
+                                    [class.is-invalid]="form.get('targetEstablishmentId')?.invalid && form.get('targetEstablishmentId')?.touched">
+                                    <option value="" disabled selected>Seleccionar...</option>
+                                    <option *ngFor="let est of establishments()" [value]="est.id">
+                                        {{est.name}}
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback mt-2">Seleccione una sucursal destino</div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label fw-semibold">Notas Adicionales</label>
+                                <textarea class="form-control" formControlName="notes" rows="4"
+                                    placeholder="Opcional: Agregue observaciones sobre la transferencia..."></textarea>
+                            </div>
+
+                            <!-- Summary block -->
+                            <div
+                                class="summary-block bg-primary bg-opacity-10 rounded-4 p-3 mt-auto border border-primary border-opacity-10">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-semibold"><i class="bi bi-boxes me-2"></i>Total
+                                        Productos:</span>
+                                    <span
+                                        class="badge bg-primary rounded-pill fs-6 px-3 py-2 shadow-sm">{{selectedItems().length}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Area -->
+                <div class="col-lg-8">
+                    <div class="premium-card h-100 d-flex flex-column">
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+
+                            <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                                <div class="icon-circle bg-success-subtle text-success me-3">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-0">Productos a Transferir</h5>
+                            </div>
+
+                            <!-- Search -->
+                            <div class="search-container position-relative mb-4">
+                                <div class="input-group premium-search-group rounded-4 overflow-hidden">
+                                    <span class="input-group-text border-end-0 px-4 border-0">
+                                        <i class="bi bi-search" style="color: var(--text-muted);"></i>
+                                    </span>
+                                    <input type="text"
+                                        class="form-control premium-search border-start-0 ps-0 py-3 border-0 focus-ring-none"
+                                        placeholder="Buscar por nombre o lote de producto..." [ngModel]="searchTerm()"
+                                        (ngModelChange)="searchTerm.set($event)" (focus)="isSearchFocused.set(true)"
+                                        (blur)="onSearchBlur()" [ngModelOptions]="{standalone: true}">
+                                </div>
+
+                                <!-- Dropdown Results -->
+                                <div class="search-results-dropdown position-absolute w-100 mt-2 shadow-lg rounded-4 overflow-hidden z-3"
+                                    *ngIf="isSearchFocused() && filteredInventory.length > 0"
+                                    style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+                                    <div class="list-group list-group-flush">
+                                        <button type="button"
+                                            class="list-group-item list-group-item-action p-3 search-result-item"
+                                            *ngFor="let item of filteredInventory" (click)="addItem(item)"
+                                            style="background-color: transparent; color: var(--text-main); border-bottom-color: var(--border-color);">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="item-icon-small rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="background-color: var(--dropdown-bg); color: var(--text-main); border: 1px solid var(--border-color);">
+                                                        <i class="bi bi-box"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold mb-1" style="color: var(--text-main);">
+                                                            {{item.productName}}</div>
+                                                        <div class="d-flex gap-2">
+                                                            <span class="badge fw-normal badge-info-custom"><i
+                                                                    class="bi bi-upc-scan me-1"></i> {{item.lotCode ||
+                                                                'S/L'}}</span>
+                                                            <span class="badge fw-normal badge-warning-custom"
+                                                                *ngIf="item.locationShelf"><i
+                                                                    class="bi bi-geo-alt me-1"></i>
+                                                                {{item.locationShelf}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="badge rounded-pill px-3 py-2 fs-6 badge-success-custom">
+                                                        {{item.quantity}} disp.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="empty-state text-center py-5 my-auto" *ngIf="selectedItems().length === 0">
+                                <div class="empty-icon mx-auto mb-3 text-primary opacity-25"
+                                    style="transform: scale(1.5);">
+                                    <i class="bi bi-inboxes" style="font-size: 4rem;"></i>
+                                </div>
+                                <h5 class="fw-bold mt-4" style="color: var(--text-main);">Sin productos seleccionados
+                                </h5>
+                                <p class="text-muted mb-0">Utilice el buscador de arriba para agregar productos a la
+                                    transferencia.</p>
+                            </div>
+
+                            <!-- Selected Items List -->
+                            <div class="selected-items-container flex-grow-1" *ngIf="selectedItems().length > 0">
+                                <div class="selected-item-card mb-3 p-3 rounded-4 position-relative"
+                                    *ngFor="let item of selectedItems(); let i = index">
+                                    <div class="row align-items-center g-3">
+                                        <!-- Info -->
+                                        <div class="col-md-5">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="item-icon rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                                                    style="width: 48px; height: 48px; background-color: var(--card-bg); color: var(--primary-color); border: 1px solid var(--border-color);">
+                                                    <i class="bi bi-box-fill fs-5"></i>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <h6 class="fw-bold mb-1 text-truncate" [title]="item.productName"
+                                                        style="color: var(--text-main);">{{item.productName}}</h6>
+                                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                        <span
+                                                            class="badge rounded-pill badge-info-custom">{{item.lotCode
+                                                            || 'S/L'}}</span>
+                                                        <small style="color: var(--text-muted);"><span
+                                                                class="fw-semibold"
+                                                                style="color: var(--text-main);">{{item.quantity}}</span>
+                                                            disp.</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Unit -->
+                                        <div class="col-md-3">
+                                            <div class="d-flex align-items-center rounded-3 p-1 shadow-sm"
+                                                style="border: 1px solid var(--border-color); background-color: var(--card-bg);">
+                                                <div class="spinner-border spinner-border-sm text-primary mx-2"
+                                                    *ngIf="item.loadingUnits"></div>
+                                                <select
+                                                    class="form-select form-select-sm border-0 bg-transparent fw-medium focus-ring-none"
+                                                    *ngIf="!item.loadingUnits" [ngModel]="item.selectedUnitId"
+                                                    (ngModelChange)="updateUnit(i, $event)"
+                                                    [ngModelOptions]="{standalone: true}"
+                                                    style="color: var(--text-main);">
+                                                    <option *ngFor="let u of item.units" [value]="u.id">
+                                                        {{u.unitName}} (x{{u.factor}})
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity -->
+                                        <div class="col-md-3">
+                                            <div class="input-group input-group-sm quantity-group rounded-3 overflow-hidden shadow-sm"
+                                                style="border: 1px solid var(--border-color); background-color: var(--card-bg);">
+                                                <span class="input-group-text border-0 fw-medium bg-transparent"
+                                                    style="color: var(--text-muted);">Cant.</span>
+                                                <input type="number"
+                                                    class="form-control text-center fw-bold border-0 bg-transparent focus-ring-none"
+                                                    [value]="item.transferQuantity"
+                                                    (change)="updateQuantity(i, $any($event.target).value)" min="1"
+                                                    style="color: var(--text-main) !important;">
+                                            </div>
+                                        </div>
+
+                                        <!-- Action -->
+                                        <div class="col-md-1 text-end">
+                                            <button type="button" class="btn btn-sm btn-delete-item rounded-circle"
+                                                (click)="removeItem(i)" title="Eliminar">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky Footer Actions -->
+        <div class="action-footer p-4 d-flex justify-content-end align-items-center mt-auto">
+            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold btn-submit shadow"
+                [disabled]="isSaving() || isLoadingData() || selectedItems().length === 0">
+                <i class="bi bi-send-check-fill me-2" *ngIf="!isSaving()"></i>
+                <span class="spinner-border spinner-border-sm me-2" *ngIf="isSaving()"></span>
+                {{ isSaving() ? 'Procesando Transferencia...' : 'Confirmar Transferencia' }}
+            </button>
+        </div>
+    </form>
 </div>
-

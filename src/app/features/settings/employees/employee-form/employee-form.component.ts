@@ -1,13 +1,15 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-// Asegúrate de que las rutas a tus servicios sean correctas
 import { EmployeeService } from '../../../../core/services/employee.service';
 import { EmployeeRequest } from '../../../../core/models/employee.model';
 import { UserService } from '../../../../core/services/user.service';
 import { UserResponse } from '../../../../core/models/user.model';
 import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
+import { ModalAlertComponent } from '../../../../shared/components/modal-alert/modal-alert.component';
+import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-employee-form',
@@ -15,8 +17,10 @@ import { ModalService } from '../../../../shared/components/confirm-modal/servic
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        RouterModule
-        // NOTA: Ya no importamos InputTextModule, SelectModule, etc.
+        RouterModule,
+        ModalAlertComponent,
+        ConfirmModalComponent,
+        SpinnerComponent
     ],
     templateUrl: './employee-form.component.html',
     styleUrl: './employee-form.component.scss'
@@ -25,8 +29,11 @@ export class EmployeeFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private employeeService = inject(EmployeeService);
     private userService = inject(UserService);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
     private modalService = inject(ModalService);
 
+    @Input() isModal: boolean = false;
     @Input() set employeeId(value: number | null) {
         this._employeeId.set(value);
         this.checkEditModeFromInput();
@@ -43,11 +50,22 @@ export class EmployeeFormComponent implements OnInit {
     isEditMode = signal(false);
     isLoading = signal(false);
     isSaving = signal(false);
+    isSearching = signal(false);
     users = signal<UserResponse[]>([]);
 
     ngOnInit() {
         this.initForm();
         this.loadUsers();
+        
+        // Check Input first, then Route
+        const routeId = this.route.snapshot.paramMap.get('id');
+        const idToLoad = this.employeeId || (routeId ? +routeId : null);
+
+        if (idToLoad) {
+            this.isEditMode.set(true);
+            this._employeeId.set(idToLoad);
+            this.loadEmployee(idToLoad);
+        }
     }
 
     initForm() {
@@ -79,8 +97,7 @@ export class EmployeeFormComponent implements OnInit {
             this.isEditMode.set(false);
             if (this.employeeForm) {
                 this.employeeForm.reset();
-                // Reset select to null explicitly if needed
-                this.employeeForm.controls['userId'].setValue(null);
+                this.employeeForm.controls['userId']?.setValue(null);
             }
         }
     }
@@ -94,7 +111,7 @@ export class EmployeeFormComponent implements OnInit {
                     firstName: employee.firstName,
                     lastName: employee.lastName,
                     documentNumber: employee.documentNumber,
-                    //userId: employee.userId // Asegúrate que tu backend devuelva userId, si no, será null
+                    userId: (employee as any).userId || null
                 });
                 this.isLoading.set(false);
             },
@@ -105,7 +122,48 @@ export class EmployeeFormComponent implements OnInit {
                     message: 'No se pudo cargar la información del empleado',
                     type: 'error'
                 });
-                this.cancelled.emit();
+                this.isLoading.set(false);
+                if (this.isModal) {
+                    this.cancelled.emit();
+                } else {
+                    this.router.navigate(['/employees']);
+                }
+            }
+        });
+    }
+
+    searchDocument() {
+        const document = this.employeeForm.get('documentNumber')?.value;
+        if (!document) {
+            this.modalService.alert({ title: 'Atención', message: 'Ingrese un número de documento para buscar.', type: 'warning' });
+            return;
+        }
+
+        this.isSearching.set(true);
+
+        this.userService.searchByDocument(document).subscribe({
+            next: (response) => {
+                this.isSearching.set(false);
+                const data = response.data;
+
+                if (data.razonSocial) {
+                    this.employeeForm.patchValue({
+                        firstName: data.razonSocial,
+                        lastName: ''
+                    });
+                } else if (data.nombres) {
+                    this.employeeForm.patchValue({
+                        firstName: data.nombres,
+                        lastName: `${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim()
+                    });
+                } else {
+                    this.modalService.alert({ title: 'Sin resultados', message: 'No se encontraron datos para este documento.', type: 'warning' });
+                }
+            },
+            error: (error) => {
+                this.isSearching.set(false);
+                this.modalService.alert({ title: 'Error', message: 'No se encontraron datos para este documento o ocurrió un error.', type: 'error' });
+                console.error('Search error:', error);
             }
         });
     }
@@ -123,7 +181,6 @@ export class EmployeeFormComponent implements OnInit {
             firstName: formValue.firstName,
             lastName: formValue.lastName || undefined,
             documentNumber: formValue.documentNumber || undefined,
-            // Convertir a numero si viene como string del select nativo, o undefined si es null
             userId: formValue.userId ? Number(formValue.userId) : undefined
         };
 
@@ -134,23 +191,29 @@ export class EmployeeFormComponent implements OnInit {
         operation.subscribe({
             next: () => {
                 this.isSaving.set(false);
-                this.saved.emit();
+                if (this.isModal) {
+                    this.saved.emit();
+                } else {
+                    this.modalService.alert({ title: 'Éxito', message: 'Personal guardado correctamente', type: 'success' })
+                        .then(() => this.router.navigate(['/employees']));
+                }
             },
             error: (error) => {
                 console.error('Error saving employee:', error);
                 this.isSaving.set(false);
+                let msg = 'No se pudo guardar la información del empleado';
+                if (error.status === 409) {
+                    msg = 'Ya existe un empleado con este número de documento.';
+                }
                 this.modalService.alert({
                     title: 'Error',
-                    message: 'No se pudo guardar la información del empleado',
+                    message: msg,
                     type: 'error'
                 });
             }
         });
     }
 
-    cancel() {
-        this.cancelled.emit();
-    }
 
     get f() {
         return this.employeeForm.controls;

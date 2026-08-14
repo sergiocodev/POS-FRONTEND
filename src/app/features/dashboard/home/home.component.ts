@@ -1,22 +1,26 @@
-import { Component, inject, OnInit, OnDestroy, computed, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
-import { DashboardDataService } from '../../../core/services/dashboard-data.service';
+import { DashboardDataService, KpiCard, LowStockItemData, RecentSaleData, ExpirationData, UpcomingPayableData } from '../../../core/services/dashboard-data.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LineChartComponent, ChartPoint } from '../../../shared/components/charts/line-chart/line-chart.component';
 import { DonutChartComponent, DonutSegment } from '../../../shared/components/charts/donut-chart/donut-chart.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import {
     FullDashboardResponse,
     TopProductDashboard
 } from '../../../core/models/dashboard.model';
 import { Subscription } from 'rxjs';
+import { RouterModule } from '@angular/router';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import type { EChartsOption } from 'echarts';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule, LineChartComponent, DonutChartComponent],
+    imports: [CommonModule, RouterModule, NgxEchartsDirective, DonutChartComponent, SpinnerComponent],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss',
 })
@@ -34,24 +38,86 @@ export class HomeComponent implements OnInit, OnDestroy {
     constructor() {
         effect(() => {
             this.selectedEstablishmentId(); // track signal
-            this.loadDashboard();
+            untracked(() => this.loadDashboard());
         }, { allowSignalWrites: true });
     }
 
     // KPI cards
-    kpiCards: { label: string; value: string; change: string; positive: boolean; icon: string; iconColor: string }[] = [];
+    kpiCards: KpiCard[] = [];
 
     // Weekly chart data — signal para que computed() reaccione
-    weeklyData = signal<{ day: string; value: number }[]>([]);
+    weeklyData = signal<{ day: string; value: number; value2?: number }[]>([]);
 
     // Donut chart segments — signals para reactividad
     donutSegments = signal<{ label: string; color: string; value: number; amount?: number }[]>([]);
-    paymentSegments = signal<{ label: string; color: string; value: number; amount?: number; count?: number }[]>([]);
+    sunatSegments = signal<{ label: string; color: string; value: number; amount?: number }[]>([]);
 
     // Computed signals para los componentes de chart
-    lineChartData = computed<ChartPoint[]>(() =>
-        this.weeklyData().map(d => ({ label: d.day, value: d.value }))
-    );
+    echartsOption = computed<EChartsOption>(() => {
+        const data = this.weeklyData();
+        const xAxisData = data.map(d => d.day);
+        const seriesIncome = data.map(d => d.value);
+        const seriesExpense = data.map(d => d.value2 ?? 0);
+        const isDark = this.isDarkMode();
+
+        return {
+            tooltip: {
+                trigger: 'axis',
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                borderColor: isDark ? '#334155' : '#e2e8f0',
+                textStyle: { color: isDark ? '#f8fafc' : '#0f172a' }
+            },
+            legend: {
+                data: ['Ingresos', 'Egresos'],
+                textStyle: { color: isDark ? '#94a3b8' : '#64748b' },
+                top: 0
+            },
+            grid: {
+                left: '3%', right: '4%', bottom: '3%', containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: xAxisData,
+                axisLabel: { color: isDark ? '#94a3b8' : '#64748b' }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: { color: isDark ? '#94a3b8' : '#64748b' },
+                splitLine: { lineStyle: { color: isDark ? '#334155' : '#e2e8f0' } }
+            },
+            series: [
+                {
+                    name: 'Ingresos',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { width: 3, color: '#10b981' },
+                    itemStyle: { color: '#10b981' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [{ offset: 0, color: 'rgba(16,185,129,0.3)' }, { offset: 1, color: 'rgba(16,185,129,0)' }]
+                        }
+                    },
+                    data: seriesIncome
+                },
+                {
+                    name: 'Egresos',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { width: 3, color: '#ef4444' },
+                    itemStyle: { color: '#ef4444' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [{ offset: 0, color: 'rgba(239,68,68,0.3)' }, { offset: 1, color: 'rgba(239,68,68,0)' }]
+                        }
+                    },
+                    data: seriesExpense
+                }
+            ]
+        };
+    });
 
     donutChartData = computed<DonutSegment[]>(() =>
         this.donutSegments().map(s => ({
@@ -62,28 +128,31 @@ export class HomeComponent implements OnInit, OnDestroy {
         }))
     );
 
-    paymentChartData = computed<DonutSegment[]>(() =>
-        this.paymentSegments().map(s => ({
+    sunatChartData = computed<DonutSegment[]>(() =>
+        this.sunatSegments().map(s => ({
             label: s.label,
             value: s.value,
             color: s.color,
-            extra: this.formatCurrency(s.amount ?? 0)
+            extra: `${s.amount} comp.`
         }))
     );
 
     loading = true;
 
     // Low stock table
-    lowStockItems: { name: string; category: string; units: number; min: number; level: number; critical: boolean }[] = [];
+    lowStockItems: LowStockItemData[] = [];
 
     // Top products
     topSoldProducts: TopProductDashboard[] = [];
 
     // Recent sales
-    recentSales: { initials: string; name: string; type: string; products: number; minutes: number; amount: string; color: string }[] = [];
+    recentSales: RecentSaleData[] = [];
 
     // Upcoming expirations
-    expirations: { name: string; lot: string; daysLeft: number; date: string; urgent: boolean }[] = [];
+    expirations: ExpirationData[] = [];
+
+    // Upcoming payables
+    upcomingPayables: UpcomingPayableData[] = [];
 
     ngOnInit() {
         // loadDashboard is called by effect
@@ -104,11 +173,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.kpiCards = ui.kpiCards;
                     this.weeklyData.set(ui.weeklyData);
                     this.donutSegments.set(ui.donutSegments);
-                    this.paymentSegments.set(ui.paymentSegments);
+                    this.sunatSegments.set(ui.sunatSegments);
                     this.lowStockItems = ui.lowStockItems;
                     this.topSoldProducts = ui.topProducts;
                     this.recentSales = ui.recentSales;
                     this.expirations = ui.expirations;
+                    this.upcomingPayables = ui.upcomingPayables;
                 }
                 this.loading = false;
             },

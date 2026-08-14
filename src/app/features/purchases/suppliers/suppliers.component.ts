@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupplierService } from '../../../core/services/supplier.service';
-import { SupplierDetailResponse, SupplierSummaryResponse } from '../../../core/models/supplier.model';
+import { SupplierDetailResponse } from '../../../core/models/supplier.model';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { SmartKpiCardsComponent, SmartKpiItem } from '../../../shared/components/smart-kpi-cards/smart-kpi-cards.component';
 import { FormsModule } from '@angular/forms';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
@@ -24,6 +25,9 @@ export class SuppliersComponent implements OnInit {
   Math = Math;
   private supplierService = inject(SupplierService);
   private modalService = inject(ModalService);
+  private establishmentStateService = inject(EstablishmentStateService);
+
+  selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
   // State
   suppliers = signal<SupplierDetailResponse[]>([]);
@@ -41,69 +45,20 @@ export class SuppliersComponent implements OnInit {
   selectedSupplierId = signal<number | null>(null);
 
   // Summary
-  kpiItems = signal<SmartKpiItem[]>([
-    { label: 'Proveedores Activos', value: 0, icon: 'bi-people-fill', color: 'blue' },
-    { label: 'En Evaluación', value: 0, icon: 'bi-clipboard2-pulse', color: 'orange' },
-    { label: 'Vencidos', value: 0, icon: 'bi-exclamation-circle', color: 'purple' },
-    { label: 'Gasto Total (Año)', value: 0, prefix: '$', icon: 'bi-wallet2', color: 'green' },
-    { label: 'Evaluación Promedio', value: '0.0', suffix: '/ 5', icon: 'bi-star-half', color: 'blue' },
-  ]);
+  kpiItems = signal<SmartKpiItem[]>([]);
 
-  private buildKpiItems(s: SupplierSummaryResponse): SmartKpiItem[] {
-    return [
-      {
-        label: 'Proveedores Activos',
-        value: s.activeSuppliers,
-        icon: 'bi-people-fill',
-        color: 'blue',
-        trendValue: '+ 85%',
-        trendDirection: 'up',
-        trendText: 'del total'
-      },
-      {
-        label: 'En Evaluación',
-        value: s.evaluatingSuppliers,
-        icon: 'bi-clipboard2-pulse',
-        color: 'orange',
-        trendValue: '- 12.5%',
-        trendDirection: 'down',
-        trendText: 'del total'
-      },
-      {
-        label: 'Vencidos',
-        value: s.expiredSuppliers,
-        icon: 'bi-exclamation-circle',
-        color: 'purple',
-        trendValue: '- 7.5%',
-        trendDirection: 'down',
-        trendText: 'del total'
-      },
-      {
-        label: 'Gasto Total (Año)',
-        value: s.totalSpendYear.toLocaleString('en-US', { maximumFractionDigits: 0 }),
-        prefix: '$',
-        icon: 'bi-wallet2',
-        color: 'green',
-        trendValue: '+ 18%',
-        trendDirection: 'up',
-        trendText: 'vs año anterior'
-      },
-      {
-        label: 'Evaluación Promedio',
-        value: s.averageRating.toFixed(1),
-        suffix: '/ 5',
-        icon: 'bi-star-half',
-        color: 'blue',
-        trendValue: '+ 0.3',
-        trendDirection: 'up',
-        trendText: 'vs periodo anterior'
-      },
-    ];
+  constructor() {
+    effect(() => {
+        this.selectedEstablishmentId(); // track signal
+        untracked(() => {
+            this.currentPage.set(0);
+            this.loadSummary();
+            this.loadSuppliers();
+        });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
-    this.loadSuppliers();
-    this.loadSummary();
   }
 
   loadSuppliers(): void {
@@ -132,9 +87,24 @@ export class SuppliersComponent implements OnInit {
   }
 
   loadSummary(): void {
-    this.supplierService.getSummary().subscribe({
-      next: (response) => {
-        this.kpiItems.set(this.buildKpiItems(response.data));
+    if (!this.selectedEstablishmentId()) return;
+    this.supplierService.getSummary(this.selectedEstablishmentId()!).subscribe({
+      next: (response: any) => {
+        const data = response.data ? response.data : response;
+        const styles: any = {
+          'PROVEEDORES ACTIVOS': { icon: 'bi-people-fill', color: 'blue' },
+          'EN EVALUACIÓN': { icon: 'bi-clipboard2-pulse', color: 'orange' },
+          'VENCIDOS': { icon: 'bi-exclamation-circle', color: 'purple' },
+          'GASTO MENSUAL': { icon: 'bi-wallet2', color: 'green' },
+          'RATING PROMEDIO': { icon: 'bi-star-half', color: 'blue' }
+        };
+
+        const mappedData = data.map((item: any) => ({
+            ...item,
+            ...(styles[item.label] || { icon: 'bi-info-circle', color: 'blue' })
+        }));
+
+        this.kpiItems.set(mappedData);
       },
       error: (err) => console.error('Error loading summary', err)
     });

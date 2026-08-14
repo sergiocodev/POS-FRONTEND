@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountPayableService } from '../../../core/services/account-payable.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
@@ -12,6 +12,8 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { SmartKpiCardsComponent, SmartKpiItem } from '../../../shared/components/smart-kpi-cards/smart-kpi-cards.component';
 import { RegisterPayComponent } from './register-pay/register-pay.component';
 import { PaymentHistoryComponent } from './payment-history/payment-history.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 
 @Component({
     selector: 'app-account-payables',
@@ -25,11 +27,13 @@ import { PaymentHistoryComponent } from './payment-history/payment-history.compo
         SmartKpiCardsComponent,
         RegisterPayComponent,
         PaymentHistoryComponent,
+        SpinnerComponent,
+        ConfirmModalComponent
     ],
     templateUrl: './account-payables.component.html',
     styleUrl: './account-payables.component.scss'
 })
-export class AccountPayablesComponent implements OnInit {
+export class AccountPayablesComponent {
     private accountPayableService = inject(AccountPayableService);
     private cashSessionService = inject(CashSessionService);
     private establishmentStateService = inject(EstablishmentStateService);
@@ -56,17 +60,24 @@ export class AccountPayablesComponent implements OnInit {
     showHistoryModal = signal<boolean>(false);
 
     constructor() {
+        let isFirstRun = true;
         effect(() => {
             this.selectedEstablishmentId(); // track signal
-            this.currentPage.set(0);
-            this.loadDashboard();
-            this.loadPayables();
+            if (isFirstRun) {
+                isFirstRun = false;
+                untracked(() => {
+                    this.currentPage.set(0);
+                    this.loadSummary();
+                    this.loadPayables();
+                });
+                return;
+            }
+            untracked(() => {
+                this.currentPage.set(0);
+                this.loadSummary();
+                this.loadPayables();
+            });
         }, { allowSignalWrites: true });
-    }
-
-    ngOnInit(): void {
-        this.loadDashboard();
-        this.loadPayables();
     }
 
     loadPayables() {
@@ -120,11 +131,11 @@ export class AccountPayablesComponent implements OnInit {
         this.loadPayables();
     }
 
-    loadDashboard() {
+    loadSummary() {
         const params = {
             establishmentId: this.selectedEstablishmentId() || ''
         };
-        this.accountPayableService.getDashboard(params).subscribe({
+        this.accountPayableService.getSummary(params).subscribe({
             next: (response: any) => {
                 const data = response.data ? response.data : response;
 

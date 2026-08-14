@@ -14,12 +14,11 @@
 // 🌤️  LIGHT THEME
 // ============================================================
 :root {
-
   // --- Colores principales ---
   --primary-color: #2B2B2B;
-  --primary-hover: #1a44d9;
-  --secondary-color: #4DA6FF;
-  --secondary-hover: #7c3aed;
+  --primary-hover: #141414;
+  --secondary-color: #ff007c;
+  --secondary-hover: #aa0454;
 
   // --- Colores de estado ---
   --success-color: #10b981;
@@ -36,8 +35,8 @@
   --card-bg: #ffffff;
   --input-bg: #ffffff;
   --dropdown-bg: #ffffff;
-  --bg-sidebar-start: #ffffff;
-  --bg-sidebar-end: #ffffff;
+  --bg-sidebar-start: #ffffff25;
+  --bg-sidebar-end: #ffffff25;
 
   // --- Textos ---
   --text-main: #000000;
@@ -253,11 +252,11 @@ body {
   }
 }
 
-.form-floating > .form-control::placeholder {
+.form-floating>.form-control::placeholder {
   color: transparent !important;
 }
 
-.form-floating > .form-control:focus::placeholder {
+.form-floating>.form-control:focus::placeholder {
   color: var(--text-muted) !important;
 }
 

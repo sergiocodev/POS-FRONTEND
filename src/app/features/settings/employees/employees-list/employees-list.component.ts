@@ -15,79 +15,57 @@ import { CustomTableComponent, TableColumn } from '../../../../shared/components
     templateUrl: './employees-list.component.html',
     styleUrl: './employees-list.component.scss'
 })
-export class EmployeesListComponent implements OnInit, OnChanges {
+export class EmployeesListComponent {
     @Input() employees: EmployeeResponse[] = [];
     @Input() isLoading: boolean = false;
+
+    // Pagination inputs
+    @Input() totalItems = 0;
+    @Input() totalPages = 0;
+    @Input() currentPage = 0;
+    @Input() pageSize = 10;
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<EmployeeResponse>();
 
+    // Pagination & Filter outputs
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() pageSizeChange = new EventEmitter<number>();
+    @Output() tableFilterChange = new EventEmitter<any>();
+
     // Configuración de la tabla
     cols: TableColumn[] = [
-        { key: 'fullName', label: 'Nombre', type: 'text' },
-        { key: 'documentNumber', label: 'Documento', type: 'text' },
+        { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
+        { key: 'fullName', label: 'Nombre', type: 'text', filterable: true },
+        { key: 'documentNumber', label: 'Documento', type: 'text', filterable: true },
         {
             key: 'username',
             label: 'Usuario',
             type: 'text',
+            filterable: true,
             format: (v: any) => v || 'Sin cuenta'
         },
 
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    // Data Signals
-    localEmployees = signal<EmployeeResponse[]>([]);
-    filteredEmployees = signal<EmployeeResponse[]>([]);
+    // Filter Logic is handled by Backend now
 
-    // Filtros
-    searchTerm = signal('');
+    // --- Table Custom Pagination & Filter Events ---
 
-    pageSize = 10;
-
-    constructor() { }
-
-    ngOnInit() {
-        this.updateLocalData();
+    handlePageChange(page: number) {
+        // custom-table usually emits 1-based page, we emit 0-based to parent
+        this.pageChange.emit(page - 1);
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['employees']) {
-            this.updateLocalData();
-        }
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
     }
 
-    updateLocalData() {
-        this.localEmployees.set(this.employees);
-        this.applyFilters();
+    handleTableFilter(filters: any) {
+        this.tableFilterChange.emit(filters);
     }
-
-    // --- Filter Logic ---
-
-    applyFilters() {
-        let filtered = this.localEmployees();
-        const search = this.searchTerm().toLowerCase();
-
-        if (search) {
-            filtered = filtered.filter(emp =>
-                emp.firstName.toLowerCase().includes(search) ||
-                (emp.lastName && emp.lastName.toLowerCase().includes(search)) ||
-                (emp.documentNumber && emp.documentNumber.includes(search))
-            );
-        }
-
-
-
-        this.filteredEmployees.set(filtered);
-    }
-
-    onSearchChange(value: string) {
-        this.searchTerm.set(value);
-        this.applyFilters();
-    }
-
-
 
     // --- Actions ---
 

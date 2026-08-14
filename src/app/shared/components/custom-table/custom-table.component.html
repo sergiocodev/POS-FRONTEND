@@ -57,9 +57,14 @@
                             <div *ngSwitchCase="'html'" [innerHTML]="getValue(row, col)"></div>
 
                             <div *ngSwitchCase="'image'" style="width: 40px; height: 40px;"
+                                class="d-flex align-items-center justify-content-center bg-light rounded-circle border text-secondary overflow-hidden"
                                 [ngClass]="{'mx-auto': col.align === 'center', 'ms-auto': col.align === 'right'}">
-                                <img [src]="$any(row)[col.key] || 'assets/placeholder.png'"
-                                    class="w-100 h-100 rounded-circle object-fit-cover bg-light border" alt="Imagen de la fila">
+                                <img *ngIf="$any(row)[col.key] && !$any(row)['_imgError_' + col.key]" 
+                                    [src]="$any(row)[col.key]"
+                                    (error)="$any(row)['_imgError_' + col.key] = true"
+                                    class="w-100 h-100 object-fit-cover" alt="Imagen">
+                                <i *ngIf="!$any(row)[col.key] || $any(row)['_imgError_' + col.key]" 
+                                    class="bi bi-person-fill fs-4" title="Sin imagen"></i>
                             </div>
 
                             <span *ngSwitchCase="'badge'" class="badge rounded-pill fw-normal"

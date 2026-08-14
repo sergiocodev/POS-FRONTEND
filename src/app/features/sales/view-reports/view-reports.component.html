@@ -1,6 +1,9 @@
-<app-module-header title="Reporte de Ventas" iconClass="bi bi-graph-up-arrow"></app-module-header>
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
 
-<div class="container-fluid report-container">
+<app-module-header title="Reporte de Ventas" iconClass="bi bi-graph-up-arrow"></app-module-header>
+<div class="report-container">
     <!-- ═══ Tab Navigation ═══ -->
     <app-custom-tabs
         [tabs]="tabs"
@@ -22,14 +25,13 @@
         (customerChange)="onCustomerChange($event); loadTabData()"
         (dateRangeChange)="onDateRangeChange($event)"></app-report-filters>
 
-    <!-- ═══ Loading Overlay ═══ -->
-    <app-spinner [show]="isLoading()" message="Generando reporte..."></app-spinner>
+
 
     <!-- ════════════════════════════════════════════════════════════ -->
     <!-- TAB: COMPROBANTES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'comprobantes' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR COMPROBANTE"
                 description="Visualiza las ventas agrupadas por tipo de comprobante" (actionClick)="onViewPdfReport()">
@@ -46,7 +48,7 @@
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'productos' && !isLoading()) {
 
-    <div class="row g-4 mb-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR CATEGORIA" description="Visualiza las ventas agrupadas por tipo de categoria"
                 [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
@@ -83,7 +85,7 @@
     <!-- TAB: CLIENTES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'clientes' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
 
         <!-- Card Report (PDF Gen) -->
         <div class="col-auto d-flex justify-content-center">
@@ -103,7 +105,7 @@
     <!-- TAB: VENDEDOR -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'vendedor' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
 
         <div class="col-auto d-flex justify-content-center">
             <app-card-report title="POR VENDEDOR" description="Visualiza las ventas agrupadas por vendedor"

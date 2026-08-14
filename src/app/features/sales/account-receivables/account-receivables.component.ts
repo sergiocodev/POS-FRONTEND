@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountReceivableService } from '../../../core/services/account-receivable.service';
 import { CashSessionService } from '../../../core/services/cash-session.service';
@@ -8,10 +8,13 @@ import { AccountReceivableResponse, ReceivablePaymentMethod, AccountReceivablePa
 import { AccountReceivableListComponent } from './account-receivable-list/account-receivable-list.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { SmartKpiCardsComponent, SmartKpiItem } from '../../../shared/components/smart-kpi-cards/smart-kpi-cards.component';
 import { RegisterPayComponent } from './register-pay/register-pay.component';
 import { PaymentHistoryComponent } from './payment-history/payment-history.component';
+
 
 @Component({
     selector: 'app-account-receivables',
@@ -21,6 +24,8 @@ import { PaymentHistoryComponent } from './payment-history/payment-history.compo
         AccountReceivableListComponent,
         ModalGenericComponent,
         ModalAlertComponent,
+        ConfirmModalComponent,
+        SpinnerComponent,
         ModuleHeaderComponent,
         SmartKpiCardsComponent,
         RegisterPayComponent,
@@ -29,7 +34,7 @@ import { PaymentHistoryComponent } from './payment-history/payment-history.compo
     templateUrl: './account-receivables.component.html',
     styleUrl: './account-receivables.component.scss'
 })
-export class AccountReceivablesComponent implements OnInit {
+export class AccountReceivablesComponent {
     private accountReceivableService = inject(AccountReceivableService);
     private cashSessionService = inject(CashSessionService);
     private establishmentStateService = inject(EstablishmentStateService);
@@ -48,6 +53,8 @@ export class AccountReceivablesComponent implements OnInit {
     currentPage = signal<number>(0);
     filterValues = signal<any>({});
 
+
+
     // Modal State for Payment
     showPaymentModal = signal<boolean>(false);
     selectedReceivable = signal<AccountReceivableResponse | null>(null);
@@ -58,16 +65,14 @@ export class AccountReceivablesComponent implements OnInit {
     constructor() {
         effect(() => {
             this.selectedEstablishmentId(); // track signal
-            this.currentPage.set(0);
-            this.loadDashboard();
-            this.loadReceivables();
+            untracked(() => {
+                this.currentPage.set(0);
+                this.loadSummary();
+                this.loadReceivables();
+            });
         }, { allowSignalWrites: true });
     }
 
-    ngOnInit(): void {
-        this.loadDashboard();
-        this.loadReceivables();
-    }
 
     loadReceivables() {
         this.isLoading.set(true);
@@ -120,11 +125,13 @@ export class AccountReceivablesComponent implements OnInit {
         this.loadReceivables();
     }
 
-    loadDashboard() {
+
+
+    loadSummary() {
         const params = {
             establishmentId: this.selectedEstablishmentId() || ''
         };
-        this.accountReceivableService.getDashboard(params).subscribe({
+        this.accountReceivableService.getSummary(params).subscribe({
             next: (response: any) => {
                 const data = response.data ? response.data : response;
 

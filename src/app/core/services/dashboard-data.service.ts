@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import {
     FullDashboardResponse,
-    SalesChartResponse,
     SalesByCategoryResponse,
     LowStockItemResponse,
-    RecentSaleResponse,
+    RecentTransactionResponse,
     ExpiringLotResponse,
     TopProductDashboard,
-    PaymentMethodDistribution
+    CashflowChartResponse,
+    SunatStatusDistribution,
+    AccountPayableDashboardResponse
 } from '../models/dashboard.model';
 
 export interface KpiCard {
@@ -17,11 +18,13 @@ export interface KpiCard {
     positive: boolean;
     icon: string;
     iconColor: string;
+    iconBg?: string;
 }
 
 export interface WeeklyChartData {
     day: string;
     value: number;
+    value2?: number;
 }
 
 export interface DonutSegmentData {
@@ -66,15 +69,24 @@ export interface ExpirationData {
     urgent: boolean;
 }
 
+export interface UpcomingPayableData {
+    supplierName: string;
+    documentNumber: string;
+    amount: string;
+    dueDate: string;
+    isOverdue: boolean;
+}
+
 export interface DashboardUiModel {
     kpiCards: KpiCard[];
     weeklyData: WeeklyChartData[];
     donutSegments: DonutSegmentData[];
-    paymentSegments: PaymentSegmentData[];
     lowStockItems: LowStockItemData[];
     topProducts: TopProductDashboard[];
     recentSales: RecentSaleData[];
     expirations: ExpirationData[];
+    sunatSegments: DonutSegmentData[];
+    upcomingPayables: UpcomingPayableData[];
 }
 
 /**
@@ -92,13 +104,14 @@ export class DashboardDataService {
     transform(data: FullDashboardResponse): DashboardUiModel {
         return {
             kpiCards: this.mapKpiCards(data),
-            weeklyData: this.mapSalesChart(data.sales_chart ?? []),
+            weeklyData: this.mapCashflowChart(data.cashflow_chart ?? []),
             donutSegments: this.mapDonutSegments(data.sales_by_category ?? []),
-            paymentSegments: this.mapPaymentSegments(data.payment_methods ?? []),
             lowStockItems: this.mapLowStock(data.low_stock ?? []),
             topProducts: data.top_products ?? [],
-            recentSales: this.mapRecentSales(data.recent_sales ?? []),
+            recentSales: this.mapRecentTransactions(data.recent_transactions ?? []),
             expirations: this.mapExpirations(data.expiring_lots ?? []),
+            sunatSegments: this.mapSunatSegments(data.sunat_status_distribution ?? []),
+            upcomingPayables: this.mapUpcomingPayables(data.upcoming_payables ?? []),
         };
     }
 
@@ -125,24 +138,56 @@ export class DashboardDataService {
 
         const salesValue = summary.total_sales?.value ?? 0;
         const salesTrend = summary.total_sales?.trend ?? '0%';
-        const txCount = summary.transactions?.value ?? 0;
-        const txTrend = summary.transactions?.trend ?? '0%';
         const stockAlerts = summary.stock_alerts;
         const totalStockIssues = (stockAlerts?.expired ?? 0) + (stockAlerts?.expiring_soon ?? 0) + (stockAlerts?.out_of_stock ?? 0);
         const sunatPending = summary.sunat_pending_docs ?? 0;
+        const cashBalance = summary.cash_balance ?? 0;
+        const accountsReceivable = summary.accounts_receivable ?? 0;
 
         return [
-            { label: 'Ventas del Día', value: this.formatCurrency(salesValue), change: `${salesTrend} vs. ayer`, positive: salesTrend.startsWith('+'), icon: '💲', iconColor: '#00c897' },
-            { label: 'Transacciones', value: txCount.toString(), change: `${txTrend} vs. ayer`, positive: txTrend.startsWith('+'), icon: '🛒', iconColor: '#00c897' },
-            { label: 'Productos en Stock', value: summary.total_products.toString(), change: 'Total de productos', positive: true, icon: '📦', iconColor: '#00c897' },
-            { label: 'Alertas Activas', value: (totalStockIssues + sunatPending).toString(), change: `${totalStockIssues} requieren atención`, positive: (totalStockIssues + sunatPending) === 0, icon: '⚠️', iconColor: '#f59e0b' },
+            {
+                label: 'Ventas del Día',
+                value: this.formatCurrency(salesValue),
+                change: `${salesTrend} vs. ayer`,
+                positive: salesTrend.startsWith('+'),
+                icon: '💲',
+                iconColor: '#00c897',
+                iconBg: 'rgba(0, 200, 151, 0.12)'
+            },
+            {
+                label: 'Caja Actual',
+                value: this.formatCurrency(cashBalance),
+                change: 'Saldo de caja abierta',
+                positive: true,
+                icon: '💵',
+                iconColor: '#3b82f6',
+                iconBg: 'rgba(59, 130, 246, 0.12)'
+            },
+            {
+                label: 'Cuentas por Cobrar',
+                value: this.formatCurrency(accountsReceivable),
+                change: 'Por recuperar',
+                positive: true,
+                icon: '📋',
+                iconColor: '#f59e0b',
+                iconBg: 'rgba(245, 158, 11, 0.12)'
+            },
+            {
+                label: 'Alertas Activas',
+                value: (totalStockIssues + sunatPending).toString(),
+                change: `${totalStockIssues} stock · ${sunatPending} SUNAT`,
+                positive: (totalStockIssues + sunatPending) === 0,
+                icon: '⚠️',
+                iconColor: '#ef4444',
+                iconBg: 'rgba(239, 68, 68, 0.12)'
+            },
         ];
     }
 
-    private mapSalesChart(chart: SalesChartResponse[]): WeeklyChartData[] {
+    private mapCashflowChart(chart: CashflowChartResponse[]): WeeklyChartData[] {
         return chart.map(c => {
             const d = new Date(c.date + 'T00:00:00');
-            return { day: this.DAY_NAMES[d.getDay()], value: c.total };
+            return { day: this.DAY_NAMES[d.getDay()], value: c.income, value2: c.expense };
         });
     }
 
@@ -155,15 +200,16 @@ export class DashboardDataService {
         }));
     }
 
-    private mapPaymentSegments(methods: PaymentMethodDistribution[]): PaymentSegmentData[] {
-        return methods.map((m, i) => ({
-            label: m.payment_method,
-            color: this.PAYMENT_COLORS[i % this.PAYMENT_COLORS.length],
-            value: m.percentage,
-            amount: m.amount,
-            count: m.count,
+    private mapSunatSegments(statuses: SunatStatusDistribution[]): DonutSegmentData[] {
+        return statuses.map((s, i) => ({
+            label: s.status === 'ACCEPTED' ? 'Aceptados' : s.status === 'PENDING' ? 'Pendientes' : s.status === 'REJECTED' ? 'Rechazados' : s.status,
+            color: s.status === 'ACCEPTED' ? '#00c897' : s.status === 'PENDING' ? '#f59e0b' : s.status === 'REJECTED' ? '#ef4444' : this.DONUT_COLORS[i % this.DONUT_COLORS.length],
+            value: s.percentage,
+            amount: s.count,
         }));
     }
+
+
 
     private mapLowStock(items: LowStockItemResponse[]): LowStockItemData[] {
         return items.map(item => ({
@@ -176,20 +222,20 @@ export class DashboardDataService {
         }));
     }
 
-    private mapRecentSales(sales: RecentSaleResponse[]): RecentSaleData[] {
+    private mapRecentTransactions(sales: RecentTransactionResponse[]): RecentSaleData[] {
         const now = new Date();
         return sales.map((s, i) => {
-            const saleDate = new Date(s.sale_date);
+            const saleDate = new Date(s.date);
             const diffMin = Math.max(1, Math.round((now.getTime() - saleDate.getTime()) / 60000));
-            const docTypeLabel = s.document_type === 'BOLETA' || s.document_type === 'FACTURA' ? 'venta' : 'receta';
+            const docTypeLabel = s.transactionType === 'VENTA' ? s.documentType : 'COMPRA - ' + s.documentType;
             return {
-                initials: s.customer_initials,
-                name: s.customer_name,
+                initials: s.initials,
+                name: s.entityName,
                 type: docTypeLabel,
-                products: s.product_count,
+                products: s.productCount,
                 minutes: diffMin,
-                amount: this.formatCurrency(s.total),
-                color: this.AVATAR_COLORS[i % this.AVATAR_COLORS.length],
+                amount: this.formatCurrency(s.totalAmount),
+                color: s.transactionType === 'VENTA' ? this.AVATAR_COLORS[i % this.AVATAR_COLORS.length] : '#f87171',
             };
         });
     }
@@ -201,6 +247,16 @@ export class DashboardDataService {
             daysLeft: lot.days_until_expiry,
             date: this.formatDate(lot.expiry_date),
             urgent: lot.urgent,
+        }));
+    }
+
+    private mapUpcomingPayables(payables: AccountPayableDashboardResponse[]): UpcomingPayableData[] {
+        return payables.map(p => ({
+            supplierName: p.supplierName,
+            documentNumber: p.documentNumber,
+            amount: this.formatCurrency(p.pendingBalance),
+            dueDate: this.formatDate(p.dueDate),
+            isOverdue: p.isOverdue,
         }));
     }
 }

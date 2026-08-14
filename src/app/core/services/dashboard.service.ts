@@ -3,13 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     DashboardSummaryResponse,
-    SalesChartResponse,
+    CashflowChartResponse,
     DashboardAlertsResponse,
-    PaymentMethodDistribution,
     TopProductDashboard,
     EmployeePerformanceDashboard,
     SalesByCategoryResponse,
-    RecentSaleResponse,
+    RecentTransactionResponse,
     ExpiringLotResponse,
     LowStockItemResponse,
     FullDashboardResponse
@@ -29,20 +28,14 @@ export class DashboardService {
             `${this.apiUrl}/summary-cards?establishmentId=${establishmentId}`);
     }
 
-    getSalesChart(range: string, establishmentId: number): Observable<ResponseApi<SalesChartResponse[]>> {
-        return this.http.get<ResponseApi<SalesChartResponse[]>>(
-            `${this.apiUrl}/sales-chart?range=${range}&establishmentId=${establishmentId}`);
+    getCashflowChart(range: string, establishmentId: number): Observable<ResponseApi<CashflowChartResponse[]>> {
+        return this.http.get<ResponseApi<CashflowChartResponse[]>>(
+            `${this.apiUrl}/cashflow-chart?range=${range}&establishmentId=${establishmentId}`);
     }
 
     getAlerts(establishmentId: number): Observable<ResponseApi<DashboardAlertsResponse>> {
         return this.http.get<ResponseApi<DashboardAlertsResponse>>(
             `${this.apiUrl}/alerts?establishmentId=${establishmentId}`);
-    }
-
-    getPaymentMethods(date: string | null, establishmentId: number): Observable<ResponseApi<PaymentMethodDistribution[]>> {
-        const dateParam = date ? `&date=${date}` : '';
-        return this.http.get<ResponseApi<PaymentMethodDistribution[]>>(
-            `${this.apiUrl}/payment-methods?establishmentId=${establishmentId}${dateParam}`);
     }
 
     getTopProducts(limit: number, establishmentId: number): Observable<ResponseApi<TopProductDashboard[]>> {
@@ -63,9 +56,9 @@ export class DashboardService {
             `${this.apiUrl}/sales-by-category?range=${range}&establishmentId=${establishmentId}`);
     }
 
-    getRecentSales(limit: number, establishmentId: number): Observable<ResponseApi<RecentSaleResponse[]>> {
-        return this.http.get<ResponseApi<RecentSaleResponse[]>>(
-            `${this.apiUrl}/recent-sales?limit=${limit}&establishmentId=${establishmentId}`);
+    getRecentTransactions(limit: number, establishmentId: number): Observable<ResponseApi<RecentTransactionResponse[]>> {
+        return this.http.get<ResponseApi<RecentTransactionResponse[]>>(
+            `${this.apiUrl}/recent-transactions?limit=${limit}&establishmentId=${establishmentId}`);
     }
 
     getExpiringLots(days: number, establishmentId: number): Observable<ResponseApi<ExpiringLotResponse[]>> {

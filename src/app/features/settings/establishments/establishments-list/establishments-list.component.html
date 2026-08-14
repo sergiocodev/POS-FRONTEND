@@ -1,40 +1,11 @@
-<div class="establishments-list-container container-fluid animate-fade-in position-relative">
-
-    <div class="d-flex justify-content-end align-items-center my-3">
-        <button class="btn btn-primary" (click)="createEstablishment()">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Establecimiento
-        </button>
-    </div>
-
-    <!-- Filtros -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-12">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0 ps-0 bg-light"
-                            placeholder="Buscar por nombre, dirección o código..." [ngModel]="searchTerm()"
-                            (input)="onSearchChange($any($event.target).value)">
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </div>
-
-    <div class="card border-0 shadow-sm overflow-hidden">
-        <app-custom-table [columns]="cols" [data]="filteredEstablishments()" [pageSize]="pageSize"
-            (onAction)="handleTableAction($event)">
-        </app-custom-table>
-
-        <div *ngIf="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
+<div class="row">
+    <div class="col-12">
+        <div class="position-relative">
+            <app-custom-table [columns]="cols" [data]="establishments" [pageSize]="pageSize" [totalElements]="totalItems"
+                [currentPage]="currentPage + 1" (onAction)="handleTableAction($event)"
+                (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
+                (onPageSizeChange)="handlePageSizeChange($event)">
+            </app-custom-table>
         </div>
     </div>
 </div>

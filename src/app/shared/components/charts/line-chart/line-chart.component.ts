@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 export interface ChartPoint {
     label: string;
     value: number;
+    value2?: number;
 }
 
 @Component({
@@ -26,9 +27,7 @@ export class LineChartComponent {
     maxValue = computed(() => {
         const d = this.data();
         if (!d.length) return 10;
-        const max = Math.max(...d.map(x => x.value), 1);
-        // Si el valor es mayor a 10, redondeamos al siguiente múltiplo de 10
-        // Si es menor, usamos el valor exacto con un pequeño margen del 10%
+        const max = Math.max(...d.map(x => Math.max(x.value, x.value2 ?? 0)), 1);
         return max > 10 ? Math.ceil(max * 1.1 / 10) * 10 : max * 1.2;
     });
 
@@ -53,6 +52,16 @@ export class LineChartComponent {
             y: this.height() - this.padding.bottom - (this.innerHeight() * (item.value / max))
         }));
     });
+    
+    points2 = computed(() => {
+        const d = this.data();
+        if (!d.length || d.every(x => x.value2 === undefined)) return [];
+        const max = this.maxValue();
+        return d.map((item, i) => ({
+            x: this.padding.left + (this.innerWidth() / Math.max(d.length - 1, 1)) * i,
+            y: this.height() - this.padding.bottom - (this.innerHeight() * ((item.value2 ?? 0) / max))
+        }));
+    });
 
     linePath = computed(() => {
         const pts = this.points();
@@ -65,6 +74,20 @@ export class LineChartComponent {
         if (!pts.length) return '';
         const bottom = this.height() - this.padding.bottom;
         const line = this.linePath();
+        return `${line} L ${pts[pts.length - 1].x} ${bottom} L ${pts[0].x} ${bottom} Z`;
+    });
+
+    linePath2 = computed(() => {
+        const pts = this.points2();
+        if (!pts.length) return '';
+        return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    });
+
+    areaPath2 = computed(() => {
+        const pts = this.points2();
+        if (!pts.length) return '';
+        const bottom = this.height() - this.padding.bottom;
+        const line = this.linePath2();
         return `${line} L ${pts[pts.length - 1].x} ${bottom} L ${pts[0].x} ${bottom} Z`;
     });
 

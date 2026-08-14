@@ -9,6 +9,7 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-product-catalog',
@@ -20,7 +21,8 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
         ModalGenericComponent,
         ModuleHeaderComponent,
         ConfirmModalComponent,
-        ModalAlertComponent
+        ModalAlertComponent,
+        SpinnerComponent
     ],
     templateUrl: './product-catalog.component.html',
     styleUrl: './product-catalog.component.scss'

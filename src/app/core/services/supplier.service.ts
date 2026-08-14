@@ -35,8 +35,8 @@ export class SupplierService {
         return this.http.get<ResponseApi<Page<SupplierDetailResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
-    getSummary(): Observable<ResponseApi<SupplierSummaryResponse>> {
-        return this.http.get<ResponseApi<SupplierSummaryResponse>>(`${this.apiUrl}/summary`);
+    getSummary(establishmentId: number): Observable<ResponseApi<any>> {
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/summary?establishmentId=${establishmentId}`);
     }
 
     getById(id: number): Observable<ResponseApi<SupplierResponse>> {

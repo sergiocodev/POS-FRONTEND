@@ -1,31 +1,197 @@
+/* --- Variables & Core Settings --- */
+:host {
+    --pf-bg: var(--input-bg);
+    --pf-surface: var(--hover-bg);
+    --pf-border: var(--border-color);
+    --pf-border-hover: var(--primary-color);
+    --pf-text-main: var(--text-main);
+    --pf-text-muted: var(--text-muted);
+    --pf-primary: var(--primary-color);
+    --pf-danger: var(--danger-color);
+    --pf-radius: 12px;
+    --pf-radius-lg: 12px;
+    --pf-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --pf-shadow-sm: var(--shadow-sm);
+    --pf-shadow-md: var(--shadow-md);
+
+    display: block;
+    width: 100%;
+}
+
 .role-form-container {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--pf-text-main);
+}
 
-    // Aseguramos que el input group se vea integrado
-    .input-group-text {
-        background-color: #f8f9fa;
-        color: #6c757d;
+/* --- Animations --- */
+.animate-fade-in {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
     }
 
-    .form-control:focus {
-        border-color: var(--bs-primary);
-        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        // Ajuste para cuando está dentro de un input-group sin borde izquierdo
-        &.border-start-0 {
-            border-left: 1px solid var(--bs-primary);
+.tracking-wide {
+    letter-spacing: 0.1em;
+}
+
+/* --- Cards & Layout --- */
+.premium-card {
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius-lg);
+    box-shadow: var(--pf-shadow-sm);
+    transition: var(--pf-transition);
+    overflow: hidden;
+}
+
+.card-body-sleek {
+    padding: 1.5rem;
+}
+
+/* --- Form Inputs --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.premium-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pf-text-main);
+    margin: 0;
+}
+
+.premium-hint {
+    font-size: 0.75rem;
+    color: var(--pf-text-muted);
+}
+
+.premium-hint-inline {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.input-group-premium {
+    display: flex;
+    align-items: center;
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius);
+    transition: var(--pf-transition);
+    overflow: hidden;
+    height: 48px;
+
+    &:focus-within {
+        border-color: var(--pf-primary);
+        box-shadow: none;
+
+        .input-icon {
+            color: var(--pf-primary);
         }
     }
 
-    // Estilo para el switch
-    .form-switch .form-check-input {
-        width: 3em;
-        height: 1.5em;
-        margin-right: 0.75em;
-        cursor: pointer;
+    &.is-invalid-premium {
+        border-color: var(--pf-danger);
 
-        &:checked {
-            background-color: var(--bs-success);
-            border-color: var(--bs-success);
+        &:focus-within {
+            box-shadow: none;
         }
+
+        .input-icon {
+            color: var(--pf-danger);
+        }
+    }
+    
+    &.textarea-group {
+        height: auto;
+        min-height: 100px;
+        align-items: flex-start;
+        
+        .input-icon {
+            padding-top: 12px;
+        }
+        
+        .premium-input {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            resize: none;
+        }
+    }
+}
+
+.input-icon {
+    padding: 0 1rem;
+    color: var(--pf-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--pf-transition);
+    font-size: 1.15rem;
+}
+
+.premium-input {
+    border: none;
+    background: transparent;
+    padding: 0 1rem 0 0;
+    height: 100%;
+    font-size: 0.95rem;
+    color: var(--pf-text-main);
+    box-shadow: none !important;
+
+    &::placeholder {
+        color: var(--pf-text-muted);
+    }
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+        transition: background-color 5000s ease-in-out 0s !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pf-bg) inset !important;
+        -webkit-text-fill-color: var(--pf-text-main) !important;
+        caret-color: var(--pf-text-main) !important;
+        background-color: transparent !important;
+    }
+}
+
+.premium-error {
+    font-size: 0.8rem;
+    color: var(--pf-danger);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+    animation: fadeSlideUp 0.2s ease-out;
+    font-weight: 500;
+}
+
+/* --- Action Buttons --- */
+.btn-new-role {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
     }
 }

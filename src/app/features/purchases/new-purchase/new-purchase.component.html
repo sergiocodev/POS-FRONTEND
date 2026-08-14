@@ -1,12 +1,11 @@
-<app-purchase-form
-  [isLoading]="isLoading()"
-  [isEditMode]="isEditMode()"
-  [errorMessage]="errorMessage()"
-  [products]="products()"
-  [suppliers]="suppliers()"
-  [establishments]="establishments()"
-  [productUnits]="productUnits()"
-  [purchase]="purchase()"
-  (loadProductUnits)="onLoadProductUnits($event)"
-  (savePurchase)="onSavePurchase($event)"
-></app-purchase-form>
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
+
+<app-module-header [title]="isEditMode() ? 'Detalle de Compra' : 'Nueva Compra'" iconClass="bi-cart-check">
+</app-module-header>
+
+<app-purchase-form [isLoading]="isLoading()" [isEditMode]="isEditMode()" [errorMessage]="errorMessage()"
+  [products]="products()" [suppliers]="suppliers()" [establishments]="establishments()" [productUnits]="productUnits()"
+  [purchase]="purchase()" (loadProductUnits)="onLoadProductUnits($event)"
+  (savePurchase)="onSavePurchase($event)"></app-purchase-form>

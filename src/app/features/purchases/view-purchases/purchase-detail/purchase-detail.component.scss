@@ -1,1 +1,23 @@
-/* Estilos para el detalle de compra */
+.main {
+    border-radius: 12px;
+    background-color: var(--dropdown-bg);
+    border: 1px solid var(--border-color) !important;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}

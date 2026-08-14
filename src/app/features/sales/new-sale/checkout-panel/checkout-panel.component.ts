@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, signal, computed, effect, untracked, input } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { QuantityInputComponent } from '../../../../shared/components/quantity-input/quantity-input.component';
 import { PaymentMethod, PaymentCondition, SaleFormData } from '../../../../core/models/sale.model';
 import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select.component/custom-select.component';
+import { CustomerService } from '../../../../core/services/customer.service';
+import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-checkout-panel',
@@ -22,10 +25,16 @@ export class CheckoutPanelComponent {
 
   @Output() onProcessSale = new EventEmitter<SaleFormData>();
   @Output() onClearCart = new EventEmitter<void>();
-  @Output() onAddCustomer = new EventEmitter<void>();
+  @Output() onAddCustomer = new EventEmitter<any>();
+  @Output() onEditCustomer = new EventEmitter<number>();
   @Output() onCartChange = new EventEmitter<any[]>();
 
+  private customerService = inject(CustomerService);
+  private modalService = inject(ModalService);
+
   posForm: FormGroup;
+  customerSearchControl = new FormControl('');
+  isSearchingCustomer = signal<boolean>(false);
   selectedCustomer = signal<any>(null);
 
   // Mapped options for searchable dropdown
@@ -113,8 +122,16 @@ export class CheckoutPanelComponent {
       if (condition === PaymentCondition.CASH) {
         dueDateCtrl?.clearValidators();
         dueDateCtrl?.setValue(null, { emitEvent: false });
+        const currentPayments = this.payments();
+        if (currentPayments.length === 1) {
+          this.updatePaymentAmount(0, this.total());
+        }
       } else {
         dueDateCtrl?.setValidators([Validators.required]);
+        const currentPayments = this.payments();
+        if (currentPayments.length === 1) {
+          this.updatePaymentAmount(0, 0);
+        }
       }
       dueDateCtrl?.updateValueAndValidity();
     });
@@ -128,7 +145,7 @@ export class CheckoutPanelComponent {
           untracked(() => this.selectedCustomer.set(defaultCust));
         }
       }
-    });
+    }, { allowSignalWrites: true });
 
     // Handle newly added customer selection
     effect(() => {
@@ -140,7 +157,7 @@ export class CheckoutPanelComponent {
           untracked(() => this.selectedCustomer.set(cust));
         }
       }
-    });
+    }, { allowSignalWrites: true });
 
     // Enforce CASH condition if the customer is Publico General
     effect(() => {
@@ -157,12 +174,13 @@ export class CheckoutPanelComponent {
     effect(() => {
       const currentTotal = this.total();
       untracked(() => {
+        const condition = this.posForm.get('paymentCondition')?.value;
         const currentPayments = this.payments();
-        if (currentPayments.length === 1 && currentPayments[0].amount !== currentTotal) {
+        if (condition === PaymentCondition.CASH && currentPayments.length === 1 && currentPayments[0].amount !== currentTotal) {
           this.updatePaymentAmount(0, currentTotal);
         }
       });
-    });
+    }, { allowSignalWrites: true });
   }
 
   // Payments logic
@@ -260,6 +278,83 @@ export class CheckoutPanelComponent {
       const customer = this.customers().find(c => c.id === Number(option.id));
       this.selectedCustomer.set(customer || null);
     }
+  }
+
+  searchCustomer() {
+    const document = this.customerSearchControl.value;
+    if (!document) return;
+
+    // First check in loaded customers array
+    const existing = this.customers().find(c => c.documentNumber === document);
+    if (existing) {
+      this.selectedCustomer.set(existing);
+      // Do not clear the input per requirements
+      return;
+    }
+
+    // Otherwise, search via API
+    this.isSearchingCustomer.set(true);
+    this.customerService.searchByDocument(document).subscribe({
+      next: (response) => {
+        this.isSearchingCustomer.set(false);
+        const data = response.data;
+        let fullName = '';
+        if (data.razonSocial) {
+          fullName = data.razonSocial;
+        } else if (data.nombres) {
+          fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+        }
+
+        let fullAddress = data.direccion || '';
+        const ubigeo = [data.departamento, data.provincia, data.distrito].filter(Boolean).join(' - ');
+        if (ubigeo) {
+          fullAddress = fullAddress ? `${fullAddress}, ${ubigeo}` : ubigeo;
+        }
+
+        if (fullName) {
+          // Set the selected customer directly from Reniec data without opening the form
+          this.selectedCustomer.set({
+            id: null, // No ID yet, it's not saved
+            documentNumber: document,
+            documentType: document.length === 11 ? 'RUC' : 'DNI',
+            name: fullName,
+            address: fullAddress
+          });
+          // Do not clear input per requirements
+        } else {
+          this.modalService.alert({ title: 'Sin resultados', message: 'No se encontraron datos para este documento.', type: 'warning' });
+        }
+      },
+      error: (error) => {
+        this.isSearchingCustomer.set(false);
+        this.modalService.alert({ title: 'Error', message: 'No se encontró información o hubo un error en la búsqueda.', type: 'error' });
+      }
+    });
+  }
+
+  canEditCustomer(): boolean {
+    const cust = this.selectedCustomer();
+    // Can only edit if it's a real saved customer with an ID, and not the default '00000000'
+    return !!(cust && cust.id && cust.documentNumber !== '00000000');
+  }
+
+  editCustomer() {
+    const cust = this.selectedCustomer();
+    if (this.canEditCustomer()) {
+      this.onEditCustomer.emit(cust.id);
+    }
+  }
+
+  addCustomer() {
+    // Abre un form vacio
+    this.onAddCustomer.emit(null);
+  }
+
+  clearCustomer() {
+    // Re-select default customer (publico general) if needed, or null
+    const defaultCust = this.customers().find(c => c.documentNumber === '00000000');
+    this.selectedCustomer.set(defaultCust || null);
+    this.customerSearchControl.setValue('');
   }
 
   submitSale() {

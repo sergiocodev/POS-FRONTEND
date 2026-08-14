@@ -1,69 +1,520 @@
-// Animación de entrada
-.fade-in {
-    animation: fadeIn 0.4s ease-out;
+/* --- Variables & Core Settings --- */
+:host {
+    --pf-bg: var(--input-bg);
+    --pf-surface: var(--hover-bg);
+    --pf-border: var(--border-color);
+    --pf-border-hover: var(--primary-color);
+    --pf-text-main: var(--text-main);
+    --pf-text-muted: var(--text-muted);
+    --pf-primary: var(--primary-color);
+    --pf-danger: var(--danger-color);
+    --pf-radius: 12px;
+    --pf-radius-lg: 12px;
+    --pf-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --pf-shadow-sm: var(--shadow-sm);
+    --pf-shadow-md: var(--shadow-md);
+
+    display: block;
+    width: 100%;
 }
 
-@keyframes fadeIn {
-    from {
+.user-form-container {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--pf-text-main);
+}
+
+/* --- Animations --- */
+.animate-fade-in {
+    animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeSlideUp {
+    0% {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(15px);
     }
 
-    to {
+    100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-// Contenedor de roles con scroll custom
-.roles-container {
-    max-height: 400px;
-    overflow-y: auto;
+.tracking-wide {
+    letter-spacing: 0.1em;
+}
 
-    // Scrollbar styling (Webkit)
+/* --- Cards & Layout --- */
+.premium-card {
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius-lg);
+    box-shadow: var(--pf-shadow-sm);
+    transition: var(--pf-transition);
+    overflow: hidden;
+}
+
+
+
+.card-body-sleek {
+    padding: 1.5rem;
+}
+
+/* --- Avatar Upload Zone --- */
+.avatar-upload-zone {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 5px;
+    border: 2px dashed var(--pf-border-hover);
+    transition: var(--pf-transition);
+    background: var(--pf-bg);
+
+    &:hover {
+        border-color: var(--pf-primary);
+        transform: scale(1.03);
+        box-shadow: none;
+
+        .upload-overlay {
+            opacity: 1;
+        }
+    }
+}
+
+.avatar-display {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    background: var(--pf-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    font-size: 2.5rem;
+    color: var(--pf-border-hover);
+}
+
+.upload-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.75rem;
+    opacity: 0;
+    transition: var(--pf-transition);
+    backdrop-filter: blur(2px);
+}
+
+.uploading-spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pf-bg);
+    opacity: 0.8;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+
+
+/* --- Form Inputs --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.premium-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--pf-text-main);
+    margin: 0;
+}
+
+.premium-hint {
+    font-size: 0.75rem;
+    color: var(--pf-text-muted);
+}
+
+.premium-hint-inline {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.input-group-premium {
+    display: flex;
+    align-items: center;
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius);
+    transition: var(--pf-transition);
+    overflow: hidden;
+    height: 48px;
+
+    &:focus-within {
+        border-color: var(--pf-primary);
+        box-shadow: none;
+
+        .input-icon {
+            color: var(--pf-primary);
+        }
+    }
+
+    &.is-invalid-premium {
+        border-color: var(--pf-danger);
+
+        &:focus-within {
+            box-shadow: none;
+        }
+
+        .input-icon {
+            color: var(--pf-danger);
+        }
+    }
+}
+
+.input-icon {
+    padding: 0 1rem;
+    color: var(--pf-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--pf-transition);
+    font-size: 1.15rem;
+}
+
+.premium-input {
+    border: none;
+    background: transparent;
+    padding: 0 1rem 0 0;
+    height: 100%;
+    font-size: 0.95rem;
+    color: var(--pf-text-main);
+    box-shadow: none !important;
+
+    &::placeholder {
+        color: var(--pf-text-muted);
+    }
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+        transition: background-color 5000s ease-in-out 0s !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--pf-bg) inset !important;
+        -webkit-text-fill-color: var(--pf-text-main) !important;
+        caret-color: var(--pf-text-main) !important;
+        background-color: transparent !important;
+    }
+}
+
+.premium-btn-icon {
+    border: none;
+    background: transparent;
+    color: var(--pf-text-muted);
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--pf-transition);
+
+    &:hover {
+        color: var(--pf-text-main);
+        background: rgba(0, 0, 0, 0.04);
+    }
+}
+
+.btn-custom-primary {
+    background-color: var(--pf-primary);
+    border: 1px solid var(--pf-primary);
+    color: var(--text-on-primary, #ffffff);
+    border-radius: var(--pf-radius);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+    &:hover,
+    &:focus {
+        background-color: color-mix(in srgb, var(--pf-primary) 85%, black);
+        border-color: color-mix(in srgb, var(--pf-primary) 85%, black);
+        color: var(--text-on-primary, #ffffff);
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.1s ease;
+    }
+}
+
+.btn-custom-secondary {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    color: #ffffff;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(255, 0, 124, 0.15);
+
+    &:hover,
+    &:focus {
+        background-color: var(--secondary-hover, color-mix(in srgb, var(--secondary-color) 85%, black));
+        border-color: var(--secondary-hover, color-mix(in srgb, var(--secondary-color) 85%, black));
+        color: #ffffff;
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 16px rgba(255, 0, 124, 0.25);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(255, 0, 124, 0.1);
+        transition: all 0.1s ease;
+    }
+}
+
+.premium-error {
+    font-size: 0.8rem;
+    color: var(--pf-danger);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+    animation: fadeSlideUp 0.2s ease-out;
+    font-weight: 500;
+}
+
+/* --- Right Panel Content Adapt --- */
+.right-panel-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+@media (min-width: 1200px) {
+    .right-panel-content {
+        position: absolute;
+        inset: 0;
+    }
+}
+
+@media (max-width: 1199px) {
+    .right-panel-content {
+        height: 400px;
+    }
+}
+
+/* --- Roles Selectors --- */
+.roles-wrapper {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    min-height: 0;
+    padding: 1.25rem;
+}
+
+.role-card {
+    position: relative;
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius-lg);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: var(--pf-transition);
+    background: var(--pf-bg);
+    overflow: hidden;
+    z-index: 1;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: var(--pf-primary);
+        background: var(--pf-surface);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    &.selected {
+        border-color: var(--pf-primary);
+        background: var(--pf-primary);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--pf-primary) 40%, transparent);
+
+        .role-icon-box {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .role-name {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .role-desc {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .role-bg-fx {
+            opacity: 1;
+        }
+    }
+}
+
+.role-card-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+.role-icon-box {
+    font-size: 1.6rem;
+    color: var(--pf-text-muted);
+    transition: var(--pf-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+}
+
+.role-info {
+    flex-grow: 1;
+}
+
+.role-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--pf-text-main);
+    margin-bottom: 0.2rem;
+    transition: var(--pf-transition);
+}
+
+.role-desc {
+    font-size: 0.85rem;
+    color: var(--pf-text-muted);
+    line-height: 1.4;
+    transition: var(--pf-transition);
+}
+
+.role-bg-fx {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: var(--pf-transition);
+    z-index: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--pf-text-muted);
+
+    .empty-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+}
+
+/* --- Roles Summary & Error --- */
+.roles-summary {
+    padding: 1.25rem 1.5rem;
+    background: var(--pf-primary);
+    border-top: none;
+    margin-top: auto;
+    border-radius: 0 0 calc(var(--pf-radius-lg) - 1px) calc(var(--pf-radius-lg) - 1px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+
+    .summary-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0.75rem;
+    }
+}
+
+.premium-badge {
+    background: var(--secondary-color);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.roles-error {
+    padding: 0.85rem 1.5rem;
+    background: transparent;
+    color: var(--pf-danger);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px solid var(--pf-danger);
+}
+
+/* --- Action Buttons --- */
+.btn-new-user {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
+}
+
+/* --- Scrollbar --- */
+.custom-scrollbar {
     &::-webkit-scrollbar {
         width: 6px;
     }
 
     &::-webkit-scrollbar-track {
-        background: #f1f1f1;
+        background: transparent;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: #ced4da;
-        border-radius: 4px;
+        background: #cbd5e1;
+        border-radius: 10px;
     }
 
     &::-webkit-scrollbar-thumb:hover {
-        background: #adb5bd;
+        background: #94a3b8;
     }
-}
-
-// Estilo del item de rol (para efecto hover y selección)
-.role-item {
-    transition: all 0.2s ease;
-
-    &:hover {
-        border-color: var(--bs-primary) !important; // Usa variable bootstrap
-        background-color: rgba(var(--bs-primary-rgb), 0.05);
-    }
-}
-
-// Utilidad para cursor
-.cursor-pointer {
-    cursor: pointer;
-}
-
-// Ajuste para el object-fit de la imagen
-.object-fit-cover {
-    object-fit: cover;
-}
-
-// Ajuste sutil al card para parecerse al diseño "glass" original pero usando BS variables
-.card {
-    border-radius: 1rem; // Un poco más redondeado que el default de bootstrap
-}
-
-.input-group-text {
-    border-color: #dee2e6;
 }

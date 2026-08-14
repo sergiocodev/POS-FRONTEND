@@ -143,13 +143,6 @@ export const routes: Routes = [
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.INVENTARIO_TRANSFERENCIAS] }
             },
-            {
-                path: 'reports/inventory',
-                loadComponent: () => import('./features/reports/inventory-report/inventory-report.component').then(m => m.InventoryReportComponent),
-                canActivate: [permissionGuard],
-                data: { requiredPermissions: [PermissionConstants.INVENTARIO_REPORTES] }
-            },
-
             // --- CAJA ---
             {
                 path: 'cash',
@@ -249,6 +242,12 @@ export const routes: Routes = [
                 path: 'pharmacy',
                 redirectTo: 'pharmacy/catalog',
                 pathMatch: 'full'
+            },
+
+            // --- TEST SPINNER ---
+            {
+                path: 'test-spinner',
+                loadComponent: () => import('./features/test-spinner/test-spinner.component').then(m => m.TestSpinnerComponent)
             },
 
             // --- REDIRECTS ---

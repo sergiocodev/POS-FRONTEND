@@ -1,15 +1,27 @@
 <div *ngIf="show" [class.spinner-overlay]="fullScreen" [class.spinner-inline]="!fullScreen">
     <div class="spinner-container" [class.is-fullscreen]="fullScreen">
-        <!-- El spinner moderno con anillos y resplandor -->
-        <div class="modern-spinner" [style.--spinner-size.px]="size" [style.--spinner-color]="color">
-            <div class="spinner-glow"></div>
-            <div class="spinner-ring"></div>
-            <div class="spinner-dot"></div>
+
+        <!-- Contenedor principal del Spinner Premium -->
+        <div class="premium-spinner-wrapper" [style.--spinner-size.px]="size" [style.--theme-color]="color">
+
+            <!-- Efecto resplandor posterior (Aurora) -->
+            <div class="aurora-glow"></div>
+
+            <!-- Sistema de Escaneo HUD (High-Tech Cyber UI) -->
+            <div class="hud-system">
+                <div class="hud-glow"></div>
+                <div class="hud-ring-outer"></div>
+                <div class="hud-ring-inner"></div>
+                <div class="hud-brackets"></div>
+                <div class="hud-crosshair"></div>
+
+                <!-- Logo de la empresa en el centro -->
+                <div class="brand-logo-container">
+                    <div class="logo-backdrop"></div>
+                    <img src="/images/logosv.ico" alt="Empresa Logo" class="brand-logo" />
+                </div>
+            </div>
         </div>
 
-        <!-- Mensaje opcional con animación de puntos suspensivos -->
-        <p *ngIf="message" class="spinner-message" [style.color]="color">
-            {{ message }}<span class="dots"></span>
-        </p>
     </div>
 </div>

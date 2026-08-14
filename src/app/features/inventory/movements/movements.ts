@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MovementListComponent } from './movement-list/movement-list.component';
 import { InventoryService } from '../../../core/services/inventory.service';
@@ -8,6 +8,7 @@ import { StockMovementResponse } from '../../../core/models/inventory.model';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-movements',
@@ -17,7 +18,8 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
         MovementListComponent,
         ModuleHeaderComponent,
         ConfirmModalComponent,
-        ModalAlertComponent
+        ModalAlertComponent,
+        SpinnerComponent
     ],
     templateUrl: './movements.html',
     styleUrl: './movements.scss'
@@ -43,7 +45,7 @@ export class MovementsComponent implements OnInit {
     constructor() {
         effect(() => {
             if (this.selectedEstablishmentId()) {
-                this.loadMovements();
+                untracked(() => this.loadMovements());
             }
         });
     }

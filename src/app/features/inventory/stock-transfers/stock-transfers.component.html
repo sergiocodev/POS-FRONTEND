@@ -1,6 +1,6 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
-
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
 <app-module-header title="Transferencias de Stock" iconClass="bi bi-arrows-left-right"></app-module-header>
 
 <div class="stock-transfers-page animate-fade-in">
@@ -29,8 +29,7 @@
             [lotsMap]="lotsMap()"
             [isSaving]="isSaving()"
             [isLoadingData]="isLoadingData()"
-            (saved)="onSaveTransfer($event)"
-            (cancelled)="onFormCancelled()">
+            (saved)="onSaveTransfer($event)">
         </app-stock-transfer-form>
     </app-modal-generic>
     }

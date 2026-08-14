@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { take, finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SaleService } from '../../../core/services/sale.service';
@@ -10,6 +12,11 @@ import { SaleDetailComponent } from './sale-detail/sale-detail.component';
 import { SummaryCardsComponent, SummaryItem } from '../../../shared/components/summary-cards/summary-cards.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { DateRangeSearchComponent } from '../../../shared/components/date-range-search/date-range-search.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
+import { AuthService } from '../../../core/services/auth.service';
 @Component({
     selector: 'app-view-sales',
     standalone: true,
@@ -20,21 +27,26 @@ import { DateRangeSearchComponent } from '../../../shared/components/date-range-
         SaleDetailComponent,
         ModuleHeaderComponent,
         SummaryCardsComponent,
-        DateRangeSearchComponent
+        DateRangeSearchComponent,
+        SpinnerComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent
     ],
-    templateUrl: './view-sales.component.html'
+    templateUrl: './view-sales.component.html',
+    styleUrl: './view-sales.component.scss'
 })
 export class ViewSalesComponent implements OnInit {
     private saleService = inject(SaleService);
+    private authService = inject(AuthService);
     private router = inject(Router);
     private establishmentStateService = inject(EstablishmentStateService);
+    private modalService = inject(ModalService);
 
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     sales = signal<SaleResponse[]>([]);
     isLoading = signal<boolean>(false);
-    errorMessage = signal<string>('');
 
     // Pagination & Filters
     currentPage = signal(0);
@@ -69,8 +81,7 @@ export class ViewSalesComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this.loadSales();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     constructor() {
@@ -84,9 +95,10 @@ export class ViewSalesComponent implements OnInit {
                 return; // Let ngOnInit handle the initial data load
             }
 
-            this.currentPage.set(0);
-            this.loadSales();
-            this.loadSummary();
+            untracked(() => {
+                this.currentPage.set(0);
+                this.loadAllData();
+            });
         }, { allowSignalWrites: true });
     }
 
@@ -97,32 +109,43 @@ export class ViewSalesComponent implements OnInit {
         return `${year}-${month}-${day}`;
     }
 
+    loadAllData(): void {
+        this.isLoading.set(true);
+        forkJoin({
+            sales: this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).pipe(take(1)),
+            summary: this.saleService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).pipe(take(1))
+        }).subscribe({
+            next: (response) => {
+                const page = response.sales.data;
+                this.sales.set(page.content || []);
+                this.totalItems.set(page.totalElements || 0);
+                this.totalPages.set(page.totalPages || 0);
+                this.serverSummary.set(response.summary.data);
+                this.isLoading.set(false);
+            },
+            error: (error) => {
+                this.isLoading.set(false);
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los datos. Por favor, intente nuevamente.', type: 'error' });
+                console.error('Error loading data:', error);
+            }
+        });
+    }
+
     loadSales(): void {
         this.isLoading.set(true);
-        this.errorMessage.set('');
-
-        this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
+        this.saleService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId())
+        .pipe(take(1), finalize(() => this.isLoading.set(false)))
+        .subscribe({
             next: (response) => {
                 const page = response.data;
                 this.sales.set(page.content || []);
                 this.totalItems.set(page.totalElements || 0);
                 this.totalPages.set(page.totalPages || 0);
-                this.isLoading.set(false);
             },
             error: (error) => {
-                this.errorMessage.set('No se pudieron cargar los datos. Por favor, intente nuevamente.');
-                this.isLoading.set(false);
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los datos. Por favor, intente nuevamente.', type: 'error' });
                 console.error('Error loading sales:', error);
             }
-        });
-    }
-
-    loadSummary(): void {
-        this.saleService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
-            next: (response) => {
-                this.serverSummary.set(response.data);
-            },
-            error: (err) => console.error('Error loading summary:', err)
         });
     }
 
@@ -140,43 +163,62 @@ export class ViewSalesComponent implements OnInit {
     handleTableFilter(filters: any): void {
         this.tableFilters.set(filters);
         this.currentPage.set(0);
-        this.loadSales();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     handleDateFilter(event: { startDate: string, endDate: string }) {
         this.startDate.set(event.startDate);
         this.endDate.set(event.endDate);
         this.currentPage.set(0);
-        this.loadSales();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     onViewDetails(id: number): void {
-        this.isDetailVisible.set(true);
+        this.isLoading.set(true);
         this.selectedSale.set(undefined);
 
-        this.saleService.getById(id).subscribe({
+        this.saleService.getById(id)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
             next: (response) => {
                 this.selectedSale.set(response.data);
+                this.isDetailVisible.set(true);
             },
             error: (error) => {
                 console.error('Error fetching sale details:', error);
-                this.isDetailVisible.set(false);
-                this.errorMessage.set('No se pudo obtener el detalle de la venta.');
+                this.modalService.alert({ title: 'Error', message: 'No se pudo obtener el detalle de la venta.', type: 'error' });
             }
         });
     }
 
-    onCancelSale(id: number): void {
-        if (confirm('¿Estás seguro de anular esta venta? Esta acción no se puede deshacer.')) {
+    async onCancelSale(id: number): Promise<void> {
+        if (!this.authService.isAdmin()) {
+            this.modalService.alert({
+                title: 'Acceso Denegado',
+                message: 'Solo los administradores tienen permiso para anular o invalidar ventas.',
+                type: 'warning'
+            });
+            return;
+        }
+
+        const confirmed = await this.modalService.confirm({
+            title: 'Confirmar Anulación',
+            message: '¿Estás seguro de anular esta venta? Esta acción no se puede deshacer.',
+            confirmText: 'Sí, anular',
+            cancelText: 'Cancelar',
+            btnColor: 'danger'
+        });
+
+        if (confirmed) {
+            this.isLoading.set(true);
             this.saleService.cancel(id).subscribe({
                 next: () => {
-                    this.loadSales();
-                    this.loadSummary();
+                    this.loadAllData();
+                    this.modalService.alert({ title: 'Éxito', message: 'Venta anulada correctamente.', type: 'success' });
                 },
                 error: (err) => {
-                    this.errorMessage.set('Error al anular la venta.');
+                    this.isLoading.set(false);
+                    this.modalService.alert({ title: 'Error', message: 'Error al anular la venta.', type: 'error' });
                     console.error(err);
                 }
             });

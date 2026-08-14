@@ -10,6 +10,7 @@ import { EstablishmentResponse } from '../../../core/models/maintenance.model';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-establishments',
@@ -21,7 +22,8 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
         ModuleHeaderComponent,
         ConfirmModalComponent,
         ModalAlertComponent,
-        ModalGenericComponent
+        ModalGenericComponent,
+        SpinnerComponent
     ],
     templateUrl: './establishments.component.html',
     styleUrl: './establishments.component.scss'
@@ -38,15 +40,28 @@ export class EstablishmentsComponent implements OnInit {
     displayForm = signal(false);
     selectedEstablishmentId = signal<number | null>(null);
 
+    // Table Pagination & Filter State
+    totalItems = signal<number>(0);
+    totalPages = signal<number>(0);
+    currentPage = signal<number>(0);
+    pageSize = signal<number>(10);
+    tableFilters = signal<any>({});
+
     ngOnInit() {
         this.loadData();
     }
 
     loadData() {
         this.isLoading.set(true);
-        this.establishmentService.getAll().subscribe({
+        this.establishmentService.getAllPaged(
+            this.currentPage(),
+            this.pageSize(),
+            this.tableFilters()
+        ).subscribe({
             next: (response) => {
-                this.establishments.set(response.data);
+                this.establishments.set(response.data.content);
+                this.totalItems.set(response.data.totalElements);
+                this.totalPages.set(response.data.totalPages);
                 this.isLoading.set(false);
             },
             error: (error) => {
@@ -59,6 +74,24 @@ export class EstablishmentsComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    // Table Event Handlers
+    onPageChange(page: number): void {
+        this.currentPage.set(page);
+        this.loadData();
+    }
+
+    onPageSizeChange(size: number): void {
+        this.pageSize.set(size);
+        this.currentPage.set(0);
+        this.loadData();
+    }
+
+    onTableFilter(filters: any): void {
+        this.tableFilters.set(filters);
+        this.currentPage.set(0);
+        this.loadData();
     }
 
     onOpenForm(establishmentId: number | null = null) {

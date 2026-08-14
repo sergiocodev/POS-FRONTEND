@@ -48,7 +48,7 @@ export class CustomerListComponent implements OnInit {
             label: 'Puntos',
             type: 'badge',
             align: 'center',
-            classCallback: () => 'bg-primary bg-opacity-10 text-primary rounded-pill px-3'
+            classCallback: () => 'badge bg-warning text-primary rounded-pill px-3'
         },
         { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
     ];

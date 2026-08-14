@@ -1,209 +1,220 @@
-<div class="user-form animate-fade-in p-4">
-
-    <div *ngIf="isLoading()" class="d-flex justify-content-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
+<div class="user-form-container animate-fade-in">
+    <!-- Spinner -->
+    <div *ngIf="isLoading()" class="d-flex flex-column align-items-center justify-content-center py-5 min-vh-50">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <span class="text-muted fw-medium tracking-wide">CARGANDO DATOS...</span>
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="premium-form">
+            <div class="d-flex justify-content-end mb-3">
+                <button type="submit" class="btn-new-user" [disabled]="isSaving()">
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <i *ngIf="!isSaving()" class="bi bi-check2-all me-2"></i>
+                    {{ isEditMode() ? 'Guardar Cambios' : 'Registrar Usuario' }}
+                </button>
+            </div>
             <div class="row g-4">
+                <!-- Left Column: Form Fields -->
+                <div class="col-12 col-xl-8">
+                    <div class="premium-card">
+                        <div class="card-body-sleek">
+                            <div class="row g-4">
 
-                <div class="col-12 col-lg-7">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body px-4 pb-4">
-                            <div class="row g-3">
-
-                                <div class="col-12" *ngIf="!isEditMode()">
-                                    <label class="form-label fw-semibold">Número de documento</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" formControlName="document"
-                                            placeholder="N° de Documento (DNI/CEX)">
-                                        <button class="btn btn-info text-white" type="button" (click)="searchDocument()"
-                                            [disabled]="isSearching()">
-                                            <span *ngIf="isSearching()"
-                                                class="spinner-border spinner-border-sm me-1"></span>
-                                            <i *ngIf="!isSearching()" class="bi bi-search"></i>
+                                <!-- Top Area: Avatar -->
+                                <div
+                                    class="col-12 border-bottom pb-4 mb-2 d-flex flex-column flex-sm-row align-items-center gap-4">
+                                    <div class="avatar-upload-zone shadow-sm" (click)="fileInput.click()"
+                                        title="Actualizar foto">
+                                        <input type="file" #fileInput hidden (change)="onFileSelected($event)"
+                                            accept="image/*">
+                                        <div class="avatar-display">
+                                            <img *ngIf="userForm.get('profilePicture')?.value && !imageError()"
+                                                [src]="userForm.get('profilePicture')?.value" class="avatar-img"
+                                                (error)="imageError.set(true)" alt="Preview">
+                                            <div *ngIf="!userForm.get('profilePicture')?.value || imageError()"
+                                                class="avatar-placeholder">
+                                                <i class="bi bi-person-fill text-secondary"></i>
+                                            </div>
+                                            <div class="upload-overlay">
+                                                <i class="bi bi-camera-fill"></i>
+                                            </div>
+                                        </div>
+                                        <!-- Loading indicator for image upload -->
+                                        <div class="uploading-spinner" *ngIf="isSaving()">
+                                            <div class="spinner-border spinner-border-sm text-primary"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 text-center text-sm-start">
+                                        <h6 class="fw-bold mb-1 text-dark">Fotografía de Perfil</h6>
+                                        <p class="text-muted small mb-3">Sube una imagen cuadrada para una mejor
+                                            visualización. Haz clic en la imagen para cambiarla.</p>
+                                        <button type="button"
+                                            class="btn btn-sm btn-custom-secondary fw-medium rounded-pill px-3"
+                                            (click)="fileInput.click()" [disabled]="isSaving()">
+                                            <i class="bi bi-upload me-1"></i> Seleccionar archivo
                                         </button>
                                     </div>
-                                    <div class="form-text">Use la búsqueda para autocompletar datos</div>
                                 </div>
 
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">Nombre Completo <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group has-validation">
-                                        <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
-                                        <input type="text" class="form-control" formControlName="fullName"
-                                            placeholder="Ej: Juan Pérez García"
-                                            [class.is-invalid]="f['fullName'].invalid && f['fullName'].touched">
-                                        <div class="invalid-feedback">
-                                            El nombre es requerido para el registro.
+                                <!-- Autocomplete Document Row -->
+                                <div class="col-12 col-md-6" *ngIf="!isEditMode()">
+                                    <div class="form-group">
+                                        <label class="premium-label">Número de Documento</label>
+                                        <div class="d-flex gap-2">
+                                            <div class="input-group-premium flex-grow-1">
+                                                <div class="input-icon"><i class="bi bi-person-vcard-fill"></i></div>
+                                                <input type="text" class="form-control premium-input"
+                                                    formControlName="document" placeholder="Número de documento">
+                                            </div>
+                                            <button
+                                                class="btn btn-custom-primary text-white d-flex align-items-center justify-content-center"
+                                                type="button" (click)="searchDocument()" [disabled]="isSearching()"
+                                                style="border-radius: var(--pf-radius); padding: 0 1.25rem;">
+                                                <span *ngIf="isSearching()"
+                                                    class="spinner-border spinner-border-sm"></span>
+                                                <i *ngIf="!isSearching()" class="bi bi-search"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">Email <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group has-validation">
-                                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
-                                        <input type="email" class="form-control" formControlName="email"
-                                            placeholder="correo@corporativo.com"
-                                            [class.is-invalid]="f['email'].invalid && f['email'].touched">
-                                        <div class="invalid-feedback">
-                                            {{ f['email'].errors?.['required'] ? 'El email es requerido' : 'Email
-                                            inválido' }}
+                                <!-- Form Fields Grid -->
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label class="premium-label">Nombre Completo <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group-premium"
+                                            [class.is-invalid-premium]="f['fullName'].invalid && f['fullName'].touched">
+                                            <div class="input-icon"><i class="bi bi-card-text"></i></div>
+                                            <input type="text" class="form-control premium-input"
+                                                formControlName="fullName" placeholder="Ej: Juan Pérez García">
+                                        </div>
+                                        <div class="premium-error"
+                                            *ngIf="f['fullName'].invalid && f['fullName'].touched">
+                                            <i class="bi bi-exclamation-circle-fill"></i> El nombre completo es
+                                            obligatorio.
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold">Usuario <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group has-validation">
-                                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
-                                        <input type="text" class="form-control" formControlName="username"
-                                            placeholder="Identificador"
-                                            [class.is-invalid]="f['username'].invalid && f['username'].touched">
-                                        <div class="invalid-feedback">
-                                            {{ f['username'].errors?.['required'] ? 'Requerido' : 'Mínimo 3 caracteres'
+                                    <div class="form-group">
+                                        <label class="premium-label">Nombre de Usuario <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group-premium"
+                                            [class.is-invalid-premium]="f['username'].invalid && f['username'].touched">
+                                            <div class="input-icon"><i class="bi bi-person-badge"></i></div>
+                                            <input type="text" class="form-control premium-input"
+                                                formControlName="username" placeholder="Identificador de acceso">
+                                        </div>
+                                        <div class="premium-error"
+                                            *ngIf="f['username'].invalid && f['username'].touched">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{
+                                            f['username'].errors?.['required'] ? 'Requerido.' : 'Mínimo 3 caracteres.'
                                             }}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold">Contraseña</label>
-
-                                    <div class="input-group has-validation">
-                                        <input [type]="showPassword() ? 'text' : 'password'" class="form-control"
-                                            formControlName="password" placeholder="Mín. 8 carácteres"
-                                            [class.is-invalid]="f['password'].invalid && f['password'].touched">
-
-                                        <button class="btn btn-outline-secondary" type="button"
-                                            (click)="togglePassword()">
-                                            <i class="bi" [class]="showPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
-                                        </button>
-
-                                        <div class="invalid-feedback">
-                                            {{ f['password'].errors?.['required'] ? 'Obligatoria' : 'Mínimo 8
-                                            caracteres' }}
+                                    <div class="form-group">
+                                        <label class="premium-label d-flex justify-content-between align-items-center">
+                                            <span>Contraseña de Acceso <span *ngIf="!isEditMode()"
+                                                    class="text-danger">*</span></span>
+                                            <span *ngIf="isEditMode()"
+                                                class="premium-hint-inline bg-light px-2 py-1 rounded text-muted">(Dejar
+                                                vacío para mantener actual)</span>
+                                        </label>
+                                        <div class="input-group-premium"
+                                            [class.is-invalid-premium]="f['password'].invalid && f['password'].touched">
+                                            <div class="input-icon"><i class="bi bi-shield-lock"></i></div>
+                                            <input [type]="showPassword() ? 'text' : 'password'"
+                                                class="form-control premium-input" formControlName="password"
+                                                placeholder="Mínimo 8 caracteres">
+                                            <button type="button" class="btn premium-btn-icon"
+                                                (click)="togglePassword()">
+                                                <i class="bi"
+                                                    [class]="showPassword() ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                                            </button>
                                         </div>
-                                    </div>
-
-                                    <div *ngIf="isEditMode()" class="form-text mt-1">
-                                        (dejar vacío para no cambiar)
-                                    </div>
-                                </div>
-
-
-                                <div class="col-12 border-top pt-4 mt-2">
-                                    <label class="form-label fw-bold text-primary mb-3">Foto de Perfil</label>
-                                    <div class="row align-items-center">
-                                        <div class="col-12 col-md-8 mb-3 mb-md-0">
-                                            <div class="input-group mb-2">
-                                                <input type="text" class="form-control"
-                                                    formControlName="profilePicture">
-                                                <input type="file" #fileInput hidden (change)="onFileSelected($event)"
-                                                    accept="image/*">
-                                                <button class="btn btn-outline-primary" type="button"
-                                                    (click)="fileInput.click()" [disabled]="isSaving()"
-                                                    title="Subir Foto">
-                                                    <i class="bi bi-image"></i>
-                                                </button>
-                                            </div>
-                                            <small class="text-muted">Suba una imagen.</small>
-                                        </div>
-                                        <div class="col-12 col-md-4 d-flex justify-content-center">
-                                            <div class="avatar-preview rounded-circle border d-flex align-items-center justify-content-center overflow-hidden bg-light"
-                                                style="width: 100px; height: 100px;">
-                                                <img *ngIf="userForm.get('profilePicture')?.value && !imageError()"
-                                                    [src]="userForm.get('profilePicture')?.value"
-                                                    class="w-100 h-100 object-fit-cover" (error)="imageError.set(true)"
-                                                    alt="Preview">
-                                                <div *ngIf="!userForm.get('profilePicture')?.value || imageError()"
-                                                    class="text-center text-muted">
-                                                    <i class="bi bi-person fs-1"></i>
-                                                    <div style="font-size: 0.7rem;">Sin foto</div>
-                                                </div>
-                                            </div>
+                                        <div class="premium-error"
+                                            *ngIf="f['password'].invalid && f['password'].touched">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{
+                                            f['password'].errors?.['required'] ? 'La contraseña es obligatoria.' :
+                                            'Mínimo 8 caracteres.' }}
                                         </div>
                                     </div>
                                 </div>
 
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="premium-label">Correo Electrónico <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group-premium"
+                                            [class.is-invalid-premium]="f['email'].invalid && f['email'].touched">
+                                            <div class="input-icon"><i class="bi bi-envelope-at"></i></div>
+                                            <input type="email" class="form-control premium-input"
+                                                formControlName="email" placeholder="usuario@empresa.com">
+                                        </div>
+                                        <div class="premium-error" *ngIf="f['email'].invalid && f['email'].touched">
+                                            <i class="bi bi-exclamation-circle-fill"></i> {{
+                                            f['email'].errors?.['required'] ? 'El correo es obligatorio.' : 'Formato de
+                                            correo inválido.' }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-5">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body px-4 pb-4">
-                            <div class="roles-container custom-scrollbar mb-3">
-                                <div *ngIf="roles().length === 0" class="text-center py-4 bg-light rounded">
-                                    <i class="bi bi-exclamation-circle fs-3 text-muted mb-2 d-block"></i>
-                                    <span class="text-muted">No se encontraron roles activos</span>
-                                </div>
-
-                                <div *ngFor="let role of roles()"
-                                    class="role-item p-3 mb-2 rounded border cursor-pointer position-relative d-flex align-items-center gap-3"
-                                    [class.border-primary]="isRoleSelected(role.id)"
-                                    [class.bg-primary-subtle]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
-
-                                    <div class="role-icon d-flex align-items-center justify-content-center rounded bg-white border flex-shrink-0"
-                                        style="width: 40px; height: 40px;">
-                                        <i class="bi fs-4"
-                                            [ngClass]="isRoleSelected(role.id) ? 'bi-check-lg text-primary' : 'bi-lock text-muted'"></i>
+                <!-- Right Column: Roles -->
+                <div class="col-12 col-xl-4">
+                    <div class="premium-card h-100 d-flex flex-column">
+                        <div class="card-body-sleek flex-grow-1 p-0 position-relative">
+                            <div class="right-panel-content">
+                                <div class="roles-wrapper custom-scrollbar flex-grow-1">
+                                    <div *ngIf="roles().length === 0" class="empty-state">
+                                        <div class="empty-icon"><i class="bi bi-inboxes"></i></div>
+                                        <p>No hay roles disponibles en el sistema.</p>
                                     </div>
 
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold text-dark">{{ role.name }}</div>
-                                        <div class="small text-muted lh-sm">{{ role.description || 'Sin descripción' }}
+                                    <div *ngFor="let role of roles()" class="role-card"
+                                        [class.selected]="isRoleSelected(role.id)" (click)="toggleRole(role.id)">
+
+                                        <div class="role-card-inner">
+                                            <div class="role-icon-box">
+                                                <i class="bi"
+                                                    [ngClass]="isRoleSelected(role.id) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                            </div>
+                                            <div class="role-info">
+                                                <div class="role-name">{{ role.name }}</div>
+                                                <div class="role-desc">{{ role.description || 'Sin descripción' }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" [checked]="isRoleSelected(role.id)"
-                                            (click)="$event.stopPropagation()" readonly>
+                                        <div class="role-bg-fx"></div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="p-3 bg-light rounded" *ngIf="selectedRoles().length > 0">
-                                <small class="text-uppercase fw-bold text-muted d-block mb-2"
-                                    style="font-size: 0.75rem;">Seleccionado:</small>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <ng-container *ngFor="let role of roles()">
-                                        <span *ngIf="isRoleSelected(role.id)"
-                                            class="badge bg-primary rounded-pill fw-normal">
-                                            <i class="bi bi-tag-fill me-1"></i> {{ role.name }}
-                                        </span>
-                                    </ng-container>
+                                <!-- Selected Summary -->
+                                <div class="roles-summary" *ngIf="selectedRoles().length > 0">
+                                    <div class="summary-label">Rol Seleccionado</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <ng-container *ngFor="let role of roles()">
+                                            <div class="premium-badge shadow-sm" *ngIf="isRoleSelected(role.id)">
+                                                <i class="bi bi-shield-shaded"></i> {{ role.name }}
+                                            </div>
+                                        </ng-container>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div *ngIf="f['roleIds'].invalid && f['roleIds'].touched" class="text-danger small mt-2">
-                                <i class="bi bi-exclamation-circle me-1"></i> Debe seleccionar al menos un rol.
-                            </div>
+                                <div *ngIf="f['roleIds'].invalid && f['roleIds'].touched" class="roles-error">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Debe seleccionar un rol.
+                                </div>
+                            </div> <!-- Cierre de right-panel-content -->
                         </div>
                     </div>
-                </div>
-
-            </div>
-
-            <div class="card border-0 mt-4 shadow-sm">
-                <div class="card-body d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="isSaving()">
-                        <i class="bi bi-arrow-left me-1"></i> Descartar
-                    </button>
-                    <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving()">
-                        <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
-                            aria-hidden="true"></span>
-                        <i *ngIf="!isSaving()" class="bi bi-check-circle me-1"></i>
-                        {{ isEditMode() ? 'Guardar Cambios' : 'Registrar Usuario' }}
-                    </button>
                 </div>
             </div>
 

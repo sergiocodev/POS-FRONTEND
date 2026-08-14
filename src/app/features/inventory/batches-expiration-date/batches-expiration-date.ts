@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { take, finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { BatchListComponent } from './batch-list/batch-list.component';
 import { BatchFormComponent } from './batch-form/batch-form.component';
@@ -10,6 +12,7 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 import { ProductService } from '../../../core/services/product.service';
 import { ProductResponse } from '../../../core/models/product.model';
@@ -24,7 +27,8 @@ import { ProductResponse } from '../../../core/models/product.model';
     ModalGenericComponent,
     ModuleHeaderComponent,
     ConfirmModalComponent,
-    ModalAlertComponent
+    ModalAlertComponent,
+    SpinnerComponent
   ],
   templateUrl: './batches-expiration-date.html',
   styleUrl: './batches-expiration-date.scss'
@@ -55,14 +59,39 @@ export class BatchesExpirationDateComponent implements OnInit {
   constructor() {
     effect(() => {
       this.selectedEstablishmentId(); // track signal
-      this.currentPage.set(0);
-      this.loadLots();
+      untracked(() => {
+          this.currentPage.set(0);
+          this.loadLots();
+      });
     }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
-    this.loadLots();
-    this.loadProducts();
+    this.loadAllData();
+  }
+
+  loadAllData() {
+    const estId = this.selectedEstablishmentId();
+    if (!estId) return;
+
+    this.isLoading.set(true);
+    forkJoin({
+        lots: this.inventoryService.getAllLotsPaged(estId, this.currentPage(), this.pageSize(), this.tableFilters()).pipe(take(1)),
+        products: this.productService.getAll().pipe(take(1))
+    }).subscribe({
+        next: (res) => {
+            const page = res.lots.data;
+            this.lots.set(page.content || []);
+            this.totalElements.set(page.totalElements || 0);
+            this.products.set(res.products.data || []);
+            this.isLoading.set(false);
+        },
+        error: (err) => {
+            console.error('Error loading initial data:', err);
+            this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los datos', type: 'error' });
+            this.isLoading.set(false);
+        }
+    });
   }
 
   loadLots() {
@@ -70,17 +99,17 @@ export class BatchesExpirationDateComponent implements OnInit {
     if (!estId) return;
 
     this.isLoading.set(true);
-    this.inventoryService.getAllLotsPaged(estId, this.currentPage(), this.pageSize(), this.tableFilters()).subscribe({
+    this.inventoryService.getAllLotsPaged(estId, this.currentPage(), this.pageSize(), this.tableFilters())
+    .pipe(take(1), finalize(() => this.isLoading.set(false)))
+    .subscribe({
       next: (res) => {
         const page = res.data;
         this.lots.set(page.content || []);
         this.totalElements.set(page.totalElements || 0);
-        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error loading lots:', err);
         this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los lotes', type: 'error' });
-        this.isLoading.set(false);
       }
     });
   }
@@ -100,20 +129,6 @@ export class BatchesExpirationDateComponent implements OnInit {
     this.tableFilters.set(filters);
     this.currentPage.set(0);
     this.loadLots();
-  }
-
-  loadProducts() {
-    this.isLoadingProducts.set(true);
-    this.productService.getAll().subscribe({
-      next: (res) => {
-        this.products.set(res.data);
-        this.isLoadingProducts.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading products:', err);
-        this.isLoadingProducts.set(false);
-      }
-    });
   }
 
   onOpenForm() {

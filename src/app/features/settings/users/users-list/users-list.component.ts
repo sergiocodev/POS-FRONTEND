@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal, Input, Output, EventEmitter, effect, OnChanges, SimpleChanges } from '@angular/core';
-import { TableFilterComponent } from '../../../../shared/components/table-filter/table-filter.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserResponse } from '../../../../core/models/user.model';
@@ -14,8 +13,7 @@ import { DatePipe } from '@angular/common';
     imports: [
         CommonModule,
         FormsModule,
-        CustomTableComponent,
-        TableFilterComponent
+        CustomTableComponent
     ],
     providers: [DatePipe],
     templateUrl: './users-list.component.html',
@@ -28,12 +26,23 @@ export class UsersListComponent implements OnInit, OnChanges {
     @Input() roles: RoleResponse[] = [];
     @Input() isLoading = false;
 
-    @Output() create = new EventEmitter<void>();
+    // Pagination inputs
+    @Input() totalItems = 0;
+    @Input() totalPages = 0;
+    @Input() currentPage = 0;
+    @Input() pageSize = 10;
+
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<UserResponse>();
 
+    // Pagination & Filter outputs
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() pageSizeChange = new EventEmitter<number>();
+    @Output() tableFilterChange = new EventEmitter<any>();
+
     // Configuración de la tabla
     cols: TableColumn[] = [
+        { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
         { key: 'profilePicture', label: 'Perfil', type: 'image' },
         { key: 'username', label: 'Usuario', type: 'text', filterable: true },
         { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true },
@@ -44,85 +53,12 @@ export class UsersListComponent implements OnInit, OnChanges {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    // Datos Locales y Filtrados
-    localUsers = signal<UserResponse[]>([]);
-    filteredUsers = signal<UserResponse[]>([]);
-
-    // Filtros
-    searchTerm = signal('');
-    selectedRoleFilter = signal<number | null>(null);
-
-    currentPage = signal(1);
-    pageSize = 10;
-    totalUsers = signal(0);
-
-
-
     constructor() { }
 
     ngOnInit() {
-        this.updateLocalData();
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['users']) {
-            this.updateLocalData();
-        }
-    }
-
-    updateLocalData() {
-        this.localUsers.set(this.users);
-        this.totalUsers.set(this.users.length);
-        this.applyFilters();
-    }
-
-    // No loadData() anymore
-
-    // --- Lógica de Filtrado ---
-
-    applyFilters() {
-        let filtered = this.localUsers();
-        const search = this.searchTerm().toLowerCase();
-
-        // Filtro Texto
-        if (search) {
-            filtered = filtered.filter(user =>
-                user.username.toLowerCase().includes(search) ||
-                user.fullName.toLowerCase().includes(search) ||
-                user.email.toLowerCase().includes(search)
-            );
-        }
-
-        // Filtro Rol
-        if (this.selectedRoleFilter() !== null) {
-            const role = this.roles.find(r => r.id === this.selectedRoleFilter());
-            if (role) {
-                filtered = filtered.filter(user => user.roles.some(r => r.name === role.name));
-            }
-        }
-
-
-
-        this.filteredUsers.set(filtered);
-        this.currentPage.set(1); // Resetear a página 1 al filtrar
-    }
-
-    onSearchChange(value: string) {
-        this.searchTerm.set(value);
-        this.applyFilters();
-    }
-
-    onRoleFilterChange(roleId: number | null) {
-        // Corrección para conversión de string a number si viene del select nativo
-        const val = roleId ? Number(roleId) : null;
-        this.selectedRoleFilter.set(val);
-        this.applyFilters();
-    }
-
-
-
-    resetFilters() {
-        this.selectedRoleFilter.set(null);
     }
 
     // --- Acciones de la Tabla ---
@@ -137,10 +73,17 @@ export class UsersListComponent implements OnInit, OnChanges {
 
 
 
-    // --- Acciones ---
+    handlePageChange(page: number) {
+        // custom-table usually emits 1-based page, we emit 0-based to parent
+        this.pageChange.emit(page - 1);
+    }
 
-    createUser() {
-        this.create.emit();
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
+
+    handleTableFilter(filters: any) {
+        this.tableFilterChange.emit(filters);
     }
 
 

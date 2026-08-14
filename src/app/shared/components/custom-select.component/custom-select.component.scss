@@ -33,7 +33,7 @@
         }
 
         .selected-text {
-            color: white;
+            color: var(--text-main);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;

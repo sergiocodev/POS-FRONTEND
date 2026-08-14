@@ -1,0 +1,30 @@
+<div class="toolbar-container m-2 m-md-3">
+  <div class="toolbar-actions w-100">
+    <div class="format-selector">
+      <i class="bi bi-gear-fill icon-dark"></i>
+      <span class="format-label">Formato:</span>
+      <select class="form-select custom-select" (change)="formatChange.emit($event)" [value]="selectedFormat">
+        <option value="80MM">80MM</option>
+        <option value="TICKET">TICKET</option>
+        <option value="A4">A4</option>
+      </select>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-action btn-print" (click)="print.emit()">
+        <i class="bi bi-printer-fill"></i>
+        <span class="btn-text">Imprimir</span>
+      </button>
+
+      <button class="btn btn-action btn-download" (click)="download.emit()">
+        <i class="bi bi-file-earmark-pdf-fill"></i>
+        <span class="btn-text">Descargar</span>
+      </button>
+
+      <button class="btn btn-action btn-share" (click)="share.emit()">
+        <i class="bi bi-share-fill"></i>
+        <span class="btn-text">Compartir</span>
+      </button>
+    </div>
+  </div>
+</div>

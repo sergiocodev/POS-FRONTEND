@@ -1,5 +1,22 @@
-.users-page {
-    padding: 0;
+.users-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+    gap: 12px;
+}
+
+.btn-new-user {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
 }
 
 .animate-fade-in {
@@ -19,4 +36,10 @@
 .modal {
     background-color: rgba(0, 0, 0, 0.1);
     transition: opacity 0.15s linear;
+}
+
+@media (max-width: 768px) {
+    .users-wrapper {
+        margin: 1rem !important;
+    }
 }

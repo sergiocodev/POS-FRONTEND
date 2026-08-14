@@ -1,68 +1,62 @@
 <!-- Sales Table -->
-<div class="row">
-        <div class="col-12 mb-4">
-            <div class="position-relative">
-                <app-custom-table [data]="sales" [columns]="columns" [pageSize]="pageSize" [totalElements]="totalItems"
-                    [currentPage]="currentPage + 1" (onAction)="handleTableAction($event)"
-                    (onPageChange)="handlePageChange($event)" (onFilterChange)="handleTableFilter($event)"
-                    (onPageSizeChange)="handlePageSizeChange($event)">
-                </app-custom-table>
+<div class="position-relative">
+    <app-custom-table [data]="sales" [columns]="columns" [pageSize]="pageSize" [totalElements]="totalItems"
+        [currentPage]="currentPage + 1" (onAction)="handleTableAction($event)" (onPageChange)="handlePageChange($event)"
+        (onFilterChange)="handleTableFilter($event)" (onPageSizeChange)="handlePageSizeChange($event)">
+    </app-custom-table>
 
-                <div *ngIf="isLoading"
-                    class="position-absolute top-50 start-50 translate-middle text-center w-100 h-100 bg-white bg-opacity-75 d-flex flex-column align-items-center justify-content-center"
-                    style="z-index: 10;">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted small">Cargando ventas...</p>
-                </div>
-            </div>
-        </div>
+    <div *ngIf="isLoading"
+        class="position-absolute top-50 start-50 translate-middle text-center w-100 h-100 bg-white bg-opacity-75 d-flex flex-column align-items-center justify-content-center"
+        style="z-index: 10;">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando ventas...</p>
     </div>
+</div>
 
 
-    <!-- Templates for Custom Columns -->
-    <ng-template #dateTemplate let-row>
-        {{ row.date | date:'dd/MM/yyyy' }}
-    </ng-template>
+<!-- Templates for Custom Columns -->
+<ng-template #dateTemplate let-row>
+    {{ row.date | date:'dd/MM/yyyy' }}
+</ng-template>
 
-    <ng-template #voucherTemplate let-row>
-        <span class="fw-bold">{{ row.series }}-{{ row.number }}</span>
-    </ng-template>
+<ng-template #voucherTemplate let-row>
+    <span class="fw-bold">{{ row.series }}-{{ row.number }}</span>
+</ng-template>
 
-    <ng-template #customerNameTemplate let-row>
-        <span class="fw-bold">{{ row.customerDocumentNumber }} | {{ row.customerName }}</span>
-    </ng-template>
+<ng-template #customerNameTemplate let-row>
+    <span class="fw-bold">{{ row.customerDocumentNumber }} | {{ row.customerName }}</span>
+</ng-template>
 
-    <ng-template #totalTemplate let-row>
-        <span class="fw-bold">{{ row.total | currency:'PEN':'S/ ' }}</span>
-    </ng-template>
+<ng-template #totalTemplate let-row>
+    <span class="fw-bold">{{ row.total | currency:'PEN':'S/ ' }}</span>
+</ng-template>
 
-    <ng-template #paymentConditionTemplate let-row>
-        <span class="badge" [ngClass]="getPaymentConditionBadgeClass(row.paymentCondition)">
-            {{ getPaymentConditionLabel(row.paymentCondition) }}
-        </span>
-    </ng-template>
+<ng-template #paymentConditionTemplate let-row>
+    <span class="badge" [ngClass]="getPaymentConditionBadgeClass(row.paymentCondition)">
+        {{ getPaymentConditionLabel(row.paymentCondition) }}
+    </span>
+</ng-template>
 
-    <ng-template #statusBadgeTemplate let-row>
-        <span class="badge" [ngClass]="getStatusBadgeClass(row.status)">
-            {{ getStatusLabel(row.status) }}
-        </span>
-    </ng-template>
+<ng-template #statusBadgeTemplate let-row>
+    <span class="badge" [ngClass]="getStatusBadgeClass(row.status)">
+        {{ getStatusLabel(row.status) }}
+    </span>
+</ng-template>
 
-    <ng-template #sunatBadgeTemplate let-row>
-        <span class="badge" [ngClass]="getSunatBadgeClass(row.sunatStatus)">
-            {{ getSunatLabel(row.sunatStatus) }}
-        </span>
-    </ng-template>
+<ng-template #sunatBadgeTemplate let-row>
+    <span class="badge" [ngClass]="getSunatBadgeClass(row.sunatStatus)">
+        {{ getSunatLabel(row.sunatStatus) }}
+    </span>
+</ng-template>
 
-    <ng-template #actionsTemplate let-row>
-        <div class="d-flex justify-content-center gap-2">
-            <button class="btn-action" title="Ver Detalle"
-                (click)="handleTableAction({action: 'view', row: row})">
-                <i class="bi bi-search"></i>
-            </button>
-            <button *ngIf="row.status !== 'CANCELED'" class="btn-action btn-delete" title="Anular"
-                (click)="handleTableAction({action: 'cancel', row: row})">
-                <i class="bi bi-x-circle"></i>
-            </button>
-        </div>
-    </ng-template>
+<ng-template #actionsTemplate let-row>
+    <div class="d-flex justify-content-center gap-2">
+        <button class="btn-action" title="Ver Detalle" (click)="handleTableAction({action: 'view', row: row})">
+            <i class="bi bi-search"></i>
+        </button>
+        <button *ngIf="row.status !== 'CANCELED' && authService.isAdmin()" class="btn-action btn-delete" title="Anular"
+            (click)="handleTableAction({action: 'cancel', row: row})">
+            <i class="bi bi-x-circle"></i>
+        </button>
+    </div>
+</ng-template>

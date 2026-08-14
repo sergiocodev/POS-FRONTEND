@@ -21,6 +21,13 @@ export class EstablishmentService {
         return this.cache$;
     }
 
+    getAllPaged(page: number = 0, size: number = 10, filters?: any): Observable<ResponseApi<any>> {
+        let url = `${this.apiUrl}/paged?page=${page}&size=${size}`;
+        if (filters?.name) url += `&name=${filters.name}`;
+        if (filters?.codeSunat) url += `&codeSunat=${filters.codeSunat}`;
+        return this.http.get<ResponseApi<any>>(url);
+    }
+
     getById(id: number): Observable<ResponseApi<EstablishmentResponse>> {
         return this.http.get<ResponseApi<EstablishmentResponse>>(`${this.apiUrl}/${id}`);
     }

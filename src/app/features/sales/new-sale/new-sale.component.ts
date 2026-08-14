@@ -118,6 +118,8 @@ export class NewSaleComponent implements OnInit {
     showOpenModal = signal<boolean>(false);
     isCartOpen = signal<boolean>(false);
     preselectedCustomerId = signal<number | null>(null);
+    customerPrefillData = signal<any>(null);
+    customerEditId = signal<number | null>(null);
 
     constructor() {
         // Effect to handle missing cash session
@@ -155,10 +157,10 @@ export class NewSaleComponent implements OnInit {
             if (this.posData() && !this.selectedCustomer()) {
                 const defaultCust = this.customers().find(c => c.documentNumber === '00000000');
                 if (defaultCust) {
-                    this.selectedCustomer.set(defaultCust);
+                    untracked(() => this.selectedCustomer.set(defaultCust));
                 }
             }
-        });
+        }, { allowSignalWrites: true });
     }
 
     ngOnInit(): void {}
@@ -187,9 +189,41 @@ export class NewSaleComponent implements OnInit {
         this.isLoading.set(true);
         const session = this.activeSession() as CashSessionResponse;
         
-        const request: SaleRequest = {
+        // If the customer was just searched and has no ID yet, create it first
+        if (saleData.customer && !saleData.customer.id && saleData.customer.documentNumber !== '00000000') {
+            const customerRequest = {
+                documentType: saleData.customer.documentType,
+                documentNumber: saleData.customer.documentNumber,
+                name: saleData.customer.name,
+                address: saleData.customer.address
+            };
+            
+            this.customerService.create(customerRequest).pipe(
+                switchMap((response) => {
+                    saleData.customer.id = response.data.id;
+                    this.customerService.invalidateCache();
+                    return this.saleService.create(this.buildSaleRequest(saleData, establishmentId, session.id));
+                }),
+                finalize(() => this.isLoading.set(false))
+            ).subscribe({
+                next: (response) => this.handleSaleSuccess(response),
+                error: (err) => this.handleSaleError(err, 'No se pudo crear el cliente o procesar la venta.')
+            });
+        } else {
+            // Customer already has an ID or no customer is selected
+            this.saleService.create(this.buildSaleRequest(saleData, establishmentId, session.id)).pipe(
+                finalize(() => this.isLoading.set(false))
+            ).subscribe({
+                next: (response) => this.handleSaleSuccess(response),
+                error: (err) => this.handleSaleError(err, 'No se pudo procesar la venta. Verifique el stock.')
+            });
+        }
+    }
+
+    private buildSaleRequest(saleData: SaleFormData, establishmentId: number, cashSessionId: number): SaleRequest {
+        return {
             establishmentId: establishmentId,
-            cashSessionId: session.id,
+            cashSessionId: cashSessionId,
             customerId: saleData.customer?.id,
             documentType: saleData.documentType,
             series: saleData.series,
@@ -206,34 +240,44 @@ export class NewSaleComponent implements OnInit {
             })),
             payments: saleData.payments.map((p) => ({
                 ...p,
-                cashSessionId: session.id
+                cashSessionId: cashSessionId
             })),
             paymentCondition: saleData.paymentCondition,
             dueDate: saleData.dueDate
         };
+    }
 
-        this.saleService.create(request).pipe(
-            finalize(() => this.isLoading.set(false))
-        ).subscribe({
-            next: (response) => {
-                this.modalService.alert({ title: 'Éxito', message: `Venta registrada!<br>${response.data.series}-${response.data.number}`, type: 'success' });
-                this.cart.set([]);
-            },
-            error: (err) => {
-                console.error('Sale error:', err);
-                this.modalService.alert({ title: 'Error', message: 'No se pudo procesar la venta. Verifique el stock.', type: 'error' });
-            }
-        });
+    private handleSaleSuccess(response: any): void {
+        this.modalService.alert({ title: 'Éxito', message: `Venta registrada!<br>${response.data.series}-${response.data.number}`, type: 'success' });
+        this.cart.set([]);
+    }
+
+    private handleSaleError(err: any, defaultMessage: string): void {
+        console.error('Sale error:', err);
+        this.modalService.alert({ title: 'Error', message: defaultMessage, type: 'error' });
     }
 
     onCustomerSaveSuccess(newCustomerId: number): void {
         this.showCustomerModal.set(false);
+        this.customerPrefillData.set(null);
         this.modalService.alert({ title: 'Éxito', message: 'Cliente guardado correctamente', type: 'success' });
         if (newCustomerId) {
             this.preselectedCustomerId.set(newCustomerId);
         }
         this.customerService.invalidateCache();
         this.refreshData();
+    }
+    
+    openCustomerModal(prefillData: any = null): void {
+        this.customerEditId.set(null);
+        this.customerPrefillData.set(prefillData);
+        this.showCustomerModal.set(true);
+    }
+
+    openCustomerEditModal(id: number): void {
+        this.customerPrefillData.set(null);
+        this.customerEditId.set(id);
+        this.showCustomerModal.set(true);
     }
     
     private refreshData(): void {

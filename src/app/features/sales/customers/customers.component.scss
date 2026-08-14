@@ -19,7 +19,8 @@
 .customers-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  margin: 20px 12px;
+  gap: 12px;
 }
 
 // ── KPI helpers (If used within custom components, keep if needed) ──

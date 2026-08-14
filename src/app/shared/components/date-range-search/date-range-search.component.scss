@@ -40,6 +40,7 @@ $bg-hover: #F5F5F5;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
+    height: 48px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background: var(--input-bg);
@@ -47,8 +48,8 @@ $bg-hover: #F5F5F5;
     transition: all 0.2s;
 
     &.active {
-        border-color: $primary-blue;
-        box-shadow: 0 0 0 1px $primary-blue;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
     }
 
     .value-container {
@@ -162,7 +163,7 @@ $bg-hover: #F5F5F5;
         }
 
         &.selected {
-            background: $primary-blue;
+            background: var(--primary-color);
             color: white;
             font-weight: 600;
         }
@@ -179,7 +180,7 @@ $bg-hover: #F5F5F5;
     margin-top: 16px;
 
     .today-btn {
-        color: $primary-blue;
+        color: var(--primary-color);
         background: none;
         border: none;
         font-weight: bold;
@@ -238,7 +239,7 @@ $bg-hover: #F5F5F5;
     }
 
     &.selected {
-        background: $primary-blue;
+        background: var(--primary-color);
         color: white;
         font-weight: bold;
     }
@@ -253,22 +254,22 @@ $bg-hover: #F5F5F5;
 }
 
 /* Botón Buscar */
-.btn-primary {
+.search-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: $primary-blue;
-    color: white;
+    background: var(--primary-color) !important;
+    color: white !important;
     border: none;
     border-radius: 8px;
-    padding: 12px 24px;
-    font-size: 16px;
+    padding: 0 24px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    height: 53px;
+    height: 48px;
 
     &:hover {
-        background: color.adjust($primary-blue, $lightness: -5%);
+        opacity: 0.9;
     }
 
     @media (max-width: 768px) {

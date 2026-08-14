@@ -154,7 +154,7 @@ export class SidebarComponent {
                 { label: 'Personal', route: '/settings/employees', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_PERSONAL] },
                 { label: 'Impuestos', route: '/settings/taxes', icon: 'bi-dot', requiredPermissions: [PermissionConstants.CONFIGURACION_IMPUESTOS] }
             ]
-        }
+        },
     ];
 
 
@@ -219,7 +219,7 @@ export class SidebarComponent {
                 m.expanded = false;
             }
         });
-        
+
         // Colapsar en la lista actual visible
         this.menuItems().forEach(m => {
             if (m !== item && m.expanded) {

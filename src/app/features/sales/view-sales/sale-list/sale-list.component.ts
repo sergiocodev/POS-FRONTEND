@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SaleResponse, SaleDocumentType } from '../../../../core/models/sale.model';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-sale-list',
@@ -19,6 +20,8 @@ import { CustomTableComponent, TableColumn } from '../../../../shared/components
     styleUrl: './sale-list.component.scss'
 })
 export class SaleListComponent implements OnInit {
+    public authService = inject(AuthService);
+
     @ViewChild('dateTemplate', { static: true }) dateTemplate!: TemplateRef<any>;
     @ViewChild('customerNameTemplate', { static: true }) customerNameTemplate!: TemplateRef<any>;
     @ViewChild('voucherTemplate', { static: true }) voucherTemplate!: TemplateRef<any>;

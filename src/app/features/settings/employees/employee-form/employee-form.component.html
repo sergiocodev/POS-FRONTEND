@@ -1,65 +1,130 @@
-<div class="employee-form-container container p-4 animate-fade-in">
-    <div *ngIf="isLoading()" class="d-flex justify-content-center align-items-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
+<div *ngIf="!isModal">
+    <app-confirm-modal></app-confirm-modal>
+    <app-modal-alert></app-modal-alert>
+    <app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
+</div>
+
+<div class="container-fluid py-2">
+
+    <div class="row mb-4" *ngIf="!isModal">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a routerLink="/employees" class="text-decoration-none">Personal</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {{ isEditMode() ? 'Editar Personal' : 'Nuevo Personal' }}
+                    </li>
+                </ol>
+            </nav>
+            <h2 class="h3 fw-bold mb-1">
+                {{ isEditMode() ? 'Editar Personal' : 'Nuevo Personal' }}
+            </h2>
+            <p class="text-muted mb-0">
+                {{ isEditMode() ? 'Actualiza la información del personal' : 'Completa el formulario para registrar un
+                nuevo personal' }}
+            </p>
         </div>
     </div>
 
-    <form *ngIf="!isLoading()" [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="row g-4">
 
-        <div class="col-12 col-md-6">
-            <label for="firstName" class="form-label fw-semibold">
-                Nombres <span class="text-danger">*</span>
-            </label>
-            <input id="firstName" type="text" class="form-control" formControlName="firstName"
-                placeholder="Ej: Juan Carlos" [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched" />
-            <div class="invalid-feedback">
-                <span *ngIf="f['firstName'].errors?.['required']">El nombre es requerido.</span>
-                <span *ngIf="f['firstName'].errors?.['minlength']">Mínimo 2 caracteres.</span>
+    <div class="row">
+        <div class="col-12" [ngClass]="{'col-xl-10': !isModal}">
+            <div [ngClass]="{'card shadow-sm border-0': !isModal}">
+                <div [ngClass]="{'card-body p-4': !isModal}">
+
+                    <div *ngIf="isLoading() && isEditMode() && isModal" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Cargando datos del personal...</p>
+                    </div>
+
+                    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()"
+                        *ngIf="(!isLoading() || !isEditMode()) || !isModal">
+                        <div class="row g-3">
+
+                            <div class="col-12 col-md-6">
+                                <label for="firstName" class="form-label fw-semibold">
+                                    Nombres <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="firstName" formControlName="firstName"
+                                    placeholder="Ej: Juan Carlos"
+                                    [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched">
+                                <div class="invalid-feedback" *ngIf="f['firstName'].invalid && f['firstName'].touched">
+                                    <span *ngIf="f['firstName'].errors?.['required']">El nombre es requerido</span>
+                                    <span *ngIf="f['firstName'].errors?.['minlength']">Mínimo 2 caracteres</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="lastName" class="form-label fw-semibold">
+                                    Apellidos
+                                </label>
+                                <input type="text" class="form-control" id="lastName" formControlName="lastName"
+                                    placeholder="Ej: García Pérez">
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="documentNumber" class="form-label fw-semibold">
+                                    Número de Documento
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <input type="text" class="form-control" id="documentNumber"
+                                        formControlName="documentNumber" placeholder="Digite su DNI" maxlength="8"
+                                        [class.is-invalid]="f['documentNumber'].invalid && f['documentNumber'].touched">
+                                    <button class="btn btn-custom-primary text-white" type="button"
+                                        (click)="searchDocument()" [disabled]="isSearching()">
+                                        <span *ngIf="isSearching()" class="spinner-border spinner-border-sm"></span>
+                                        <svg *ngIf="!isSearching()" xmlns="http://www.w3.org/2000/svg" width="16"
+                                            height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                            <path
+                                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="form-text text-muted">Sólo números (8 dígitos)</div>
+                                <div class="invalid-feedback d-block"
+                                    *ngIf="f['documentNumber'].invalid && f['documentNumber'].touched">
+                                    <span>Número de documento no válido.</span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="userId" class="form-label fw-semibold">Usuario Asociado (Opcional)</label>
+                                <select id="userId" class="form-select" formControlName="userId">
+                                    <option [ngValue]="null">Seleccione un usuario</option>
+                                    <option *ngFor="let user of users()" [value]="user.id">
+                                        {{ user.fullName }} ({{ user.username }})
+                                    </option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+
+
+                                    <button type="submit" class="btn btn-custom-primary"
+                                        [disabled]="isSaving() || employeeForm.invalid">
+                                        <span *ngIf="!isSaving()">
+                                            {{ isEditMode() ? 'Actualizar Personal' : 'Guardar Personal' }}
+                                        </span>
+                                        <span *ngIf="isSaving()">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"
+                                                aria-hidden="true"></span>
+                                            Guardando...
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <div class="col-12 col-md-6">
-            <label for="lastName" class="form-label fw-semibold">Apellidos</label>
-            <input id="lastName" type="text" class="form-control" formControlName="lastName"
-                placeholder="Ej: García Pérez" />
-        </div>
-
-        <div class="col-12 col-md-6">
-            <label for="documentNumber" class="form-label fw-semibold">Número de Documento</label>
-            <input id="documentNumber" type="text" class="form-control" formControlName="documentNumber"
-                placeholder="DNI (8 dgt) o RUC (11 dgt)" maxlength="11"
-                [class.is-invalid]="f['documentNumber'].invalid && f['documentNumber'].touched" />
-            <div class="form-text text-muted">Sólo números (8 o 11 dígitos)</div>
-            <div class="invalid-feedback">
-                Número de documento no válido.
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6">
-            <label for="userId" class="form-label fw-semibold">Usuario Asociado</label>
-            <select id="userId" class="form-select" formControlName="userId">
-                <option [ngValue]="null">Seleccione un usuario (Opcional)</option>
-                <option *ngFor="let user of users()" [value]="user.id">
-                    {{ user.fullName }} ({{ user.username }})
-                </option>
-            </select>
-        </div>
-
-        <div class="col-12 mt-5">
-            <div class="d-flex justify-content-end gap-2 border-top pt-4">
-                <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="isSaving()">
-                    <i class="bi bi-x-lg me-1"></i> Cancelar
-                </button>
-
-                <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving() || employeeForm.invalid">
-
-                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
-                        aria-hidden="true"></span>
-                    <i *ngIf="!isSaving()" class="bi bi-check-lg me-1"></i>
-                    {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
-                </button>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>

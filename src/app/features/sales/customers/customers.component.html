@@ -4,10 +4,10 @@
 
 <app-module-header title="Gestión de Clientes" iconClass="bi bi-people-fill"></app-module-header>
 
-<div class="customers-wrapper m-4">
+<div class="customers-wrapper">
 
 
-    @if (!dashboardLoading() && dashboard()) {
+    @if (!dashboardLoading() && kpiItems().length > 0) {
     <!-- ── KPI Cards ─────────────────────────────────────────── -->
     <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
 

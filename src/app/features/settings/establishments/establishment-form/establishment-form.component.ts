@@ -131,10 +131,6 @@ export class EstablishmentFormComponent implements OnInit {
         });
     }
 
-    cancel() {
-        this.cancelled.emit();
-    }
-
     get f() {
         return this.establishmentForm.controls;
     }

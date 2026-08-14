@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input, output, effect, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, input, output, effect, untracked, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -8,7 +8,6 @@ import { ProductResponse, ProductUnitResponse } from '../../../../core/models/pr
 import { SupplierResponse } from '../../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../../core/models/sale.model';
 import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
-import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 export interface PurchaseItemForm {
     productId: FormControl<number | null>;
@@ -38,7 +37,7 @@ export interface PurchaseForm {
 @Component({
     selector: 'app-purchase-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, ModuleHeaderComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
     templateUrl: './purchase-form.component.html',
     styleUrl: './purchase-form.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -87,7 +86,7 @@ export class PurchaseFormComponent implements OnInit {
         effect(() => {
             const currentPurchase = this.purchase();
             if (currentPurchase) {
-                this.applyPurchase(currentPurchase);
+                untracked(() => this.applyPurchase(currentPurchase));
             }
         });
     }

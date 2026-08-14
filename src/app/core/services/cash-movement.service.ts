@@ -17,7 +17,7 @@ export class CashMovementService {
             .set('page', page.toString())
             .set('size', size.toString())
             .set('sort', 'createdAt,desc');
-            
+
         if (filters.createdAt) params = params.set('createdAt', filters.createdAt);
         if (filters.conceptName) params = params.set('conceptName', filters.conceptName);
         if (filters.description) params = params.set('description', filters.description);
@@ -25,7 +25,7 @@ export class CashMovementService {
         if (filters.reference) params = params.set('reference', filters.reference);
         if (filters.username) params = params.set('username', filters.username);
         if (filters.establishmentId) params = params.set('establishmentId', filters.establishmentId);
-            
+
         return this.http.get<ResponseApi<any>>(this.apiUrl, { params });
     }
 

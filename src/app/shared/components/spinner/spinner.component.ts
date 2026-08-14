@@ -15,11 +15,9 @@ export class SpinnerComponent {
   /** Si es true, el spinner cubrirá toda la pantalla con un fondo borroso */
   @Input() fullScreen: boolean = false;
 
-  /** Mensaje opcional a mostrar debajo del spinner */
-  @Input() message: string = 'Procesando';
 
   /** Tamaño del spinner en píxeles */
-  @Input() size: number = 48;
+  @Input() size: number = 150;
 
   /** Color principal del spinner (Por defecto: primary de Bootstrap 5) */
   @Input() color: string = '#0d6efd';

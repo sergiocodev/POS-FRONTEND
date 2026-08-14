@@ -1,3 +1,7 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
+
 <app-module-header title="Reportes de Compras" iconClass="bi bi-cart-check"></app-module-header>
 
 <div class="container-fluid report-container">
@@ -17,14 +21,12 @@
         (dateRangeChange)="onDateRangeChange($event)" (search)="loadTabData()">
     </app-purchase-report-filters>
 
-    <!-- ═══ Loading Overlay ═══ -->
-    <app-spinner [show]="isLoading()" message="Generando reporte..."></app-spinner>
 
     <!-- ════════════════════════════════════════════════════════════ -->
     <!-- TAB: COMPROBANTES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'comprobantes' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
             <app-card-report title="POR COMPROBANTE DE COMPRA"
                 description="Visualiza las compras agrupadas por tipo de comprobante (Factura, Boleta, etc.)"
@@ -48,7 +50,7 @@
     <!-- TAB: PRODUCTOS -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'productos' && !isLoading()) {
-    <div class="row g-4 mb-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
             <app-card-report title="POR CATEGORÍA" description="Visualiza qué categorías de productos se compran más"
                 [hasDropdown]="true" [multiple]="true" [options]="categoriesOptions()"
@@ -74,7 +76,7 @@
     <!-- TAB: PROVEEDORES -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'proveedores' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
             <app-card-report title="COMPRAS POR PROVEEDOR" description="Visualiza el volumen de compra por proveedor"
                 [hasDropdown]="true" [multiple]="true" [options]="supplierOptions()" placeholder="Seleccione Proveedor"
@@ -100,7 +102,7 @@
     <!-- TAB: USUARIO (COMPRADOR) -->
     <!-- ════════════════════════════════════════════════════════════ -->
     @if (activeTab() === 'usuarios' && !isLoading()) {
-    <div class="row g-4 justify-content-center">
+    <div class="row justify-content-center">
         <div class="col-auto d-flex justify-content-center" style="width: 380px; max-width: 100%;">
             <app-card-report title="POR COMPRADOR (USUARIO)" description="Visualiza qué empleado registró las compras"
                 [hasDropdown]="true" [multiple]="true" [options]="buyerOptions()" placeholder="Seleccione Empleado"

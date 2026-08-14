@@ -1,0 +1,24 @@
+<div class="sidebar-container">
+  <div class="sidebar-menu">
+    <button class="menu-item" [class.active]="selectedTab === 'document'" (click)="tabChange.emit('document')">
+      <i class="bi bi-file-earmark-text"></i>
+      <span>Ver Documento</span>
+    </button>
+    
+  </div>
+  
+  <div class="sidebar-divider"></div>
+  
+  <div class="sidebar-actions">
+    <button *ngIf="purchase?.status === 'PENDING'" class="action-btn btn-receive" (click)="receive.emit()">
+      <i class="bi bi-check-circle"></i>
+      <span>Marcar Recibido</span>
+    </button>
+    
+    <button *ngIf="purchase?.status !== 'CANCELED'" 
+            class="action-btn btn-cancel" (click)="cancel.emit()">
+      <i class="bi bi-x-circle"></i>
+      <span>Anular</span>
+    </button>
+  </div>
+</div>

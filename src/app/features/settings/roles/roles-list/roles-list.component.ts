@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
@@ -21,6 +21,12 @@ export class RolesListComponent implements OnInit {
 
     @Input() roles: RoleResponse[] = [];
     @Input() isLoading = false;
+    @Input() totalItems = 0;
+    @Input() currentPage = 1;
+    @Input() pageSize = 10;
+
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() searchChange = new EventEmitter<string>();
 
     @Output() create = new EventEmitter<void>();
     @Output() edit = new EventEmitter<number>();
@@ -30,7 +36,7 @@ export class RolesListComponent implements OnInit {
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
-        { key: 'name', label: 'Rol', type: 'text' },
+        { key: 'name', label: 'Rol', type: 'text', filterable: true },
         { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || 'Sin descripción' },
         { key: 'permissionCount', label: 'Permisos', type: 'text', format: (v: number) => `${v || 0} permisos` },
 
@@ -38,68 +44,19 @@ export class RolesListComponent implements OnInit {
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    // Datos Locales y Filtrados
-    // rolesSignal es una señal computada basada en el input, o simplemente usamos filteredRoles
-    // Para simplificar el filtrado local con app-table-filter que usa signals, convertiremos el input a signal localmente
-    localRoles = signal<RoleResponse[]>([]);
-    filteredRoles = signal<RoleResponse[]>([]);
-
-    // Filters
-    searchTerm = signal('');
-
-    // Pagination & Sorting (Table defaults)
-    currentPage = 1;
-    pageSize = 10;
-    sortColumn: keyof RoleResponse | '' = '';
-    sortDirection: 'asc' | 'desc' = 'asc';
+    // Local signals removed since server pagination is used
 
     constructor() { }
 
-    ngOnInit() {
-        // Inicializar
-        this.updateLocalRoles();
+    ngOnInit() { }
+
+    onPageChange(page: number) {
+        this.pageChange.emit(page);
     }
 
-    ngOnChanges() {
-        this.updateLocalRoles();
-    }
-
-    updateLocalRoles() {
-        this.localRoles.set(this.roles);
-        this.applyFilters();
-    }
-
-    // No loadData() anymore
-
-    // --- Filter Logic ---
-
-    applyFilters() {
-        let filtered = this.localRoles();
-        const search = this.searchTerm().toLowerCase();
-
-        if (search) {
-            filtered = filtered.filter(role =>
-                role.name.toLowerCase().includes(search) ||
-                (role.description && role.description.toLowerCase().includes(search))
-            );
-        }
-
-
-
-        this.filteredRoles.set(filtered);
-        this.currentPage = 1;
-    }
-
-    onSearchChange(value: string) {
-        this.searchTerm.set(value);
-        this.applyFilters();
-    }
-
-
-
-    resetFilters() {
-        this.searchTerm.set('');
-        this.applyFilters();
+    onFilterChange(filters: { [key: string]: string }) {
+        const term = filters['name'] || '';
+        this.searchChange.emit(term);
     }
 
     // --- Actions ---

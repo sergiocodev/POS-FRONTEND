@@ -10,6 +10,7 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-employees',
@@ -21,7 +22,8 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
         ConfirmModalComponent,
         ModalAlertComponent,
         ModalGenericComponent,
-        ModuleHeaderComponent
+        ModuleHeaderComponent,
+        SpinnerComponent
     ],
     templateUrl: './employees.component.html',
     styleUrl: './employees.component.scss'
@@ -38,21 +40,34 @@ export class EmployeesComponent implements OnInit {
     displayForm = signal(false);
     selectedEmployeeId = signal<number | null>(null);
 
+    // Table Pagination & Filter State
+    totalItems = signal<number>(0);
+    totalPages = signal<number>(0);
+    currentPage = signal<number>(0);
+    pageSize = signal<number>(10);
+    tableFilters = signal<any>({});
+
     ngOnInit() {
         this.loadData();
     }
 
     loadData() {
         this.isLoading.set(true);
-        this.employeeService.getAll().subscribe({
+        this.employeeService.getAllPaged(
+            this.currentPage(),
+            this.pageSize(),
+            this.tableFilters()
+        ).subscribe({
             next: (response) => {
-                const data = response.data;
+                const data = response.data.content;
                 // Mapear para tener fullName disponible para la tabla
-                const mapped = data.map(emp => ({
+                const mapped = data.map((emp: any) => ({
                     ...emp,
                     fullName: `${emp.firstName} ${emp.lastName || ''}`.trim()
                 }));
                 this.employees.set(mapped);
+                this.totalItems.set(response.data.totalElements);
+                this.totalPages.set(response.data.totalPages);
                 this.isLoading.set(false);
             },
             error: (error) => {
@@ -65,6 +80,24 @@ export class EmployeesComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    // Table Event Handlers
+    onPageChange(page: number): void {
+        this.currentPage.set(page);
+        this.loadData();
+    }
+
+    onPageSizeChange(size: number): void {
+        this.pageSize.set(size);
+        this.currentPage.set(0);
+        this.loadData();
+    }
+
+    onTableFilter(filters: any): void {
+        this.tableFilters.set(filters);
+        this.currentPage.set(0);
+        this.loadData();
     }
 
     onOpenForm(employeeId: number | null = null) {

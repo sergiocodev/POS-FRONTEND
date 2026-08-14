@@ -21,10 +21,20 @@
 
         <div class="card border-0 shadow-sm">
             <app-custom-table
-                [columns]="columns"
+                [columns]="columns()"
                 [data]="transfers()"
                 (onAction)="handleAction($event)">
                 
+                <!-- Document Template -->
+                <ng-template #docTemplate let-row>
+                    <div class="d-flex flex-column text-start">
+                        <span class="fw-bold text-primary mb-1" style="font-size: 0.95rem;">{{ row.transferNumber }}</span>
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="bi bi-calendar2-date me-1"></i>{{ row.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                        </small>
+                    </div>
+                </ng-template>
+
                 <!-- Action Buttons Customization -->
                 <ng-template #actionTemplate let-row>
                     <div class="d-flex gap-2">

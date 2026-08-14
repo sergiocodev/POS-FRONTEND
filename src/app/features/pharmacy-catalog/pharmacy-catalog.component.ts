@@ -1,7 +1,8 @@
-import { Component, signal, inject, OnInit, computed, effect } from '@angular/core';
+import { Component, signal, inject, OnInit, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { MaintenanceService } from '../../core/services/maintenance.service';
 import { ModalService } from '../../shared/components/confirm-modal/service/modal.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -226,11 +227,13 @@ export class PharmacyCatalogComponent implements OnInit {
         effect(() => {
             const key = this.activeTabKey();
             if (key) {
-                this.router.navigate([], {
-                    relativeTo: this.route,
-                    queryParams: { tab: key },
-                    queryParamsHandling: 'merge',
-                    replaceUrl: true
+                untracked(() => {
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { tab: key },
+                        queryParamsHandling: 'merge',
+                        replaceUrl: true
+                    });
                 });
             }
         });
@@ -261,7 +264,7 @@ export class PharmacyCatalogComponent implements OnInit {
             if (loadFn) {
                 // Initialize cache with default values for each tab
                 this.tabCache.set(tab.key, { data: [], totalItems: 0, currentPage: 0, pageSize: 10, filters: {} });
-                observables[tab.key] = loadFn.call(this.maintenanceService, 0, 10, {});
+                observables[tab.key] = loadFn.call(this.maintenanceService, 0, 10, {}).pipe(take(1));
             }
         });
 

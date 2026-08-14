@@ -1,8 +1,24 @@
-.roles-page {
-    padding: 0;
+.roles-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+    gap: 12px;
 }
 
-// Animación de entrada para el módulo
+.btn-new-role {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
+}
+
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out;
 }
@@ -17,14 +33,13 @@
     }
 }
 
-// Transición suave para el modal
 .modal {
-    background-color: rgba(0, 0, 0, 0.1); // Fallback
+    background-color: rgba(0, 0, 0, 0.1);
     transition: opacity 0.15s linear;
 }
 
-// Ajuste opcional si quieres un ancho específico como en el original (450px)
-.modal-dialog {
-    max-width: 450px;
-    margin: 1.75rem auto;
+@media (max-width: 768px) {
+    .roles-wrapper {
+        margin: 1rem !important;
+    }
 }

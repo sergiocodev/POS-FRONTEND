@@ -1,0 +1,20 @@
+<div class="flex-grow-1 d-flex justify-content-center overflow-auto position-relative pb-3">
+    <!-- Loading Spinner -->
+    <div *ngIf="!purchase" class="position-absolute top-50 start-50 translate-middle text-center">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted small">Cargando comprobante...</p>
+    </div>
+
+    <div id="voucher-preview-content" *ngIf="purchase" class="voucher-card shadow-sm position-relative" [ngClass]="{
+             'voucher-a4': selectedFormat === 'A4',
+             'voucher-ticket': selectedFormat === 'TICKET',
+             'voucher-80mm': selectedFormat === '80MM',
+             'is-voided': purchase.status === 'CANCELED'
+           }">
+
+        <app-purchase-a4 *ngIf="selectedFormat === 'A4'" [purchase]="purchase"></app-purchase-a4>
+        <app-purchase-80mm *ngIf="selectedFormat === '80MM'" [purchase]="purchase"></app-purchase-80mm>
+        <app-purchase-ticket *ngIf="selectedFormat === 'TICKET'" [purchase]="purchase"></app-purchase-ticket>
+
+    </div>
+</div>

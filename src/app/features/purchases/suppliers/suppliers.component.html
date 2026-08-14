@@ -7,7 +7,9 @@
 <div class="suppliers-wrapper p-3">
 
   <!-- ── KPI Cards ─────────────────────────────────────────── -->
-  <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
+  @if (kpiItems().length > 0) {
+    <app-smart-kpi-cards [items]="kpiItems()"></app-smart-kpi-cards>
+  }
 
   <div class="d-flex justify-content-end">
     <button type="button" class="btn-new-supplier" (click)="openNewForm()">Nuevo Proveedor</button>

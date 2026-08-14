@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InventoryService } from '../../../../core/services/inventory.service';
 import { InventoryResponse, InventoryRequest } from '../../../../core/models/inventory.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-inventory-adjustment-form',
@@ -14,6 +15,7 @@ import { InventoryResponse, InventoryRequest } from '../../../../core/models/inv
 export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
     private fb = inject(FormBuilder);
     private inventoryService = inject(InventoryService);
+    public authService = inject(AuthService);
 
     @Input() inventoryItem: InventoryResponse | null = null;
     @Output() saved = new EventEmitter<void>();
@@ -62,6 +64,16 @@ export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
                 movementType: 'ADJUSTMENT',
                 notes: ''
             });
+
+            if (!this.authService.isAdmin()) {
+                this.adjustmentForm.get('quantity')?.disable();
+                this.adjustmentForm.get('costPrice')?.disable();
+                this.adjustmentForm.get('salesPrice')?.disable();
+            } else {
+                this.adjustmentForm.get('quantity')?.enable();
+                this.adjustmentForm.get('costPrice')?.enable();
+                this.adjustmentForm.get('salesPrice')?.enable();
+            }
         }
     }
 
@@ -70,14 +82,14 @@ export class InventoryAdjustmentFormComponent implements OnInit, OnChanges {
 
         this.isSaving.set(true);
         const item = this.inventoryItem;
-        const formValue = this.adjustmentForm.value;
+        const formValue = this.adjustmentForm.getRawValue();
 
         const request: InventoryRequest = {
             establishmentId: item.establishmentId,
             lotId: item.lotId,
-            quantity: formValue.quantity,
-            costPrice: formValue.costPrice,
-            salesPrice: formValue.salesPrice,
+            quantity: formValue.quantity ?? item.quantity,
+            costPrice: formValue.costPrice ?? item.costPrice,
+            salesPrice: formValue.salesPrice ?? item.salesPrice,
             locationShelf: formValue.locationShelf,
             movementType: formValue.movementType,
             notes: formValue.notes

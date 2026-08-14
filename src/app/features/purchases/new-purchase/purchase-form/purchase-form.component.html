@@ -1,13 +1,6 @@
 <div class="pf-root">
 
-    <!-- ════════════════════════════════════════
-         HERO HEADER
-    ════════════════════════════════════════ -->
-    <!-- Module Header -->
-    <div class="bg-white shadow-sm z-1 mb-4">
-        <app-module-header [title]="isEditMode() ? 'Detalle de Compra' : 'Nueva Compra'"
-            iconClass="bi-cart-check"></app-module-header>
-    </div>
+
 
     <div class="pf-body mt-0">
 
@@ -214,80 +207,82 @@
                         <div class="pf-item-row" *ngFor="let item of items.controls; let i = index; let last = last"
                             [formGroupName]="i" [class.pf-item-row--last]="last">
 
-                        <div class="pf-item-num">{{ i + 1 }}</div>
+                            <div class="pf-item-num">{{ i + 1 }}</div>
 
-                        <!-- Producto -->
-                        <div class="pf-col pf-col--product">
-                            <div class="pf-select-wrapper pf-select-wrapper--inline">
-                                <select class="pf-select pf-select--inline" formControlName="productId">
-                                    <option [ngValue]="null">Seleccione producto...</option>
-                                    <option *ngFor="let p of products()" [ngValue]="p.id">{{ p.tradeName }}</option>
-                                </select>
+                            <!-- Producto -->
+                            <div class="pf-col pf-col--product">
+                                <div class="pf-select-wrapper pf-select-wrapper--inline">
+                                    <select class="pf-select pf-select--inline" formControlName="productId">
+                                        <option [ngValue]="null">Seleccione producto...</option>
+                                        <option *ngFor="let p of products()" [ngValue]="p.id">{{ p.tradeName }}</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Unidad de Medida -->
-                        <div class="pf-col pf-col--unit">
-                            <div class="pf-select-wrapper pf-select-wrapper--inline">
-                                <select class="pf-select pf-select--inline" formControlName="productUnitId">
-                                    <option [ngValue]="null">Unidad...</option>
-                                    <option *ngFor="let u of productUnits()[(item.get('productId')?.value || 0)] || []"
-                                        [ngValue]="u.id">
-                                        {{ u.unitName }} (x{{ u.factor }})
-                                    </option>
-                                </select>
+                            <!-- Unidad de Medida -->
+                            <div class="pf-col pf-col--unit">
+                                <div class="pf-select-wrapper pf-select-wrapper--inline">
+                                    <select class="pf-select pf-select--inline" formControlName="productUnitId">
+                                        <option [ngValue]="null">Unidad...</option>
+                                        <option
+                                            *ngFor="let u of productUnits()[(item.get('productId')?.value || 0)] || []"
+                                            [ngValue]="u.id">
+                                            {{ u.unitName }} (x{{ u.factor }})
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Lote -->
-                        <div class="pf-col pf-col--lot">
-                            <input class="pf-input pf-input--inline pf-input--center" type="text" placeholder="Lote"
-                                formControlName="lotCode">
-                        </div>
-
-                        <!-- Vencimiento -->
-                        <div class="pf-col pf-col--date">
-                            <input class="pf-input pf-input--inline pf-input--center" type="date"
-                                formControlName="expiryDate">
-                        </div>
-
-                        <!-- Cantidad -->
-                        <div class="pf-col pf-col--num">
-                            <input class="pf-input pf-input--inline pf-input--center" type="number" placeholder="0"
-                                formControlName="quantity" min="1">
-                        </div>
-
-                        <!-- Bonificación -->
-                        <div class="pf-col pf-col--num">
-                            <input class="pf-input pf-input--inline pf-input--center" type="number" placeholder="0"
-                                formControlName="bonusQuantity" min="0">
-                        </div>
-
-                        <!-- Costo Unitario -->
-                        <div class="pf-col pf-col--cost">
-                            <div class="pf-price-input pf-price-input--center">
-                                <input class="pf-input pf-input--inline pf-input--center" type="number"
-                                    placeholder="0.00" formControlName="unitCost" min="0" step="0.01">
+                            <!-- Lote -->
+                            <div class="pf-col pf-col--lot">
+                                <input class="pf-input pf-input--inline pf-input--center" type="text" placeholder="Lote"
+                                    formControlName="lotCode">
                             </div>
-                        </div>
 
-                        <!-- Subtotal -->
-                        <div class="pf-col pf-col--total">
-                            <span class="pf-subtotal">
-                                S/ {{ ((item.get('quantity')?.value || 0) * (item.get('unitCost')?.value || 0)) | number:'1.2-2' }}
-                            </span>
-                        </div>
+                            <!-- Vencimiento -->
+                            <div class="pf-col pf-col--date">
+                                <input class="pf-input pf-input--inline pf-input--center" type="date"
+                                    formControlName="expiryDate">
+                            </div>
 
-                        <!-- Eliminar -->
-                        <div class="pf-col pf-col--action" *ngIf="!isEditMode()">
-                            <button type="button" class="pf-delete-btn" (click)="removeItem(i)" *ngIf="items.length > 1"
-                                title="Eliminar ítem">
-                                <i class="bi bi-trash3"></i>
-                            </button>
-                        </div>
+                            <!-- Cantidad -->
+                            <div class="pf-col pf-col--num">
+                                <input class="pf-input pf-input--inline pf-input--center" type="number" placeholder="0"
+                                    formControlName="quantity" min="1">
+                            </div>
 
+                            <!-- Bonificación -->
+                            <div class="pf-col pf-col--num">
+                                <input class="pf-input pf-input--inline pf-input--center" type="number" placeholder="0"
+                                    formControlName="bonusQuantity" min="0">
+                            </div>
+
+                            <!-- Costo Unitario -->
+                            <div class="pf-col pf-col--cost">
+                                <div class="pf-price-input pf-price-input--center">
+                                    <input class="pf-input pf-input--inline pf-input--center" type="number"
+                                        placeholder="0.00" formControlName="unitCost" min="0" step="0.01">
+                                </div>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <div class="pf-col pf-col--total">
+                                <span class="pf-subtotal">
+                                    S/ {{ ((item.get('quantity')?.value || 0) * (item.get('unitCost')?.value || 0)) |
+                                    number:'1.2-2' }}
+                                </span>
+                            </div>
+
+                            <!-- Eliminar -->
+                            <div class="pf-col pf-col--action" *ngIf="!isEditMode()">
+                                <button type="button" class="pf-delete-btn" (click)="removeItem(i)"
+                                    *ngIf="items.length > 1" title="Eliminar ítem">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+
+                        </div>
                     </div>
-                </div>
                 </div>
 
                 <!-- Total Footer -->

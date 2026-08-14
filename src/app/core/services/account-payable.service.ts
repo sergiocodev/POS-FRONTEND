@@ -21,8 +21,8 @@ export class AccountPayableService {
         return this.http.get<ResponseApi<Page<AccountPayableResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
-    getDashboard(params?: any): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/dashboard`, { params });
+    getSummary(params?: any): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/summary`, { params });
     }
 
     getBySupplierId(supplierId: number): Observable<ResponseApi<AccountPayableResponse[]>> {

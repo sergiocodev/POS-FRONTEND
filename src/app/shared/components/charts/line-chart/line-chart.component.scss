@@ -22,20 +22,38 @@
 }
 
 .chart-area {
-    fill: var(--chart-area, rgba(59, 130, 246, 0.1));
+    fill: var(--chart-area, rgba(0, 200, 151, 0.1));
 }
 
 .chart-line {
     fill: none;
-    stroke: var(--chart-line, #3b82f6);
+    stroke: var(--chart-line, #00c897);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 .chart-dot {
-    fill: var(--chart-dot, #3b82f6);
-    stroke: white;
+    fill: var(--chart-dot, #00c897);
+    stroke: var(--card-bg, white);
+    stroke-width: 2;
+}
+
+.chart-area-secondary {
+    fill: var(--chart-area-sec, rgba(239, 68, 68, 0.1));
+}
+
+.chart-line-secondary {
+    fill: none;
+    stroke: var(--chart-line-sec, #ef4444);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.chart-dot-secondary {
+    fill: var(--chart-dot-sec, #ef4444);
+    stroke: var(--card-bg, white);
     stroke-width: 2;
 }
 

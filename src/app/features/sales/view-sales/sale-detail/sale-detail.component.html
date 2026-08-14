@@ -1,7 +1,7 @@
 <div class="row h-100 g-3">
     <!-- Sidebar -->
     <div class="col-12 col-md-4 col-lg-3 col-xl-3">
-        <app-sale-sidebar [selectedTab]="selectedTab()" (tabChange)="selectTab($event)" (clone)="onClone()"
+        <app-sale-sidebar [selectedTab]="selectedTab()" [sale]="sale" (tabChange)="selectTab($event)" (clone)="onClone()"
             (invalidate)="onInvalidate()">
         </app-sale-sidebar>
     </div>
@@ -10,9 +10,9 @@
     <div class="col-12 col-md-8 col-lg-9 col-xl-9">
         <div class="d-flex flex-column main h-100">
             <!-- Toolbar -->
-            <app-sale-toolbar [selectedFormat]="selectedFormat()" (formatChange)="onFormatChange($event)"
+            <app-document-toolbar [selectedFormat]="selectedFormat()" (formatChange)="onFormatChange($event)"
                 (print)="onPrint()" (download)="onDownload()" (share)="onShare()">
-            </app-sale-toolbar>
+            </app-document-toolbar>
 
             <!-- Voucher Preview -->
             <app-sale-voucher-preview [sale]="sale" [selectedFormat]="selectedFormat()"></app-sale-voucher-preview>

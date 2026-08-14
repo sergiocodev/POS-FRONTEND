@@ -1,3 +1,7 @@
+<app-confirm-modal></app-confirm-modal>
+<app-modal-alert></app-modal-alert>
+<app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
+
 <app-module-header title="Cajas Registradoras" iconClass="bi bi-gear-fill">
 </app-module-header>
 
@@ -12,10 +16,7 @@
         <span class="fw-bold text-primary">{{ row.name }}</span>
     </ng-template>
 
-    <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted mb-0">Cargando cajas...</p>
-    </div>
+
 
     <div *ngIf="!isLoading() && filteredRegisters().length === 0" class="text-center py-5">
         <p class="text-muted mb-0">No se encontraron cajas registradoras en esta sede.</p>

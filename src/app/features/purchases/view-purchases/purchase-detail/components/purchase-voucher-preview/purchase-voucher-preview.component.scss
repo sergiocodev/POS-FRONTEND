@@ -1,0 +1,95 @@
+.voucher-card {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    margin: 0 auto;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden;
+
+    &.voucher-ticket {
+        width: 58mm;
+        min-height: 100mm;
+    }
+
+    &.voucher-80mm {
+        width: 80mm;
+        min-height: 120mm;
+    }
+
+    &.voucher-a4 {
+        width: 210mm;
+        min-height: 297mm;
+    }
+
+    &.is-voided {
+        &::after {
+            content: 'ANULADO';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            color: rgba(220, 53, 69, 0.25);
+            border: 4px solid rgba(220, 53, 69, 0.25);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            pointer-events: none;
+            z-index: 999;
+            white-space: nowrap;
+            user-select: none;
+            font-family: 'Arial', sans-serif;
+        }
+
+        &.voucher-ticket::after {
+            font-size: 32px;
+            border-width: 3px;
+            padding: 5px 10px;
+        }
+
+        &.voucher-80mm::after {
+            font-size: 40px;
+            border-width: 4px;
+            padding: 8px 16px;
+        }
+
+        &.voucher-a4::after {
+            font-size: 100px;
+            border-width: 8px;
+            padding: 20px 40px;
+        }
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .voucher-card,
+    .voucher-card * {
+        visibility: visible;
+    }
+
+    .voucher-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none !important;
+        width: 100%;
+        
+        &.voucher-ticket,
+        &.voucher-80mm,
+        &.voucher-a4 {
+            width: auto;
+            min-height: auto;
+        }
+    }
+
+    @page {
+        margin: 0;
+    }
+}

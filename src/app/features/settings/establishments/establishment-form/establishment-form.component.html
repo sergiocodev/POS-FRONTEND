@@ -1,77 +1,67 @@
-<div class="establishment-form-container">
-    <div *ngIf="isLoading()" class="text-center py-5">
-        <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="text-muted">Cargando datos del establecimiento...</p>
+<div class="establishment-form-container animate-fade-in">
+    <!-- Spinner -->
+    <div *ngIf="isLoading()" class="d-flex flex-column align-items-center justify-content-center py-5 min-vh-50">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <span class="text-muted fw-medium tracking-wide">CARGANDO DATOS...</span>
     </div>
 
     <ng-container *ngIf="!isLoading()">
-        <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()">
-
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <div class="row g-4">
-
-                        <div class="col-12">
-                            <label for="estName" class="form-label fw-semibold">
-                                Nombre del Establecimiento <span class="text-danger">*</span>
-                            </label>
-                            <div class="input-group has-validation">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-shop"></i>
-                                </span>
-                                <input type="text" id="estName" class="form-control border-start-0 ps-0"
-                                    formControlName="name" placeholder="Ej: Farmacia Principal, Sucursal Norte, etc."
-                                    [class.is-invalid]="f['name'].invalid && f['name'].touched">
-
-                                <div class="invalid-feedback">
-                                    <span *ngIf="f['name'].errors?.['required']">El nombre es requerido.</span>
-                                    <span *ngIf="f['name'].errors?.['minlength']">Mínimo 3 caracteres.</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <label for="estAddress" class="form-label fw-semibold">Dirección</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-geo-alt"></i>
-                                </span>
-                                <input type="text" id="estAddress" class="form-control border-start-0 ps-0"
-                                    formControlName="address" placeholder="Dirección completa del establecimiento">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="estCode" class="form-label fw-semibold">Código SUNAT</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-upc-scan"></i>
-                                </span>
-                                <input type="text" id="estCode" class="form-control border-start-0 ps-0"
-                                    formControlName="codeSunat" placeholder="Ej: 0000">
-                            </div>
-                            <div class="form-text mt-1">
-                                Código asignado por SUNAT (Ej: 0000 para principal).
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end gap-2 pt-2">
-                <button type="button" class="btn btn-outline-secondary px-4" (click)="cancel()" [disabled]="isSaving()">
-                    <i class="bi bi-x-lg me-1"></i> Cancelar
-                </button>
-
-                <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving() || establishmentForm.invalid">
-                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-1" role="status"
-                        aria-hidden="true"></span>
-                    <i *ngIf="!isSaving()" class="bi bi-check-lg me-1"></i>
+        <form [formGroup]="establishmentForm" (ngSubmit)="onSubmit()" class="premium-form">
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <button type="submit" class="btn-new-establishment" [disabled]="isSaving() || establishmentForm.invalid">
+                    <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <i *ngIf="!isSaving()" class="bi bi-check2-all me-2"></i>
                     {{ isEditMode() ? 'Actualizar' : 'Crear' }} Establecimiento
                 </button>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="premium-card">
+                        <div class="card-body-sleek">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="premium-label">Nombre del Establecimiento <span class="text-danger">*</span></label>
+                                        <div class="input-group-premium" [class.is-invalid-premium]="f['name'].invalid && f['name'].touched">
+                                            <div class="input-icon"><i class="bi bi-shop"></i></div>
+                                            <input type="text" class="form-control premium-input" formControlName="name" placeholder="Ej: Farmacia Principal, Sucursal Norte, etc.">
+                                        </div>
+                                        <div class="premium-error" *ngIf="f['name'].invalid && f['name'].touched">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            <span *ngIf="f['name'].errors?.['required']"> El nombre es requerido.</span>
+                                            <span *ngIf="f['name'].errors?.['minlength']"> Mínimo 3 caracteres.</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="premium-label">Dirección</label>
+                                        <div class="input-group-premium">
+                                            <div class="input-icon"><i class="bi bi-geo-alt"></i></div>
+                                            <input type="text" class="form-control premium-input" formControlName="address" placeholder="Dirección completa del establecimiento">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label class="premium-label d-flex justify-content-between align-items-center">
+                                            <span>Código SUNAT</span>
+                                            <span class="premium-hint-inline bg-light px-2 py-1 rounded text-muted">(Ej: 0000 para principal)</span>
+                                        </label>
+                                        <div class="input-group-premium">
+                                            <div class="input-icon"><i class="bi bi-upc-scan"></i></div>
+                                            <input type="text" class="form-control premium-input" formControlName="codeSunat" placeholder="Ej: 0000">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </form>

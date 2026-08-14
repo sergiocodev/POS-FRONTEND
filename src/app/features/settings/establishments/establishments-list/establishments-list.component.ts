@@ -19,67 +19,36 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
     @Input() establishments: EstablishmentResponse[] = [];
     @Input() isLoading = false;
 
-    @Output() create = new EventEmitter<void>();
+    // Pagination inputs
+    @Input() totalItems = 0;
+    @Input() totalPages = 0;
+    @Input() currentPage = 0;
+    @Input() pageSize = 10;
+
     @Output() edit = new EventEmitter<number>();
     @Output() delete = new EventEmitter<EstablishmentResponse>();
 
+    // Pagination & Filter outputs
+    @Output() pageChange = new EventEmitter<number>();
+    @Output() pageSizeChange = new EventEmitter<number>();
+    @Output() tableFilterChange = new EventEmitter<any>();
+
     // Configuración de la tabla
     cols: TableColumn[] = [
-        { key: 'name', label: 'Establecimiento', type: 'text' },
+        { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
+        { key: 'name', label: 'Establecimiento', type: 'text', filterable: true },
         { key: 'address', label: 'Dirección', type: 'text', format: (v: string) => v || 'Sin dirección' },
-        { key: 'codeSunat', label: 'Cód. SUNAT', type: 'text' },
+        { key: 'codeSunat', label: 'Cód. SUNAT', type: 'text', filterable: true },
 
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 
-    // Data Signals
-    localEstablishments = signal<EstablishmentResponse[]>([]);
-    filteredEstablishments = signal<EstablishmentResponse[]>([]);
-
-    // Filtros
-    searchTerm = signal('');
-
-    pageSize = 10;
-
     constructor() { }
 
     ngOnInit() {
-        this.updateLocalData();
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['establishments']) {
-            this.updateLocalData();
-        }
-    }
-
-    updateLocalData() {
-        this.localEstablishments.set(this.establishments);
-        this.applyFilters();
-    }
-
-    // --- Filter Logic ---
-
-    applyFilters() {
-        let filtered = this.localEstablishments();
-        const search = this.searchTerm().toLowerCase();
-
-        if (search) {
-            filtered = filtered.filter(est =>
-                est.name.toLowerCase().includes(search) ||
-                (est.address && est.address.toLowerCase().includes(search)) ||
-                est.codeSunat.toLowerCase().includes(search)
-            );
-        }
-
-
-
-        this.filteredEstablishments.set(filtered);
-    }
-
-    onSearchChange(value: string) {
-        this.searchTerm.set(value);
-        this.applyFilters();
     }
 
 
@@ -94,10 +63,17 @@ export class EstablishmentsListComponent implements OnInit, OnChanges {
         }
     }
 
+    handlePageChange(page: number) {
+        // custom-table usually emits 1-based page, we emit 0-based to parent
+        this.pageChange.emit(page - 1);
+    }
 
+    handlePageSizeChange(size: number) {
+        this.pageSizeChange.emit(size);
+    }
 
-    createEstablishment() {
-        this.create.emit();
+    handleTableFilter(filters: any) {
+        this.tableFilterChange.emit(filters);
     }
 
 

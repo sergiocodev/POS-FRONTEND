@@ -37,7 +37,8 @@ export class DonutChartComponent {
         let startAngle = -Math.PI / 2;
 
         for (const seg of d) {
-            const angle = (seg.value / total) * 2 * Math.PI;
+            const percentage = seg.value / total;
+            const angle = percentage === 1 ? 2 * Math.PI - 0.0001 : percentage * 2 * Math.PI;
             const endAngle = startAngle + angle;
 
             const x1 = this.center + this.radius * Math.cos(startAngle);

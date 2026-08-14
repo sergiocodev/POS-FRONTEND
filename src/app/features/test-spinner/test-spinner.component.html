@@ -1,0 +1,30 @@
+<div class="test-container">
+    <div class="header">
+        <h2>Prueba del Spinner Premium</h2>
+        <p>Utiliza los controles para probar los diferentes modos del spinner.</p>
+    </div>
+
+    <div class="controls-card">
+        <h3>Controles</h3>
+        <div class="actions">
+            <button class="btn btn-primary" (click)="showSpinner = !showSpinner">
+                <i class="bi" [ngClass]="showSpinner ? 'bi-eye-slash' : 'bi-eye'"></i>
+                {{ showSpinner ? 'Ocultar' : 'Mostrar' }} Spinner
+            </button>
+            <button class="btn btn-outline-secondary" (click)="toggleFullScreen()">
+                <i class="bi" [ngClass]="isFullScreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'"></i>
+                Modo: {{ isFullScreen ? 'Pantalla Completa' : 'En Línea' }}
+            </button>
+        </div>
+    </div>
+
+    <div class="inline-preview-card" *ngIf="!isFullScreen">
+        <h3>Vista Previa en Línea</h3>
+        <div class="spinner-wrapper">
+            <app-spinner [show]="showSpinner" [fullScreen]="false"></app-spinner>
+        </div>
+    </div>
+</div>
+
+<!-- Full Screen Spinner -->
+<app-spinner *ngIf="isFullScreen" [show]="showSpinner" [fullScreen]="true"></app-spinner>

@@ -1,14 +1,14 @@
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-0" style="padding: 12px !important;">
         <div class="input-group input-group-lg">
-            <span class="input-group-text bg-transparent border-0 text-primary ps-3">
+            <span class="input-group-text bg-transparent border-0 ps-3" style="color: var(--primary-color) !important;">
                 <i class="bi bi-search"></i>
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                 placeholder="Buscar producto por nombre o código..." [(ngModel)]="productSearchTerm"
                 (input)="onProductSearch()" (keyup.enter)="onBarcodeScan()">
-            <button class="btn btn-outline-secondary border-0 text-primary px-3 bg-transparent" type="button"
-                (click)="openScanner()" title="Escanear con cámara">
+            <button class="btn btn-outline-secondary border-0 px-3 bg-transparent" type="button"
+                (click)="openScanner()" title="Escanear con cámara" style="color: var(--primary-color) !important;">
                 <i class="bi bi-camera fs-5"></i>
             </button>
         </div>

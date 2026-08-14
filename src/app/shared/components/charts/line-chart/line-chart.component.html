@@ -7,9 +7,18 @@
         S/ {{ line.label }}
     </text>
     }
-    <!-- Area fill -->
+    
+    <!-- Secondary series (Expense) -->
+    @if (points2().length) {
+    <path class="chart-area-secondary" [attr.d]="areaPath2()" />
+    <path class="chart-line-secondary" [attr.d]="linePath2()" />
+    @for (point of points2(); track $index) {
+    <circle class="chart-dot-secondary" [attr.cx]="point.x" [attr.cy]="point.y" r="4" />
+    }
+    }
+
+    <!-- Primary series (Income) -->
     <path class="chart-area" [attr.d]="areaPath()" />
-    <!-- Line -->
     <path class="chart-line" [attr.d]="linePath()" />
     <!-- Data points -->
     @for (point of points(); track $index) {
@@ -18,7 +27,8 @@
         {{ data()[$index]?.label }}
     </text>
     }
-    <!-- Value labels on points -->
+    
+    <!-- Value labels on points (Only Primary for now to avoid clutter) -->
     @for (point of points(); track $index) {
     @let item = data()[$index];
     <text class="chart-value-label" [attr.x]="point.x" [attr.y]="point.y - 10">

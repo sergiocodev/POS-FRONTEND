@@ -14,3 +14,44 @@
     border-bottom-left-radius: var(--bs-modal-border-radius);
     border-bottom-right-radius: var(--bs-modal-border-radius);
 }
+
+.employees-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+    gap: 12px;
+}
+
+.btn-new-employee {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: var(--primary-hover);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .employees-wrapper {
+        margin: 1rem !important;
+    }
+}

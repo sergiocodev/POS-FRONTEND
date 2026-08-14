@@ -1,5 +1,22 @@
-.establishments-page {
-    padding: 0;
+.establishments-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+    gap: 12px;
+}
+
+.btn-new-establishment {
+    background: var(--primary-color);
+    border: none;
+    color: var(--text-on-primary);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+    }
 }
 
 // Animación de entrada para el módulo

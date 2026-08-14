@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InventoryListComponent } from './inventory-list/inventory-list.component';
 import { InventoryAdjustmentFormComponent } from './inventory-adjustment-form/inventory-adjustment-form.component';
@@ -10,6 +10,7 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-current-inventory',
@@ -21,7 +22,8 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
     ModalGenericComponent,
     ModuleHeaderComponent,
     ConfirmModalComponent,
-    ModalAlertComponent
+    ModalAlertComponent,
+    SpinnerComponent
   ],
   templateUrl: './current-inventory.html',
   styleUrl: './current-inventory.scss'
@@ -51,7 +53,7 @@ export class CurrentInventoryComponent implements OnInit {
   constructor() {
     effect(() => {
       if (this.selectedEstablishmentId()) {
-        this.loadInventory();
+        untracked(() => this.loadInventory());
       }
     });
   }

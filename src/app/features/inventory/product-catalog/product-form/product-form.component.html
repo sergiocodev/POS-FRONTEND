@@ -127,19 +127,27 @@
                         <h5 class="card-title mb-0 fw-bold text-primary">Acción Terapéutica</h5>
                     </div>
                     <div class="card-body">
-                        <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
-                            <div *ngFor="let item of therapeuticActions()" class="form-check">
-                                <input class="form-check-input" type="checkbox" [id]="'action-' + item.id"
-                                    [checked]="isActionChecked(item.id)" (change)="onActionChange($event, item.id)">
-                                <label class="form-check-label" [for]="'action-' + item.id">
-                                    {{ item.name }}
-                                </label>
+                        <div class="therapeutic-actions-container" style="max-height: 220px; overflow-y: auto;">
+                            <div class="d-flex flex-wrap gap-2 p-1">
+                                <div *ngFor="let item of therapeuticActions()" class="therapeutic-pill">
+                                    <input type="checkbox" [id]="'action-' + item.id"
+                                        [checked]="isActionChecked(item.id)" (change)="onActionChange($event, item.id)"
+                                        hidden>
+                                    <label [for]="'action-' + item.id" class="pill-label">
+                                        <i class="bi"
+                                            [ngClass]="isActionChecked(item.id) ? 'bi-check-circle-fill' : 'bi-plus-circle'"></i>
+                                        {{ item.name }}
+                                    </label>
+                                </div>
                             </div>
-                            <div *ngIf="therapeuticActions().length === 0" class="text-muted small">
-                                No hay acciones terapéuticas disponibles.
+                            <div *ngIf="therapeuticActions().length === 0" class="empty-state text-center p-4">
+                                <i class="bi bi-capsule fs-2 text-muted mb-2 d-block"></i>
+                                <p class="text-muted small mb-0">No hay acciones terapéuticas disponibles.</p>
                             </div>
                         </div>
-                        <div class="form-text mt-2">Seleccione una o más acciones terapéuticas.</div>
+                        <div class="form-text mt-3" style="color: var(--text-muted);">
+                            <i class="bi bi-info-circle me-1"></i> Seleccione una o más acciones terapéuticas.
+                        </div>
                     </div>
                 </div>
 
@@ -147,7 +155,8 @@
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-primary">Principios Activos</h5>
-                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addIngredient()">
+                        <button type="button" class="btn btn-sm btn-custom-primary text-white"
+                            (click)="addIngredient()">
                             + Agregar
                         </button>
                     </div>
@@ -185,7 +194,7 @@
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-primary">Unidades de Medida</h5>
-                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addUnit()">
+                        <button type="button" class="btn btn-sm btn-custom-primary text-white" (click)="addUnit()">
                             + Agregar Unidad
                         </button>
                     </div>
@@ -194,39 +203,46 @@
                             <div *ngIf="units.length === 0" class="text-center py-3 text-muted">
                                 Defina al menos una unidad para este producto
                             </div>
-                            <div class="table-responsive" *ngIf="units.length > 0">
-                                <table class="table table-borderless table-sm align-middle mb-0">
-                                    <thead class="bg-light">
-                                        <tr class="small text-secondary">
-                                            <th>Unidad Ej(UNI)</th>
-                                            <th>Factor</th>
-                                            <th>Precio</th>
-                                            <th>Cód. Barras</th>
+                            <div class="table-responsive px-1" *ngIf="units.length > 0">
+                                <table class="table units-table mb-0 w-100">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th class="text-center ps-3">Unidad</th>
+                                            <th class="text-center">Factor</th>
+                                            <th class="text-center">Precio</th>
+                                            <th class="text-center">Cód. Barras</th>
                                             <th class="text-center">Base</th>
-                                            <th></th>
+                                            <th class="pe-3"></th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody style="border-top: none;">
                                         <tr *ngFor="let u of units.controls; let i = index" [formGroupName]="i">
                                             <td>
-                                                <input type="text" class="form-control form-control-sm" formControlName="unitName">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    formControlName="unitName" placeholder="Ej: Unidad">
                                             </td>
                                             <td>
-                                                <input type="number" class="form-control form-control-sm" formControlName="factor" min="1">
+                                                <input type="number" class="form-control form-control-sm"
+                                                    formControlName="factor" min="1" placeholder="1">
                                             </td>
                                             <td>
-                                                <input type="number" class="form-control form-control-sm" formControlName="price" step="0.01">
+                                                <input type="number" class="form-control form-control-sm"
+                                                    formControlName="price" step="0.01" placeholder="0.00">
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control form-control-sm" formControlName="barcode">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    formControlName="barcode" placeholder="775...">
                                             </td>
                                             <td class="text-center">
-                                                <div class="form-check d-flex justify-content-center">
-                                                    <input class="form-check-input" type="checkbox" formControlName="isBaseUnit">
+                                                <div class="form-check d-flex justify-content-center m-0">
+                                                    <input class="form-check-input custom-checkbox" type="checkbox"
+                                                        formControlName="isBaseUnit">
                                                 </div>
                                             </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" (click)="removeUnit(i)" [disabled]="units.length === 1">
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-outline-danger btn-delete-unit"
+                                                    title="Eliminar" (click)="removeUnit(i)"
+                                                    [disabled]="units.length === 1">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -247,31 +263,32 @@
                         <h5 class="card-title mb-0 fw-bold text-primary">Imagen del Producto</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3 text-start">
-                            <label class="form-label fw-semibold">Imagen del Producto</label>
-                            <div class="flex gap-2 mb-2">
-                                <input type="text" class="form-control" formControlName="imageUrl"
-                                    placeholder="/uploads/productos/aspirina.jpg" (input)="imageError.set(false)">
-                                <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/*">
-                                <button type="button" class="btn btn-outline-primary" (click)="fileInput.click()"
-                                    [disabled]="isLoading()" title="Subir Imagen">
-                                    <i class="bi bi-upload"></i>
+                        <div class="mb-3">
+                            <input type="hidden" formControlName="imageUrl">
+                            <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/*">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-semibold mb-0">Vista Previa</label>
+                                <button type="button" class="btn btn-sm btn-custom-primary text-white"
+                                    (click)="fileInput.click()" [disabled]="isLoading()">
+                                    <i class="bi bi-upload me-1"></i> {{ productForm.get('imageUrl')?.value ? 'Cambiar'
+                                    : 'Subir' }}
                                 </button>
                             </div>
-                            <small class="text-muted d-block mt-1">Ingrese la ruta o use el botón para subir una
-                                foto.</small>
-                        </div>
-                        <div class="mb-3 text-center">
-                            <label class="form-label fw-semibold d-block">Vista Previa</label>
-                            <div class="border rounded bg-light d-flex align-items-center justify-content-center"
-                                style="height: 100px; overflow: hidden;">
+
+                            <div class="image-preview-container w-100" (click)="fileInput.click()"
+                                title="Haz clic para cambiar la imagen">
                                 <ng-container *ngIf="productForm.get('imageUrl')?.value && !imageError(); else noImage">
                                     <img [src]="productForm.get('imageUrl')?.value" alt="Preview"
-                                        class="img-fluid h-100" style="object-fit: contain;"
                                         (error)="imageError.set(true)">
                                 </ng-container>
                                 <ng-template #noImage>
-                                    <i class="bi bi-image text-muted fs-2"></i>
+                                    <div class="empty-state">
+                                        <i class="bi bi-cloud-arrow-up"></i>
+                                        <span>Sin imagen</span>
+                                        <small class="text-muted mt-1" style="font-size: 0.75rem;">Haz clic para subir
+                                            una</small>
+                                    </div>
                                 </ng-template>
                             </div>
                         </div>
@@ -303,14 +320,13 @@
                 </div>
 
 
-                <div class="card shadow-sm border-0 py-3 px-3 position-sticky bg-white" style="top: 1rem; z-index: 10;">
-                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-2"
+                <div class="card shadow-sm border-0 pb-2 px-3 position-sticky bg-white" style="top: 1rem; z-index: 10;">
+                    <button type="submit" class="btn btn-custom-primary text-white btn-lg w-100 mb-2"
                         [disabled]="isLoading() || productForm.invalid">
                         <span *ngIf="!isLoading()">{{ isEditMode() ? 'Actualizar Producto' : 'Guardar Producto'
                             }}</span>
                         <span *ngIf="isLoading()" class="spinner-border spinner-border-sm"></span>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary w-100" (click)='onCancel()'>Cancelar</button>
                 </div>
             </div>
         </div>

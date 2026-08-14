@@ -11,6 +11,7 @@ import { ModalGenericComponent } from '../../../shared/components/modal-generic/
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-users',
@@ -22,7 +23,8 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
     ConfirmModalComponent,
     ModalAlertComponent,
     ModalGenericComponent,
-    ModuleHeaderComponent
+    ModuleHeaderComponent,
+    SpinnerComponent
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
@@ -41,6 +43,13 @@ export class UsersComponent implements OnInit {
   showUserForm = signal(false);
   selectedUserId = signal<number | null>(null);
 
+  // Table Pagination & Filter State
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(0);
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+  tableFilters = signal<any>({});
+
   ngOnInit() {
     this.loadData();
   }
@@ -54,10 +63,15 @@ export class UsersComponent implements OnInit {
       error: (err) => console.error('Error loading roles:', err)
     });
 
-    // Load Users — size=20 matches backend @PageableDefault(size = 20)
-    this.userService.getAll(0, 20).subscribe({
+    this.userService.getAllPaged(
+      this.currentPage(),
+      this.pageSize(),
+      this.tableFilters()
+    ).subscribe({
       next: (response) => {
-        this.users.set(response.data);
+        this.users.set(response.data.content);
+        this.totalItems.set(response.data.totalElements);
+        this.totalPages.set(response.data.totalPages);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -70,6 +84,24 @@ export class UsersComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  // Table Event Handlers
+  onPageChange(page: number): void {
+      this.currentPage.set(page);
+      this.loadData();
+  }
+
+  onPageSizeChange(size: number): void {
+      this.pageSize.set(size);
+      this.currentPage.set(0);
+      this.loadData();
+  }
+
+  onTableFilter(filters: any): void {
+      this.tableFilters.set(filters);
+      this.currentPage.set(0);
+      this.loadData();
   }
 
   onOpenForm(userId: number | null = null) {

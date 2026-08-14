@@ -35,7 +35,7 @@ export class SaleService {
         let params = new HttpParams()
             .set('page', page)
             .set('size', size);
-        
+
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
         if (establishmentId) params = params.set('establishmentId', establishmentId.toString());
@@ -116,7 +116,7 @@ export class SaleService {
         establishmentId?: number | null
     ): Observable<ResponseApi<SaleSummaryResponse>> {
         let params = new HttpParams();
-        
+
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
         if (establishmentId) params = params.set('establishmentId', establishmentId.toString());

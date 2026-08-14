@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, TemplateRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, TemplateRef, AfterViewInit, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CustomerService } from '../../../core/services/customer.service';
 import { CustomerResponse } from '../../../core/models/customer.model';
@@ -12,6 +12,7 @@ import { ModalAlertComponent } from '../../../shared/components/modal-alert/moda
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 
 
 @Component({
@@ -34,7 +35,9 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
 export class CustomersComponent implements OnInit, AfterViewInit {
     private customerService = inject(CustomerService);
     private modalService = inject(ModalService);
+    private establishmentStateService = inject(EstablishmentStateService);
 
+    selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
     // State
     customers = signal<CustomerResponse[]>([]);
@@ -42,7 +45,7 @@ export class CustomersComponent implements OnInit, AfterViewInit {
     isImagesLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
     dashboardLoading = signal<boolean>(false);
-    dashboard = signal<CustomerDashboardResponse | null>(null);
+    kpiItems = signal<SmartKpiItem[]>([]);
 
     // Modal State
     isModalOpen = signal<boolean>(false);
@@ -57,70 +60,43 @@ export class CustomersComponent implements OnInit, AfterViewInit {
 
 
 
-    kpiItems = computed<SmartKpiItem[]>(() => {
-        const d = this.dashboard();
-        if (!d) return [];
-
-        return [
-            {
-                label: 'Clientes Totales',
-                value: this.formatNumber(d.totalCustomers),
-                icon: 'bi-people-fill',
-                color: 'blue',
-                trendValue: this.formatTrend(d.totalCustomersTrend),
-                trendDirection: d.totalCustomersTrend >= 0 ? 'up' : 'down',
-                trendText: 'vs. mes ant.'
-            },
-            {
-                label: 'Clientes Activos',
-                value: this.formatNumber(d.activeCustomers),
-                icon: 'bi-person-check-fill',
-                color: 'green',
-                trendValue: this.formatTrend(d.activeCustomersTrend),
-                trendDirection: d.activeCustomersTrend >= 0 ? 'up' : 'down',
-                trendText: 'vs. mes ant.'
-            },
-            {
-                label: 'Ventas a Clientes',
-                value: this.formatCurrency(d.totalSalesAmount),
-                icon: 'bi-bag-fill',
-                color: 'purple',
-                trendValue: this.formatTrend(d.salesAmountTrend),
-                trendDirection: d.salesAmountTrend >= 0 ? 'up' : 'down',
-                trendText: 'vs. mes ant.'
-            },
-            {
-                label: 'Ticket Promedio',
-                value: this.formatCurrency(d.averageTicket),
-                icon: 'bi-star-fill',
-                color: 'orange',
-                trendValue: this.formatTrend(d.averageTicketTrend),
-                trendDirection: d.averageTicketTrend >= 0 ? 'up' : 'down',
-                trendText: 'vs. mes ant.'
-            }
-        ];
-    });
-
-
-    topMaxAmount = computed(() => {
-        const d = this.dashboard();
-        if (!d || !d.topCustomers.length) return 1;
-        return Math.max(...d.topCustomers.map(c => c.totalAmount));
-    });
+    constructor() {
+        effect(() => {
+            this.selectedEstablishmentId(); // track
+            
+            untracked(() => {
+                this.currentPage.set(0);
+                this.loadDashboard();
+                this.loadCustomers();
+            });
+        }, { allowSignalWrites: true });
+    }
 
     ngOnInit(): void {
-        this.loadDashboard();
-        this.loadCustomers();
     }
 
     ngAfterViewInit(): void {
     }
 
     loadDashboard(): void {
+        if (!this.selectedEstablishmentId()) return;
         this.dashboardLoading.set(true);
-        this.customerService.getDashboard().subscribe({
-            next: (resp) => {
-                this.dashboard.set(resp.data);
+        this.customerService.getSummary(this.selectedEstablishmentId()!).subscribe({
+            next: (resp: any) => {
+                const data = resp.data ? resp.data : resp;
+                const styles: any = {
+                    'CLIENTES TOTALES': { icon: 'bi-people-fill', color: 'blue' },
+                    'CLIENTES ACTIVOS': { icon: 'bi-person-check-fill', color: 'green' },
+                    'VENTAS A CLIENTES': { icon: 'bi-bag-fill', color: 'purple' },
+                    'TICKET PROMEDIO': { icon: 'bi-star-fill', color: 'orange' }
+                };
+
+                const mappedData = data.map((item: any) => ({
+                    ...item,
+                    ...(styles[item.label] || { icon: 'bi-info-circle', color: 'blue' })
+                }));
+
+                this.kpiItems.set(mappedData);
                 this.dashboardLoading.set(false);
             },
             error: () => {

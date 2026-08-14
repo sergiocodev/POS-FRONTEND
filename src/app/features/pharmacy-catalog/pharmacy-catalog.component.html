@@ -1,6 +1,6 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
-<app-spinner [show]="isInitialLoading()" [fullScreen]="true" message="Cargando catálogo..."></app-spinner>
+<app-spinner [show]="isInitialLoading()" [fullScreen]="true"></app-spinner>
 
 <app-module-header title="Catálogo Farmacéutico" iconClass="bi bi-capsule"></app-module-header>
 
@@ -27,7 +27,7 @@
 
             @if (isLoading()) {
             <div class="loading-overlay">
-                <app-spinner [show]="true" [fullScreen]="false" [size]="40" message=""></app-spinner>
+                <app-spinner [show]="true" [fullScreen]="false" [size]="40"></app-spinner>
             </div>
             }
         </div>

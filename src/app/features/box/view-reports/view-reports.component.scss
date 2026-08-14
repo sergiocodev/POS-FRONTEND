@@ -1,6 +1,16 @@
 .report-container {
-    padding: 1.5rem 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     animation: fadeIn 0.4s ease-out;
+
+    .row {
+        --bs-gutter-x: 12px;
+        --bs-gutter-y: 0;
+        row-gap: 12px;
+        margin-bottom: 0 !important;
+    }
 }
 
 // ── Tab Navigation ──

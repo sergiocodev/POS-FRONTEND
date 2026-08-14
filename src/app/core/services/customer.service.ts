@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { CustomerRequest, CustomerResponse, ExternalLookupResponse } from '../models/customer.model';
 import { CustomerDashboardResponse } from '../models/customer-dashboard.model';
 import { ResponseApi } from '../models/response-api.model';
+import { Page } from '../models/pagination.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -22,14 +23,17 @@ export class CustomerService {
         return this.cache$;
     }
 
-    getAllPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<any>> {
-        let params = `?page=${page}&size=${size}`;
-        if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
-        if (filters.documentNumber) params += `&documentNumber=${encodeURIComponent(filters.documentNumber)}`;
-        if (filters.email) params += `&email=${encodeURIComponent(filters.email)}`;
-        if (filters.phone) params += `&phone=${encodeURIComponent(filters.phone)}`;
-
-        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/paged${params}`);
+    getAllPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<Page<CustomerResponse>>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+            
+        if (filters.name) params = params.set('name', filters.name);
+        if (filters.documentNumber) params = params.set('documentNumber', filters.documentNumber);
+        if (filters.email) params = params.set('email', filters.email);
+        if (filters.phone) params = params.set('phone', filters.phone);
+        
+        return this.http.get<ResponseApi<Page<CustomerResponse>>>(`${this.apiUrl}/paged`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<CustomerResponse>> {
@@ -52,8 +56,8 @@ export class CustomerService {
         return this.http.get<ResponseApi<ExternalLookupResponse>>(`${environment.apiUrl}/users/search/${documentNumber}`);
     }
 
-    getDashboard(): Observable<ResponseApi<CustomerDashboardResponse>> {
-        return this.http.get<ResponseApi<CustomerDashboardResponse>>(`${this.apiUrl}/dashboard`);
+    getSummary(establishmentId: number): Observable<ResponseApi<any>> {
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/summary?establishmentId=${establishmentId}`);
     }
 
     invalidateCache(): void {

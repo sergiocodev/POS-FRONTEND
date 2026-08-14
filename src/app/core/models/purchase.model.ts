@@ -79,6 +79,7 @@ export interface PurchaseResponse {
     paymentCondition?: string;
     notes: string;
     items: PurchaseItemResponse[];
+    company?: any;
 }
 
 export interface PurchaseSummaryResponse {

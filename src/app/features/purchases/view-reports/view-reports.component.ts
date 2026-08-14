@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ReportService } from '../../../core/services/report.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import { EstablishmentService } from '../../../core/services/establishment.service';
@@ -14,6 +16,9 @@ import { EmployeeResponse } from '../../../core/models/employee.model';
 
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { CardReportComponent, CardReportOption } from '../../../shared/components/card-report/card-report.component';
 import { PurchaseReportFiltersComponent } from './components/purchase-report-filters/purchase-report-filters.component';
 import { CustomTabsComponent, CustomTab } from '../../../shared/components/custom-tabs/custom-tabs.component';
@@ -30,7 +35,9 @@ export type PurchaseReportTab = 'comprobantes' | 'productos' | 'proveedores' | '
         SpinnerComponent,
         CardReportComponent,
         PurchaseReportFiltersComponent,
-        CustomTabsComponent
+        CustomTabsComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent
     ],
     templateUrl: './view-reports.component.html',
     styleUrl: './view-reports.component.scss'
@@ -44,6 +51,7 @@ export class ViewReportsComponent implements OnInit {
     private productService = inject(ProductService);
     private employeeService = inject(EmployeeService);
     private supplierService = inject(SupplierService);
+    private modalService = inject(ModalService);
 
     // Tab state
     activeTab = signal<PurchaseReportTab>('comprobantes');
@@ -95,11 +103,13 @@ export class ViewReportsComponent implements OnInit {
                 return;
             }
             if (estId) {
-                // Reset card-level selections when establishment changes
-                this.selectedCategoryIds.set([]);
-                this.selectedProductId.set(null);
-                this.selectedSupplierIdsForCard.set([]);
-                this.selectedBuyerIdsForCard.set([]);
+                untracked(() => {
+                    // Reset card-level selections when establishment changes
+                    this.selectedCategoryIds.set([]);
+                    this.selectedProductId.set(null);
+                    this.selectedSupplierIdsForCard.set([]);
+                    this.selectedBuyerIdsForCard.set([]);
+                });
             }
         }, { allowSignalWrites: true });
     }
@@ -121,53 +131,44 @@ export class ViewReportsComponent implements OnInit {
     }
 
     private loadFiltersData(): void {
-        // Load Establishments
-        this.establishmentService.getAll().subscribe({
-            next: (res) => this.establishments.set(res.data)
-        });
+        this.isLoading.set(true);
 
-        // Load Categories
-        this.maintenanceService.getAllCategory().subscribe({
-            next: (res) => {
-                const options: CardReportOption[] = [
+        forkJoin({
+            est: this.establishmentService.getAll().pipe(take(1)),
+            cat: this.maintenanceService.getAllCategory().pipe(take(1)),
+            products: this.productService.getAll().pipe(take(1)),
+            suppliers: this.supplierService.getAll().pipe(take(1)),
+            buyers: this.employeeService.getAll().pipe(take(1))
+        }).subscribe({
+            next: (res: any) => {
+                this.establishments.set(res.est.data);
+
+                this.categoriesOptions.set([
                     { id: 'all', label: 'Todas' },
-                    ...res.data.map(cat => ({ id: cat.id, label: cat.name }))
-                ];
-                this.categoriesOptions.set(options);
-            }
-        });
+                    ...res.cat.data.map((cat: any) => ({ id: cat.id, label: cat.name }))
+                ]);
 
-        // Load Products
-        this.productService.getAll().subscribe({
-            next: (res) => {
-                const options: CardReportOption[] = [
-                    ...res.data.map(p => ({ id: p.id, label: p.tradeName }))
-                ];
-                this.productOptions.set(options);
-            }
-        });
+                this.productOptions.set([
+                    ...res.products.data.map((p: any) => ({ id: p.id, label: p.tradeName }))
+                ]);
 
-        // Load Suppliers
-        this.supplierService.getAll().subscribe({
-            next: (res) => {
-                this.suppliers.set(res.data);
-                const options: CardReportOption[] = [
+                this.suppliers.set(res.suppliers.data);
+                this.supplierOptions.set([
                     { id: 'all', label: 'Todos' },
-                    ...res.data.map(s => ({ id: s.id, label: s.name }))
-                ];
-                this.supplierOptions.set(options);
-            }
-        });
+                    ...res.suppliers.data.map((s: any) => ({ id: s.id, label: s.name }))
+                ]);
 
-        // Load Buyers (Employees)
-        this.employeeService.getAll().subscribe({
-            next: (res) => {
-                this.buyers.set(res.data);
-                const options: CardReportOption[] = [
+                this.buyers.set(res.buyers.data);
+                this.buyerOptions.set([
                     { id: 'all', label: 'Todos' },
-                    ...res.data.map(e => ({ id: e.id, label: `${e.firstName} ${e.lastName || ''}`.trim() }))
-                ];
-                this.buyerOptions.set(options);
+                    ...res.buyers.data.map((e: any) => ({ id: e.id, label: `${e.firstName} ${e.lastName || ''}`.trim() }))
+                ]);
+
+                this.isLoading.set(false);
+            },
+            error: () => {
+                this.isLoading.set(false);
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los filtros y diccionarios.', type: 'error' });
             }
         });
     }
@@ -254,12 +255,12 @@ export class ViewReportsComponent implements OnInit {
 
     private handlePdfError(): void {
         this.isLoading.set(false);
-        alert('Error al generar el reporte PDF. Por favor, intente nuevamente.');
+        this.modalService.alert({ title: 'Error', message: 'Error al generar el reporte PDF. Por favor, intente nuevamente.', type: 'error' });
     }
 
     onViewPurchasePdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getPurchasesFilteredPdf(this.startDate(), this.endDate(), estId).subscribe({
             next: (blob: Blob) => this.openPdf(blob, 'reporte_compras.pdf'),
@@ -269,7 +270,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewPurchaseStatusPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getPurchasesByStatusPdf(this.startDate(), this.endDate(), estId).subscribe({
             next: (blob: Blob) => this.openPdf(blob, 'reporte_compras_estados.pdf'),
@@ -279,7 +280,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewCategoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         const categoryIds = this.selectedCategoryIds();
         this.reportService.getPurchasesByCategoryPdf(this.startDate(), this.endDate(), estId, categoryIds.length > 0 ? categoryIds : undefined).subscribe({
@@ -293,7 +294,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewPriceHistoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         const productId = this.selectedProductId();
         this.reportService.getProductPriceHistoryPdf(this.startDate(), this.endDate(), estId, productId ? productId : undefined).subscribe({
@@ -308,7 +309,7 @@ export class ViewReportsComponent implements OnInit {
     onViewSupplierPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const supplierIds = this.selectedSupplierIdsForCard().length > 0 ? this.selectedSupplierIdsForCard() : (this.selectedSupplierId() ? [Number(this.selectedSupplierId())] : []);
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getPurchasesBySupplierPdf(this.startDate(), this.endDate(), estId, supplierIds.length > 0 ? supplierIds : undefined).subscribe({
             next: (blob: Blob) => this.openPdf(blob, 'reporte_compras_proveedores.pdf'),
@@ -319,7 +320,7 @@ export class ViewReportsComponent implements OnInit {
     onViewAccountsPayablePdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const supplierIds = this.selectedSupplierIdsForCard().length > 0 ? this.selectedSupplierIdsForCard() : (this.selectedSupplierId() ? [Number(this.selectedSupplierId())] : []);
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getAccountsPayableBySupplierPdf(this.startDate(), this.endDate(), estId, supplierIds.length > 0 ? supplierIds : undefined).subscribe({
             next: (blob: Blob) => this.openPdf(blob, 'cuentas_por_pagar.pdf'),
@@ -330,7 +331,7 @@ export class ViewReportsComponent implements OnInit {
     onViewBuyerPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const buyerIds = this.selectedBuyerIdsForCard().length > 0 ? this.selectedBuyerIdsForCard() : (this.selectedBuyerId() ? [Number(this.selectedBuyerId())] : []);
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getPurchasesByBuyerPdf(this.startDate(), this.endDate(), estId, buyerIds.length > 0 ? buyerIds : undefined).subscribe({
             next: (blob: Blob) => this.openPdf(blob, 'reporte_compradores.pdf'),

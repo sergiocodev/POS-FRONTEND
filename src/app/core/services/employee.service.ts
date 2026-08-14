@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { EmployeeRequest, EmployeeResponse } from '../models/employee.model';
 import { ResponseApi } from '../models/response-api.model';
@@ -19,6 +19,21 @@ export class EmployeeService {
             this.cache$ = this.http.get<ResponseApi<EmployeeResponse[]>>(this.apiUrl).pipe(shareReplay(1));
         }
         return this.cache$;
+    }
+
+    getAllPaged(page: number, size: number, filters?: any): Observable<ResponseApi<any>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (filters) {
+            Object.keys(filters).forEach(key => {
+                if (filters[key]) {
+                    params = params.set(key, filters[key]);
+                }
+            });
+        }
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/paged`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<EmployeeResponse>> {

@@ -14,11 +14,25 @@ import { ProductResponse, ProductUnitResponse } from '../../../core/models/produ
 import { SupplierResponse } from '../../../core/models/supplier.model';
 import { EstablishmentResponse } from '../../../core/models/sale.model';
 import { PurchaseFormComponent } from './purchase-form/purchase-form.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-new-purchase',
   standalone: true,
-  imports: [CommonModule, PurchaseFormComponent],
+  imports: [
+    CommonModule, 
+    RouterModule,
+    PurchaseFormComponent,
+    SpinnerComponent,
+    ConfirmModalComponent,
+    ModalAlertComponent,
+    ModuleHeaderComponent
+  ],
   templateUrl: './new-purchase.component.html',
   styleUrls: ['./new-purchase.component.scss']
 })
@@ -32,6 +46,7 @@ export class NewPurchaseComponent implements OnInit {
   private establishmentStateService = inject(EstablishmentStateService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private modalService = inject(ModalService);
 
   isLoading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
@@ -78,6 +93,7 @@ export class NewPurchaseComponent implements OnInit {
       },
       error: () => {
         this.errorMessage.set('Error al cargar datos. Intente nuevamente.');
+        this.modalService.alert({ title: 'Error', message: 'Error al cargar datos. Intente nuevamente.', type: 'error' });
         this.isLoading.set(false);
       }
     });
@@ -106,6 +122,7 @@ export class NewPurchaseComponent implements OnInit {
       },
       error: () => {
         this.errorMessage.set('Error al cargar unidades de productos.');
+        this.modalService.alert({ title: 'Error', message: 'Error al cargar unidades de productos.', type: 'error' });
         this.isLoading.set(false);
       }
     });
@@ -133,6 +150,7 @@ export class NewPurchaseComponent implements OnInit {
       },
       error: () => {
         this.errorMessage.set('Error al registrar la compra. Verifique los datos.');
+        this.modalService.alert({ title: 'Error', message: 'Error al registrar la compra. Verifique los datos.', type: 'error' });
         this.isLoading.set(false);
       }
     });

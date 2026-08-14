@@ -1,5 +1,7 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { take, finalize } from 'rxjs/operators';
 import { StockTransferListComponent } from './stock-transfer-list/stock-transfer-list.component';
 import { StockTransferFormComponent } from './stock-transfer-form/stock-transfer-form.component';
 import { StockTransferDetailsComponent } from './stock-transfer-details/stock-transfer-details.component';
@@ -12,10 +14,11 @@ import { ModuleHeaderComponent } from '../../../shared/components/module-header/
 import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { StockTransferResponse, StockTransferRequest } from '../../../core/models/stock-transfer.model';
 import { EstablishmentResponse } from '../../../core/models/maintenance.model';
-import { InventoryResponse } from '../../../core/models/inventory.model';
-import { forkJoin } from 'rxjs';
+import { InventoryResponse } from '../../..../../../core/models/inventory.model';
+
 
 @Component({
   selector: 'app-stock-transfers',
@@ -28,7 +31,8 @@ import { forkJoin } from 'rxjs';
     ModuleHeaderComponent,
     ModalGenericComponent,
     ConfirmModalComponent,
-    ModalAlertComponent
+    ModalAlertComponent,
+    SpinnerComponent
   ],
   templateUrl: './stock-transfers.component.html',
   styleUrl: './stock-transfers.component.scss'
@@ -61,15 +65,59 @@ export class StockTransfersComponent implements OnInit {
     effect(() => {
       const estId = this.establishmentState.selectedEstablishmentId();
       if (estId) {
-        this.loadTransfers();
-        this.loadMasterData();
+        untracked(() => this.loadAllData());
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
-    this.loadTransfers();
-    this.loadMasterData();
+    this.loadAllData();
+  }
+
+  loadAllData() {
+    const estId = this.establishmentState.selectedEstablishmentId();
+    if (!estId) return;
+
+    this.isLoading.set(true);
+
+    const request$ = this.activeTab() === 'SENT'
+      ? this.transferService.getBySourceEstablishmentId(estId).pipe(take(1))
+      : this.transferService.getByTargetEstablishmentId(estId).pipe(take(1));
+
+    const master$ = forkJoin({
+      establishments: this.establishmentService.getAll().pipe(take(1)),
+      lots: this.inventoryService.getAllLots().pipe(take(1)),
+      inventory: this.inventoryService.getStockByEstablishment(estId).pipe(take(1))
+    });
+
+    forkJoin({ transfers: request$, master: master$ }).subscribe({
+      next: (res: any) => {
+        this.transfers.set(res.transfers || []);
+
+        const data = res.master;
+        const currentEstId = estId;
+        const establishmentsData = data.establishments.data;
+        const filteredEsts = (Array.isArray(establishmentsData) ? establishmentsData : (establishmentsData?.content || [])).filter((e: any) => e.id !== currentEstId);
+        this.establishments.set(filteredEsts);
+
+        const map = new Map<number, number>();
+        const lotsData = data.lots.data;
+        (Array.isArray(lotsData) ? lotsData : (lotsData?.content || [])).forEach((lot: any) => map.set(lot.id, lot.productId));
+        this.lotsMap.set(map);
+
+        const invData = data.inventory.data;
+        const inventoryList = Array.isArray(invData) ? invData : (invData?.content || []);
+        const items = inventoryList.filter((i: any) => i.quantity > 0);
+        this.inventoryItems.set(items);
+
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading data:', err);
+        this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los datos', type: 'error' });
+        this.isLoading.set(false);
+      }
+    });
   }
 
   loadTransfers() {
@@ -77,55 +125,21 @@ export class StockTransfersComponent implements OnInit {
     if (!estId) return;
 
     this.isLoading.set(true);
-    const request$ = this.activeTab() === 'SENT' 
+    const request$ = this.activeTab() === 'SENT'
       ? this.transferService.getBySourceEstablishmentId(estId)
       : this.transferService.getByTargetEstablishmentId(estId);
 
-    request$.subscribe({
+    request$.pipe(take(1), finalize(() => this.isLoading.set(false))).subscribe({
       next: (res: any) => {
         this.transfers.set(res || []);
-        this.isLoading.set(false);
       },
       error: (err: any) => {
         console.error('Error loading transfers:', err);
-        this.isLoading.set(false);
       }
     });
   }
 
-  loadMasterData() {
-    const currentEstId = this.establishmentState.selectedEstablishmentId();
-    if (!currentEstId) return;
 
-    this.isLoadingData.set(true);
-
-    forkJoin({
-      establishments: this.establishmentService.getAll(),
-      lots: this.inventoryService.getAllLots(),
-      inventory: this.inventoryService.getStockByEstablishment(currentEstId)
-    }).subscribe({
-      next: (data: any) => {
-        // Filter out current establishment
-        const filteredEsts = (data.establishments.data || []).filter((e: any) => e.id !== currentEstId);
-        this.establishments.set(filteredEsts);
-
-        // Lots map
-        const map = new Map<number, number>();
-        (data.lots.data || []).forEach((lot: any) => map.set(lot.id, lot.productId));
-        this.lotsMap.set(map);
-
-        // Inventory
-        const items = (data.inventory.data || []).filter((i: any) => i.quantity > 0);
-        this.inventoryItems.set(items);
-        
-        this.isLoadingData.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading master data:', err);
-        this.isLoadingData.set(false);
-      }
-    });
-  }
 
   onTabChange(tab: 'SENT' | 'RECEIVED') {
     this.activeTab.set(tab);

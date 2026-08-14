@@ -1,0 +1,69 @@
+<div class="w-100">
+    <div class="ticket-header">
+        <img [src]="purchase.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo" class="logo-ticket-img mb-2"
+            style="max-height: 80px; object-fit: contain;" *ngIf="purchase.company?.logoUrl || true">
+        <p class="company-name text-uppercase mb-1 fw-bold">{{ purchase.company?.name || purchase.establishmentName }}
+        </p>
+        <p class="address-text mb-1">RECEPCION DE COMPRAS</p>
+        <div class="mt-2 text-uppercase">
+            <p class="mb-0 fw-bold">{{ purchase.documentType }}</p>
+            <p class="mb-0 fw-bold">{{ purchase.series || '-' }}-{{ purchase.number || '-' }}</p>
+        </div>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <div class="d-flex flex-row justify-content-between x-small-text mb-1">
+        <span>F.Emi: {{ purchase.issueDate | date:'yyyy-MM-dd' }}</span>
+        <span>F.Ing: {{ purchase.arrivalDate | date:'yyyy-MM-dd' }}</span>
+    </div>
+    <div class="x-small-text text-start">
+        <p class="mb-1">Proveedor: {{ purchase.supplierName || 'NO ESPECIFICADO' }}</p>
+        <p class="mb-1">Usuario: {{ purchase.username }}</p>
+        <p class="mb-0">Condición: {{ purchase.paymentCondition === 'CREDIT' ? 'CRÉDITO' : 'CONTADO' }}</p>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <table class="table table-sm table-borderless mb-0">
+        <thead>
+            <tr>
+                <th class="text-start fw-bold" style="width: 45%;">DESCRIPCION</th>
+                <th class="text-center fw-bold" style="width: 13%;">CANT</th>
+                <th class="text-end fw-bold" style="width: 20%;">C.U.</th>
+                <th class="text-end fw-bold" style="width: 22%;">SUB</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of purchase.items">
+                <td class="text-start">{{ item.productName }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-end">{{ item.unitCost | number:'1.2-2' }}</td>
+                <td class="text-end">{{ item.totalCost | number:'1.2-2' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="dashed-line"></div>
+
+    <div class="totals-section mt-1">
+        <div class="total-row"><span>SUBTOTAL:</span><span>{{ purchase.subTotal | number:'1.2-2' }}</span></div>
+        <div class="total-row"><span>I.G.V:</span><span>{{ purchase.tax | number:'1.2-2' }}</span></div>
+        <div class="total-row mt-1 fw-bold"><span>TOTAL:</span><span>{{ purchase.total | number:'1.2-2' }}</span></div>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <div class="footer-section x-small-text text-start">
+        <p class="mb-1" *ngIf="purchase.notes">Observación: {{ purchase.notes }}</p>
+
+        <div class="dashed-line" *ngIf="purchase.notes"></div>
+
+        <div class="text-center mt-3">
+            <p class="mb-1 fw-bold">DOCUMENTO DE CONTROL INTERNO</p>
+            <p class="mb-3">Esta impresión no tiene validez legal.</p>
+            <p class="mb-0">Sistema Integral de Operaciones Comerciales</p>
+            <p>SIOC | www.siocperu.com</p>
+        </div>
+    </div>
+</div>

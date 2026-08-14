@@ -261,7 +261,11 @@ $brand-blue: #0d2ee0;
             text-align: left;
 
             &:hover {
-                background: var(--hover-bg);
+                background: var(--primary-color);
+                color: #ffffff;
+                i {
+                    color: #ffffff;
+                }
             }
 
             &.active {

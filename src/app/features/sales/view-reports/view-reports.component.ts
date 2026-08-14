@@ -1,11 +1,12 @@
-import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, computed, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { ReportService } from '../../../core/services/report.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
 import {
-    SalesReport, SalesSummary,
+    SalesReport,
     SalesByProductReport, SalesByPaymentMethodReport,
     SalesByLaboratoryReport, CategorySalesReport,
     EmployeeSalesReport, SalesByEmployeeCategoryReport,
@@ -18,6 +19,9 @@ import { EstablishmentResponse } from '../../../core/models/maintenance.model';
 import { EstablishmentService } from '../../../core/services/establishment.service';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { CardReportComponent, CardReportOption, CardReportDropdownConfig } from '../../../shared/components/card-report/card-report.component';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { ProductService } from '../../../core/services/product.service';
@@ -38,7 +42,9 @@ export type ReportTab = 'comprobantes' | 'productos' | 'clientes' | 'vendedor';
         SpinnerComponent,
         CardReportComponent,
         ReportFilters,
-        CustomTabsComponent
+        CustomTabsComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent
     ],
     templateUrl: './view-reports.component.html',
     styleUrl: './view-reports.component.scss'
@@ -51,6 +57,7 @@ export class ViewReportsComponent implements OnInit {
     private productService = inject(ProductService);
     private employeeService = inject(EmployeeService);
     private customerService = inject(CustomerService);
+    private modalService = inject(ModalService);
 
     // Tab state
     activeTab = signal<ReportTab>('comprobantes');
@@ -201,7 +208,6 @@ export class ViewReportsComponent implements OnInit {
 
     // Data signals for each tab
     salesFiltered = signal<SalesReport[]>([]);
-    salesSummary = signal<SalesSummary | null>(null);
     salesByProduct = signal<SalesByProductReport[]>([]);
     salesByPaymentMethod = signal<SalesByPaymentMethodReport[]>([]);
     salesByLaboratory = signal<SalesByLaboratoryReport[]>([]);
@@ -229,19 +235,6 @@ export class ViewReportsComponent implements OnInit {
         { key: 'vendedor', label: 'Vendedor', icon: 'bi-person-badge' }
     ];
 
-    // Computed totals for summary
-    summaryTotals = computed(() => {
-        const summary = this.salesSummary();
-        if (!summary) return null;
-        return {
-            revenue: summary.totalRevenue,
-            transactions: summary.totalTransactions,
-            tax: summary.totalTax,
-            voided: summary.voidedCount,
-            voidedAmount: summary.voidedAmount
-        };
-    });
-
     constructor() {
         let isFirstRun = true;
         effect(() => {
@@ -251,19 +244,20 @@ export class ViewReportsComponent implements OnInit {
                 return;
             }
             
-            // Reset data arrays before loading
-            this.salesFiltered.set([]);
-            this.salesSummary.set(null);
-            this.salesByProduct.set([]);
-            this.salesByPaymentMethod.set([]);
-            this.salesByLaboratory.set([]);
-            this.salesByCategory.set([]);
-            this.salesByEmployee.set([]);
-            this.salesByEmployeeCategory.set([]);
-            this.salesByCategoryDetail.set([]);
-            this.salesByCustomer.set([]);
-            
-            this.loadTabData();
+            untracked(() => {
+                // Reset data arrays before loading
+                this.salesFiltered.set([]);
+                this.salesByProduct.set([]);
+                this.salesByPaymentMethod.set([]);
+                this.salesByLaboratory.set([]);
+                this.salesByCategory.set([]);
+                this.salesByEmployee.set([]);
+                this.salesByEmployeeCategory.set([]);
+                this.salesByCategoryDetail.set([]);
+                this.salesByCustomer.set([]);
+                
+                this.loadTabData();
+            });
         }, { allowSignalWrites: true });
 
         effect(() => {
@@ -271,41 +265,47 @@ export class ViewReportsComponent implements OnInit {
             const estId = this.selectedEstablishmentId();
 
             if (docType && estId) {
-                this.reportService.getAvailableSeries(estId, docType).subscribe({
-                    next: (res) => {
-                        this.availableSeries.set(res.data);
-                        // Optional: Reset selected series if it's no longer in the list
-                        if (this.selectedSeries() && !res.data.includes(this.selectedSeries())) {
-                            this.selectedSeries.set('');
-                        }
-                    },
-                    error: () => this.availableSeries.set([])
+                untracked(() => {
+                    this.reportService.getAvailableSeries(estId, docType).subscribe({
+                        next: (res) => {
+                            this.availableSeries.set(res.data);
+                            // Optional: Reset selected series if it's no longer in the list
+                            if (this.selectedSeries() && !res.data.includes(this.selectedSeries())) {
+                                this.selectedSeries.set('');
+                            }
+                        },
+                        error: () => this.availableSeries.set([])
+                    });
                 });
             } else {
-                this.availableSeries.set([]);
-                this.selectedSeries.set('');
+                untracked(() => {
+                    this.availableSeries.set([]);
+                    this.selectedSeries.set('');
+                });
             }
         }, { allowSignalWrites: true });
 
         // Sync card series with global establishment
         effect(() => {
             const estId = this.selectedEstablishmentId();
-            this.selectedSeriesForCard.set([]); // Reset when establishment changes
+            untracked(() => {
+                this.selectedSeriesForCard.set([]); // Reset when establishment changes
 
-            if (estId) {
-                this.reportService.getAvailableSeries(estId).subscribe({
-                    next: (res) => {
-                        const seriesOpts: CardReportOption[] = [
-                            { id: 'all', label: 'Todos' },
-                            ...res.data.map((s: string) => ({ id: s, label: s }))
-                        ];
-                        this.seriesOptionsForCard.set(seriesOpts);
-                    },
-                    error: () => this.seriesOptionsForCard.set([])
-                });
-            } else {
-                this.seriesOptionsForCard.set([]);
-            }
+                if (estId) {
+                    this.reportService.getAvailableSeries(estId).subscribe({
+                        next: (res) => {
+                            const seriesOpts: CardReportOption[] = [
+                                { id: 'all', label: 'Todos' },
+                                ...res.data.map((s: string) => ({ id: s, label: s }))
+                            ];
+                            this.seriesOptionsForCard.set(seriesOpts);
+                        },
+                        error: () => this.seriesOptionsForCard.set([])
+                    });
+                } else {
+                    this.seriesOptionsForCard.set([]);
+                }
+            });
         }, { allowSignalWrites: true });
     }
 
@@ -322,79 +322,66 @@ export class ViewReportsComponent implements OnInit {
         this.startDate.set(toLocalISO(firstDay));
         this.endDate.set(toLocalISO(todayEnd));
 
-        this.loadEstablishments();
-        this.loadCategories();
-        this.loadProductFilters();
-        this.loadSellers();
-        this.loadCustomers();
+        this.loadInitialDictionaries();
     }
 
-    private loadCustomers(): void {
-        this.customerService.getAll().subscribe({
-            next: (res) => {
-                this.customers.set(res.data.map(c => ({
-                    id: c.id,
-                    name: c.name
-                })));
-            }
-        });
-    }
+    private loadInitialDictionaries(): void {
+        this.isLoading.set(true);
 
-    private loadProductFilters(): void {
-        // Load Brands (Laboratories)
-        this.maintenanceService.getAllBrands().subscribe({
-            next: (res: ResponseApi<BrandResponse[]>) => {
+        forkJoin({
+            est: this.establishmentService.getAll().pipe(take(1)),
+            cat: this.maintenanceService.getAllCategory().pipe(take(1)),
+            brands: this.maintenanceService.getAllBrands().pipe(take(1)),
+            actions: this.maintenanceService.getAllTherapeuticActions().pipe(take(1)),
+            products: this.productService.getAll().pipe(take(1)),
+            sellers: this.employeeService.getAll().pipe(take(1)),
+            customers: this.customerService.getAll().pipe(take(1))
+        }).subscribe({
+            next: (res: any) => {
+                this.establishments.set(res.est.data);
+                
+                this.categoriesOptions.set([
+                    { id: 'all', label: 'Todos' },
+                    ...res.cat.data.map((cat: any) => ({ id: cat.id, label: cat.name }))
+                ]);
+                this.selectedCategoryIds.set([]);
+
                 this.brandOptions.set([
                     { id: 'all', label: 'Todos' },
-                    ...res.data.map((brand: BrandResponse) => ({ id: brand.id, label: brand.name }))
+                    ...res.brands.data.map((b: any) => ({ id: b.id, label: b.name }))
                 ]);
-            }
-        });
 
-        // Load Therapeutic Actions
-        this.maintenanceService.getAllTherapeuticActions().subscribe({
-            next: (res: ResponseApi<TherapeuticActionResponse[]>) => {
                 this.therapeuticActionOptions.set([
                     { id: 'all', label: 'Todos' },
-                    ...res.data.map((ta: TherapeuticActionResponse) => ({ id: ta.id, label: ta.name }))
+                    ...res.actions.data.map((ta: any) => ({ id: ta.id, label: ta.name }))
                 ]);
-            }
-        });
 
-        // We'll use the getAllProducts from MaintenanceService or ProductService
-        // But for a searchable dropdown, we might want to just load all for now or use search.
-        // For simplicity in the card, we'll load all.
-        this.productService.getAll().subscribe({
-            next: (res: ResponseApi<ProductResponse[]>) => {
-                this.allProductsData.set(res.data);
+                this.allProductsData.set(res.products.data);
                 this.productOptions.set([
                     { id: 'all', label: 'Todos' },
-                    ...res.data.map((p: ProductResponse) => ({ id: p.id, label: p.tradeName }))
+                    ...res.products.data.map((p: any) => ({ id: p.id, label: p.tradeName }))
                 ]);
-            }
-        });
-    }
 
-    private loadSellers(): void {
-        this.employeeService.getAll().subscribe({
-            next: (res) => {
-                this.sellers.set(res.data.map(e => ({
+                this.sellers.set(res.sellers.data.map((e: any) => ({
                     id: e.id,
                     name: `${e.firstName} ${e.lastName || ''}`.trim()
                 })));
-            }
-        });
-    }
 
-    private loadCategories(): void {
-        this.maintenanceService.getAllCategory().subscribe({
-            next: (res) => {
-                const options: CardReportOption[] = [
-                    { id: 'all', label: 'Todos' },
-                    ...res.data.map(cat => ({ id: cat.id, label: cat.name }))
-                ];
-                this.categoriesOptions.set(options);
-                this.selectedCategoryIds.set([]); // Default to "Todos" (empty array)
+                this.customers.set(res.customers.data.map((c: any) => ({
+                    id: c.id,
+                    name: c.name
+                })));
+
+                this.isLoading.set(false);
+
+                // Fetch reports data automatically if an establishment is already set globally
+                if (this.selectedEstablishmentId()) {
+                    this.loadTabData();
+                }
+            },
+            error: () => {
+                this.isLoading.set(false);
+                this.modalService.alert({ title: 'Error', message: 'No se pudieron cargar los filtros y diccionarios.', type: 'error' });
             }
         });
     }
@@ -450,13 +437,7 @@ export class ViewReportsComponent implements OnInit {
         }
     }
 
-    private loadEstablishments(): void {
-        this.establishmentService.getAll().subscribe({
-            next: (res) => {
-                this.establishments.set(res.data);
-            }
-        });
-    }
+
 
     onEstablishmentChange(id: string): void {
         const estId = id ? parseInt(id, 10) : null;
@@ -533,12 +514,12 @@ export class ViewReportsComponent implements OnInit {
 
     private handlePdfError(): void {
         this.isLoading.set(false);
-        alert('Error al generar el reporte PDF. Por favor, intente nuevamente.');
+        this.modalService.alert({ title: 'Error', message: 'Error al generar el reporte PDF. Por favor, intente nuevamente.', type: 'error' });
     }
 
     onViewPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -554,7 +535,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewCategoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -572,7 +553,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewEstablishmentSeriesPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -595,7 +576,7 @@ export class ViewReportsComponent implements OnInit {
 
     onViewProductBrandTherapeuticPdfReport(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -630,8 +611,8 @@ export class ViewReportsComponent implements OnInit {
             ? this.selectedSellerIdsForSellerCard()
             : this.selectedSellerIds();
 
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
-        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
+        if (sellerIds.length === 0) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un vendedor', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -646,8 +627,8 @@ export class ViewReportsComponent implements OnInit {
     onViewSellerCategoryPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const sellerIds = this.selectedSellerIds();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
-        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
+        if (sellerIds.length === 0) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un vendedor', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -669,8 +650,8 @@ export class ViewReportsComponent implements OnInit {
     onViewSellerProductPdfReport(): void {
         const estId = this.selectedEstablishmentId();
         const sellerIds = this.selectedSellerIds();
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
-        if (sellerIds.length === 0) { alert('Seleccione un vendedor'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
+        if (sellerIds.length === 0) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un vendedor', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -697,8 +678,8 @@ export class ViewReportsComponent implements OnInit {
             ? this.selectedCustomerIdsForCard() 
             : this.selectedCustomerIds();
 
-        if (estId === null) { alert('Seleccione un establecimiento'); return; }
-        if (customerIds.length === 0) { alert('Seleccione un cliente'); return; }
+        if (estId === null) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
+        if (customerIds.length === 0) { this.modalService.alert({ title: 'Aviso', message: 'Seleccione un cliente', type: 'warning' }); return; }
 
         this.isLoading.set(true);
         const start = this.startDate();
@@ -753,7 +734,7 @@ export class ViewReportsComponent implements OnInit {
         this.reportService.getSalesFiltered(start, end, estId, docType, series).subscribe({
             next: (res) => {
                 this.salesFiltered.set(res.data);
-                this.loadSummary(start, end, estId);
+                this.isLoading.set(false);
             },
             error: () => {
                 this.isLoading.set(false);
@@ -797,18 +778,6 @@ export class ViewReportsComponent implements OnInit {
         this.reportService.getSalesByEmployeeCategory(start, end, estId).subscribe({
             next: (res) => { this.salesByEmployeeCategory.set(res.data); checkDone(); },
             error: () => checkDone()
-        });
-    }
-
-    private loadSummary(start: string, end: string, estId: number): void {
-        this.reportService.getSalesSummary(start, end, estId).subscribe({
-            next: (res) => {
-                this.salesSummary.set(res.data);
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            }
         });
     }
 

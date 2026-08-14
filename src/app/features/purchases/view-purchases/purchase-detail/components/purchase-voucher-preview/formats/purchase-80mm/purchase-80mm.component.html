@@ -1,0 +1,78 @@
+<div class="voucher-80mm-content w-100">
+    <div class="voucher-header-gradient">
+        <div class="logo-placeholder">
+            <img [src]="purchase.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo"
+                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+        </div>
+        <h6 class="fw-bold text-uppercase">{{ purchase.company?.name || purchase.establishmentName }}</h6>
+        <p>{{ purchase.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>
+        <p class="fw-bold">RUC: {{ purchase.company?.ruc || '20602518559' }}</p>
+        <p>Tel: {{ purchase.company?.phone || '949978036' }}</p>
+        <p>Recepción de Compras</p>
+    </div>
+
+    <div class="voucher-body">
+        <div class="text-center mb-3">
+            <h6 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">{{ purchase.documentType }}
+            </h6>
+            <h4 class="text-primary-custom mb-1">{{ purchase.series || '-' }}-{{ purchase.number || '-' }}</h4>
+            <p class="x-small mb-0" style="color: #666;">Fec. Emisión: {{ purchase.issueDate | date:'yyyy-MM-dd' }}</p>
+            <p class="x-small" style="color: #666;">Fec. Ingreso: {{ purchase.arrivalDate | date:'yyyy-MM-dd' }}</p>
+        </div>
+
+        <div class="customer-info border-top border-bottom py-3 mb-3">
+            <p class="mb-1"><strong>Proveedor:</strong> {{ purchase.supplierName || 'NO ESPECIFICADO' }}</p>
+            <p class="mb-1"><strong>Usuario:</strong> {{ purchase.username }}</p>
+            <p class="mb-0"><strong>Condición:</strong> {{ purchase.paymentCondition === 'CREDIT' ? 'CRÉDITO' :
+                'CONTADO' }}</p>
+        </div>
+
+        <table class="table table-sm mb-3">
+            <thead>
+                <tr>
+                    <th class="text-start">Cant.</th>
+                    <th class="text-start">Descripción</th>
+                    <th class="text-end">C.U.</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of purchase.items">
+                    <td class="text-start fw-bold">{{ item.quantity }}</td>
+                    <td class="text-start">{{ item.productName }}</td>
+                    <td class="text-end">{{ item.unitCost | number:'1.2-2' }}</td>
+                    <td class="text-end fw-bold">{{ item.totalCost | number:'1.2-2' }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="totals-box shadow-xs" style="color: #666;">
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>SubTotal S/</span>
+                <span>{{ purchase.subTotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small">
+                <span>IGV S/</span>
+                <span>{{ purchase.tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="total-row-main d-flex justify-content-between">
+                <span>TOTAL S/</span>
+                <span>{{ purchase.total | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <div class="mt-3 small" *ngIf="purchase.notes">
+            <p><strong>Observaciones:</strong> {{ purchase.notes }}</p>
+        </div>
+
+        <div class="mt-3 text-center px-3">
+            <p class="fw-bold small mb-1">Documento de control interno</p>
+            <p class="x-small mb-2" style="color: #666;">Esta impresión no tiene validez legal como comprobante de pago.
+            </p>
+            <div class="border-top pt-2">
+                <p class="fw-bold small mb-0">Sistema Integral de Operaciones Comerciales</p>
+                <p class="x-small" style="margin-bottom: 5px; color: #666;">SIOC | www.siocperu.com</p>
+            </div>
+        </div>
+    </div>
+</div>

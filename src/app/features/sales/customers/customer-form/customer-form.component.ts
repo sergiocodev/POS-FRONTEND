@@ -32,6 +32,7 @@ export class CustomerFormComponent implements OnInit {
 
     @Input() isModal: boolean = false;
     @Input() customerId: number | null = null;
+    @Input() prefillData: any = null;
     @Output() saveSuccess = new EventEmitter<number>();
     @Output() cancel = new EventEmitter<void>();
 
@@ -93,6 +94,15 @@ export class CustomerFormComponent implements OnInit {
         } else {
             // Set initial validation for DNI
             this.updateDocumentValidators('DNI');
+            if (this.prefillData) {
+                this.customerForm.patchValue({
+                    documentType: this.prefillData.documentNumber?.length === 11 ? 'RUC' : 'DNI',
+                    documentNumber: this.prefillData.documentNumber,
+                    name: this.prefillData.name,
+                    address: this.prefillData.address || ''
+                });
+                this.updateDocumentValidators(this.prefillData.documentNumber?.length === 11 ? 'RUC' : 'DNI');
+            }
         }
     }
 

@@ -9,6 +9,8 @@ export interface SummaryData {
     sunat_pending_docs: number;
     stock_alerts: StockAlertsData;
     total_products: number;
+    cash_balance: number;
+    accounts_receivable: number;
 }
 
 export interface ValueTrend {
@@ -28,9 +30,10 @@ export interface StockAlertsData {
     out_of_stock: number;
 }
 
-export interface SalesChartResponse {
+export interface CashflowChartResponse {
     date: string;
-    total: number;
+    income: number;
+    expense: number;
 }
 
 export interface DashboardAlertsResponse {
@@ -55,12 +58,6 @@ export interface SunatAlert {
     message: string;
 }
 
-export interface PaymentMethodDistribution {
-    payment_method: string;
-    amount: number;
-    count: number;
-    percentage: number;
-}
 
 export interface TopProductDashboard {
     product_id: number;
@@ -88,14 +85,15 @@ export interface SalesByCategoryResponse {
     percentage: number;
 }
 
-export interface RecentSaleResponse {
-    sale_id: number;
-    customer_name: string;
-    customer_initials: string;
-    document_type: string;
-    product_count: number;
-    sale_date: string;
-    total: number;
+export interface RecentTransactionResponse {
+    id: number;
+    entityName: string;
+    initials: string;
+    transactionType: string;
+    documentType: string;
+    productCount: number;
+    date: string;
+    totalAmount: number;
 }
 
 export interface ExpiringLotResponse {
@@ -118,14 +116,31 @@ export interface LowStockItemResponse {
     critical: boolean;
 }
 
+export interface SunatStatusDistribution {
+    status: string;
+    count: number;
+    amount: number;
+    percentage: number;
+}
+
+export interface AccountPayableDashboardResponse {
+    accountPayableId: number;
+    supplierName: string;
+    documentNumber: string;
+    pendingBalance: number;
+    dueDate: string;
+    isOverdue: boolean;
+}
+
 export interface FullDashboardResponse {
     summary: DashboardSummaryResponse;
-    sales_chart: SalesChartResponse[];
+    cashflow_chart: CashflowChartResponse[];
     sales_by_category: SalesByCategoryResponse[];
-    payment_methods: PaymentMethodDistribution[];
     top_products: TopProductDashboard[];
     employee_performance: EmployeePerformanceDashboard[];
-    recent_sales: RecentSaleResponse[];
+    recent_transactions: RecentTransactionResponse[];
     low_stock: LowStockItemResponse[];
     expiring_lots: ExpiringLotResponse[];
+    sunat_status_distribution: SunatStatusDistribution[];
+    upcoming_payables: AccountPayableDashboardResponse[];
 }

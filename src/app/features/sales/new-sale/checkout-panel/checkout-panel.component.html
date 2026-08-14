@@ -1,10 +1,10 @@
 <div
     class="card border-0 shadow-elevation rounded-4 d-flex flex-column sticky-lg-top checkout-container overflow-hidden">
 
-    <div
-        class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 justify-content-between align-items-center" style="padding-left: 12px; padding-right: 12px;">
+    <div class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 justify-content-between align-items-center"
+        style="padding-left: 12px; padding-right: 12px;">
         <h5 class="fw-bold mb-0 d-flex align-items-center">
-            <i class="bi bi-receipt-cutoff text-primary me-2 fs-4"></i> Venta Actual
+            <i class="bi bi-receipt-cutoff me-2 fs-4" style="color: var(--primary-color) !important;"></i> Venta Actual
         </h5>
         <button type="button" class="btn btn-theme-outline-secondary btn-sm rounded-pill px-3 fw-medium transition-all"
             (click)="onClearCart.emit()" [disabled]="cart().length === 0">
@@ -27,15 +27,37 @@
                         <i class="bi bi-star-fill me-1"></i> {{ selectedCustomer()?.accumulatedPoints || 0 }} pts
                     </div>
                 </div>
-                <div class="d-flex align-items-center">
-                    <app-searchable-dropdown class="flex-grow-1" [options]="customerOptions()"
-                        [selectedId]="selectedCustomer() ? selectedCustomer().id : 'null'"
-                        placeholder="Buscar cliente..."
-                        (selectionChange)="onCustomerSelect($event)"></app-searchable-dropdown>
-                    <button (click)="onAddCustomer.emit()" class="btn btn-theme-primary ms-2 px-3 py-2" type="button"
-                        style="height: 42px;">
-                        <i class="bi bi-person-plus-fill"></i>
-                    </button>
+
+                <div class="d-flex flex-column mb-1">
+                    <div class="d-flex align-items-center mb-1">
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control flex-grow-1"
+                            placeholder="Buscar DNI/RUC..." style="height: 42px;" [formControl]="customerSearchControl"
+                            (keydown.enter)="$event.preventDefault(); searchCustomer()">
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="searchCustomer()"
+                            style="height: 42px;" [disabled]="isSearchingCustomer()" title="Buscar cliente">
+                            <i class="bi bi-search" *ngIf="!isSearchingCustomer()"></i>
+                            <span class="spinner-border spinner-border-sm" *ngIf="isSearchingCustomer()"></span>
+                        </button>
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="editCustomer()"
+                            style="height: 42px;" [disabled]="!canEditCustomer()" title="Editar cliente">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="addCustomer()"
+                            style="height: 42px;" title="Agregar nuevo cliente">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </button>
+                    </div>
+
+                    <!-- Selected Customer Display -->
+                    <div *ngIf="selectedCustomer()"
+                        class="d-flex justify-content-between align-items-center animate__animated animate__fadeIn">
+                        <div class="d-flex flex-column text-truncate">
+                            <span class="fw-bolder text-truncate text-uppercase"
+                                style="margin-left: 12px; color: var(--secondary-color);">{{ selectedCustomer()?.name
+                                }}</span>
+
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -124,7 +146,8 @@
 
                 <div class="col-12" *ngIf="posForm.get('paymentCondition')?.value === 'CREDITO'">
                     <label class="form-label-compact">Vencimiento <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate" (keydown.enter)="$event.preventDefault()">
+                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate"
+                        (keydown.enter)="$event.preventDefault()">
                 </div>
 
                 <!-- Listado de Pagos -->
@@ -213,7 +236,8 @@
         </div>
 
         <!-- Área Fija: Totales y Botón de Acción -->
-        <div class="pb-3 pt-2 border-top border-white border-opacity-10 shadow-none" style="padding-left: 12px; padding-right: 12px;">
+        <div class="pb-3 pt-2 border-top border-white border-opacity-10 shadow-none"
+            style="padding-left: 12px; padding-right: 12px;">
             <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
                 <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
                     <span>Subtotal</span>

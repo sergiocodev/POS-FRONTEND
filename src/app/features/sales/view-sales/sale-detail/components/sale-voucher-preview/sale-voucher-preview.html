@@ -5,10 +5,11 @@
         <p class="mt-2 text-muted small">Cargando comprobante...</p>
     </div>
 
-    <div *ngIf="sale" class="voucher-card shadow-sm" [ngClass]="{
+    <div id="voucher-preview-content" *ngIf="sale" class="voucher-card shadow-sm position-relative" [ngClass]="{
              'voucher-a4': selectedFormat === 'A4',
              'voucher-ticket': selectedFormat === 'TICKET',
-             'voucher-80mm': selectedFormat === '80MM'
+             'voucher-80mm': selectedFormat === '80MM',
+             'is-voided': sale.status === 'CANCELED' || sale.status === 'VOIDED' || sale.voided
            }">
 
         <app-voucher-a4 *ngIf="selectedFormat === 'A4'" [sale]="sale"></app-voucher-a4>

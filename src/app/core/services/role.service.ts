@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import {
     RoleRequest,
@@ -25,6 +25,18 @@ export class RoleService {
             this.cache$ = this.http.get<ResponseApi<RoleResponse[]>>(this.apiUrl).pipe(shareReplay(1));
         }
         return this.cache$;
+    }
+
+    getAllPaged(page: number, size: number, search?: string): Observable<ResponseApi<any>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        
+        if (search) {
+            params = params.set('search', search);
+        }
+        
+        return this.http.get<ResponseApi<any>>(`${this.apiUrl}/paged`, { params });
     }
 
     getById(id: number): Observable<ResponseApi<RoleDetailResponse>> {

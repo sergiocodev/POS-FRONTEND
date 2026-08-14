@@ -1,4 +1,6 @@
-import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
+import { forkJoin } from 'rxjs';
+import { take, finalize } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { PurchaseService } from '../../../core/services/purchase.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
@@ -9,6 +11,10 @@ import { PurchaseDetailComponent } from './purchase-detail/purchase-detail.compo
 import { SummaryCardsComponent, SummaryItem } from '../../../shared/components/summary-cards/summary-cards.component';
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { DateRangeSearchComponent } from '../../../shared/components/date-range-search/date-range-search.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 
 @Component({
     selector: 'app-view-purchases',
@@ -20,13 +26,17 @@ import { DateRangeSearchComponent } from '../../../shared/components/date-range-
         PurchaseDetailComponent,
         ModuleHeaderComponent,
         SummaryCardsComponent,
-        DateRangeSearchComponent
+        DateRangeSearchComponent,
+        SpinnerComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent
     ],
     templateUrl: './view-purchases.component.html'
 })
 export class ViewPurchasesComponent implements OnInit {
     private purchaseService = inject(PurchaseService);
     private establishmentStateService = inject(EstablishmentStateService);
+    private modalService = inject(ModalService);
 
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
@@ -68,8 +78,7 @@ export class ViewPurchasesComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this.loadPurchases();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     constructor() {
@@ -83,9 +92,10 @@ export class ViewPurchasesComponent implements OnInit {
                 return; // Let ngOnInit handle the initial data load
             }
 
-            this.currentPage.set(0);
-            this.loadPurchases();
-            this.loadSummary();
+            untracked(() => {
+                this.currentPage.set(0);
+                this.loadAllData();
+            });
         }, { allowSignalWrites: true });
     }
 
@@ -96,32 +106,45 @@ export class ViewPurchasesComponent implements OnInit {
         return `${year}-${month}-${day}`;
     }
 
-    loadPurchases(): void {
+    loadAllData(): void {
         this.isLoading.set(true);
         this.errorMessage.set('');
-
-        this.purchaseService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
+        forkJoin({
+            purchases: this.purchaseService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).pipe(take(1)),
+            summary: this.purchaseService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).pipe(take(1))
+        }).subscribe({
             next: (response) => {
-                const page = response.data;
+                const page = response.purchases.data;
                 this.purchases.set(page.content || []);
                 this.totalItems.set(page.totalElements || 0);
                 this.totalPages.set(page.totalPages || 0);
+                this.serverSummary.set(response.summary.data);
                 this.isLoading.set(false);
             },
             error: (error) => {
                 this.errorMessage.set('No se pudieron cargar los datos. Por favor, intente nuevamente.');
                 this.isLoading.set(false);
-                console.error('Error loading purchases:', error);
+                console.error('Error loading data:', error);
             }
         });
     }
 
-    loadSummary(): void {
-        this.purchaseService.getSummary(this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId()).subscribe({
+    loadPurchases(): void {
+        this.isLoading.set(true);
+        this.errorMessage.set('');
+        this.purchaseService.getAllPaged(this.currentPage(), this.pageSize(), this.startDate(), this.endDate(), this.tableFilters(), this.selectedEstablishmentId())
+        .pipe(take(1), finalize(() => this.isLoading.set(false)))
+        .subscribe({
             next: (response) => {
-                this.serverSummary.set(response.data);
+                const page = response.data;
+                this.purchases.set(page.content || []);
+                this.totalItems.set(page.totalElements || 0);
+                this.totalPages.set(page.totalPages || 0);
             },
-            error: (err) => console.error('Error loading summary:', err)
+            error: (error) => {
+                this.errorMessage.set('No se pudieron cargar los datos. Por favor, intente nuevamente.');
+                console.error('Error loading purchases:', error);
+            }
         });
     }
 
@@ -139,16 +162,14 @@ export class ViewPurchasesComponent implements OnInit {
     handleTableFilter(filters: any): void {
         this.tableFilters.set(filters);
         this.currentPage.set(0);
-        this.loadPurchases();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     handleDateFilter(event: { startDate: string, endDate: string }) {
         this.startDate.set(event.startDate);
         this.endDate.set(event.endDate);
         this.currentPage.set(0);
-        this.loadPurchases();
-        this.loadSummary();
+        this.loadAllData();
     }
 
     onViewDetails(id: number): void {
@@ -168,17 +189,22 @@ export class ViewPurchasesComponent implements OnInit {
     }
 
     onCancelPurchase(id: number): void {
-        if (confirm('¿Estás seguro de anular esta compra? Esta acción no se puede deshacer.')) {
-            this.purchaseService.cancel(id).subscribe({
-                next: () => {
-                    this.loadPurchases();
-                    this.loadSummary();
-                },
-                error: (err) => {
-                    this.errorMessage.set('Error al anular la compra.');
-                    console.error(err);
-                }
-            });
-        }
+        this.modalService.confirm({ title: 'Anular Compra', message: '¿Estás seguro de anular esta compra? Esta acción no se puede deshacer.' }).then((confirmed) => {
+            if (confirmed) {
+                this.isLoading.set(true);
+                this.purchaseService.cancel(id).subscribe({
+                    next: () => {
+                        this.loadAllData();
+                        this.modalService.alert({ title: 'Éxito', message: 'Compra anulada correctamente.', type: 'success' });
+                    },
+                    error: (err) => {
+                        this.isLoading.set(false);
+                        this.errorMessage.set('Error al anular la compra.');
+                        this.modalService.alert({ title: 'Error', message: 'Error al anular la compra.', type: 'error' });
+                        console.error(err);
+                    }
+                });
+            }
+        });
     }
 }

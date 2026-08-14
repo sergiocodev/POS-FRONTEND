@@ -17,7 +17,16 @@ export class AppErrorHandler implements ErrorHandler {
         console.error('[AppErrorHandler]', error);
 
         // Ignorable errors that shouldn't trigger a popup
-        const ignoreWords = ['ResizeObserver', 'play() request was interrupted', 'user didn\'t interact', 'Cannot read properties of null (reading \'videoWidth\')', 'video source', 'AudioContext'];
+        const ignoreWords = [
+            'ResizeObserver',
+            'play() request was interrupted',
+            'user didn\'t interact',
+            'Cannot read properties of null (reading \'videoWidth\')',
+            'video source',
+            'AudioContext',
+            'NG0100',
+            'ExpressionChangedAfterItHasBeenCheckedError'
+        ];
         if (ignoreWords.some(w => message.includes(w))) {
             return;
         }

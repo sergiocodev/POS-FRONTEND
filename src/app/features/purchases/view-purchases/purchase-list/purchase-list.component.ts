@@ -57,7 +57,13 @@ export class PurchaseListComponent implements OnInit {
             { key: 'total', label: 'Total', type: 'template', filterable: true, templateRef: this.totalTemplate, align: 'center' },
             { key: 'paymentCondition', label: 'Cond. Pago', type: 'template', filterable: true, templateRef: this.paymentConditionTemplate, align: 'center' },
             { key: 'status', label: 'Estado', type: 'template', filterable: true, templateRef: this.statusBadgeTemplate, align: 'center' },
-            { key: 'actions', label: 'Acciones', type: 'template', templateRef: this.actionsTemplate, align: 'center' }
+            {
+                key: 'actions',
+                label: 'Acciones',
+                type: 'template',
+                templateRef: this.actionsTemplate,
+                align: 'center'
+            }
         ];
     }
 

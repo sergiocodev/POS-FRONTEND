@@ -37,11 +37,11 @@ export class StockTransferFormComponent implements OnInit {
 
   // Outputs
   saved = output<StockTransferRequest>();
-  cancelled = output<void>();
 
   form!: FormGroup;
   selectedItems = signal<TransferItem[]>([]);
   searchTerm = signal('');
+  isSearchFocused = signal(false);
 
   ngOnInit() {
     this.initForm();
@@ -56,16 +56,24 @@ export class StockTransferFormComponent implements OnInit {
 
   get filteredInventory() {
     const term = this.searchTerm().toLowerCase().trim();
-    if (!term) return [];
-    
     const selectedIds = this.selectedItems().map(i => i.id);
-    return this.inventoryItems()
-      .filter(i => !selectedIds.includes(i.id))
-      .filter(i => 
+    
+    let available = this.inventoryItems().filter(i => !selectedIds.includes(i.id));
+
+    if (term) {
+      available = available.filter(i => 
         i.productName.toLowerCase().includes(term) || 
         (i.lotCode && i.lotCode.toLowerCase().includes(term))
-      )
-      .slice(0, 10);
+      );
+    }
+
+    return available.slice(0, 50);
+  }
+
+  onSearchBlur() {
+    setTimeout(() => {
+      this.isSearchFocused.set(false);
+    }, 200);
   }
 
   addItem(item: InventoryResponse) {
@@ -195,10 +203,6 @@ export class StockTransferFormComponent implements OnInit {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  cancel() {
-    this.cancelled.emit();
   }
 }
 

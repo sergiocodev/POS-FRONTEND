@@ -24,7 +24,8 @@
       <span>Clonar</span>
     </button>
     
-    <button class="action-btn btn-invalidate" (click)="invalidate.emit()">
+    <button *ngIf="authService.isAdmin() && sale?.status !== 'CANCELED' && sale?.status !== 'VOIDED' && !sale?.voided" 
+            class="action-btn btn-invalidate" (click)="invalidate.emit()">
       <i class="bi bi-slash-circle"></i>
       <span>Invalidar</span>
     </button>

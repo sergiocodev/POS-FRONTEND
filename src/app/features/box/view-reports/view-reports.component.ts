@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../../core/services/report.service';
@@ -10,6 +10,9 @@ import { EstablishmentResponse } from '../../../core/models/maintenance.model';
 
 import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { CardReportComponent, CardReportOption } from '../../../shared/components/card-report/card-report.component';
 import { BoxReportFiltersComponent } from './components/box-report-filters/box-report-filters.component';
 import { CustomTabsComponent, CustomTab } from '../../../shared/components/custom-tabs/custom-tabs.component';
@@ -24,6 +27,8 @@ export type BoxReportTab = 'sesiones' | 'movimientos' | 'arqueo';
         FormsModule,
         ModuleHeaderComponent,
         SpinnerComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent,
         CardReportComponent,
         BoxReportFiltersComponent,
         CustomTabsComponent
@@ -37,6 +42,7 @@ export class ViewReportsComponent implements OnInit {
     private cashSessionService = inject(CashSessionService);
     private establishmentStateService = inject(EstablishmentStateService);
     private establishmentService = inject(EstablishmentService);
+    private modalService = inject(ModalService);
 
     // Tab state
     activeTab = signal<BoxReportTab>('sesiones');
@@ -69,11 +75,11 @@ export class ViewReportsComponent implements OnInit {
             const estId = this.selectedEstablishmentId();
             if (isFirstRun) {
                 isFirstRun = false;
-                if (estId) this.loadRecentSessions();
+                if (estId) untracked(() => this.loadRecentSessions());
                 return;
             }
             if (estId) {
-                this.loadRecentSessions();
+                untracked(() => this.loadRecentSessions());
             }
         }, { allowSignalWrites: true });
     }
@@ -159,31 +165,31 @@ export class ViewReportsComponent implements OnInit {
 
     onViewSessionsPdf(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Atención', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getCashSessionsPdf(this.startDate(), this.endDate(), estId).subscribe({
             next: (blob) => this.openPdf(blob, `Reporte_Sesiones_Caja_${this.getPdfTimestamp()}.pdf`),
-            error: () => { this.isLoading.set(false); alert('Error al generar el reporte'); }
+            error: () => { this.isLoading.set(false); this.modalService.alert({ title: 'Error', message: 'Error al generar el reporte', type: 'error' }); }
         });
     }
 
     onViewMovementsPdf(): void {
         const estId = this.selectedEstablishmentId();
-        if (!estId) { alert('Seleccione un establecimiento'); return; }
+        if (!estId) { this.modalService.alert({ title: 'Atención', message: 'Seleccione un establecimiento', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getCashMovementsPdf(this.startDate(), this.endDate(), estId).subscribe({
             next: (blob) => this.openPdf(blob, `Reporte_Movimientos_Caja_${this.getPdfTimestamp()}.pdf`),
-            error: () => { this.isLoading.set(false); alert('Error al generar el reporte'); }
+            error: () => { this.isLoading.set(false); this.modalService.alert({ title: 'Error', message: 'Error al generar el reporte', type: 'error' }); }
         });
     }
 
     onViewArqueoPdf(): void {
         const sessionId = this.selectedSessionId();
-        if (!sessionId) { alert('Seleccione una sesión para el arqueo'); return; }
+        if (!sessionId) { this.modalService.alert({ title: 'Atención', message: 'Seleccione una sesión para el arqueo', type: 'warning' }); return; }
         this.isLoading.set(true);
         this.reportService.getCashArqueoPdf(sessionId).subscribe({
             next: (blob) => this.openPdf(blob, `Arqueo_Caja_${sessionId}_${this.getPdfTimestamp()}.pdf`),
-            error: () => { this.isLoading.set(false); alert('Error al generar el arqueo'); }
+            error: () => { this.isLoading.set(false); this.modalService.alert({ title: 'Error', message: 'Error al generar el arqueo', type: 'error' }); }
         });
     }
 

@@ -1,7 +1,7 @@
 .kpi-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.25rem;
+    gap: 12px;
 }
 
 .kpi-card {

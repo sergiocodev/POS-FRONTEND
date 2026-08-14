@@ -1,29 +1,36 @@
-// Limpieza total: Usamos las variables de Bootstrap donde sea posible
+.btn-custom-primary {
+    background-color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    color: var(--text-on-primary, #ffffff);
+    border-radius: 6px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 
-.employee-form-container {
-    max-width: 900px;
-    margin: 0 auto;
-    // El padding ya se maneja con la clase 'p-4' en el HTML
-}
-
-// Simple animación de entrada (opcional)
-.animate-fade-in {
-    animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    &:hover,
+    &:focus {
+        background-color: var(--primary-hover);
+        border-color: var(--primary-hover);
+        color: var(--text-on-primary, #ffffff);
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
     }
 
-    to {
-        opacity: 1;
+    &:active {
         transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: all 0.1s ease;
     }
 }
 
-// Bootstrap maneja el resto:
-// .form-control:focus -> borde azul y sombra
-// .is-invalid -> borde rojo y muestra .invalid-feedback
-// .btn-primary -> botones azules
+.form-control {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+        transition: background-color 5000s ease-in-out 0s !important;
+        -webkit-box-shadow: 0 0 0 1000px var(--input-bg, #1f2937) inset !important;
+        -webkit-text-fill-color: var(--text-main, #f8fafc) !important;
+        caret-color: var(--text-main, #f8fafc) !important;
+        background-color: transparent !important;
+    }
+}
