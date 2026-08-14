@@ -131,5 +131,22 @@ export class HeaderComponent implements OnInit {
         }
         return names[0][0].toUpperCase();
     }
+
+    get userDisplay(): string {
+        const user = this.authService.currentUser();
+        if (!user) return '';
+        let role = 'USUARIO';
+        if (user.roles && user.roles.length > 0) {
+            role = user.roles[0].replace(/^ROLE_/i, '');
+        }
+        return `${role} | ${user.username}`.toUpperCase();
+    }
+
+    get selectedEstablishmentName(): string {
+        const id = this.selectedServiceCenterId();
+        if (!id) return 'Sin establecimiento asignado';
+        const est = this.availableServiceCenters().find(e => e.id === id);
+        return est ? est.name : 'Sin establecimiento asignado';
+    }
 }
 

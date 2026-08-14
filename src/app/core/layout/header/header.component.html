@@ -1,10 +1,16 @@
 <header class="main-header">
 
-    <!-- Botón para mostrar el sidebar en móviles/tablets -->
-    <div class="header-left d-lg-none">
-        <button class="btn-menu" (click)="toggleSidebar.emit()">
+    <div class="header-left">
+        <!-- Botón para mostrar el sidebar en móviles/tablets -->
+        <button class="btn-menu d-lg-none" (click)="toggleSidebar.emit()">
             <i class="bi bi-list"></i>
         </button>
+
+        <!-- Establecimiento asignado (visible en escritorio) -->
+        <div class="current-establishment d-none d-lg-flex">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>{{ selectedEstablishmentName }}</span>
+        </div>
     </div>
 
     <div class="header-right">
@@ -27,7 +33,7 @@
 
             <div class="profile-trigger" (click)="toggleProfileDropdown($event)"
                 [class.active]="isProfileDropdownOpen()">
-                <span class="user-name">{{ authService.currentUser()?.fullName}}</span>
+                <span class="user-name">{{ userDisplay }}</span>
                 <div class="profile-avatar">
                     @if (authService.currentUser()?.profilePicture && !imageError()) {
                     <img [src]="authService.currentUser()?.profilePicture" class="avatar-image"
@@ -41,12 +47,9 @@
             </div>
 
             @if (isProfileDropdownOpen()) {
-            <app-profile-dropdown 
-                [availableServiceCenters]="availableServiceCenters()"
-                [selectedServiceCenterId]="selectedServiceCenterId()"
-                (selectCareCenter)="selectCareCenter($event)"
-                (myAccount)="myAccount()"
-                (logout)="logout()">
+            <app-profile-dropdown [availableServiceCenters]="availableServiceCenters()"
+                [selectedServiceCenterId]="selectedServiceCenterId()" (selectCareCenter)="selectCareCenter($event)"
+                (myAccount)="myAccount()" (logout)="logout()">
             </app-profile-dropdown>
             }
         </div>

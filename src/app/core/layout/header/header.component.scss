@@ -25,6 +25,23 @@
     margin-left: auto;
 }
 
+.current-establishment {
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba($color-primary, 0.1);
+    border: 1px solid rgba($color-primary, 0.2);
+    border-radius: 50px;
+    color: $color-primary;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    
+    i {
+        font-size: 0.95rem;
+    }
+}
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -162,10 +179,7 @@ $profile-shadow: $shadow-lg;
             font-weight: 600;
             font-size: 0.85rem;
             color: $profile-text;
-            max-width: 120px;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .profile-avatar {
