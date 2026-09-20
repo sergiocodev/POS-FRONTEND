@@ -15,7 +15,6 @@ import { ModuleHeaderComponent } from '../../shared/components/module-header/mod
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 // Form components
 import { ActiveIngredientFormComponent } from './active-ingredients/active-ingredient-form/active-ingredient-form.component';
-import { BrandFormComponent } from './brands/brand-form/brand-form.component';
 import { CategoryFormComponent } from './categories/category-form/category-form.component';
 import { LaboratoryFormComponent } from './laboratories/laboratory-form/laboratory-form.component';
 import { PresentationFormComponent } from './presentations/presentation-form/presentation-form.component';
@@ -49,7 +48,6 @@ export interface CatalogTab extends CustomTab {
         ModuleHeaderComponent,
         SpinnerComponent,
         ActiveIngredientFormComponent,
-        BrandFormComponent,
         CategoryFormComponent,
         LaboratoryFormComponent,
         PresentationFormComponent,
@@ -86,23 +84,6 @@ export class PharmacyCatalogComponent implements OnInit {
             createLabel: 'Nuevo Principio Activo',
             formTitle: 'Nuevo Principio Activo',
             editFormTitle: 'Editar Principio Activo'
-        },
-        {
-            key: 'brands',
-            label: 'Marcas',
-            icon: 'bi-tag-fill',
-            permission: PermissionConstants.FARMACIA_MARCAS,
-            columns: [
-                { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
-                { key: 'name', label: 'Marca', type: 'text', filterable: true },
-                { key: 'actions', label: 'Acciones', type: 'action', width: '100px', align: 'center' }
-            ],
-            loadFn: 'getPagedBrands',
-            deleteFn: 'deleteBrandById',
-            deleteLabel: 'marca',
-            createLabel: 'Nueva Marca',
-            formTitle: 'Nueva Marca',
-            editFormTitle: 'Editar Marca'
         },
         {
             key: 'categories',

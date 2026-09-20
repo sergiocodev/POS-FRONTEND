@@ -239,12 +239,11 @@ export class ReportService {
         });
     }
 
-    getSalesByProductBrandTherapeuticPdf(
+    getSalesByProductTherapeuticPdf(
         start: string,
         end: string,
         establishmentId: number,
         productIds?: number[],
-        brandIds?: number[],
         therapeuticActionIds?: number[],
         sellerId?: number
     ): Observable<Blob> {
@@ -254,7 +253,6 @@ export class ReportService {
             .set('establishmentId', establishmentId.toString());
 
         if (productIds && productIds.length > 0) params = params.set('productIds', productIds.join(','));
-        if (brandIds && brandIds.length > 0) params = params.set('brandIds', brandIds.join(','));
         if (therapeuticActionIds && therapeuticActionIds.length > 0) params = params.set('therapeuticActionIds', therapeuticActionIds.join(','));
         if (sellerId) params = params.set('sellerId', sellerId.toString());
 

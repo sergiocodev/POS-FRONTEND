@@ -45,10 +45,7 @@
             (cancelled)="onFormCancelled()">
         </app-active-ingredient-form>
         }
-        @case ('brands') {
-        <app-brand-form [brandId]="selectedItemId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
-        </app-brand-form>
-        }
+
         @case ('categories') {
         <app-category-form [categoryId]="selectedItemId()" (saved)="onFormSaved()" (cancelled)="onFormCancelled()">
         </app-category-form>

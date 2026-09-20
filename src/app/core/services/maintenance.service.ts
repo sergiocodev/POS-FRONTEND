@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import {
-    BrandResponse,
     CategoryResponse,
     LaboratoryResponse,
     PresentationResponse,
@@ -21,7 +20,6 @@ import { environment } from '../../../environments/environment';
 export class MaintenanceService {
     private http = inject(HttpClient);
 
-    private brandsCache$?: Observable<ResponseApi<BrandResponse[]>>;
     private categoriesCache$?: Observable<ResponseApi<CategoryResponse[]>>;
     private laboratoriesCache$?: Observable<ResponseApi<LaboratoryResponse[]>>;
     private presentationsCache$?: Observable<ResponseApi<PresentationResponse[]>>;
@@ -29,33 +27,6 @@ export class MaintenanceService {
     private activeIngredientsCache$?: Observable<ResponseApi<ActiveIngredientResponse[]>>;
     private pharmaceuticalFormsCache$?: Observable<ResponseApi<PharmaceuticalFormResponse[]>>;
     private therapeuticActionsCache$?: Observable<ResponseApi<TherapeuticActionResponse[]>>;
-
-    getAllBrands(): Observable<ResponseApi<BrandResponse[]>> {
-        if (!this.brandsCache$) {
-            this.brandsCache$ = this.http.get<ResponseApi<BrandResponse[]>>(`${environment.apiUrl}/brands`).pipe(shareReplay(1));
-        }
-        return this.brandsCache$;
-    }
-
-    getPagedBrands(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
-        let params = `page=${page}&size=${size}`;
-        if (filters) {
-            if (filters.name) params += `&name=${encodeURIComponent(filters.name)}`;
-        }
-        return this.http.get<ResponseApi<any>>(`${environment.apiUrl}/brands/paged?${params}`);
-    }
-
-    createNewBrand(name: string): Observable<ResponseApi<BrandResponse>> {
-        return this.http.post<ResponseApi<BrandResponse>>(`${environment.apiUrl}/brands`, { name });
-    }
-
-    updateBrandById(id: number, name: string): Observable<ResponseApi<BrandResponse>> {
-        return this.http.put<ResponseApi<BrandResponse>>(`${environment.apiUrl}/brands/${id}`, { name });
-    }
-
-    deleteBrandById(id: number): Observable<ResponseApi<void>> {
-        return this.http.delete<ResponseApi<void>>(`${environment.apiUrl}/brands/${id}`);
-    }
 
     getAllCategory(): Observable<ResponseApi<CategoryResponse[]>> {
         if (!this.categoriesCache$) {
@@ -240,7 +211,6 @@ export class MaintenanceService {
     }
 
     invalidateAllCaches(): void {
-        this.brandsCache$ = undefined;
         this.categoriesCache$ = undefined;
         this.laboratoriesCache$ = undefined;
         this.presentationsCache$ = undefined;

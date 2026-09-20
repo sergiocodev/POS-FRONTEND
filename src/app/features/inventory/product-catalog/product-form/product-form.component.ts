@@ -8,7 +8,6 @@ import { ProductService } from '../../../../core/services/product.service';
 import { MaintenanceService } from '../../../../core/services/maintenance.service';
 import { UploadService } from '../../../../core/services/upload.service';
 import {
-    BrandResponse,
     CategoryResponse,
     LaboratoryResponse,
     PresentationResponse,
@@ -47,7 +46,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     errorMessage = signal<string>('');
     imageError = signal<boolean>(false);
 
-    brands = signal<BrandResponse[]>([]);
+
     categories = signal<CategoryResponse[]>([]);
     laboratories = signal<LaboratoryResponse[]>([]);
     presentations = signal<PresentationResponse[]>([]);
@@ -63,7 +62,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
             tradeName: ['', [Validators.required, Validators.maxLength(255)]],
             genericName: ['', [Validators.maxLength(255)]],
             description: [''],
-            brandId: [null, [Validators.required]],
             categoryId: [null, [Validators.required]],
             laboratoryId: [null, [Validators.required]],
             presentationId: [null, [Validators.required]],
@@ -159,7 +157,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
     loadLookupData(): void {
         this.isLoading.set(true);
         forkJoin({
-            brands: this.maintenanceService.getAllBrands(),
             categories: this.maintenanceService.getAllCategory(),
             laboratories: this.maintenanceService.getAllLaboratory(),
             presentations: this.maintenanceService.getAllPresentations(),
@@ -174,7 +171,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
             })
         ).subscribe({
             next: (data) => {
-                this.brands.set(data.brands.data);
                 this.categories.set(data.categories.data);
                 this.laboratories.set(data.laboratories.data);
                 this.presentations.set(data.presentations.data);
@@ -201,7 +197,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
                     tradeName: product.tradeName,
                     genericName: product.genericName,
                     description: product.description,
-                    brandId: this.brands().find(b => b.name === product.brandName)?.id,
                     categoryId: this.categories().find(c => c.name === product.categoryName)?.id,
                     laboratoryId: this.laboratories().find(l => l.name === product.laboratoryName)?.id,
                     presentationId: this.presentations().find(p => p.description === product.presentationDescription)?.id,

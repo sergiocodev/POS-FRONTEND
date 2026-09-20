@@ -82,14 +82,7 @@
                                     <option *ngFor="let item of categories()" [value]="item.id">{{ item.name }}</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 text-start">
-                                <label class="form-label fw-semibold">Marca / Línea <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" formControlName="brandId">
-                                    <option [ngValue]="null">Seleccionar...</option>
-                                    <option *ngFor="let item of brands()" [value]="item.id">{{ item.name }}</option>
-                                </select>
-                            </div>
+
                             <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Laboratorio <span
                                         class="text-danger">*</span></label>

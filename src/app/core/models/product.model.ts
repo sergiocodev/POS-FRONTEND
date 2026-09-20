@@ -1,8 +1,3 @@
-export interface BrandResponse {
-    id: number;
-    name: string;
-}
-
 export interface CategoryResponse {
     id: number;
     name: string;
@@ -54,7 +49,6 @@ export interface ProductRequest {
     tradeName: string;
     genericName?: string;
     description?: string;
-    brandId: number;
     categoryId: number;
     laboratoryId: number;
     presentationId: number;
@@ -74,7 +68,6 @@ export interface ProductResponse {
     tradeName: string;
     genericName?: string;
     description?: string;
-    brandName?: string;
     categoryName?: string;
     laboratoryName?: string;
     presentationDescription?: string;

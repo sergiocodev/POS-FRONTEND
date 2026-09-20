@@ -1,7 +1,6 @@
 export interface InventoryReport {
     productName: string;
     productCode: string;
-    brand: string;
     category: string;
     lotCode: string;
     expiryDate: string;

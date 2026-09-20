@@ -60,7 +60,6 @@ export class ProductListComponent implements OnInit {
                 filterable: true
             },
             { key: 'categoryName', label: 'Categoría', type: 'text', filterable: true },
-            { key: 'brandName', label: 'Marca', type: 'text', filterable: true },
             { key: 'laboratoryName', label: 'Laboratorio', type: 'text', filterable: true },
             { key: 'actions', label: 'Acciones', type: 'action' }
         ];

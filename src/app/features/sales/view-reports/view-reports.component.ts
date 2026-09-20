@@ -13,7 +13,7 @@ import {
     SalesByCategoryDetailReport, SalesByCustomerReport
 } from '../../../core/models/report.model';
 import { ResponseApi } from '../../../core/models/response-api.model';
-import { BrandResponse, LaboratoryResponse, ProductResponse } from '../../../core/models/product.model';
+import { LaboratoryResponse, ProductResponse } from '../../../core/models/product.model';
 import { TherapeuticActionResponse } from '../../../core/models/therapeutic-action.model';
 import { EstablishmentResponse } from '../../../core/models/maintenance.model';
 import { EstablishmentService } from '../../../core/services/establishment.service';
@@ -96,30 +96,16 @@ export class ViewReportsComponent implements OnInit {
     // Product, Brand, Therapeutic Action filter for card
     allProductsData = signal<ProductResponse[]>([]);
     productOptions = signal<CardReportOption[]>([]);
-    brandOptions = signal<CardReportOption[]>([]);
     therapeuticActionOptions = signal<CardReportOption[]>([]);
 
     selectedProductIdsForCard = signal<number[]>([]);
-    selectedBrandIdsForCard = signal<number[]>([]);
     selectedTherapeuticActionIdsForCard = signal<number[]>([]);
 
     productCardDropdownConfigs = computed<CardReportDropdownConfig[]>(() => {
-        const selectedBrandIds = this.selectedBrandIdsForCard();
         const selectedActionIds = this.selectedTherapeuticActionIdsForCard();
 
-        // Get names for selected brands to match with ProductResponse.brandName
-        const selectedBrandNames = this.brandOptions()
-            .filter(b => selectedBrandIds.includes(Number(b.id)))
-            .map(b => b.label.toLowerCase());
-
-        // Filter products based on selected Brand and/or Therapeutic Action
+        // Filter products based on Therapeutic Action
         let filteredProducts = this.allProductsData();
-
-        if (selectedBrandNames.length > 0) {
-            filteredProducts = filteredProducts.filter(p =>
-                p.brandName && selectedBrandNames.includes(p.brandName.toLowerCase())
-            );
-        }
 
         if (selectedActionIds.length > 0) {
             filteredProducts = filteredProducts.filter(p =>
@@ -140,12 +126,6 @@ export class ViewReportsComponent implements OnInit {
                 multiple: true
             },
             {
-                key: 'brand',
-                options: this.brandOptions(),
-                placeholder: 'Seleccione Marca',
-                multiple: true
-            },
-            {
                 key: 'product',
                 options: productOpts,
                 placeholder: 'Seleccione Producto',
@@ -158,24 +138,18 @@ export class ViewReportsComponent implements OnInit {
 
     isProductCombinationValid = computed(() => {
         const pIds = this.selectedProductIdsForCard();
-        const bIds = this.selectedBrandIdsForCard();
         const tIds = this.selectedTherapeuticActionIdsForCard();
 
         // Valid if no specific products are selected (we use filters)
         if (pIds.length === 0) return true;
 
-        // If products are selected, check if any of them match the brand/action filters
+        // If products are selected, check if any of them match the action filters
         // to avoid empty reports.
-        const selectedBrandNames = this.brandOptions()
-            .filter(b => bIds.includes(Number(b.id)))
-            .map(b => b.label.toLowerCase());
-
         const matchingProducts = this.allProductsData().filter(p => pIds.includes(p.id));
 
         const validCount = matchingProducts.filter(p => {
-            const matchesBrand = bIds.length === 0 || (p.brandName && selectedBrandNames.includes(p.brandName.toLowerCase()));
             const matchesAction = tIds.length === 0 || p.therapeuticActionIds?.some(id => tIds.includes(id));
-            return matchesBrand && matchesAction;
+            return matchesAction;
         }).length;
 
         return validCount > 0;
@@ -331,7 +305,6 @@ export class ViewReportsComponent implements OnInit {
         forkJoin({
             est: this.establishmentService.getAll().pipe(take(1)),
             cat: this.maintenanceService.getAllCategory().pipe(take(1)),
-            brands: this.maintenanceService.getAllBrands().pipe(take(1)),
             actions: this.maintenanceService.getAllTherapeuticActions().pipe(take(1)),
             products: this.productService.getAll().pipe(take(1)),
             sellers: this.employeeService.getAll().pipe(take(1)),
@@ -345,11 +318,6 @@ export class ViewReportsComponent implements OnInit {
                     ...res.cat.data.map((cat: any) => ({ id: cat.id, label: cat.name }))
                 ]);
                 this.selectedCategoryIds.set([]);
-
-                this.brandOptions.set([
-                    { id: 'all', label: 'Todos' },
-                    ...res.brands.data.map((b: any) => ({ id: b.id, label: b.name }))
-                ]);
 
                 this.therapeuticActionOptions.set([
                     { id: 'all', label: 'Todos' },
@@ -430,8 +398,6 @@ export class ViewReportsComponent implements OnInit {
 
         if (event.key === 'product') {
             this.selectedProductIdsForCard.set(selectedIds);
-        } else if (event.key === 'brand') {
-            this.selectedBrandIdsForCard.set(selectedIds);
         } else if (event.key === 'therapeuticAction') {
             this.selectedTherapeuticActionIdsForCard.set(selectedIds);
         }
@@ -583,19 +549,16 @@ export class ViewReportsComponent implements OnInit {
         const end = this.endDate();
 
         const productIds = this.selectedProductIdsForCard();
-        const brandIds = this.selectedBrandIdsForCard();
         const therapeuticActionIds = this.selectedTherapeuticActionIdsForCard();
 
-        this.reportService.getSalesByProductBrandTherapeuticPdf(
+        this.reportService.getSalesByProductTherapeuticPdf(
             start, end, estId,
             productIds.length > 0 ? productIds : undefined,
-            brandIds.length > 0 ? brandIds : undefined,
             therapeuticActionIds.length > 0 ? therapeuticActionIds : undefined
         ).subscribe({
             next: (blob: Blob) => {
                 this.openPdf(blob, `Reporte_Ventas_Por_Producto_${this.getPdfTimestamp()}.pdf`);
                 this.selectedProductIdsForCard.set([]);
-                this.selectedBrandIdsForCard.set([]);
                 this.selectedTherapeuticActionIdsForCard.set([]);
             },
             error: () => this.handlePdfError()
