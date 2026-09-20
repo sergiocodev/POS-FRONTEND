@@ -51,6 +51,9 @@
 
 <ng-template #actionsTemplate let-row>
     <div class="d-flex justify-content-center gap-2">
+        <button *ngIf="row.sunatStatus !== 'ACCEPTED' && row.status === 'COMPLETED'" class="btn-action text-primary" title="Emitir a SUNAT" (click)="handleTableAction({action: 'emitSunat', row: row})">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+        </button>
         <button class="btn-action" title="Ver Detalle" (click)="handleTableAction({action: 'view', row: row})">
             <i class="bi bi-search"></i>
         </button>

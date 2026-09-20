@@ -153,6 +153,7 @@ export interface SaleResponse {
     cdrUrl?: string;
     sunatResponseJson?: string;
     sunatErrorCode?: string;
+    hashCpe?: string;
     relatedSaleId?: number;
     noteCode?: string;
     noteReason?: string;

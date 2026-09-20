@@ -281,8 +281,9 @@ export class CheckoutPanelComponent {
   }
 
   searchCustomer() {
-    const document = this.customerSearchControl.value;
+    let document = this.customerSearchControl.value;
     if (!document) return;
+    document = document.toString().trim();
 
     // First check in loaded customers array
     const existing = this.customers().find(c => c.documentNumber === document);
@@ -361,8 +362,28 @@ export class CheckoutPanelComponent {
     if (this.posForm.invalid || this.cart().length === 0) return;
     const formValue = this.posForm.getRawValue();
     const condition = formValue.paymentCondition;
+    const documentType = formValue.documentType;
     const totalAmount = this.total();
     const paidAmount = this.totalPaid();
+    const customer = this.selectedCustomer();
+
+    // Validaciones SUNAT Frontend
+    if (documentType === 'FACTURA') {
+      const docType = customer?.documentType?.toUpperCase();
+      const docNum = customer?.documentNumber?.toString().trim();
+      
+      if (!customer || docNum === '00000000' || docType !== 'RUC' || !docNum || docNum.length !== 11) {
+        this.modalService.alert({ title: 'Error', message: 'Para emitir Factura, debe seleccionar un cliente válido con RUC de 11 dígitos.', type: 'error' });
+        return;
+      }
+    }
+
+    if (documentType === 'BOLETA' && totalAmount >= 700) {
+      if (!customer || customer.documentNumber === '00000000') {
+        this.modalService.alert({ title: 'Error', message: 'Para Boletas de Venta mayores o iguales a S/ 700, debe identificar al cliente (DNI, CE, etc.).', type: 'error' });
+        return;
+      }
+    }
 
     if (condition === PaymentCondition.CASH && paidAmount < totalAmount) {
       alert('Para venta al contado, el monto total debe ser cubierto.');

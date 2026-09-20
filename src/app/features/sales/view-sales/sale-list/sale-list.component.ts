@@ -45,6 +45,7 @@ export class SaleListComponent implements OnInit {
     @Output() tableFilterChange = new EventEmitter<any>();
     @Output() viewDetail = new EventEmitter<number>();
     @Output() cancelSale = new EventEmitter<number>();
+    @Output() emitSunat = new EventEmitter<number>();
 
     // Document Types for the UI helpers
     SaleDocumentType = SaleDocumentType;
@@ -153,6 +154,8 @@ export class SaleListComponent implements OnInit {
             this.viewDetail.emit(event.row.id);
         } else if (event.action === 'cancel') {
             this.cancelSale.emit(event.row.id);
+        } else if (event.action === 'emitSunat') {
+            this.emitSunat.emit(event.row.id);
         }
     }
 

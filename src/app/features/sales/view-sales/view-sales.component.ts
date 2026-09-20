@@ -17,6 +17,8 @@ import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
 import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { SunatService } from '../../../core/services/sunat.service';
+
 @Component({
     selector: 'app-view-sales',
     standalone: true,
@@ -41,6 +43,7 @@ export class ViewSalesComponent implements OnInit {
     private router = inject(Router);
     private establishmentStateService = inject(EstablishmentStateService);
     private modalService = inject(ModalService);
+    private sunatService = inject(SunatService);
 
     selectedEstablishmentId = this.establishmentStateService.selectedEstablishmentId;
 
@@ -220,6 +223,38 @@ export class ViewSalesComponent implements OnInit {
                     this.isLoading.set(false);
                     this.modalService.alert({ title: 'Error', message: 'Error al anular la venta.', type: 'error' });
                     console.error(err);
+                }
+            });
+        }
+    }
+
+    async onEmitSunat(id: number): Promise<void> {
+        const confirmed = await this.modalService.confirm({
+            title: 'Confirmar Emisión',
+            message: '¿Estás seguro de emitir este comprobante a SUNAT ahora?',
+            confirmText: 'Sí, emitir',
+            cancelText: 'Cancelar',
+            btnColor: 'primary'
+        });
+
+        if (confirmed) {
+            this.isLoading.set(true);
+            this.sunatService.emitInvoice(id).subscribe({
+                next: (res) => {
+                    this.loadAllData();
+                    this.modalService.alert({ 
+                        title: 'Comprobante Emitido', 
+                        message: res.message || 'El comprobante ha sido emitido exitosamente a SUNAT.', 
+                        type: 'success' 
+                    });
+                },
+                error: (err) => {
+                    this.isLoading.set(false);
+                    this.modalService.alert({ 
+                        title: 'Error de Emisión', 
+                        message: err.error?.message || 'Ocurrió un error al enviar el comprobante a SUNAT.', 
+                        type: 'error' 
+                    });
                 }
             });
         }

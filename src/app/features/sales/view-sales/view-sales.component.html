@@ -20,7 +20,7 @@
     <app-sale-list [sales]="sales()" [isLoading]="isLoading()" [totalItems]="totalItems()" [totalPages]="totalPages()"
         [currentPage]="currentPage()" [pageSize]="pageSize()" (pageChange)="handlePageChange($event)"
         (pageSizeChange)="handlePageSizeChange($event)" (tableFilterChange)="handleTableFilter($event)"
-        (viewDetail)="onViewDetails($event)" (cancelSale)="onCancelSale($event)">
+        (viewDetail)="onViewDetails($event)" (cancelSale)="onCancelSale($event)" (emitSunat)="onEmitSunat($event)">
     </app-sale-list>
 </div>
 
