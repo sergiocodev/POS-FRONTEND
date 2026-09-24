@@ -11,7 +11,7 @@
             Descripción <span class="text-danger">*</span>
         </label>
         <input type="text" class="form-control" id="description" formControlName="description"
-            [class.is-invalid]="isFieldInvalid('description')" placeholder="Ej: CAJA X 100 TAB, FRASCO X 100 ML...">
+            [class.is-invalid]="isFieldInvalid('description')" placeholder="Ej: Caja">
         @if (isFieldInvalid('description')) {
         <div class="invalid-feedback">
             {{ getFieldError('description') }}
@@ -22,11 +22,11 @@
     <div class="d-flex gap-2 justify-content-end">
         <button type="submit" class="btn btn-custom-primary" [disabled]="isSaving() || form.invalid">
             @if (!isSaving()) {
-                {{ isEditMode() ? 'Actualizar Presentación' : 'Guardar Presentación' }}
+            {{ isEditMode() ? 'Actualizar Presentación' : 'Guardar Presentación' }}
             }
             @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Guardando...
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Guardando...
             }
         </button>
     </div>

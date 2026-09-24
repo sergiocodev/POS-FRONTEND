@@ -44,6 +44,9 @@ export class PresentationFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.form) {
+            this.initForm();
+        }
         const id = this.presentationId;
         if (id) {
             this.isEditMode.set(true);
@@ -66,7 +69,7 @@ export class PresentationFormComponent implements OnInit {
                         description: presentation.description
                     });
                 } else {
-                    this.modalService.alert({ title: 'Error', message: 'Presentación no encontrada', type: 'error' });
+                    this.modalService.alert({ title: 'Error', message: 'PresentaciÃ³n no encontrada', type: 'error' });
                     this.cancelled.emit();
                 }
                 this.isLoading.set(false);
@@ -120,7 +123,7 @@ export class PresentationFormComponent implements OnInit {
             if (field.errors['required']) return 'Este campo es requerido';
             if (field.errors['maxlength']) {
                 const requiredLength = field.errors['maxlength'].requiredLength;
-                return `Máximo ${requiredLength} caracteres`;
+                return `MÃ¡ximo ${requiredLength} caracteres`;
             }
         }
         return '';

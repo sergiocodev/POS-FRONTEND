@@ -46,6 +46,9 @@ export class ActiveIngredientFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.form) {
+            this.initForm();
+        }
         const id = this.ingredientId;
         if (id) {
             this.isEditMode.set(true);

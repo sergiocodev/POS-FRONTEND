@@ -73,21 +73,32 @@
 // ── Responsive ──
 @media (max-width: 768px) {
     .tab-btn {
-        padding: 8px 14px;
-        font-size: 0.78rem;
+        padding: 10px;
+        flex: 1;
+        justify-content: center;
 
         span {
             display: none;
+        }
+
+        i {
+            font-size: 1.2rem;
         }
     }
 
     .report-tabs-layout {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
     }
 
     .report-tabs-wrapper {
         width: 100%;
+    }
+
+    .report-tabs {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: space-between;
     }
 }

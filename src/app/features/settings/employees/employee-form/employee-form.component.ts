@@ -89,6 +89,9 @@ export class EmployeeFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.employeeForm) {
+            this.initForm();
+        }
         const id = this.employeeId;
         if (id) {
             this.isEditMode.set(true);
@@ -119,7 +122,7 @@ export class EmployeeFormComponent implements OnInit {
                 console.error('Error loading employee:', error);
                 this.modalService.alert({
                     title: 'Error',
-                    message: 'No se pudo cargar la información del empleado',
+                    message: 'No se pudo cargar la informaciÃ³n del empleado',
                     type: 'error'
                 });
                 this.isLoading.set(false);
@@ -135,7 +138,7 @@ export class EmployeeFormComponent implements OnInit {
     searchDocument() {
         const document = this.employeeForm.get('documentNumber')?.value;
         if (!document) {
-            this.modalService.alert({ title: 'Atención', message: 'Ingrese un número de documento para buscar.', type: 'warning' });
+            this.modalService.alert({ title: 'AtenciÃ³n', message: 'Ingrese un nÃºmero de documento para buscar.', type: 'warning' });
             return;
         }
 
@@ -162,7 +165,7 @@ export class EmployeeFormComponent implements OnInit {
             },
             error: (error) => {
                 this.isSearching.set(false);
-                this.modalService.alert({ title: 'Error', message: 'No se encontraron datos para este documento o ocurrió un error.', type: 'error' });
+                this.modalService.alert({ title: 'Error', message: 'No se encontraron datos para este documento o ocurriÃ³ un error.', type: 'error' });
                 console.error('Search error:', error);
             }
         });
@@ -194,16 +197,16 @@ export class EmployeeFormComponent implements OnInit {
                 if (this.isModal) {
                     this.saved.emit();
                 } else {
-                    this.modalService.alert({ title: 'Éxito', message: 'Personal guardado correctamente', type: 'success' })
+                    this.modalService.alert({ title: 'Ã‰xito', message: 'Personal guardado correctamente', type: 'success' })
                         .then(() => this.router.navigate(['/employees']));
                 }
             },
             error: (error) => {
                 console.error('Error saving employee:', error);
                 this.isSaving.set(false);
-                let msg = 'No se pudo guardar la información del empleado';
+                let msg = 'No se pudo guardar la informaciÃ³n del empleado';
                 if (error.status === 409) {
-                    msg = 'Ya existe un empleado con este número de documento.';
+                    msg = 'Ya existe un empleado con este nÃºmero de documento.';
                 }
                 this.modalService.alert({
                     title: 'Error',

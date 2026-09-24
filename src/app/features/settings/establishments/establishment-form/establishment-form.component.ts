@@ -13,7 +13,7 @@ import { ModalService } from '../../../../shared/components/confirm-modal/servic
         CommonModule,
         ReactiveFormsModule,
         RouterModule
-        // Eliminados módulos de PrimeNG
+        // Eliminados mÃ³dulos de PrimeNG
     ],
     templateUrl: './establishment-form.component.html',
     styleUrl: './establishment-form.component.scss'
@@ -23,8 +23,8 @@ export class EstablishmentFormComponent implements OnInit {
     private establishmentService = inject(EstablishmentService);
     private modalService = inject(ModalService);
 
-    // Eliminados Router y ActivatedRoute si no se usan explícitamente en el código lógico, 
-    // pero los dejo por si los necesitas para navegación futura.
+    // Eliminados Router y ActivatedRoute si no se usan explÃ­citamente en el cÃ³digo lÃ³gico, 
+    // pero los dejo por si los necesitas para navegaciÃ³n futura.
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -58,6 +58,9 @@ export class EstablishmentFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.establishmentForm) {
+            this.initForm();
+        }
         const id = this.establishmentId;
         if (id) {
             this.isEditMode.set(true);
@@ -86,7 +89,7 @@ export class EstablishmentFormComponent implements OnInit {
                 console.error('Error loading establishment:', error);
                 this.modalService.alert({
                     title: 'Error',
-                    message: 'No se pudo cargar la información del establecimiento',
+                    message: 'No se pudo cargar la informaciÃ³n del establecimiento',
                     type: 'error'
                 });
                 this.isLoading.set(false);

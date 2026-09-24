@@ -11,7 +11,7 @@
             Nombre <span class="text-danger">*</span>
         </label>
         <input type="text" class="form-control" id="name" formControlName="name"
-            [class.is-invalid]="isFieldInvalid('name')" placeholder="Ej: Analgésicos">
+            [class.is-invalid]="isFieldInvalid('name')" placeholder="Ej: Medicamentos de Venta Libre (OTC)">
         @if (isFieldInvalid('name')) {
         <div class="invalid-feedback">
             {{ getFieldError('name') }}
@@ -24,11 +24,11 @@
     <div class="d-flex gap-2 justify-content-end">
         <button type="submit" class="btn btn-custom-primary" [disabled]="isSaving() || form.invalid">
             @if (!isSaving()) {
-                {{ isEditMode() ? 'Actualizar Categoría' : 'Guardar Categoría' }}
+            {{ isEditMode() ? 'Actualizar Categoría' : 'Guardar Categoría' }}
             }
             @if (isSaving()) {
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Guardando...
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Guardando...
             }
         </button>
     </div>

@@ -84,6 +84,9 @@ export class UserFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.userForm) {
+            this.initForm();
+        }
         const id = this.userId;
         if (id) {
             this.isEditMode.set(true);
@@ -149,8 +152,8 @@ export class UserFormComponent implements OnInit {
         const document = this.userForm.get('document')?.value;
         if (!document) {
             this.modalService.alert({
-                title: 'Atención',
-                message: 'Ingrese un número de documento',
+                title: 'AtenciÃ³n',
+                message: 'Ingrese un nÃºmero de documento',
                 type: 'warning'
             });
             return;
@@ -167,7 +170,7 @@ export class UserFormComponent implements OnInit {
                     const fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     this.userForm.patchValue({ fullName: fullName });
                 }
-                this.modalService.alert({ title: 'Éxito', message: 'Datos encontrados', type: 'success' });
+                this.modalService.alert({ title: 'Ã‰xito', message: 'Datos encontrados', type: 'success' });
             },
             error: () => {
                 this.isSearching.set(false);
@@ -219,7 +222,7 @@ export class UserFormComponent implements OnInit {
         operation.subscribe({
             next: (response) => {
                 this.isSaving.set(false);
-                // Si el usuario actualmente logueado es el mismo que se editó, actualizar sesión
+                // Si el usuario actualmente logueado es el mismo que se editÃ³, actualizar sesiÃ³n
                 const currentUser = this.authService.currentUser();
                 if (currentUser && currentUser.id === this.userId) {
                     this.authService.updateCurrentUser({
@@ -231,7 +234,7 @@ export class UserFormComponent implements OnInit {
                     });
                 }
                 this.modalService.alert({
-                    title: 'Éxito',
+                    title: 'Ã‰xito',
                     message: `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`,
                     type: 'success'
                 });
@@ -239,7 +242,7 @@ export class UserFormComponent implements OnInit {
             },
             error: (error) => {
                 this.isSaving.set(false);
-                // El backend retorna "Validation failed" en message si hay errores de validación (@ValidRoleIds, etc.)
+                // El backend retorna "Validation failed" en message si hay errores de validaciÃ³n (@ValidRoleIds, etc.)
                 const msg = error?.error?.message || 'Error al guardar el usuario';
                 this.modalService.alert({ title: 'Error', message: msg, type: 'error' });
             }

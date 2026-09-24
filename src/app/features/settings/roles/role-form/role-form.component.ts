@@ -51,6 +51,9 @@ export class RoleFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.roleForm) {
+            this.initForm();
+        }
         const id = this.roleId;
         if (id) {
             this.isEditMode.set(true);
@@ -75,7 +78,7 @@ export class RoleFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading role:', error);
-                // Aquí podrías emitir un evento de error o usar un servicio de alertas nativo
+                // AquÃ­ podrÃ­as emitir un evento de error o usar un servicio de alertas nativo
                 alert('Error al cargar el rol');
                 this.cancelled.emit();
             }

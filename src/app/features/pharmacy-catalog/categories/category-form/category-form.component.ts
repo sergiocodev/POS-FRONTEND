@@ -45,6 +45,9 @@ export class CategoryFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.form) {
+            this.initForm();
+        }
         const id = this.categoryId;
         if (id) {
             this.isEditMode.set(true);
@@ -67,14 +70,14 @@ export class CategoryFormComponent implements OnInit {
                         name: category.name
                     });
                 } else {
-                    this.modalService.alert({ title: 'Error', message: 'Categoría no encontrada', type: 'error' });
+                    this.modalService.alert({ title: 'Error', message: 'Categorí­a no encontrada', type: 'error' });
                     this.cancelled.emit();
                 }
                 this.isLoading.set(false);
             },
             error: (error) => {
                 console.error('Error loading category:', error);
-                this.modalService.alert({ title: 'Error', message: 'Error al cargar la categoría', type: 'error' });
+                this.modalService.alert({ title: 'Error', message: 'Error al cargar la categorí­a', type: 'error' });
                 this.isLoading.set(false);
             }
         });
@@ -100,7 +103,7 @@ export class CategoryFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error saving category:', error);
-                this.modalService.alert({ title: 'Error', message: 'Error al guardar la categoría', type: 'error' });
+                this.modalService.alert({ title: 'Error', message: 'Error al guardar la categorí­a', type: 'error' });
                 this.isSaving.set(false);
             }
         });
@@ -120,7 +123,7 @@ export class CategoryFormComponent implements OnInit {
         if (field?.errors) {
             if (field.errors['required']) return 'Este campo es requerido';
             if (field.errors['maxlength']) {
-                return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
+                return `MÃ¡ximo ${field.errors['maxlength'].requiredLength} caracteres`;
             }
         }
         return '';

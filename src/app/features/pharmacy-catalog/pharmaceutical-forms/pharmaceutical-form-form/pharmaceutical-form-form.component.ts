@@ -46,6 +46,9 @@ export class PharmaceuticalFormFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.form) {
+            this.initForm();
+        }
         const id = this.formId;
         if (id) {
             this.isEditMode.set(true);
@@ -69,7 +72,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
                         description: form.description || ''
                     });
                 } else {
-                    this.modalService.alert({ title: 'Error', message: 'Forma farmacéutica no encontrada', type: 'error' });
+                    this.modalService.alert({ title: 'Error', message: 'Forma farmacÃ©utica no encontrada', type: 'error' });
                     this.cancelled.emit();
                 }
                 this.isLoading.set(false);
@@ -122,7 +125,7 @@ export class PharmaceuticalFormFormComponent implements OnInit {
         if (field?.errors) {
             if (field.errors['required']) return 'Este campo es requerido';
             if (field.errors['maxlength']) {
-                return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
+                return `MÃ¡ximo ${field.errors['maxlength'].requiredLength} caracteres`;
             }
         }
         return '';

@@ -45,6 +45,9 @@ export class LaboratoryFormComponent implements OnInit {
     }
 
     checkEditModeFromInput() {
+        if (!this.form) {
+            this.initForm();
+        }
         const id = this.laboratoryId;
         if (id) {
             this.isEditMode.set(true);
@@ -120,7 +123,7 @@ export class LaboratoryFormComponent implements OnInit {
         if (field?.errors) {
             if (field.errors['required']) return 'Este campo es requerido';
             if (field.errors['maxlength']) {
-                return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
+                return `MÃ¡ximo ${field.errors['maxlength'].requiredLength} caracteres`;
             }
         }
         return '';
