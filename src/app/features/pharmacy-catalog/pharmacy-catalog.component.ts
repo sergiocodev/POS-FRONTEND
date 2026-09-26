@@ -144,6 +144,7 @@ export class PharmacyCatalogComponent implements OnInit {
             columns: [
                 { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
                 { key: 'name', label: 'Forma Farmacéutica', type: 'text', filterable: true },
+                { key: 'description', label: 'Descripción', type: 'text', format: (v: string) => v || '-' },
                 { key: 'actions', label: 'Acciones', type: 'action', width: '100px', align: 'center' }
             ],
             loadFn: 'getPagedPharmaceuticalForms',

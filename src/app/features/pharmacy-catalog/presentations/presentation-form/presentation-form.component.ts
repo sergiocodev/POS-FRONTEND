@@ -61,9 +61,9 @@ export class PresentationFormComponent implements OnInit {
 
     loadPresentation(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllPresentations().subscribe({
+        this.maintenanceService.getPresentationById(id).subscribe({
             next: (response) => {
-                const presentation = response.data.find(p => p.id === id);
+                const presentation = response.data;
                 if (presentation) {
                     this.form.patchValue({
                         description: presentation.description

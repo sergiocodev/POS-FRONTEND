@@ -63,9 +63,9 @@ export class ActiveIngredientFormComponent implements OnInit {
 
     loadActiveIngredient(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllActiveIngredients().subscribe({
+        this.maintenanceService.getActiveIngredientById(id).subscribe({
             next: (response) => {
-                const ingredient = response.data.find(i => i.id === id);
+                const ingredient = response.data;
                 if (ingredient) {
                     this.form.patchValue({
                         name: ingredient.name,

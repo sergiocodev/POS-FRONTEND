@@ -63,9 +63,9 @@ export class PharmaceuticalFormFormComponent implements OnInit {
 
     loadForm(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllPharmaceuticalForms().subscribe({
+        this.maintenanceService.getPharmaceuticalFormById(id).subscribe({
             next: (response) => {
-                const form = response.data.find(i => i.id === id);
+                const form = response.data;
                 if (form) {
                     this.form.patchValue({
                         name: form.name,

@@ -62,9 +62,9 @@ export class CategoryFormComponent implements OnInit {
 
     loadCategory(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllCategory().subscribe({
+        this.maintenanceService.getCategoryById(id).subscribe({
             next: (response) => {
-                const category = response.data.find(c => c.id === id);
+                const category = response.data;
                 if (category) {
                     this.form.patchValue({
                         name: category.name

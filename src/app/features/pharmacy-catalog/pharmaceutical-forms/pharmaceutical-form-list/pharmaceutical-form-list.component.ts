@@ -27,6 +27,7 @@ export class PharmaceuticalFormListComponent implements OnInit, OnChanges {
     cols: TableColumn[] = [
         { key: 'id', label: 'ID', type: 'text' },
         { key: 'name', label: 'Forma Farmacéutica', type: 'text' },
+        { key: 'description', label: 'Descripción', type: 'text', filterable: false },
         { key: 'actions', label: 'Acciones', type: 'action' }
     ];
 

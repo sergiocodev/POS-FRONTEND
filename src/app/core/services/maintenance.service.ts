@@ -35,6 +35,10 @@ export class MaintenanceService {
         return this.categoriesCache$;
     }
 
+    getCategoryById(id: number): Observable<ResponseApi<CategoryResponse>> {
+        return this.http.get<ResponseApi<CategoryResponse>>(`${environment.apiUrl}/category/${id}`);
+    }
+
     createNewCategory(name: string): Observable<ResponseApi<CategoryResponse>> {
         return this.http.post<ResponseApi<CategoryResponse>>(`${environment.apiUrl}/category`, { name });
     }
@@ -54,6 +58,10 @@ export class MaintenanceService {
         return this.laboratoriesCache$;
     }
 
+    getLaboratoryById(id: number): Observable<ResponseApi<LaboratoryResponse>> {
+        return this.http.get<ResponseApi<LaboratoryResponse>>(`${environment.apiUrl}/laboratory/${id}`);
+    }
+
     createNewLaboratory(name: string): Observable<ResponseApi<LaboratoryResponse>> {
         return this.http.post<ResponseApi<LaboratoryResponse>>(`${environment.apiUrl}/laboratory`, { name });
     }
@@ -71,6 +79,10 @@ export class MaintenanceService {
             this.presentationsCache$ = this.http.get<ResponseApi<PresentationResponse[]>>(`${environment.apiUrl}/presentations`).pipe(shareReplay(1));
         }
         return this.presentationsCache$;
+    }
+
+    getPresentationById(id: number): Observable<ResponseApi<PresentationResponse>> {
+        return this.http.get<ResponseApi<PresentationResponse>>(`${environment.apiUrl}/presentations/${id}`);
     }
 
     createNewPresentation(description: string): Observable<ResponseApi<PresentationResponse>> {
@@ -111,6 +123,10 @@ export class MaintenanceService {
         return this.activeIngredientsCache$;
     }
 
+    getActiveIngredientById(id: number): Observable<ResponseApi<ActiveIngredientResponse>> {
+        return this.http.get<ResponseApi<ActiveIngredientResponse>>(`${environment.apiUrl}/active-ingredients/${id}`);
+    }
+
     getPagedActiveIngredients(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
         let params = `page=${page}&size=${size}`;
         if (filters) {
@@ -139,6 +155,10 @@ export class MaintenanceService {
         return this.pharmaceuticalFormsCache$;
     }
 
+    getPharmaceuticalFormById(id: number): Observable<ResponseApi<PharmaceuticalFormResponse>> {
+        return this.http.get<ResponseApi<PharmaceuticalFormResponse>>(`${environment.apiUrl}/pharmaceutical-forms/${id}`);
+    }
+
     getPagedPharmaceuticalForms(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
         let params = `page=${page}&size=${size}`;
         if (filters) {
@@ -164,6 +184,10 @@ export class MaintenanceService {
             this.therapeuticActionsCache$ = this.http.get<ResponseApi<TherapeuticActionResponse[]>>(`${environment.apiUrl}/therapeutic-actions`).pipe(shareReplay(1));
         }
         return this.therapeuticActionsCache$;
+    }
+
+    getTherapeuticActionById(id: number): Observable<ResponseApi<TherapeuticActionResponse>> {
+        return this.http.get<ResponseApi<TherapeuticActionResponse>>(`${environment.apiUrl}/therapeutic-actions/${id}`);
     }
 
     getPagedTherapeuticActions(page: number, size: number, filters: any): Observable<ResponseApi<any>> {

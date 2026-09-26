@@ -58,9 +58,9 @@ export class TherapeuticActionFormComponent implements OnInit, OnChanges {
 
     loadAction(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllTherapeuticActions().subscribe({
+        this.maintenanceService.getTherapeuticActionById(id).subscribe({
             next: (response) => {
-                const action = response.data.find(a => a.id === id);
+                const action = response.data;
                 if (action) {
                     this.form.patchValue({
                         name: action.name,

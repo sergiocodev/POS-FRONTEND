@@ -62,9 +62,9 @@ export class LaboratoryFormComponent implements OnInit {
 
     loadLaboratory(id: number) {
         this.isLoading.set(true);
-        this.maintenanceService.getAllLaboratory().subscribe({
+        this.maintenanceService.getLaboratoryById(id).subscribe({
             next: (response) => {
-                const laboratory = response.data.find(l => l.id === id);
+                const laboratory = response.data;
                 if (laboratory) {
                     this.form.patchValue({
                         name: laboratory.name
