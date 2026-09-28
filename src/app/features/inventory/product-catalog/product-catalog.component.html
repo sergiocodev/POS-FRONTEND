@@ -1,21 +1,13 @@
 <app-confirm-modal></app-confirm-modal>
 <app-modal-alert></app-modal-alert>
 <app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
-<app-module-header title="Catálogo de Productos" iconClass="bi bi-box-seam"></app-module-header>
+<app-module-header title="Catálogo de Productoss" iconClass="bi bi-box-seam"></app-module-header>
 
 <div class="product-catalog-page animate-fade-in p-3">
-    <app-product-list 
-        [products]="products()" 
-        [isLoading]="isLoading()"
-        [pageSize]="pageSize()"
-        [totalElements]="totalElements()"
-        [currentPage]="currentPage()"
-        (create)="onOpenForm()" 
-        (edit)="onOpenForm($event)"
-        (delete)="onDelete($event)"
-        (bulkImport)="onOpenBulkImport()"
-        (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)"
+    <app-product-list [products]="products()" [isLoading]="isLoading()" [pageSize]="pageSize()"
+        [totalElements]="totalElements()" [currentPage]="currentPage()" (create)="onOpenForm()"
+        (edit)="onOpenForm($event)" (delete)="onDelete($event)" (bulkImport)="onOpenBulkImport()"
+        (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
         (filterChange)="onFilterChange($event)">
     </app-product-list>
 
@@ -29,11 +21,9 @@
     }
 
     @if (showBulkImport()) {
-    <app-modal-generic [isVisible]="showBulkImport()" title="Importación Masiva de Productos"
-        size="xl" (close)="onBulkImportCancelled()">
-        <app-product-bulk-import 
-            (saved)="onBulkImportSaved()"
-            (cancelled)="onBulkImportCancelled()">
+    <app-modal-generic [isVisible]="showBulkImport()" title="Importación Masiva de Productos" size="xl"
+        (close)="onBulkImportCancelled()">
+        <app-product-bulk-import (saved)="onBulkImportSaved()" (cancelled)="onBulkImportCancelled()">
         </app-product-bulk-import>
     </app-modal-generic>
     }
