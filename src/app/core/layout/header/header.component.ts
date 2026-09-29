@@ -7,11 +7,12 @@ import { EstablishmentService } from '../../services/establishment.service';
 import { EstablishmentStateService } from '../../services/establishment-state.service';
 import { EstablishmentResponse } from '../../models/maintenance.model';
 import { ProfileDropdown } from './components/profile-dropdown/profile-dropdown';
+import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule, ProfileDropdown],
+    imports: [CommonModule, ProfileDropdown, ImageUrlPipe],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     animations: [

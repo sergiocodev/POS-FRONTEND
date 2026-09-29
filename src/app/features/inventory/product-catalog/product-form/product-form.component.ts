@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal, Input, Output, EventEmitter, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Input, Output, EventEmitter, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, FormArray } from '@angular/forms';
 import { forkJoin, from, of } from 'rxjs';
 import { switchMap, finalize, map, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,11 +18,14 @@ import {
 import { ProductUnitService } from '../../../../core/services/product-unit.service';
 import { PharmaceuticalFormResponse } from '../../../../core/models/pharmaceutical-form.model';
 import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
+import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
+import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 
 @Component({
     selector: 'app-product-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchableDropdownComponent, ModalGenericComponent, ImageUrlPipe],
     templateUrl: './product-form.component.html',
     styleUrl: './product-form.component.scss'
 })
@@ -54,6 +57,13 @@ export class ProductFormComponent implements OnInit, OnChanges {
     activeIngredients = signal<ActiveIngredientResponse[]>([]);
     pharmaceuticalForms = signal<PharmaceuticalFormResponse[]>([]);
     therapeuticActions = signal<TherapeuticActionResponse[]>([]);
+
+    mappedCategories = computed(() => this.categories().map(x => ({ id: x.id, label: x.name })));
+    mappedLaboratories = computed(() => this.laboratories().map(x => ({ id: x.id, label: x.name })));
+    mappedPresentations = computed(() => this.presentations().map(x => ({ id: x.id, label: x.description })));
+    mappedTaxTypes = computed(() => this.taxTypes().map(x => ({ id: x.id, label: `${x.name} (${x.rate}%)` })));
+    mappedPharmaceuticalForms = computed(() => this.pharmaceuticalForms().map(x => ({ id: x.id, label: x.name })));
+    mappedActiveIngredients = computed(() => this.activeIngredients().map(x => ({ id: x.id, label: x.name })));
 
     constructor() {
         this.productForm = this.fb.group({
@@ -140,7 +150,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     addUnit(): void {
         const unitForm = this.fb.group({
             id: [null],
-            unitName: ['UNI', Validators.required],
+            unitName: ['Unidad', Validators.required],
             factor: [1, [Validators.required, Validators.min(1)]],
             barcode: [''],
             sunatCode: [''],
@@ -354,5 +364,86 @@ export class ProductFormComponent implements OnInit, OnChanges {
     isActionChecked(id: number): boolean {
         const current = this.productForm.get('therapeuticActionIds')?.value || [];
         return current.includes(id);
+    }
+
+    isQuickAddModalOpen = false;
+    quickAddTitle = '';
+    quickAddType = '';
+    quickAddValue = '';
+    quickAddRate: number | null = null;
+    isSavingQuickAdd = false;
+
+    onQuickAdd(type: string): void {
+        this.quickAddType = type;
+        this.quickAddValue = '';
+        this.quickAddRate = null;
+        this.isQuickAddModalOpen = true;
+
+        switch (type) {
+            case 'category': this.quickAddTitle = 'Nueva Categoría'; break;
+            case 'laboratory': this.quickAddTitle = 'Nuevo Laboratorio'; break;
+            case 'presentation': this.quickAddTitle = 'Nueva Presentación'; break;
+            case 'pharmaceuticalForm': this.quickAddTitle = 'Nueva Forma Farmacéutica'; break;
+            case 'activeIngredient': this.quickAddTitle = 'Nuevo Principio Activo'; break;
+            case 'taxType': this.quickAddTitle = 'Nuevo Tipo de Impuesto'; break;
+        }
+    }
+
+    closeQuickAddModal(): void {
+        this.isQuickAddModalOpen = false;
+    }
+
+    saveQuickAdd(): void {
+        if (!this.quickAddValue) return;
+
+        this.isSavingQuickAdd = true;
+        let request$: import('rxjs').Observable<any> | undefined;
+
+        if (this.quickAddType === 'category') request$ = this.maintenanceService.createNewCategory(this.quickAddValue);
+        else if (this.quickAddType === 'laboratory') request$ = this.maintenanceService.createNewLaboratory(this.quickAddValue);
+        else if (this.quickAddType === 'presentation') request$ = this.maintenanceService.createNewPresentation(this.quickAddValue);
+        else if (this.quickAddType === 'pharmaceuticalForm') request$ = this.maintenanceService.createNewPharmaceuticalForm(this.quickAddValue);
+        else if (this.quickAddType === 'activeIngredient') request$ = this.maintenanceService.createNewActiveIngredient(this.quickAddValue);
+        else if (this.quickAddType === 'taxType') request$ = this.maintenanceService.createNewTaxType(this.quickAddValue, this.quickAddRate || 0);
+
+        if (!request$) {
+            this.isSavingQuickAdd = false;
+            return;
+        }
+
+        request$.pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => {
+                this.isSavingQuickAdd = false;
+                this.closeQuickAddModal();
+            })
+        ).subscribe({
+            next: (res: any) => {
+                const newData = res.data;
+                this.maintenanceService.invalidateAllCaches();
+
+                if (this.quickAddType === 'category') {
+                    this.categories.update(d => [...d, newData]);
+                    this.productForm.get('categoryId')?.setValue(newData.id);
+                } else if (this.quickAddType === 'laboratory') {
+                    this.laboratories.update(d => [...d, newData]);
+                    this.productForm.get('laboratoryId')?.setValue(newData.id);
+                } else if (this.quickAddType === 'presentation') {
+                    this.presentations.update(d => [...d, newData]);
+                    this.productForm.get('presentationId')?.setValue(newData.id);
+                } else if (this.quickAddType === 'pharmaceuticalForm') {
+                    this.pharmaceuticalForms.update(d => [...d, newData]);
+                    this.productForm.get('pharmaceuticalFormId')?.setValue(newData.id);
+                } else if (this.quickAddType === 'activeIngredient') {
+                    this.activeIngredients.update(d => [...d, newData]);
+                } else if (this.quickAddType === 'taxType') {
+                    this.taxTypes.update(d => [...d, newData]);
+                    this.productForm.get('taxTypeId')?.setValue(newData.id);
+                }
+            },
+            error: (err: any) => {
+                this.errorMessage.set('Error al guardar el nuevo registro.');
+            }
+        });
     }
 }

@@ -77,38 +77,75 @@
                             <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Categoría <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select" formControlName="categoryId">
-                                    <option [ngValue]="null">Seleccionar...</option>
-                                    <option *ngFor="let item of categories()" [value]="item.id">{{ item.name }}</option>
-                                </select>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="flex-grow-1">
+                                        <app-searchable-dropdown [options]="mappedCategories()"
+                                            [selectedId]="productForm.get('categoryId')?.value"
+                                            (selectionChange)="productForm.get('categoryId')?.setValue($event.id)"
+                                            placeholder="Seleccionar..."></app-searchable-dropdown>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-custom-primary text-white p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 38px; height: 38px;" title="Agregar Categoría"
+                                        (click)="onQuickAdd('category')">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Laboratorio <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select" formControlName="laboratoryId">
-                                    <option [ngValue]="null">Seleccionar...</option>
-                                    <option *ngFor="let item of laboratories()" [value]="item.id">{{ item.name }}
-                                    </option>
-                                </select>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="flex-grow-1">
+                                        <app-searchable-dropdown [options]="mappedLaboratories()"
+                                            [selectedId]="productForm.get('laboratoryId')?.value"
+                                            (selectionChange)="productForm.get('laboratoryId')?.setValue($event.id)"
+                                            placeholder="Seleccionar..."></app-searchable-dropdown>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-custom-primary text-white p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 38px; height: 38px;" title="Agregar Laboratorio"
+                                        (click)="onQuickAdd('laboratory')">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Presentación <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select" formControlName="presentationId">
-                                    <option [ngValue]="null">Seleccionar...</option>
-                                    <option *ngFor="let item of presentations()" [value]="item.id">{{ item.description
-                                        }}</option>
-                                </select>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="flex-grow-1">
+                                        <app-searchable-dropdown [options]="mappedPresentations()"
+                                            [selectedId]="productForm.get('presentationId')?.value"
+                                            (selectionChange)="productForm.get('presentationId')?.setValue($event.id)"
+                                            placeholder="Seleccionar..."></app-searchable-dropdown>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-custom-primary text-white p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 38px; height: 38px;" title="Agregar Presentación"
+                                        (click)="onQuickAdd('presentation')">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-6 text-start">
                                 <label class="form-label fw-semibold">Forma Farmacéutica <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select" formControlName="pharmaceuticalFormId">
-                                    <option [ngValue]="null">Seleccionar...</option>
-                                    <option *ngFor="let item of pharmaceuticalForms()" [value]="item.id">{{ item.name
-                                        }}</option>
-                                </select>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="flex-grow-1">
+                                        <app-searchable-dropdown [options]="mappedPharmaceuticalForms()"
+                                            [selectedId]="productForm.get('pharmaceuticalFormId')?.value"
+                                            (selectionChange)="productForm.get('pharmaceuticalFormId')?.setValue($event.id)"
+                                            placeholder="Seleccionar..."></app-searchable-dropdown>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-custom-primary text-white p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 38px; height: 38px;" title="Agregar Forma Farmacéutica"
+                                        (click)="onQuickAdd('pharmaceuticalForm')">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -163,11 +200,20 @@
                                 <div class="col-md-6 text-start">
                                     <label class="small fw-bold" *ngIf="i === 0">Ingrediente <span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" formControlName="activeIngredientId">
-                                        <option [ngValue]="null">Seleccionar...</option>
-                                        <option *ngFor="let item of activeIngredients()" [value]="item.id">{{ item.name
-                                            }}</option>
-                                    </select>
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <div class="flex-grow-1">
+                                            <app-searchable-dropdown [options]="mappedActiveIngredients()"
+                                                [selectedId]="ing.get('activeIngredientId')?.value"
+                                                (selectionChange)="ing.get('activeIngredientId')?.setValue($event.id)"
+                                                placeholder="Seleccionar..." size="sm"></app-searchable-dropdown>
+                                        </div>
+                                        <button type="button"
+                                            class="btn btn-custom-primary text-white p-1 d-flex align-items-center justify-content-center"
+                                            style="width: 31px; height: 31px;" title="Agregar Ingrediente"
+                                            (click)="onQuickAdd('activeIngredient')">
+                                            <i class="bi bi-plus-lg" style="font-size: 0.85rem;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="col-md-4 text-start">
                                     <label class="small fw-bold" *ngIf="i === 0">Concentración</label>
@@ -272,7 +318,7 @@
                             <div class="image-preview-container w-100" (click)="fileInput.click()"
                                 title="Haz clic para cambiar la imagen">
                                 <ng-container *ngIf="productForm.get('imageUrl')?.value && !imageError(); else noImage">
-                                    <img [src]="productForm.get('imageUrl')?.value" alt="Preview"
+                                    <img [src]="productForm.get('imageUrl')?.value | imageUrl" alt="Preview"
                                         (error)="imageError.set(true)">
                                 </ng-container>
                                 <ng-template #noImage>
@@ -295,10 +341,14 @@
                         <div class="mb-3 text-start">
                             <label class="form-label fw-semibold">Tipo Impuesto <span
                                     class="text-danger">*</span></label>
-                            <select class="form-select" formControlName="taxTypeId">
-                                <option *ngFor="let item of taxTypes()" [value]="item.id">{{ item.name }} ({{ item.rate
-                                    }}%)</option>
-                            </select>
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="flex-grow-1">
+                                    <app-searchable-dropdown [options]="mappedTaxTypes()"
+                                        [selectedId]="productForm.get('taxTypeId')?.value"
+                                        (selectionChange)="productForm.get('taxTypeId')?.setValue($event.id)"
+                                        placeholder="Seleccionar..."></app-searchable-dropdown>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-check form-switch mb-2 text-start">
                             <input class="form-check-input" type="checkbox" formControlName="requiresPrescription"
@@ -325,3 +375,23 @@
         </div>
     </form>
 </div>
+
+<!-- Modal de Agregado Rápido -->
+<app-modal-generic [isVisible]="isQuickAddModalOpen" [title]="quickAddTitle" (close)="closeQuickAddModal()" size="md">
+    <div class="p-3">
+        <div class="mb-3 text-start">
+            <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="quickAddValue" placeholder="Escribe aquí..."
+                (keydown.enter)="saveQuickAdd()">
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-light" (click)="closeQuickAddModal()">Cancelar</button>
+            <button type="button" class="btn btn-custom-primary text-white" (click)="saveQuickAdd()"
+                [disabled]="!quickAddValue || isSavingQuickAdd">
+                <span *ngIf="isSavingQuickAdd" class="spinner-border spinner-border-sm me-2"></span>
+                Guardar
+            </button>
+        </div>
+    </div>
+</app-modal-generic>

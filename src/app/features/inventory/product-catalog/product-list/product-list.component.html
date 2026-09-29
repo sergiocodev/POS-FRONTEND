@@ -27,7 +27,7 @@
             <div class="me-3 border rounded bg-light d-flex align-items-center justify-content-center flex-shrink-0"
                 style="width: 80px; height: 80px; overflow: hidden;">
                 @if (row.imageUrl) {
-                <img [src]="row.imageUrl" class="img-fluid w-100 h-100 object-fit-cover"
+                <img [src]="row.imageUrl | imageUrl" class="img-fluid w-100 h-100 object-fit-cover"
                     (error)="$any($event.target).style.display = 'none'">
                 } @else {
                 <i class="bi bi-image text-muted fs-5"></i>

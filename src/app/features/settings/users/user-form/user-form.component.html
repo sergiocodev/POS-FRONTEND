@@ -30,7 +30,7 @@
                                             accept="image/*">
                                         <div class="avatar-display">
                                             <img *ngIf="userForm.get('profilePicture')?.value && !imageError()"
-                                                [src]="userForm.get('profilePicture')?.value" class="avatar-img"
+                                                [src]="userForm.get('profilePicture')?.value | imageUrl" class="avatar-img"
                                                 (error)="imageError.set(true)" alt="Preview">
                                             <div *ngIf="!userForm.get('profilePicture')?.value || imageError()"
                                                 class="avatar-placeholder">

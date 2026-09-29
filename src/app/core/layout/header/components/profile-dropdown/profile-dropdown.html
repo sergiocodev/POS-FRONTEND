@@ -3,7 +3,7 @@
         <div class="header-content">
             <div class="avatar-wrapper">
                 @if (authService.currentUser()?.profilePicture && !imageError()) {
-                <img [src]="authService.currentUser()?.profilePicture" alt="Profile"
+                <img [src]="authService.currentUser()?.profilePicture | imageUrl" alt="Profile"
                     (error)="imageError.set(true)" />
                 } @else {
                 <img src="https://ui-avatars.com/api/?name={{ authService.currentUser()?.fullName || 'User' }}&background=0033cc&color=fff&bold=true&size=112"

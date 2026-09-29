@@ -36,7 +36,7 @@
                 <span class="user-name">{{ userDisplay }}</span>
                 <div class="profile-avatar">
                     @if (authService.currentUser()?.profilePicture && !imageError()) {
-                    <img [src]="authService.currentUser()?.profilePicture" class="avatar-image"
+                    <img [src]="authService.currentUser()?.profilePicture | imageUrl" class="avatar-image"
                         (error)="imageError.set(true)">
                     } @else {
                     <div class="avatar-content">{{ userInitials }}</div>

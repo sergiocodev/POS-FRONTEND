@@ -9,6 +9,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { UserRequest } from '../../../../core/models/user.model';
 import { RoleResponse } from '../../../../core/models/maintenance.model';
 import { ModalService } from '../../../../shared/components/confirm-modal/service/modal.service';
+import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 
 @Component({
     selector: 'app-user-form',
@@ -17,7 +18,8 @@ import { ModalService } from '../../../../shared/components/confirm-modal/servic
         CommonModule,
         ReactiveFormsModule,
         FormsModule,
-        RouterModule
+        RouterModule,
+        ImageUrlPipe
     ],
     templateUrl: './user-form.component.html',
     styleUrl: './user-form.component.scss'

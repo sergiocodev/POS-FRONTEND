@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal, input, output, ViewChild, TemplateRe
 import { CommonModule } from '@angular/common';
 import { ProductResponse } from '../../../../core/models/product.model';
 import { CustomTableComponent, TableColumn, BadgeItem } from '../../../../shared/components/custom-table/custom-table.component';
+import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 
 @Component({
     selector: 'app-product-list',
     standalone: true,
-    imports: [CommonModule, CustomTableComponent],
+    imports: [CommonModule, CustomTableComponent, ImageUrlPipe],
     templateUrl: './product-list.component.html',
     styleUrl: './product-list.component.scss'
 })

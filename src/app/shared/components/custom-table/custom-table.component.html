@@ -60,7 +60,7 @@
                                 class="d-flex align-items-center justify-content-center bg-light rounded-circle border text-secondary overflow-hidden"
                                 [ngClass]="{'mx-auto': col.align === 'center', 'ms-auto': col.align === 'right'}">
                                 <img *ngIf="$any(row)[col.key] && !$any(row)['_imgError_' + col.key]" 
-                                    [src]="$any(row)[col.key]"
+                                    [src]="$any(row)[col.key] | imageUrl"
                                     (error)="$any(row)['_imgError_' + col.key] = true"
                                     class="w-100 h-100 object-fit-cover" alt="Imagen">
                                 <i *ngIf="!$any(row)[col.key] || $any(row)['_imgError_' + col.key]" 

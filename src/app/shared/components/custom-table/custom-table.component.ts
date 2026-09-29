@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { CustomSelectComponent } from '../custom-select.component/custom-select.component';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 
 // --- INTERFACES ---
 
@@ -34,7 +35,7 @@ export interface TableColumn<T = any> {
 @Component({
   selector: 'app-custom-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomSelectComponent],
+  imports: [CommonModule, FormsModule, CustomSelectComponent, ImageUrlPipe],
   templateUrl: './custom-table.component.html',
   styleUrl: './custom-table.component.scss',
 })

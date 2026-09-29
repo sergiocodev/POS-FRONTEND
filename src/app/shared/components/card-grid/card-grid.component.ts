@@ -1,5 +1,6 @@
 import { CommonModule, NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 
 export interface Product {
   id: string | number;
@@ -25,7 +26,7 @@ export interface Product {
 @Component({
   selector: 'app-card-grid',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, DecimalPipe],
+  imports: [CommonModule, NgIf, NgFor, DecimalPipe, ImageUrlPipe],
   templateUrl: './card-grid.component.html',
   styleUrl: './card-grid.component.scss',
 })

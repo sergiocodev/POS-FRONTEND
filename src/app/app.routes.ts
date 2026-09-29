@@ -244,11 +244,6 @@ export const routes: Routes = [
                 pathMatch: 'full'
             },
 
-            // --- TEST SPINNER ---
-            {
-                path: 'test-spinner',
-                loadComponent: () => import('./features/test-spinner/test-spinner.component').then(m => m.TestSpinnerComponent)
-            },
 
             // --- REDIRECTS ---
             {
