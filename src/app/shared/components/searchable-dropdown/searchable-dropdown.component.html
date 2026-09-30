@@ -12,7 +12,7 @@
     </button>
 
     @if (isOpen()) {
-    <div class="dropdown-menu-custom shadow-sm" [class.show]="isOpen()">
+    <div class="dropdown-menu-custom shadow-sm" [class.show]="isOpen()" [class.dropup]="dropDirection() === 'up'">
 
         @if (searchable()) {
         <div class="search-box">

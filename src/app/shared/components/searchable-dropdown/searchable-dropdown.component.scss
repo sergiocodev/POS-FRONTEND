@@ -102,6 +102,13 @@
         display: block;
         animation: fadeIn 0.2s ease-out;
     }
+
+    &.dropup {
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
 }
 
 @keyframes fadeIn {

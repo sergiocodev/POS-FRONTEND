@@ -13,7 +13,8 @@ import {
     PresentationResponse,
     TaxTypeResponse,
     ActiveIngredientResponse,
-    ProductUnitRequest
+    ProductUnitRequest,
+    UnitOfMeasureResponse
 } from '../../../../core/models/product.model';
 import { ProductUnitService } from '../../../../core/services/product-unit.service';
 import { PharmaceuticalFormResponse } from '../../../../core/models/pharmaceutical-form.model';
@@ -21,6 +22,37 @@ import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-a
 import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+const singleBaseUnitValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const units = control.value;
+    if (!Array.isArray(units) || units.length === 0) return null;
+
+    const baseUnitsCount = units.filter(u => u.isBaseUnit).length;
+    if (baseUnitsCount === 0) return { missingBaseUnit: true };
+    if (baseUnitsCount > 1) return { multipleBaseUnits: true };
+    
+    return null;
+};
+
+const uniqueFieldValidator = (fieldName: string): ValidatorFn => {
+    return (control: AbstractControl): ValidationErrors | null => {
+        const items = control.value;
+        if (!Array.isArray(items) || items.length === 0) return null;
+
+        const seen = new Set();
+        for (const item of items) {
+            const val = item[fieldName];
+            if (val !== null && val !== undefined && val !== '') {
+                if (seen.has(val)) {
+                    return { duplicateItems: true };
+                }
+                seen.add(val);
+            }
+        }
+        return null;
+    };
+};
 
 @Component({
     selector: 'app-product-form',
@@ -57,6 +89,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     activeIngredients = signal<ActiveIngredientResponse[]>([]);
     pharmaceuticalForms = signal<PharmaceuticalFormResponse[]>([]);
     therapeuticActions = signal<TherapeuticActionResponse[]>([]);
+    unitsOfMeasure = signal<UnitOfMeasureResponse[]>([]);
 
     mappedCategories = computed(() => this.categories().map(x => ({ id: x.id, label: x.name })));
     mappedLaboratories = computed(() => this.laboratories().map(x => ({ id: x.id, label: x.name })));
@@ -64,6 +97,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     mappedTaxTypes = computed(() => this.taxTypes().map(x => ({ id: x.id, label: `${x.name} (${x.rate}%)` })));
     mappedPharmaceuticalForms = computed(() => this.pharmaceuticalForms().map(x => ({ id: x.id, label: x.name })));
     mappedActiveIngredients = computed(() => this.activeIngredients().map(x => ({ id: x.id, label: x.name })));
+    mappedUnitsOfMeasure = computed(() => this.unitsOfMeasure().map(x => ({ id: x.id, label: x.name })));
 
     constructor() {
         this.productForm = this.fb.group({
@@ -81,8 +115,8 @@ export class ProductFormComponent implements OnInit, OnChanges {
             isGeneric: [false],
             imageUrl: [''],
             therapeuticActionIds: [[]],
-            ingredients: this.fb.array([]),
-            units: this.fb.array([])
+            ingredients: this.fb.array([], [uniqueFieldValidator('activeIngredientId')]),
+            units: this.fb.array([], [Validators.required, singleBaseUnitValidator, uniqueFieldValidator('unitOfMeasureId')])
         });
 
         this.productForm.get('imageUrl')?.valueChanges
@@ -150,11 +184,11 @@ export class ProductFormComponent implements OnInit, OnChanges {
     addUnit(): void {
         const unitForm = this.fb.group({
             id: [null],
-            unitName: ['Unidad', Validators.required],
-            factor: [1, [Validators.required, Validators.min(1)]],
+            unitOfMeasureId: [null, Validators.required],
+            factor: [1, [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
             barcode: [''],
             sunatCode: [''],
-            price: [0, [Validators.required, Validators.min(0)]],
+            price: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
             isBaseUnit: [this.units.length === 0]
         });
         this.units.push(unitForm);
@@ -162,6 +196,19 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
     removeUnit(index: number): void {
         this.units.removeAt(index);
+    }
+
+    onBaseUnitChange(index: number, event: Event): void {
+        const isChecked = (event.target as HTMLInputElement).checked;
+        if (isChecked) {
+            this.units.controls.forEach((control, i) => {
+                if (i !== index) {
+                    control.get('isBaseUnit')?.setValue(false, { emitEvent: false });
+                }
+            });
+            // Update the array validity state since we mutated with emitEvent: false
+            this.units.updateValueAndValidity();
+        }
     }
 
     loadLookupData(): void {
@@ -173,7 +220,8 @@ export class ProductFormComponent implements OnInit, OnChanges {
             taxTypes: this.maintenanceService.getAllTaxTypes(),
             activeIngredients: this.maintenanceService.getAllActiveIngredients(),
             pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms(),
-            therapeuticActions: this.maintenanceService.getAllTherapeuticActions()
+            therapeuticActions: this.maintenanceService.getAllTherapeuticActions(),
+            unitsOfMeasure: this.maintenanceService.getAllUnitsOfMeasure()
         }).pipe(
             takeUntilDestroyed(this.destroyRef),
             finalize(() => {
@@ -188,6 +236,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 this.activeIngredients.set(data.activeIngredients.data);
                 this.pharmaceuticalForms.set(data.pharmaceuticalForms.data);
                 this.therapeuticActions.set(data.therapeuticActions.data);
+                this.unitsOfMeasure.set(data.unitsOfMeasure.data);
             },
             error: (error) => {
                 this.errorMessage.set('Error al cargar datos referenciales.');
@@ -242,11 +291,11 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 units.forEach(u => {
                     this.units.push(this.fb.group({
                         id: [u.id],
-                        unitName: [u.unitName, Validators.required],
-                        factor: [u.factor, [Validators.required, Validators.min(1)]],
+                        unitOfMeasureId: [u.unitOfMeasureId, Validators.required],
+                        factor: [u.factor, [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
                         barcode: [u.barcode],
                         sunatCode: [u.sunatCode],
-                        price: [u.price, [Validators.required, Validators.min(0)]],
+                        price: [u.price, [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
                         isBaseUnit: [u.isBaseUnit]
                     }));
                 });
@@ -326,7 +375,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
         const unitObv$ = units.map(u => {
             const req: ProductUnitRequest = {
                 productId: productId,
-                unitName: u.unitName,
+                unitOfMeasureId: u.unitOfMeasureId,
                 factor: u.factor,
                 barcode: u.barcode,
                 sunatCode: u.sunatCode,
@@ -386,6 +435,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             case 'pharmaceuticalForm': this.quickAddTitle = 'Nueva Forma Farmacéutica'; break;
             case 'activeIngredient': this.quickAddTitle = 'Nuevo Principio Activo'; break;
             case 'taxType': this.quickAddTitle = 'Nuevo Tipo de Impuesto'; break;
+            case 'unitOfMeasure': this.quickAddTitle = 'Nueva Unidad de Medida'; break;
         }
     }
 
@@ -405,6 +455,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
         else if (this.quickAddType === 'pharmaceuticalForm') request$ = this.maintenanceService.createNewPharmaceuticalForm(this.quickAddValue);
         else if (this.quickAddType === 'activeIngredient') request$ = this.maintenanceService.createNewActiveIngredient(this.quickAddValue);
         else if (this.quickAddType === 'taxType') request$ = this.maintenanceService.createNewTaxType(this.quickAddValue, this.quickAddRate || 0);
+        else if (this.quickAddType === 'unitOfMeasure') request$ = this.maintenanceService.createNewUnitOfMeasure(this.quickAddValue);
 
         if (!request$) {
             this.isSavingQuickAdd = false;
@@ -439,6 +490,8 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 } else if (this.quickAddType === 'taxType') {
                     this.taxTypes.update(d => [...d, newData]);
                     this.productForm.get('taxTypeId')?.setValue(newData.id);
+                } else if (this.quickAddType === 'unitOfMeasure') {
+                    this.unitsOfMeasure.update(d => [...d, newData]);
                 }
             },
             error: (err: any) => {

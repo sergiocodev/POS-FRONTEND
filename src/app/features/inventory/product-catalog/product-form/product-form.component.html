@@ -227,6 +227,11 @@
                                     </button>
                                 </div>
                             </div>
+                            <div *ngIf="ingredients.errors?.['duplicateItems'] && (ingredients.touched || productForm.touched)"
+                                class="text-danger small fw-bold mt-2">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> No se permiten ingredientes
+                                duplicados.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -239,10 +244,11 @@
                     </div>
                     <div class="card-body">
                         <div formArrayName="units">
-                            <div *ngIf="units.length === 0" class="text-center py-3 text-muted">
+                            <div *ngIf="units.length === 0" class="text-center py-3"
+                                [ngClass]="{'text-danger fw-bold': units.invalid && productForm.touched, 'text-muted': !(units.invalid && productForm.touched)}">
                                 Defina al menos una unidad para este producto
                             </div>
-                            <div class="table-responsive px-1" *ngIf="units.length > 0">
+                            <div class="px-1" *ngIf="units.length > 0">
                                 <table class="table units-table mb-0 w-100">
                                     <thead>
                                         <tr class="text-center">
@@ -256,17 +262,40 @@
                                     </thead>
                                     <tbody style="border-top: none;">
                                         <tr *ngFor="let u of units.controls; let i = index" [formGroupName]="i">
-                                            <td>
-                                                <input type="text" class="form-control form-control-sm"
-                                                    formControlName="unitName" placeholder="Ej: Unidad">
+                                            <td style="min-width: 250px;">
+                                                <div class="d-flex gap-1 align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <app-searchable-dropdown [options]="mappedUnitsOfMeasure()"
+                                                            [selectedId]="u.get('unitOfMeasureId')?.value"
+                                                            (selectionChange)="u.get('unitOfMeasureId')?.setValue($event.id)"
+                                                            placeholder="Seleccionar..." size="sm"
+                                                            dropDirection="up"></app-searchable-dropdown>
+                                                    </div>
+                                                    <button type="button"
+                                                        class="btn btn-custom-primary text-white p-1 d-flex align-items-center justify-content-center"
+                                                        style="width: 31px; height: 31px;" title="Nueva Unidad"
+                                                        (click)="onQuickAdd('unitOfMeasure')">
+                                                        <i class="bi bi-plus-lg" style="font-size: 0.85rem;"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control form-control-sm"
-                                                    formControlName="factor" min="1" placeholder="1">
+                                                    formControlName="factor" min="1" placeholder="1"
+                                                    [ngClass]="{'is-invalid': u.get('factor')?.invalid && (u.get('factor')?.touched || productForm.touched)}">
+                                                <div *ngIf="u.get('factor')?.errors?.['pattern'] && (u.get('factor')?.touched || productForm.touched)"
+                                                    class="invalid-feedback" style="font-size: 0.7rem; line-height: 1;">
+                                                    Debe ser entero.
+                                                </div>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control form-control-sm"
-                                                    formControlName="price" step="0.01" placeholder="0.00">
+                                                    formControlName="price" step="0.01" placeholder="0.00"
+                                                    [ngClass]="{'is-invalid': u.get('price')?.invalid && (u.get('price')?.touched || productForm.touched)}">
+                                                <div *ngIf="u.get('price')?.errors?.['pattern'] && (u.get('price')?.touched || productForm.touched)"
+                                                    class="invalid-feedback" style="font-size: 0.7rem; line-height: 1;">
+                                                    Máx 2 decimales.
+                                                </div>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control form-control-sm"
@@ -275,7 +304,8 @@
                                             <td class="text-center">
                                                 <div class="form-check d-flex justify-content-center m-0">
                                                     <input class="form-check-input custom-checkbox" type="checkbox"
-                                                        formControlName="isBaseUnit">
+                                                        formControlName="isBaseUnit"
+                                                        (change)="onBaseUnitChange(i, $event)">
                                                 </div>
                                             </td>
                                             <td class="text-center">
@@ -288,6 +318,21 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <div *ngIf="units.errors?.['missingBaseUnit'] && (units.touched || productForm.touched)"
+                                    class="text-danger small fw-bold mt-2 ps-2">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Debe marcar exactamente una
+                                    unidad como "Base".
+                                </div>
+                                <div *ngIf="units.errors?.['multipleBaseUnits'] && (units.touched || productForm.touched)"
+                                    class="text-danger small fw-bold mt-2 ps-2">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Solo puede marcar una unidad
+                                    como "Base".
+                                </div>
+                                <div *ngIf="units.errors?.['duplicateItems'] && (units.touched || productForm.touched)"
+                                    class="text-danger small fw-bold mt-2 ps-2">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> No se permiten unidades
+                                    duplicadas.
+                                </div>
                             </div>
                         </div>
                     </div>

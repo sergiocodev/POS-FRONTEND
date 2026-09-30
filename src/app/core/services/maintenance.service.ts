@@ -6,7 +6,8 @@ import {
     LaboratoryResponse,
     PresentationResponse,
     TaxTypeResponse,
-    ActiveIngredientResponse
+    ActiveIngredientResponse,
+    UnitOfMeasureResponse
 } from '../models/product.model';
 import { PharmaceuticalFormResponse } from '../models/pharmaceutical-form.model';
 import { TherapeuticActionResponse } from '../models/therapeutic-action.model';
@@ -27,6 +28,7 @@ export class MaintenanceService {
     private activeIngredientsCache$?: Observable<ResponseApi<ActiveIngredientResponse[]>>;
     private pharmaceuticalFormsCache$?: Observable<ResponseApi<PharmaceuticalFormResponse[]>>;
     private therapeuticActionsCache$?: Observable<ResponseApi<TherapeuticActionResponse[]>>;
+    private unitsOfMeasureCache$?: Observable<ResponseApi<UnitOfMeasureResponse[]>>;
 
     getAllCategory(): Observable<ResponseApi<CategoryResponse[]>> {
         if (!this.categoriesCache$) {
@@ -210,6 +212,17 @@ export class MaintenanceService {
         return this.http.delete<ResponseApi<void>>(`${environment.apiUrl}/therapeutic-actions/${id}`);
     }
 
+    getAllUnitsOfMeasure(): Observable<ResponseApi<UnitOfMeasureResponse[]>> {
+        if (!this.unitsOfMeasureCache$) {
+            this.unitsOfMeasureCache$ = this.http.get<ResponseApi<UnitOfMeasureResponse[]>>(`${environment.apiUrl}/units-of-measure/all`).pipe(shareReplay(1));
+        }
+        return this.unitsOfMeasureCache$;
+    }
+
+    createNewUnitOfMeasure(name: string): Observable<ResponseApi<UnitOfMeasureResponse>> {
+        return this.http.post<ResponseApi<UnitOfMeasureResponse>>(`${environment.apiUrl}/units-of-measure`, { name });
+    }
+
     getPagedCategories(page: number, size: number, filters: any): Observable<ResponseApi<any>> {
         let params = `page=${page}&size=${size}`;
         if (filters) {
@@ -242,6 +255,7 @@ export class MaintenanceService {
         this.activeIngredientsCache$ = undefined;
         this.pharmaceuticalFormsCache$ = undefined;
         this.therapeuticActionsCache$ = undefined;
+        this.unitsOfMeasureCache$ = undefined;
     }
 
 

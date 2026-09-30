@@ -23,6 +23,7 @@ export class SearchableDropdownComponent {
   searchable = input<boolean>(true);
   size = input<'sm' | 'md' | 'lg'>('md');
   disabled = input<boolean>(false);
+  dropDirection = input<'down' | 'up'>('down');
 
   // Output
   selectionChange = output<SelectOption>();

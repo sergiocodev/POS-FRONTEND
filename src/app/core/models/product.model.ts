@@ -1,3 +1,8 @@
+export interface UnitOfMeasureResponse {
+    id: number;
+    name: string;
+}
+
 export interface CategoryResponse {
     id: number;
     name: string;
@@ -83,7 +88,7 @@ export interface ProductResponse {
 
 export interface ProductUnitRequest {
     productId: number;
-    unitName: string;
+    unitOfMeasureId: number;
     factor: number;
     barcode?: string;
     sunatCode?: string;
@@ -94,6 +99,7 @@ export interface ProductUnitRequest {
 export interface ProductUnitResponse {
     id: number;
     productId: number;
+    unitOfMeasureId: number;
     unitName: string;
     factor: number;
     barcode?: string;
