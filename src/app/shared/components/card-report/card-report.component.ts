@@ -56,8 +56,11 @@ export class CardReportComponent {
   getFilteredOptions(config: CardReportDropdownConfig | null = null) {
     const opts = config ? config.options : this.options;
     const key = config ? config.key : 'single';
-    const term = (this.searchTerms()[key] || '').toLowerCase();
-    return opts.filter(opt => opt.label.toLowerCase().includes(term));
+    const term = (this.searchTerms()[key] || '').toLowerCase().trim();
+    if (!term) {
+      return opts.slice(0, 100);
+    }
+    return opts.filter(opt => opt.label.toLowerCase().includes(term)).slice(0, 100);
   }
 
   toggleDropdown(key: string) {

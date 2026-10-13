@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<app-card-grid class="flex-grow-1" [products]="filteredProducts" [isLoading]="isLoading"
+<app-card-grid class="flex-grow-1" [products]="mappedProducts" [isLoading]="isLoading"
     (productClick)="openUnitSelector($any($event))" (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
 </app-card-grid>
 

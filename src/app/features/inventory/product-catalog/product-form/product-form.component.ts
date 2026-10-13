@@ -89,7 +89,18 @@ export class ProductFormComponent implements OnInit, OnChanges {
     activeIngredients = signal<ActiveIngredientResponse[]>([]);
     pharmaceuticalForms = signal<PharmaceuticalFormResponse[]>([]);
     therapeuticActions = signal<TherapeuticActionResponse[]>([]);
+    therapeuticActionSearch = signal<string>('');
     unitsOfMeasure = signal<UnitOfMeasureResponse[]>([]);
+
+    filteredTherapeuticActions = computed(() => {
+        const query = this.therapeuticActionSearch().trim().toLowerCase();
+        if (!query) {
+            return this.therapeuticActions();
+        }
+        return this.therapeuticActions().filter(item =>
+            item.name.toLowerCase().includes(query)
+        );
+    });
 
     mappedCategories = computed(() => this.categories().map(x => ({ id: x.id, label: x.name })));
     mappedLaboratories = computed(() => this.laboratories().map(x => ({ id: x.id, label: x.name })));
@@ -106,6 +117,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             tradeName: ['', [Validators.required, Validators.maxLength(255)]],
             genericName: ['', [Validators.maxLength(255)]],
             description: [''],
+            sanitaryRegistration: ['', [Validators.maxLength(100)]],
             categoryId: [null, [Validators.required]],
             laboratoryId: [null, [Validators.required]],
             presentationId: [null, [Validators.required]],
@@ -116,7 +128,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             imageUrl: [''],
             therapeuticActionIds: [[]],
             ingredients: this.fb.array([], [uniqueFieldValidator('activeIngredientId')]),
-            units: this.fb.array([], [Validators.required, singleBaseUnitValidator, uniqueFieldValidator('unitOfMeasureId')])
+            units: this.fb.array([], [Validators.required, singleBaseUnitValidator])
         });
 
         this.productForm.get('imageUrl')?.valueChanges
@@ -256,6 +268,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
                     tradeName: product.tradeName,
                     genericName: product.genericName,
                     description: product.description,
+                    sanitaryRegistration: product.sanitaryRegistration,
                     categoryId: this.categories().find(c => c.name === product.categoryName)?.id,
                     laboratoryId: this.laboratories().find(l => l.name === product.laboratoryName)?.id,
                     presentationId: this.presentations().find(p => p.description === product.presentationDescription)?.id,

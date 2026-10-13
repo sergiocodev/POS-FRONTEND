@@ -39,10 +39,10 @@ export class CustomerListComponent implements OnInit {
             align: 'center',
             classCallback: () => 'bg-secondary'
         },
-        { key: 'documentNumber', label: 'Nº Documento', filterable: true },
-        { key: 'name', label: 'Nombre', filterable: true },
-        { key: 'phone', label: 'Teléfono', filterable: true },
-        { key: 'email', label: 'Email', filterable: true },
+        { key: 'documentNumber', label: 'Nº Documento', filterable: true, align: 'center' },
+        { key: 'name', label: 'Nombre', filterable: true, align: 'center' },
+        { key: 'phone', label: 'Teléfono', filterable: true, align: 'center' },
+        { key: 'email', label: 'Email', filterable: true, align: 'center' },
         {
             key: 'accumulatedPoints',
             label: 'Puntos',

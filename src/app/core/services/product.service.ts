@@ -20,6 +20,10 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}`, { params });
     }
 
+    getLookup(): Observable<ResponseApi<any[]>> {
+        return this.http.get<ResponseApi<any[]>>(`${this.apiUrl}/lookup`);
+    }
+
     getPaged(page: number, size: number, filters: any = {}): Observable<ResponseApi<any>> {
         let params = new HttpParams()
             .set('page', page.toString())

@@ -106,6 +106,7 @@ $primary-hover-local: $hover-bg;
 }
 
 .unit-modal-panel {
+    position: relative;
     background: var(--card-bg);
     color: var(--text-main);
     border-radius: 1.25rem;

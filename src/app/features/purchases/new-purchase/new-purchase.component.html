@@ -2,10 +2,114 @@
 <app-modal-alert></app-modal-alert>
 <app-spinner [show]="isLoading()" [fullScreen]="true"></app-spinner>
 
-<app-module-header [title]="isEditMode() ? 'Detalle de Compra' : 'Nueva Compra'" iconClass="bi-cart-check">
-</app-module-header>
+<div class="shadow-sm z-1">
+    <app-module-header title="Nueva Compra" iconClass="bi-cart-check"></app-module-header>
+</div>
 
-<app-purchase-form [isLoading]="isLoading()" [isEditMode]="isEditMode()" [errorMessage]="errorMessage()"
-  [products]="products()" [suppliers]="suppliers()" [establishments]="establishments()" [productUnits]="productUnits()"
-  [purchase]="purchase()" (loadProductUnits)="onLoadProductUnits($event)"
-  (savePurchase)="onSavePurchase($event)"></app-purchase-form>
+<div class="pos-container d-flex flex-column">
+    <div class="container-fluid flex-grow-1 d-flex flex-column" style="padding: 20px 12px;">
+        <div class="row flex-grow-1" style="--bs-gutter-x: 12px; --bs-gutter-y: 12px;">
+
+            <!-- Product grid panel -->
+            <div class="col-12 col-lg-7 col-xl-8 d-flex flex-column" style="gap: 12px;">
+                <app-purchase-product-catalog-panel class="flex-grow-1" [products]="products()"
+                    [displayProducts]="displayProducts()" [filteredProducts]="filteredProducts()" [cart]="cart()"
+                    [isLoading]="isLoading()" (productSearch)="onProductSearch($event)" (updateCart)="cart.set($event)">
+                </app-purchase-product-catalog-panel>
+            </div>
+
+            <!-- Checkout panel -->
+            <div class="col-lg-5 col-xl-4 d-none d-lg-flex flex-column">
+                <div class="h-100 d-flex flex-column overflow-hidden">
+                    <app-purchase-checkout-panel class="flex-grow-1" [cart]="cart()" [suppliers]="suppliers()"
+                        [isLoading]="isLoading()"
+                        [preselectedSupplierId]="preselectedSupplierId()"
+                        (onProcessPurchase)="onProcessPurchase($event)" (onClearCart)="cart.set([])"
+                        (onAddSupplier)="openSupplierModal()" (onEditSupplier)="openSupplierModal($event)"
+                        (onCartChange)="cart.set($event)">
+                    </app-purchase-checkout-panel>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Offcanvas for Mobile only -->
+<div class="offcanvas offcanvas-end d-lg-none" [class.show]="isCartOpen()"
+    [style.visibility]="isCartOpen() ? 'visible' : 'hidden'"
+    [style.transform]="isCartOpen() ? 'translateX(0)' : 'translateX(100%)'"
+    style="width: min(420px, 100vw); transition: transform 0.3s ease, visibility 0.3s ease; top: 50px;" tabindex="-1"
+    id="checkoutOffcanvasMobile">
+    <!-- Offcanvas Header -->
+    <div class="offcanvas-header border-bottom border-white border-opacity-10 px-4 py-3"
+        style="background-color: var(--card-bg); z-index: 10;">
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-center rounded-circle me-3"
+                style="width: 46px; height: 46px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <i class="bi bi-cart3 text-white fs-5"></i>
+            </div>
+            <div class="d-flex flex-column">
+                <h5 class="offcanvas-title fw-bolder m-0"
+                    style="letter-spacing: -0.5px; color: var(--text-on-primary);">Compra Actual</h5>
+                <span class="small opacity-75 fw-medium" style="font-size: 0.8rem; color: var(--secondary-color);">
+                    {{ cart().length }} artículo(s) seleccionados
+                </span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <button type="button"
+                class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center transition-all border-0"
+                style="width: 40px; height: 40px; background-color: rgba(248, 113, 113, 0.15); color: var(--danger-color, #ef4444);"
+                (click)="cart.set([])" [disabled]="cart().length === 0" title="Vaciar Carrito">
+                <i class="bi bi-trash3 fs-5"></i>
+            </button>
+            <button type="button"
+                class="btn btn-icon rounded-circle d-flex align-items-center justify-content-center transition-all border-0 shadow-sm"
+                style="width: 40px; height: 40px; background-color: var(--primary-color); color: #ffffff;"
+                aria-label="Close" (click)="isCartOpen.set(false)" title="Minimizar">
+                <i class="bi bi-x-lg fs-5 fw-bold"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Offcanvas Body -->
+    <div class="offcanvas-body p-0 d-flex flex-column overflow-hidden">
+        <app-purchase-checkout-panel class="flex-grow-1" [cart]="cart()" [suppliers]="suppliers()" [isLoading]="isLoading()"
+            [preselectedSupplierId]="preselectedSupplierId()"
+            (onProcessPurchase)="onProcessPurchase($event)"
+            (onClearCart)="cart.set([])" (onAddSupplier)="openSupplierModal()" (onEditSupplier)="openSupplierModal($event)"
+            (onCartChange)="cart.set($event)">
+        </app-purchase-checkout-panel>
+    </div>
+</div>
+
+<!-- Offcanvas Backdrop for Mobile -->
+@if (isCartOpen()) {
+<div class="offcanvas-backdrop fade show d-lg-none" (click)="isCartOpen.set(false)" style="top: 50px;"></div>
+}
+
+<!-- Floating Action Button for Mobile -->
+<div class="d-lg-none position-fixed bottom-0 start-0 w-100 p-3 bg-card shadow-lg"
+    style="z-index: 1040; padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;">
+    <button
+        class="btn btn-cart-mobile w-100 py-2 fw-bold fs-6 rounded-pill shadow-sm d-flex justify-content-between align-items-center px-4"
+        (click)="isCartOpen.set(true)">
+        <span class="d-flex align-items-center">
+            <i class="bi bi-cart-fill fs-5 me-2"></i>
+            Ver Detalles
+        </span>
+        <span class="badge rounded-pill px-3 py-2 fs-6 fw-bold shadow-sm">
+            {{ cart().length }} items
+        </span>
+    </button>
+</div>
+
+<!-- Modal for Supplier Form -->
+<app-modal-generic [isVisible]="showSupplierModal()"
+    [title]="selectedSupplierIdToEdit() ? 'Editar Proveedor' : 'Nuevo Proveedor'" size="md" (close)="closeSupplierModal()">
+    @if (showSupplierModal()) {
+    <app-supplier-form [supplierId]="selectedSupplierIdToEdit()"
+        (cancel)="closeSupplierModal()" (saved)="onSupplierSaveSuccess($event)">
+    </app-supplier-form>
+    }
+</app-modal-generic>

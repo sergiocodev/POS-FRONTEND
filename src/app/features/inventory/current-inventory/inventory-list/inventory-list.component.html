@@ -6,30 +6,30 @@
 
     <ng-template #unitTemplate let-row>
         @if (row.units && row.units.length > 0) {
-            <div class="d-flex flex-column gap-1">
-                @for (unit of row.units; track unit.id) {
-                    <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">{{ unit.unitName }}</span>
-                }
-            </div>
+        <div class="d-flex flex-column gap-1">
+            @for (unit of row.units; track unit.id) {
+            <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">{{ unit.unitName }}</span>
+            }
+        </div>
         } @else {
-            <span>{{ row.unitName || '-' }}</span>
+        <span>{{ row.unitName || '-' }}</span>
         }
     </ng-template>
 
     <ng-template #priceTemplate let-row>
         @if (row.units && row.units.length > 0) {
-            <div class="d-flex flex-column gap-1">
-                @for (unit of row.units; track unit.id) {
-                    <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">S/ {{ unit.price }}</span>
-                }
-            </div>
+        <div class="d-flex flex-column gap-1">
+            @for (unit of row.units; track unit.id) {
+            <span class="text-nowrap" [class.fw-bold]="unit.isBaseUnit">S/ {{ unit.price }}</span>
+            }
+        </div>
         } @else {
-            <span>{{ row.salesPrice != null ? 'S/ ' + row.salesPrice : '-' }}</span>
+        <span>{{ row.salesPrice != null ? 'S/ ' + row.salesPrice : '-' }}</span>
         }
     </ng-template>
 
     <ng-template #lotTemplate let-row>
-        <span class="badge bg-light text-dark border">{{ row.lotCode }}</span>
+        <span class="badge bg-warning text-dark">{{ row.lotCode }}</span>
     </ng-template>
 
     <ng-template #quantityTemplate let-row>
@@ -40,7 +40,8 @@
 
     <ng-template #actionsTemplate let-row>
         <div class="d-flex justify-content-end w-100 pe-4">
-            <button class="btn-action btn-edit d-flex align-items-center justify-content-center" (click)="onAdjust(row)" title="Ajustar Stock">
+            <button class="btn-action btn-edit d-flex align-items-center justify-content-center" (click)="onAdjust(row)"
+                title="Ajustar Stock">
                 <i class="bi bi-pencil-square"></i>
             </button>
         </div>

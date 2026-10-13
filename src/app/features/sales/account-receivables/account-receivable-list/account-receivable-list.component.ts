@@ -28,15 +28,17 @@ export class AccountReceivableListComponent implements OnInit {
 
     columns: TableColumn[] = [
         { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
-        { key: 'customerName', label: 'Cliente', filterable: true },
-        { key: 'saleIdentifier', label: 'Venta', filterable: true, width: '150px' },
-        { key: 'createdAt', label: 'Fecha Registro', format: (val) => new Date(val).toLocaleDateString(), filterable: true },
-        { key: 'dueDate', label: 'Fecha Vencimiento', format: (val) => {
-            if (!val) return 'N/A';
-            const parts = String(val).split('-');
-            if (parts.length === 3) return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
-            return String(val);
-        }, filterable: true },
+        { key: 'customerName', label: 'Cliente', filterable: true, align: 'center' },
+        { key: 'saleIdentifier', label: 'Venta', filterable: true, width: '150px', align: 'center' },
+        { key: 'createdAt', label: 'Fecha Registro', format: (val) => new Date(val).toLocaleDateString(), filterable: true, align: 'center' },
+        {
+            key: 'dueDate', label: 'Fecha Vencimiento', format: (val) => {
+                if (!val) return 'N/A';
+                const parts = String(val).split('-');
+                if (parts.length === 3) return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+                return String(val);
+            }, filterable: true, align: 'center'
+        },
         {
             key: 'daysUntilDue', label: 'Días a Vencer', type: 'badge',
             format: (val) => {
@@ -53,24 +55,24 @@ export class AccountReceivableListComponent implements OnInit {
                 return 'badge-ok';
             }
         },
-        { key: 'totalAmount', label: 'Monto Total', format: (val) => `S/ ${val.toFixed(2)}` },
-        { key: 'amountPaid', label: 'Cobrado', format: (val) => `S/ ${val.toFixed(2)}` },
-        { key: 'pendingBalance', label: 'Saldo Pendiente', format: (val) => `S/ ${val.toFixed(2)}` },
+        { key: 'totalAmount', label: 'Monto Total', format: (val) => `S/ ${val.toFixed(2)}`, align: 'center' },
+        { key: 'amountPaid', label: 'Cobrado', format: (val) => `S/ ${val.toFixed(2)}`, align: 'center' },
+        { key: 'pendingBalance', label: 'Saldo Pendiente', format: (val) => `S/ ${val.toFixed(2)}`, align: 'center' },
         {
-            key: 'status', label: 'Estado', type: 'badge', filterable: true,
+            key: 'status', label: 'Estado', type: 'badge', filterable: true, align: 'center',
             format: (val) => this.translateStatus(val),
             classCallback: (val) => this.getStatusBadgeClass(val)
         },
-        { key: 'actions', label: 'Acciones', type: 'action' }
+        { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
     ];
 
     ngOnInit(): void { }
 
     translateStatus(status: string): string {
         switch (status) {
-            case 'PAID':     return 'PAGADO';
-            case 'PARTIAL':  return 'PARCIAL';
-            case 'PENDING':  return 'PENDIENTE';
+            case 'PAID': return 'PAGADO';
+            case 'PARTIAL': return 'PARCIAL';
+            case 'PENDING': return 'PENDIENTE';
             case 'CANCELED': return 'ANULADO';
             default: return status;
         }
@@ -78,11 +80,11 @@ export class AccountReceivableListComponent implements OnInit {
 
     getStatusBadgeClass(status: string): string {
         switch (status) {
-            case 'PAID':     return 'bg-success text-white';
-            case 'PARTIAL':  return 'bg-warning text-dark';
-            case 'PENDING':  return 'bg-secondary text-white';
+            case 'PAID': return 'bg-success text-white';
+            case 'PARTIAL': return 'bg-warning text-dark';
+            case 'PENDING': return 'bg-secondary text-white';
             case 'CANCELED': return 'bg-dark text-white';
-            default:         return 'bg-secondary text-white';
+            default: return 'bg-secondary text-white';
         }
     }
 

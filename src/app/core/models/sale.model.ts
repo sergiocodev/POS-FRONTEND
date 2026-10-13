@@ -85,7 +85,8 @@ export interface ProductForSaleResponse {
     genericName?: string;
     description: string;
     presentation: string;
-    concentration: string;
+    ingredients?: { activeIngredientId: number; activeIngredientName: string; concentration?: string }[];
+    pharmaceuticalFormName?: string;
     category: string;
     laboratory: string;
     salesPrice: number;
@@ -99,6 +100,7 @@ export interface ProductForSaleResponse {
     factor: number;
     taxRate: number;
     availableUnits?: string[];
+    locationShelf?: string;
 }
 
 export interface BarcodeScanResponse {

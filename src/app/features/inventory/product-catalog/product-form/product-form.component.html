@@ -33,17 +33,24 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
-                            <div class="col-md-6 text-start">
+                            <div class="col-md-4 text-start">
                                 <label class="form-label fw-semibold">Código Interno <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" formControlName="code" placeholder="P001"
                                     [class.is-invalid]="productForm.get('code')?.touched && productForm.get('code')?.invalid">
                                 <div class="invalid-feedback">El código es obligatorio</div>
                             </div>
-                            <div class="col-md-6 text-start">
+                            <div class="col-md-4 text-start">
                                 <label class="form-label fw-semibold">Código DIGEMID</label>
                                 <input type="text" class="form-control" formControlName="digemidCode"
                                     placeholder="RSA-XXX">
+                            </div>
+                            <div class="col-md-4 text-start">
+                                <label class="form-label fw-semibold">Registro Sanitario</label>
+                                <input type="text" class="form-control" formControlName="sanitaryRegistration"
+                                    placeholder="Ej: N-23543"
+                                    [class.is-invalid]="productForm.get('sanitaryRegistration')?.touched && productForm.get('sanitaryRegistration')?.invalid">
+                                <div class="invalid-feedback">Máximo 100 caracteres</div>
                             </div>
                             <div class="col-md-12 text-start">
                                 <label class="form-label fw-semibold">Nombre Comercial <span
@@ -153,13 +160,29 @@
 
 
                 <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white py-3">
+                    <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <h5 class="card-title mb-0 fw-bold text-primary">Acción Terapéutica</h5>
+                        <div class="therapeutic-search-wrapper position-relative">
+                            <i class="bi bi-search position-absolute text-muted therapeutic-search-icon"></i>
+                            <input type="text"
+                                class="form-control form-control-sm therapeutic-search-input"
+                                placeholder="Buscar acción terapéutica..."
+                                [ngModel]="therapeuticActionSearch()"
+                                (ngModelChange)="therapeuticActionSearch.set($event)"
+                                [ngModelOptions]="{standalone: true}">
+                            <button *ngIf="therapeuticActionSearch()"
+                                type="button"
+                                class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y text-muted p-0 me-2"
+                                (click)="therapeuticActionSearch.set('')"
+                                title="Limpiar búsqueda">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="therapeutic-actions-container" style="max-height: 220px; overflow-y: auto;">
                             <div class="d-flex flex-wrap gap-2 p-1">
-                                <div *ngFor="let item of therapeuticActions()" class="therapeutic-pill">
+                                <div *ngFor="let item of filteredTherapeuticActions()" class="therapeutic-pill">
                                     <input type="checkbox" [id]="'action-' + item.id"
                                         [checked]="isActionChecked(item.id)" (change)="onActionChange($event, item.id)"
                                         hidden>
@@ -173,6 +196,10 @@
                             <div *ngIf="therapeuticActions().length === 0" class="empty-state text-center p-4">
                                 <i class="bi bi-capsule fs-2 text-muted mb-2 d-block"></i>
                                 <p class="text-muted small mb-0">No hay acciones terapéuticas disponibles.</p>
+                            </div>
+                            <div *ngIf="therapeuticActions().length > 0 && filteredTherapeuticActions().length === 0" class="empty-state text-center p-4">
+                                <i class="bi bi-search fs-2 text-muted mb-2 d-block"></i>
+                                <p class="text-muted small mb-0">No se encontraron acciones terapéuticas coincidentes.</p>
                             </div>
                         </div>
                         <div class="form-text mt-3" style="color: var(--text-muted);">
@@ -328,12 +355,7 @@
                                     <i class="bi bi-exclamation-triangle-fill me-1"></i> Solo puede marcar una unidad
                                     como "Base".
                                 </div>
-                                <div *ngIf="units.errors?.['duplicateItems'] && (units.touched || productForm.touched)"
-                                    class="text-danger small fw-bold mt-2 ps-2">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> No se permiten unidades
-                                    duplicadas.
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>

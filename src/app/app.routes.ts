@@ -68,10 +68,21 @@ export const routes: Routes = [
                 data: { requiredPermissions: [PermissionConstants.VENTAS_REPORTES] }
             },
 
-            // --- COMPRAS ---
             {
                 path: 'suppliers',
                 loadComponent: () => import('./features/purchases/suppliers/suppliers.component').then(m => m.SuppliersComponent),
+                canActivate: [permissionGuard],
+                data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
+            },
+            {
+                path: 'suppliers/new',
+                loadComponent: () => import('./features/purchases/suppliers/supplier-form/supplier-form.component').then(m => m.SupplierFormComponent),
+                canActivate: [permissionGuard],
+                data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
+            },
+            {
+                path: 'suppliers/edit/:id',
+                loadComponent: () => import('./features/purchases/suppliers/supplier-form/supplier-form.component').then(m => m.SupplierFormComponent),
                 canActivate: [permissionGuard],
                 data: { requiredPermissions: [PermissionConstants.COMPRAS_PROVEEDORES] }
             },

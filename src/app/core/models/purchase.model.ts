@@ -35,6 +35,7 @@ export interface PurchaseItemRequest {
 
 export interface PurchaseItemResponse {
     id: number;
+    productId: number;
     productName: string;
     productUnitId: number;
     unitName: string;
@@ -47,6 +48,12 @@ export interface PurchaseItemResponse {
     totalCost: number;
 }
 
+export interface PurchasePaymentRequest {
+    method: PaymentMethod;
+    amount: number;
+    reference?: string;
+}
+
 export interface PurchaseRequest {
     supplierId: number;
     establishmentId: number;
@@ -57,8 +64,7 @@ export interface PurchaseRequest {
     notes?: string;
     items: PurchaseItemRequest[];
     paymentCondition: PaymentCondition;
-    initialPayment?: number;
-    paymentMethod?: PaymentMethod;
+    payments: PurchasePaymentRequest[];
     dueDate?: string;
 }
 

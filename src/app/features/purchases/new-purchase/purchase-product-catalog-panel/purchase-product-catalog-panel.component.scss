@@ -1,0 +1,204 @@
+@use "../../../../../scss/variables" as *;
+
+$primary-hover-local: $hover-bg;
+
+.pos-container {
+    overflow-x: hidden;
+}
+
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    @media (max-width: 991.98px) {
+        min-height: 400px;
+    }
+
+    @media (min-width: 992px) {
+        height: 100%;
+        min-height: 0;
+    }
+}
+
+.product-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid transparent !important;
+    outline: none;
+    background-color: $card-bg;
+    color: $text-main;
+
+    &:hover,
+    &:focus {
+        transform: translateY(-5px);
+        box-shadow: $shadow-md !important;
+        border-color: rgba($color-primary, 0.3) !important;
+        background-color: $primary-hover-local;
+    }
+
+    &:active {
+        transform: translateY(-2px);
+    }
+}
+
+.scrollable-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba($text-muted, 0.2) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba($text-muted, 0.2);
+        border-radius: $border-radius-lg;
+    }
+}
+
+.focus-within-primary {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:focus-within {
+        border-color: $color-primary !important;
+        box-shadow: 0 0 0 0.25rem rgba($color-primary, 0.25);
+    }
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+.unit-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1055;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInBackdrop 0.15s ease;
+}
+
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.unit-modal-panel {
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-lg);
+    width: min(520px, 95vw);
+    max-height: 85vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    animation: slideUpModal 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    scrollbar-width: thin;
+    scrollbar-color: rgba($text-muted, 0.2) transparent;
+}
+
+@keyframes slideUpModal {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.unit-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.unit-modal-lot {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.unit-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.unit-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    background: var(--input-bg);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s ease;
+    outline: none;
+
+    &:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+
+    &:active {
+        transform: translateY(-1px);
+    }
+}
+
+.unit-card-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.unit-factor-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    border-radius: 0.4rem;
+    padding: 0.1rem 0.35rem;
+    margin-left: 0.2rem;
+}
+
+.unit-card-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.unit-card-stock {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.unit-card-equiv {
+    font-size: 0.68rem;
+    color: var(--secondary-color);
+    margin-top: 0.15rem;
+    font-style: italic;
+}

@@ -59,6 +59,10 @@ export class SupplierService {
         return this.http.get<ResponseApi<any>>(`${environment.apiUrl}/users/search/${documentNumber}`);
     }
 
+    findByDocumentNumber(documentNumber: string): Observable<ResponseApi<SupplierResponse>> {
+        return this.http.get<ResponseApi<SupplierResponse>>(`${this.apiUrl}/FindSupplierByIdentityDoc?documentNumber=${documentNumber}`);
+    }
+
     invalidateCache(): void {
         this.cache$ = undefined;
     }

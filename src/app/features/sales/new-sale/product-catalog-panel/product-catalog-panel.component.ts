@@ -5,7 +5,7 @@ import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { BarcodeFormat } from '@zxing/library';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { SaleDocumentType, PaymentMethod, ProductForSaleResponse, CartItem } from '../../../../core/models/sale.model';
-import { CardGridComponent } from '../../../../shared/components/card-grid/card-grid.component';
+import { CardGridComponent, Product } from '../../../../shared/components/card-grid/card-grid.component';
 import { SaleService } from '../../../../core/services/sale.service';
 import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 
@@ -47,6 +47,7 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     // Local UI State
     productSearchTerm = '';
     posForm: FormGroup;
+    mappedProducts: Product[] = [];
 
     // Unit Selector Modal Local State
     showUnitModal = signal<boolean>(false);
@@ -80,7 +81,17 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
 
     ngOnInit(): void { }
 
-    ngOnChanges(changes: SimpleChanges): void { }
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['filteredProducts'] || changes['displayProducts']) {
+            const listToMap = this.filteredProducts || this.displayProducts || [];
+            this.mappedProducts = listToMap.map(p => ({
+                ...p,
+                concentration: p.ingredients && p.ingredients.length > 0
+                    ? p.ingredients.map(i => i.concentration).filter(c => !!c).join(' + ')
+                    : undefined
+            }));
+        }
+    }
 
     onProductSearch(): void {
         const term = this.productSearchTerm.trim();
@@ -129,7 +140,7 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
                             expirationDate: data.expiryDate,
                             stock: data.availableStock,
                             taxRate: data.taxRate,
-                            description: '', presentation: '', concentration: '', category: '', laboratory: ''
+                            description: '', presentation: '', ingredients: [], pharmaceuticalFormName: '', category: '', laboratory: ''
                         };
                         this.addToCartDirect(fallbackProduct);
                         this.productSearchTerm = '';

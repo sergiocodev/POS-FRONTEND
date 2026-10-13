@@ -18,7 +18,7 @@
         <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" class="form-control shadow-none"
-                [placeholder]="searchPlaceholder()" [(ngModel)]="searchTerm" (click)="$event.stopPropagation()"
+                [placeholder]="searchPlaceholder()" [ngModel]="searchTerm()" (ngModelChange)="onSearchTermChange($event)" (click)="$event.stopPropagation()"
                 (keydown.enter)="$event.preventDefault()" />
         </div>
         }

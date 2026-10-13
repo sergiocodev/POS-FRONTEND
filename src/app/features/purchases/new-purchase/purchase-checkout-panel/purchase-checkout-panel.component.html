@@ -1,0 +1,287 @@
+<div
+    class="card border-0 shadow-elevation rounded-4 d-flex flex-column sticky-lg-top checkout-container overflow-hidden">
+
+    <div class="card-header d-none d-lg-flex bg-transparent border-0 pt-3 pb-2 justify-content-between align-items-center"
+        style="padding-left: 12px; padding-right: 12px;">
+        <h5 class="fw-bold mb-0 d-flex align-items-center">
+            <i class="bi bi-receipt-cutoff me-2 fs-4" style="color: var(--primary-color) !important;"></i> Compra Actual
+        </h5>
+        <button type="button" class="btn btn-theme-outline-secondary btn-sm rounded-pill px-3 fw-medium transition-all"
+            (click)="onClearCart.emit()" [disabled]="cart().length === 0">
+            <i class="bi bi-trash3 me-1"></i> Vaciar
+        </button>
+    </div>
+
+    <!-- El formulario envuelve el cuerpo y el pie para mantener la funcionalidad de submit -->
+    <form [formGroup]="posForm" (ngSubmit)="submitPurchase()" class="card-body p-0 d-flex flex-column overflow-hidden">
+
+        <!-- Área Desplazable: Proveedor, Carrito y Configuración -->
+        <div class="flex-grow-1 overflow-y-auto pt-3 custom-scrollbar" style="padding-left: 12px; padding-right: 12px;">
+
+            <!-- Proveedor -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-end mb-1">
+                    <label class="form-label-compact mb-0">Proveedor <span class="text-danger">*</span></label>
+                </div>
+
+                <div class="d-flex flex-column mb-1">
+                    <div class="d-flex align-items-center mb-1">
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control flex-grow-1"
+                            placeholder="Buscar RUC..." style="height: 42px;" [formControl]="supplierSearchControl"
+                            (keydown.enter)="$event.preventDefault(); searchSupplier()">
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="searchSupplier()"
+                            style="height: 42px;" [disabled]="isSearchingSupplier()" title="Buscar proveedor">
+                            <i class="bi bi-search" *ngIf="!isSearchingSupplier()"></i>
+                            <span class="spinner-border spinner-border-sm" *ngIf="isSearchingSupplier()"></span>
+                        </button>
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="editSupplier()"
+                            style="height: 42px;" [disabled]="!canEditSupplier()" title="Editar proveedor">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button class="btn btn-theme-primary ms-2 px-3 py-2" type="button" (click)="addSupplier()"
+                            style="height: 42px;" title="Agregar nuevo proveedor">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </button>
+                    </div>
+
+                    <!-- Selected Supplier Display -->
+                    <div *ngIf="selectedSupplier()"
+                        class="d-flex justify-content-between align-items-center animate__animated animate__fadeIn mt-1">
+                        <div class="d-flex flex-column text-truncate">
+                            <span class="fw-bolder text-truncate text-uppercase"
+                                style="margin-left: 12px; color: var(--secondary-color);">{{ selectedSupplier()?.name
+                                }}</span>
+                            <small class="text-muted" style="margin-left: 12px;">{{ selectedSupplier()?.ruc }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado de Productos (Carrito) -->
+            <div class="cart-items-container border border-white border-opacity-10 rounded-4 p-2 mb-3 overflow-y-auto custom-scrollbar"
+                style="max-height: 35vh;">
+                <div *ngIf="cart().length === 0"
+                    class="d-flex flex-column justify-content-center align-items-center text-muted opacity-50 py-4">
+                    <i class="bi bi-basket2 fs-2 mb-2"></i>
+                    <span class="x-small">Vacío</span>
+                </div>
+
+                <div *ngFor="let item of cart(); let i = index; trackBy: trackByCartItem"
+                    class="cart-item rounded-3 p-2 shadow-sm border border-white border-opacity-10 animate__animated animate__fadeIn">
+                    <div class="d-flex align-items-center mb-1">
+                        <div class="fw-bold text-main text-truncate flex-grow-1" style="font-size: 0.75rem;"
+                            [title]="item.product.tradeName">{{
+                            item.product.tradeName }} ({{ item.unit.unitName }})</div>
+                        <button type="button" class="btn btn-link text-danger p-0 border-0 ms-2" title="Eliminar"
+                            (click)="removeFromCart(i)">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+
+                    <div class="row g-1 align-items-end text-center mb-1">
+                        <div class="col-6">
+                            <app-quantity-input [value]="item.quantity" (valueChange)="updateQuantity(i, $event)"
+                                [allowManual]="true" [min]="1" label="Cant." customClass="form-control-sm">
+                            </app-quantity-input>
+                        </div>
+                        <div class="col-6">
+                            <app-quantity-input [value]="item.unitCost" (valueChange)="updatePrice(i, $event)"
+                                [allowManual]="true" [min]="0" [step]="0.1" label="Costo Unit."
+                                customClass="form-control-sm">
+                            </app-quantity-input>
+                        </div>
+                    </div>
+
+                    <div class="row g-1 align-items-end text-center">
+                        <div class="col-6">
+                            <label
+                                style="font-size: 0.6rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Lote</label>
+                            <input type="text" class="form-control form-control-sm rounded-3" placeholder="Ej. L-123"
+                                [value]="item.lotCode || ''" (input)="updateLotCode(i, $any($event.target).value)"
+                                required>
+                        </div>
+                        <div class="col-6">
+                            <label
+                                style="font-size: 0.6rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Vence</label>
+                            <input type="date" class="form-control form-control-sm rounded-3"
+                                [value]="item.expiryDate || ''"
+                                (change)="updateExpiryDate(i, $any($event.target).value)" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de Compra y Pagos -->
+            <div class="sale-config row g-2 mb-3">
+                <!-- Selección de Documento -->
+                <div class="col-12">
+                    <label class="form-label-compact">Documento</label>
+                    <app-searchable-dropdown [options]="documentOptions()" class="w-100"
+                        [selectedId]="posForm.get('documentType')?.value" [searchable]="false" size="sm"
+                        (selectionChange)="onDocumentTypeSelect($event)">
+                    </app-searchable-dropdown>
+                </div>
+
+                <div class="col-6">
+                    <label class="form-label-compact">Serie <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" formControlName="series"
+                        placeholder="Ej. F001">
+                </div>
+                <div class="col-6">
+                    <label class="form-label-compact">Número <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" formControlName="number"
+                        placeholder="Ej. 0001234">
+                </div>
+
+                <!-- Condición de Pago -->
+                <div class="col-12 mt-2">
+                    <label class="form-label-compact">Condición de Pago</label>
+                    <div class="d-flex gap-2">
+                        <button type="button"
+                            class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all btn-payment-condition"
+                            [class.active]="posForm.get('paymentCondition')?.value === 'CASH'"
+                            (click)="posForm.get('paymentCondition')?.setValue('CASH')">
+                            CONTADO
+                        </button>
+                        <button type="button"
+                            class="btn btn-sm flex-grow-1 py-1 fw-bold border-2 transition-all btn-payment-condition"
+                            [class.active]="posForm.get('paymentCondition')?.value === 'CREDIT'"
+                            (click)="posForm.get('paymentCondition')?.setValue('CREDIT')">
+                            CRÉDITO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-6 mt-3">
+                    <label class="form-label-compact">Fecha Emisión <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-sm custom-date-input"
+                        formControlName="issueDate">
+                </div>
+
+                <div class="col-6 mt-3" *ngIf="posForm.get('paymentCondition')?.value === 'CREDIT'">
+                    <label class="form-label-compact">Vencimiento <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-sm custom-date-input" formControlName="dueDate"
+                        (keydown.enter)="$event.preventDefault()">
+                </div>
+
+                <!-- Listado de Pagos -->
+                <div class="col-12 mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label-compact mb-0">Métodos de Pago</label>
+                        <button type="button" class="btn btn-sm btn-theme-outline-secondary rounded-pill px-2 py-0"
+                            style="font-size: 0.65rem;" (click)="addPayment()"
+                            [disabled]="remainingAmount() <= 0 && posForm.get('paymentCondition')?.value === 'CASH'">
+                            <i class="bi bi-plus-lg"></i> Agregar
+                        </button>
+                    </div>
+
+                    <div class="payment-list mb-2">
+                        <div *ngFor="let p of payments(); let idx = index; trackBy: trackPayment"
+                            class="mb-2 animate__animated animate__fadeIn">
+                            <div
+                                class="payment-item border rounded-3 d-flex align-items-center gap-2 px-2 py-1 shadow-sm">
+
+                                <!-- Selector de Método -->
+                                <app-custom-select class="flex-grow-1" customClass="select-sm select-transparent"
+                                    style="min-width: 140px;" [options]="paymentMethods" [value]="p.method"
+                                    labelKey="label" valueKey="value"
+                                    (selectionChange)="updatePaymentMethod(idx, $event)">
+                                </app-custom-select>
+
+                                <div class="payment-divider mx-1"></div>
+
+                                <!-- Input de Monto -->
+                                <div class="input-group input-group-sm flex-nowrap align-items-center">
+                                    <span
+                                        class="input-group-text bg-transparent border-0 pe-1 py-0 px-0 text-muted fw-bold"
+                                        style="font-size: 0.7rem;">S/</span>
+                                    <input type="number"
+                                        class="form-control bg-transparent border-0 fw-bold py-0 h-auto shadow-none no-arrows"
+                                        style="font-size: 0.85rem; width: 60px;" [value]="p.amount"
+                                        (input)="updatePaymentAmount(idx, $any($event.target).valueAsNumber)"
+                                        (keydown.enter)="$event.preventDefault()">
+                                </div>
+
+                                <!-- Botón Eliminar (si hay más de uno) -->
+                                <button type="button" class="btn btn-link text-danger p-0 border-0 ms-auto"
+                                    *ngIf="payments().length > 1" (click)="removePayment(idx)">
+                                    <i class="bi bi-x-circle-fill fs-6"></i>
+                                </button>
+                            </div>
+
+                            <!-- Referencia -->
+                            <div *ngIf="p.method !== 'EFECTIVO'" class="mt-1 px-1">
+                                <input type="text"
+                                    class="form-control form-control-sm border-0 py-0 animate__animated animate__fadeIn"
+                                    style="font-size: 0.65rem; height: 22px;" placeholder="Ref. (opcional)"
+                                    [value]="p.reference" (input)="updateReference(idx, $any($event.target).value)"
+                                    (keydown.enter)="$event.preventDefault()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas de pagos (Vuelto / Faltante) -->
+                    <div class="payment-alerts d-flex flex-column gap-1 mb-2">
+                        <div class="d-flex justify-content-between align-items-center" *ngIf="changeAmount() > 0">
+                            <span
+                                class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-cash-coin me-2"></i> VUELTO: S/ {{ changeAmount() | number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center"
+                            *ngIf="remainingAmount() > 0 && posForm.get('paymentCondition')?.value === 'CASH'">
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-exclamation-triangle me-2"></i> FALTAN: S/ {{ remainingAmount() |
+                                number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center"
+                            *ngIf="remainingAmount() > 0 && posForm.get('paymentCondition')?.value === 'CREDIT'">
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 w-100"
+                                style="font-size: 0.75rem !important;">
+                                <i class="bi bi-calendar-check me-2"></i> SALDO A CRÉDITO: S/ {{ remainingAmount() |
+                                number:'1.2-2' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label-compact">Notas / Observaciones</label>
+                    <textarea class="form-control form-control-sm custom-scrollbar" formControlName="notes" rows="2"
+                        placeholder="Opcional"></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Área Fija: Totales y Botón de Acción -->
+        <div class="pb-3 pt-2 border-top border-white border-opacity-10 shadow-none"
+            style="padding-left: 12px; padding-right: 12px;">
+            <div class="bg-primary bg-opacity-10 rounded-4 p-2 mb-2">
+                <div class="d-flex justify-content-between mb-0 x-small text-primary opacity-75">
+                    <span>Subtotal</span>
+                    <span>S/ {{ subtotal() | number:'1.2-2' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 x-small text-primary opacity-75">
+                    <span>IGV (18%)</span>
+                    <span>S/ {{ tax() | number:'1.2-2' }}</span>
+                </div>
+                <div
+                    class="d-flex justify-content-between align-items-center border-top border-primary border-opacity-25 pt-1">
+                    <span class="fw-bold text-primary" style="font-size: 0.8rem;">TOTAL COMPRA</span>
+                    <span class="h4 mb-0 fw-bold text-primary">S/ {{ total() | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-theme-primary w-100 py-2 fw-bold fs-6 rounded-4 shadow-sm"
+                [disabled]="isLoading() || cart().length === 0 || posForm.invalid || !selectedSupplier()">
+                <span *ngIf="isLoading()" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading()" class="bi bi-wallet2 me-2"></i> REGISTRAR COMPRA
+            </button>
+        </div>
+
+    </form>
+</div>

@@ -13,7 +13,7 @@ import { SupplierService } from '../../../../core/services/supplier.service';
 export class SupplierFormComponent implements OnInit, OnChanges {
     @Input() supplierId: number | null = null;
     @Output() cancel = new EventEmitter<void>();
-    @Output() saved = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<number>();
 
     private fb = inject(FormBuilder);
     private supplierService = inject(SupplierService);
@@ -179,9 +179,9 @@ export class SupplierFormComponent implements OnInit, OnChanges {
             : this.supplierService.create(supplierData);
 
         request$.subscribe({
-            next: () => {
+            next: (response) => {
                 this.isLoading.set(false);
-                this.saved.emit();
+                this.saved.emit(response.data?.id || (this.isEditMode() ? this.supplierId! : 0));
             },
             error: (error: any) => {
                 this.isLoading.set(false);

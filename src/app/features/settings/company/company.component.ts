@@ -23,7 +23,7 @@ export class CompanyComponent implements OnInit {
   private modalService = inject(ModalService);
 
   companyForm: FormGroup;
-  
+
   isLoading = signal(false);
   isSaving = signal(false);
   isUploading = signal(false);
@@ -38,6 +38,9 @@ export class CompanyComponent implements OnInit {
       address: [''],
       ubigeo: [''],
       urbanization: [''],
+      department: [''],
+      city: [''],
+      district: [''],
       phone: [''],
       email: ['', Validators.email],
       logoUrl: ['']
@@ -59,6 +62,9 @@ export class CompanyComponent implements OnInit {
             address: company.address,
             ubigeo: company.ubigeo,
             urbanization: company.urbanization,
+            department: company.department,
+            city: company.city,
+            district: company.district,
             phone: company.phone,
             email: company.email,
             logoUrl: company.logoUrl

@@ -1,0 +1,351 @@
+@use "../../../../../scss/variables" as *;
+
+// checkout-panel.component.scss
+.sticky-lg-top {
+    z-index: 1020;
+}
+
+.checkout-container {
+    height: 100%;
+
+    @media (max-width: 991.98px) {
+        border-radius: 0 !important;
+    }
+
+    @media (min-width: 992px) {
+        top: 1.5rem;
+        max-height: calc(100vh - 3rem);
+    }
+}
+
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+:host ::ng-deep {
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background-clip: padding-box;
+
+            &:hover {
+                background-color: var(--text-muted);
+            }
+        }
+    }
+}
+
+.cart-items-container {
+    min-height: 100px;
+    transition: all 0.3s ease;
+    background-color: $card-bg; 
+}
+
+.cart-item {
+    background-color: $dropdown-bg;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.focus-within-primary {
+    transition: border-color 0.2s;
+
+    &:focus-within {
+        border-color: $color-primary !important;
+        box-shadow: 0 0 0 0.25rem rgba($color-primary, 0.15);
+    }
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+        background-color: rgba($color-danger, 0.1);
+        transform: scale(1.02);
+    }
+}
+
+.btn-group {
+    .btn-light {
+        border: none;
+        background-color: $hover-bg;
+        color: $text-main;
+
+        &:hover {
+            background-color: rgba($color-primary, 0.1);
+        }
+
+        &:active {
+            background-color: rgba($color-primary, 0.2);
+        }
+    }
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.series-radio {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+
+    input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid $text-muted;
+        border-radius: 50%;
+        margin: 0;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.15s ease;
+        background: $card-bg;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: $color-primary;
+            transition: transform 0.15s ease;
+        }
+
+        &:checked {
+            border-color: $color-primary;
+
+            &::after {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    }
+
+    label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: $text-muted;
+        cursor: pointer;
+        user-select: none;
+    }
+}
+
+.payment-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-item {
+    transition: all 0.1s ease;
+    border-left: 3px solid $color-primary !important;
+    padding: 0.25rem 0.5rem !important;
+    background-color: var(--input-bg);
+    border: 1px solid transparent;
+
+    &:hover {
+        border-color: var(--primary-color) !important;
+    }
+
+    .payment-divider {
+        width: 1px;
+        height: 16px;
+        background-color: rgba($text-muted, 0.2);
+    }
+
+    .form-select {
+        background-color: transparent;
+        color: var(--text-main);
+        cursor: pointer;
+
+        option {
+            background-color: #162343 !important;
+            color: var(--text-main) !important;
+
+            &:hover,
+            &:focus,
+            &:active,
+            &:checked {
+                background-color: var(--primary-color) !important;
+                color: var(--text-on-primary) !important;
+            }
+        }
+    }
+}
+
+.no-arrows {
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        appearance: none;
+        margin: 0;
+    }
+    -moz-appearance: textfield;
+}
+
+.x-small {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.form-label-compact {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: $text-muted;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.custom-date-input {
+    transition: all 0.2s ease;
+    border: 1px solid transparent !important;
+    background-color: var(--input-bg) !important;
+
+    &:hover {
+        border-color: var(--primary-color) !important;
+        background-color: color-mix(in srgb, var(--primary-color), transparent 95%) !important;
+
+        &::-webkit-calendar-picker-indicator {
+            filter: brightness(0) saturate(100%) invert(13%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(17%) contrast(85%);
+            cursor: pointer;
+            opacity: 1;
+        }
+    }
+
+    :host-context(.dark-theme) & {
+        &:hover {
+            &::-webkit-calendar-picker-indicator {
+                filter: invert(32%) sepia(98%) saturate(7469%) hue-rotate(242deg) brightness(101%) contrast(105%);
+            }
+        }
+    }
+
+    &::-webkit-calendar-picker-indicator {
+        transition: all 0.2s ease;
+        opacity: 0.7;
+    }
+}
+
+.btn-payment-condition {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color);
+    background-color: transparent;
+
+    &.active {
+        background-color: var(--primary-color) !important;
+        color: var(--text-on-primary) !important;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--primary-color);
+        color: var(--text-on-primary);
+        opacity: 0.9;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted);
+    }
+}
+
+.btn-theme-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-on-primary) !important;
+
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.btn-theme-outline-primary {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    background-color: transparent !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--primary-color) !important;
+        color: var(--text-on-primary) !important;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted) !important;
+    }
+}
+
+.btn-theme-secondary {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: var(--text-on-secondary) !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--secondary-hover) !important;
+        border-color: var(--secondary-hover) !important;
+        transform: scale(1.02);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.btn-theme-outline-secondary {
+    border-color: var(--secondary-color) !important;
+    color: var(--secondary-color) !important;
+    background-color: transparent !important;
+
+    &:hover:not(:disabled) {
+        background-color: var(--secondary-color) !important;
+        color: var(--text-on-secondary) !important;
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        border-color: var(--text-muted) !important;
+        color: var(--text-muted) !important;
+    }
+}

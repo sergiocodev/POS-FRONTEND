@@ -1,0 +1,78 @@
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0" style="padding: 12px !important;">
+        <div class="input-group input-group-lg">
+            <span class="input-group-text bg-transparent border-0 ps-3" style="color: var(--primary-color) !important;">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control border-0 shadow-none bg-transparent"
+                placeholder="Buscar producto a comprar..." [(ngModel)]="productSearchTerm"
+                (input)="onProductSearch()">
+            <!--<button class="btn btn-outline-secondary border-0 px-3 bg-transparent" type="button"
+                (click)="openScanner()" title="Escanear con cámara" style="color: var(--primary-color) !important;">
+                <i class="bi bi-camera fs-5"></i>
+            </button>-->
+        </div>
+    </div>
+</div>
+
+<app-card-grid class="flex-grow-1" [products]="mappedProducts" [isLoading]="isLoading"
+    (productClick)="openUnitSelector($any($event))" (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
+</app-card-grid>
+
+<!-- ======================================================= -->
+<!-- Unit Selector Modal                                     -->
+<!-- ======================================================= -->
+<div class="unit-modal-backdrop" *ngIf="showUnitModal()" (click)="closeUnitModal()">
+    <div class="unit-modal-panel" (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="unit-modal-header">
+            <div>
+                <h6 class="fw-bold mb-0">{{ unitModalProduct()?.tradeName }}</h6>
+                <small class="text-muted">Selecciona la unidad de compra</small>
+            </div>
+            <button class="btn btn-sm btn-light rounded-circle p-1 lh-1" (click)="closeUnitModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <div *ngIf="isUnitsLoading()" class="p-4 text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2 text-muted small">Cargando unidades...</div>
+        </div>
+
+        <div *ngIf="!isUnitsLoading() && availableUnits().length === 0" class="p-4 text-center">
+            <div class="text-muted small">Este producto no tiene unidades de medida configuradas.</div>
+        </div>
+
+        <!-- Unit cards -->
+        <div class="unit-cards-grid" *ngIf="!isUnitsLoading() && availableUnits().length > 0">
+            @for (unit of availableUnits(); track unit.id) {
+            <button class="unit-card" (click)="selectUnit(unit)">
+
+                <!-- Unit name badge -->
+                <div class="unit-card-name">
+                    <i class="bi bi-box-seam me-1"></i>{{ unit.unitName }}
+                    @if (unit.factor > 1) {
+                    <span class="unit-factor-badge">×{{ unit.factor }}</span>
+                    }
+                </div>
+
+                <!-- Price (Referencial) -->
+                <div class="unit-card-price">
+                    S/ {{ unit.price | number:'1.2-2' }}
+                    <small class="text-muted d-block" style="font-size: 0.6rem; font-weight: normal;">Costo Ref.</small>
+                </div>
+
+                <!-- Equivalence hint -->
+                @if (unit.factor > 1) {
+                <div class="unit-card-equiv">
+                    1 {{ unit.unitName }} = {{ unit.factor }} unidades base
+                </div>
+                }
+            </button>
+            }
+        </div>
+
+    </div>
+</div>

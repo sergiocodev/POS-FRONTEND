@@ -17,7 +17,7 @@ export class ProductListComponent implements OnInit {
 
     products = input<ProductResponse[]>([]);
     isLoading = input(false);
-    
+
     pageSize = input<number>(10);
     totalElements = input<number>(0);
     currentPage = input<number>(0);
@@ -26,7 +26,7 @@ export class ProductListComponent implements OnInit {
     edit = output<number>();
     delete = output<ProductResponse>();
     bulkImport = output<void>();
-    
+
     pageChange = output<number>();
     pageSizeChange = output<number>();
     filterChange = output<any>();
@@ -39,30 +39,47 @@ export class ProductListComponent implements OnInit {
 
     setupColumns() {
         this.columns = [
-            { key: 'index', label: 'N°', type: 'index', width: '50px' },
+            { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
             {
                 key: 'code',
-                label: 'Código',
+                label: 'Cód. Interno',
                 type: 'template',
                 filterable: true,
-                templateRef: this.codeTemplate
+                templateRef: this.codeTemplate,
+                align: 'center'
+            },
+            {
+                key: 'digemidCode',
+                label: 'Cód. DIGEMID',
+                type: 'text',
+                filterable: true,
+                align: 'center'
+            },
+            {
+                key: 'sanitaryRegistration',
+                label: 'Reg. Sanitario',
+                type: 'text',
+                filterable: true,
+                align: 'center'
             },
             {
                 key: 'tradeName',
                 label: 'Producto',
                 type: 'template',
                 filterable: true,
-                templateRef: this.productInfoTemplate
+                templateRef: this.productInfoTemplate,
+                align: 'center'
             },
             {
                 key: 'therapeuticActionNames',
                 label: 'Acción Terapéutica',
                 type: 'text',
-                filterable: true
+                filterable: true,
+                align: 'center'
             },
-            { key: 'categoryName', label: 'Categoría', type: 'text', filterable: true },
-            { key: 'laboratoryName', label: 'Laboratorio', type: 'text', filterable: true },
-            { key: 'actions', label: 'Acciones', type: 'action' }
+            { key: 'categoryName', label: 'Categoría', type: 'text', filterable: true, align: 'center' },
+            { key: 'laboratoryName', label: 'Laboratorio', type: 'text', filterable: true, align: 'center' },
+            { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
         ];
     }
 
@@ -102,7 +119,7 @@ export class ProductListComponent implements OnInit {
     getProductBadges(product: ProductResponse): BadgeItem[] {
         const badges: BadgeItem[] = [];
         if (product.pharmaceuticalFormName) {
-            badges.push({ label: product.pharmaceuticalFormName, class: 'bg-dark text-white' });
+            badges.push({ label: product.pharmaceuticalFormName, class: 'bg-primary text-white' });
         }
         if (product.isGeneric) {
             badges.push({ label: 'Genérico', class: 'bg-info text-dark' });

@@ -44,48 +44,55 @@ export class MovementListComponent implements OnInit {
                 key: 'createdAt',
                 label: 'Fecha',
                 type: 'template',
-                templateRef: this.dateTemplate
+                templateRef: this.dateTemplate,
+                align: 'center'
             },
             {
                 key: 'productName',
                 label: 'Producto',
                 type: 'template',
                 filterable: true,
-                templateRef: this.productTemplate
+                templateRef: this.productTemplate,
+                align: 'center'
             },
             {
                 key: 'lotCode',
                 label: 'Lote',
                 type: 'template',
                 filterable: true,
-                templateRef: this.lotTemplate
+                templateRef: this.lotTemplate,
+                align: 'center'
             },
             {
                 key: 'type',
                 label: 'Tipo',
                 type: 'template',
                 filterable: true,
-                templateRef: this.typeTemplate
+                templateRef: this.typeTemplate,
+                align: 'center'
             },
             {
                 key: 'quantity',
                 label: 'Cant.',
                 type: 'template',
-                templateRef: this.quantityTemplate
+                templateRef: this.quantityTemplate,
+                align: 'center'
             },
             {
                 key: 'reason',
                 label: 'Motivo',
                 type: 'template',
                 filterable: true,
-                templateRef: this.reasonTemplate
+                templateRef: this.reasonTemplate,
+                align: 'center'
             },
             {
                 key: 'userName',
                 label: 'Usuario',
                 type: 'text',
                 filterable: true,
-                format: (val) => val || 'Sistema'
+                format: (val) => val || 'Sistema',
+                align: 'center'
             }
         ];
     }

@@ -41,27 +41,30 @@ export class InventoryListComponent implements OnInit {
 
     setupColumns() {
         this.columns = [
-            { key: 'index', label: 'N°', type: 'index', width: '50px' },
+            { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
             {
                 key: 'productName',
                 label: 'Producto',
                 type: 'template',
                 filterable: true,
-                templateRef: this.productTemplate
+                templateRef: this.productTemplate,
+                align: 'center'
             },
             {
                 key: 'unitName',
                 label: 'Unidad',
                 type: 'template',
                 filterable: true,
-                templateRef: this.unitTemplate
+                templateRef: this.unitTemplate,
+                align: 'center'
             },
             {
                 key: 'lotCode',
                 label: 'Lote',
                 type: 'template',
                 filterable: true,
-                templateRef: this.lotTemplate
+                templateRef: this.lotTemplate,
+                align: 'center'
             },
             {
                 key: 'expiryDate',
@@ -78,41 +81,47 @@ export class InventoryListComponent implements OnInit {
                         return `${val[2].toString().padStart(2, '0')}/${val[1].toString().padStart(2, '0')}/${val[0]}`;
                     }
                     return val;
-                }
+                },
+                align: 'center'
             },
             {
                 key: 'costPrice',
                 label: 'Costo',
                 type: 'text',
                 filterable: true,
-                format: (val: any) => val != null ? `S/ ${val}` : '-'
+                format: (val: any) => val != null ? `S/ ${val}` : '-',
+                align: 'center'
             },
             {
                 key: 'salesPrice',
                 label: 'Precio',
                 type: 'template',
                 filterable: true,
-                templateRef: this.priceTemplate
+                templateRef: this.priceTemplate,
+                align: 'center'
             },
             {
                 key: 'locationShelf',
                 label: 'Ubicación',
                 type: 'text',
                 filterable: true,
-                format: (val: any) => val || '-'
+                format: (val: any) => val || '-',
+                align: 'center'
             },
             {
                 key: 'quantity',
                 label: 'Stock',
                 type: 'template',
                 filterable: true,
-                templateRef: this.quantityTemplate
+                templateRef: this.quantityTemplate,
+                align: 'center'
             },
             {
                 key: 'actions',
                 label: 'Acciones',
                 type: 'template',
-                templateRef: this.actionsTemplate
+                templateRef: this.actionsTemplate,
+                align: 'center'
             }
         ];
     }

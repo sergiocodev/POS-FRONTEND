@@ -24,9 +24,14 @@ export class SearchableDropdownComponent {
   size = input<'sm' | 'md' | 'lg'>('md');
   disabled = input<boolean>(false);
   dropDirection = input<'down' | 'up'>('down');
+  
+  // Nuevo input para delegar la búsqueda al backend
+  serverSideSearch = input<boolean>(false);
 
   // Output
   selectionChange = output<SelectOption>();
+  // Nuevo output para notificar el término de búsqueda
+  searchChange = output<string>();
 
   // Estado del componente
   isOpen = signal(false);
@@ -46,6 +51,10 @@ export class SearchableDropdownComponent {
 
   // Computado para filtrar las opciones en tiempo real
   filteredOptions = computed(() => {
+    // Si la búsqueda es del lado del servidor, devolvemos todas las opciones
+    if (this.serverSideSearch()) {
+      return this.options();
+    }
     const term = this.searchTerm().toLowerCase();
     return this.options().filter(opt => opt.label.toLowerCase().includes(term));
   });
@@ -56,11 +65,21 @@ export class SearchableDropdownComponent {
     return selected ? selected.label : this.placeholder();
   });
 
+  onSearchTermChange(term: string) {
+    this.searchTerm.set(term);
+    if (this.serverSideSearch()) {
+      this.searchChange.emit(term);
+    }
+  }
+
   toggleDropdown(): void {
     if (this.disabled()) return;
     this.isOpen.update(v => !v);
     if (!this.isOpen()) {
       this.searchTerm.set(''); // Resetea la búsqueda al cerrar
+      if (this.serverSideSearch()) {
+        this.searchChange.emit('');
+      }
     }
   }
 
@@ -69,5 +88,8 @@ export class SearchableDropdownComponent {
     this.selectionChange.emit(option);
     this.isOpen.set(false);
     this.searchTerm.set('');
+    if (this.serverSideSearch()) {
+        this.searchChange.emit('');
+    }
   }
 }

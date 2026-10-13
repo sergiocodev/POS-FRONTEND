@@ -21,6 +21,8 @@ export interface Product {
   lotId?: number;
   locationShelf?: string;
   availableUnits?: string[];
+  sanitaryRegistration?: string;
+  pharmaceuticalFormName?: string;
 }
 
 @Component({

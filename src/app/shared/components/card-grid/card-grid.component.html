@@ -26,11 +26,18 @@
                         <span>{{ prod.locationShelf }}</span>
                     </div>
 
+                    <!-- Floating Sanitary Registration Badge -->
+                    <div *ngIf="prod.sanitaryRegistration" class="sanitary-badge"
+                        [title]="'Registro Sanitario: ' + prod.sanitaryRegistration">
+                        <i class="bi bi-shield-check"></i>
+                        <span>{{ prod.sanitaryRegistration }}</span>
+                    </div>
+
                     <!-- Image Section -->
                     <div class="card-img-section">
                         <div class="img-wrapper">
-                            <img *ngIf="prod.imageUrl" [src]="prod.imageUrl | imageUrl" class="product-img" [alt]="prod.tradeName"
-                                (load)="onImageLoadOrError()"
+                            <img *ngIf="prod.imageUrl" [src]="prod.imageUrl | imageUrl" class="product-img"
+                                [alt]="prod.tradeName" (load)="onImageLoadOrError()"
                                 (error)="onImageLoadOrError($event)">
                             <div *ngIf="!prod.imageUrl" class="img-placeholder">
                                 <i class="bi bi-capsule"></i>
@@ -42,11 +49,20 @@
                     <div class="card-info-section">
                         <h6 class="product-name" [title]="prod.tradeName">
                             {{ prod.tradeName }}
+                            <span *ngIf="prod.concentration" class="concentration-text ms-1">{{ prod.concentration
+                                }}</span>
                         </h6>
                         <span class="generic-name" *ngIf="prod.genericName">
                             {{ prod.genericName }}
                         </span>
-                        <div class="units-container" *ngIf="prod.availableUnits && prod.availableUnits.length > 0; else singleUnit">
+
+                        <div class="pharma-form-tag" *ngIf="prod.pharmaceuticalFormName"
+                            [title]="prod.pharmaceuticalFormName">
+                            <span>{{ prod.pharmaceuticalFormName }}</span>
+                        </div>
+
+                        <div class="units-container"
+                            *ngIf="prod.availableUnits && prod.availableUnits.length > 0; else singleUnit">
                             <span class="unit-tag" *ngFor="let unit of prod.availableUnits" [title]="unit">
                                 {{ unit }}
                             </span>

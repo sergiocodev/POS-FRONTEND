@@ -283,6 +283,9 @@ export class ViewReportsComponent implements OnInit {
         }, { allowSignalWrites: true });
     }
 
+    private productsLoaded = false;
+    private isLoadingProducts = false;
+
     ngOnInit(): void {
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0);
@@ -297,6 +300,29 @@ export class ViewReportsComponent implements OnInit {
         this.endDate.set(toLocalISO(todayEnd));
 
         this.loadInitialDictionaries();
+
+        if (this.activeTab() === 'productos' || this.activeTab() === 'vendedor') {
+            this.loadProductsLookup();
+        }
+    }
+
+    loadProductsLookup(): void {
+        if (this.productsLoaded || this.isLoadingProducts) return;
+        this.isLoadingProducts = true;
+        this.productService.getLookup().pipe(take(1)).subscribe({
+            next: (res: any) => {
+                this.allProductsData.set(res.data || []);
+                this.productOptions.set([
+                    { id: 'all', label: 'Todos' },
+                    ...(res.data || []).map((p: any) => ({ id: p.id, label: p.tradeName }))
+                ]);
+                this.productsLoaded = true;
+                this.isLoadingProducts = false;
+            },
+            error: () => {
+                this.isLoadingProducts = false;
+            }
+        });
     }
 
     private loadInitialDictionaries(): void {
@@ -306,7 +332,6 @@ export class ViewReportsComponent implements OnInit {
             est: this.establishmentService.getAll().pipe(take(1)),
             cat: this.maintenanceService.getAllCategory().pipe(take(1)),
             actions: this.maintenanceService.getAllTherapeuticActions().pipe(take(1)),
-            products: this.productService.getAll().pipe(take(1)),
             sellers: this.employeeService.getAll().pipe(take(1)),
             customers: this.customerService.getAll().pipe(take(1))
         }).subscribe({
@@ -322,12 +347,6 @@ export class ViewReportsComponent implements OnInit {
                 this.therapeuticActionOptions.set([
                     { id: 'all', label: 'Todos' },
                     ...res.actions.data.map((ta: any) => ({ id: ta.id, label: ta.name }))
-                ]);
-
-                this.allProductsData.set(res.products.data);
-                this.productOptions.set([
-                    { id: 'all', label: 'Todos' },
-                    ...res.products.data.map((p: any) => ({ id: p.id, label: p.tradeName }))
                 ]);
 
                 this.sellers.set(res.sellers.data.map((e: any) => ({
@@ -457,6 +476,9 @@ export class ViewReportsComponent implements OnInit {
 
     setActiveTab(tab: string): void {
         this.activeTab.set(tab as ReportTab);
+        if (tab === 'productos' || tab === 'vendedor') {
+            this.loadProductsLookup();
+        }
     }
 
     private getPdfTimestamp(): string {

@@ -254,3 +254,38 @@
         }
     }
 }
+
+.therapeutic-search-wrapper {
+    min-width: 240px;
+    max-width: 300px;
+
+    .therapeutic-search-icon {
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        font-size: 0.85rem;
+    }
+
+    .therapeutic-search-input {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        color: var(--text-main);
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+
+        &:focus {
+            background-color: var(--card-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 25%, transparent);
+        }
+
+        &::placeholder {
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+    }
+}

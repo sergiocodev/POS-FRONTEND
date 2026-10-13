@@ -10,7 +10,7 @@
 
     <ng-template #lotTemplate let-row>
         @if (row.lotCode) {
-        <span class="badge bg-light text-dark border">{{ row.lotCode }}</span>
+        <span class="badge bg-warning text-dark">{{ row.lotCode }}</span>
         } @else {
         <span class="text-muted small">-</span>
         }
@@ -38,14 +38,9 @@
     </ng-template>
 
     <div class="card shadow-sm border-0 overflow-hidden">
-        <app-custom-table 
-            [data]="movements()" 
-            [columns]="columns" 
-            [pageSize]="pageSize()"
-            [totalElements]="totalElements()"
-            [currentPage]="currentPage() + 1"
-            (onPageChange)="handlePageChange($event)"
-            (onPageSizeChange)="handlePageSizeChange($event)"
+        <app-custom-table [data]="movements()" [columns]="columns" [pageSize]="pageSize()"
+            [totalElements]="totalElements()" [currentPage]="currentPage() + 1"
+            (onPageChange)="handlePageChange($event)" (onPageSizeChange)="handlePageSizeChange($event)"
             (onFilterChange)="handleFilterChange($event)">
         </app-custom-table>
 

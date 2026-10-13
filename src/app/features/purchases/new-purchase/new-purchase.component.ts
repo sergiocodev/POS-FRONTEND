@@ -1,158 +1,174 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, switchMap, of } from 'rxjs';
+import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
+import { toObservable, toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { forkJoin, Subject, of } from 'rxjs';
+import { map, debounceTime, distinctUntilChanged, switchMap, catchError, finalize, tap } from 'rxjs/operators';
+
+// Services
 import { PurchaseService } from '../../../core/services/purchase.service';
 import { ProductService } from '../../../core/services/product.service';
 import { SupplierService } from '../../../core/services/supplier.service';
-import { SaleService } from '../../../core/services/sale.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { EstablishmentStateService } from '../../../core/services/establishment-state.service';
-import { ProductUnitService } from '../../../core/services/product-unit.service';
-import { PurchaseRequest, PurchaseResponse } from '../../../core/models/purchase.model';
-import { ProductResponse, ProductUnitResponse } from '../../../core/models/product.model';
+import { AuthService } from '../../../core/services/auth.service';
+
+// Models
 import { SupplierResponse } from '../../../core/models/supplier.model';
-import { EstablishmentResponse } from '../../../core/models/sale.model';
-import { PurchaseFormComponent } from './purchase-form/purchase-form.component';
+import { ProductResponse } from '../../../core/models/product.model';
+import { PurchaseRequest } from '../../../core/models/purchase.model';
+import { PurchaseCartItem } from './purchase-cart.model';
+
+// Components
+import { PurchaseProductCatalogPanelComponent } from './purchase-product-catalog-panel/purchase-product-catalog-panel.component';
+import { PurchaseCheckoutPanelComponent } from './purchase-checkout-panel/purchase-checkout-panel.component';
+import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
+import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ModalAlertComponent } from '../../../shared/components/modal-alert/modal-alert.component';
-import { ModalService } from '../../../shared/components/confirm-modal/service/modal.service';
-import { ModuleHeaderComponent } from '../../../shared/components/module-header/module-header.component';
-import { RouterModule } from '@angular/router';
+import { ModalGenericComponent } from '../../../shared/components/modal-generic/modal-generic.component';
+import { SupplierFormComponent } from '../suppliers/supplier-form/supplier-form.component';
+
+const PAGE_SIZE = 48;
+const DEBOUNCE_TIME_MS = 300;
 
 @Component({
-  selector: 'app-new-purchase',
-  standalone: true,
-  imports: [
-    CommonModule, 
-    RouterModule,
-    PurchaseFormComponent,
-    SpinnerComponent,
-    ConfirmModalComponent,
-    ModalAlertComponent,
-    ModuleHeaderComponent
-  ],
-  templateUrl: './new-purchase.component.html',
-  styleUrls: ['./new-purchase.component.scss']
+    selector: 'app-new-purchase',
+    standalone: true,
+    imports: [
+        PurchaseProductCatalogPanelComponent,
+        PurchaseCheckoutPanelComponent,
+        ModuleHeaderComponent,
+        SpinnerComponent,
+        ConfirmModalComponent,
+        ModalAlertComponent,
+        ModalGenericComponent,
+        SupplierFormComponent
+    ],
+    templateUrl: './new-purchase.component.html',
+    styleUrl: './new-purchase.component.scss'
 })
-export class NewPurchaseComponent implements OnInit {
-  private purchaseService = inject(PurchaseService);
-  private productService = inject(ProductService);
-  private supplierService = inject(SupplierService);
-  private saleService = inject(SaleService);
-  private authService = inject(AuthService);
-  private productUnitService = inject(ProductUnitService);
-  private establishmentStateService = inject(EstablishmentStateService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private modalService = inject(ModalService);
+export class NewPurchaseComponent {
+    private purchaseService = inject(PurchaseService);
+    private productService = inject(ProductService);
+    private supplierService = inject(SupplierService);
+    private establishmentStateService = inject(EstablishmentStateService);
+    private authService = inject(AuthService);
+    private router = inject(Router);
+    private modalService = inject(ModalService);
+    private destroyRef = inject(DestroyRef);
 
-  isLoading = signal<boolean>(false);
-  isEditMode = signal<boolean>(false);
-  errorMessage = signal<string>('');
-  
-  products = signal<ProductResponse[]>([]);
-  suppliers = signal<SupplierResponse[]>([]);
-  establishments = signal<EstablishmentResponse[]>([]);
-  productUnits = signal<{ [productId: number]: ProductUnitResponse[] }>({});
-  
-  purchase = signal<PurchaseResponse | undefined>(undefined);
+    isLoading = signal(false);
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.params['id'];
-    this.loadInitialData(id ? +id : null);
-  }
+    private establishmentId$ = toObservable(this.establishmentStateService.selectedEstablishmentId);
 
-  loadInitialData(purchaseId: number | null = null): void {
-    this.isLoading.set(true);
-    forkJoin({
-      products: this.productService.getAll(),
-      suppliers: this.supplierService.getAll(),
-      establishments: this.saleService.getEstablishments()
-    }).pipe(
-      switchMap(data => {
-        this.products.set(data.products.data);
-        this.suppliers.set(data.suppliers.data);
-        this.establishments.set(data.establishments.data);
+    private initialData = toSignal(
+        this.establishmentId$.pipe(
+            tap(() => this.isLoading.set(true)),
+            switchMap(id => {
+                if (!id) return of(null);
+                return forkJoin({
+                    products: this.productService.getPaged(0, PAGE_SIZE),
+                    suppliers: this.supplierService.getAll()
+                }).pipe(
+                    catchError(err => {
+                        console.error('Error loading initial data', err);
+                        this.modalService.alert({ title: 'Error', message: 'Error al cargar datos iniciales', type: 'error' });
+                        return of(null);
+                    })
+                );
+            }),
+            tap(() => this.isLoading.set(false))
+        )
+    );
 
-        if (purchaseId) {
-          return this.purchaseService.getById(purchaseId);
-        }
-        return of(null);
-      })
-    ).subscribe({
-      next: (purchaseResponse) => {
-        if (purchaseResponse) {
-          this.isEditMode.set(true);
-          this.purchase.set(purchaseResponse.data);
-          this.loadAllUnitsForPurchase(purchaseResponse.data);
-        } else {
-          this.isLoading.set(false);
-        }
-      },
-      error: () => {
-        this.errorMessage.set('Error al cargar datos. Intente nuevamente.');
-        this.modalService.alert({ title: 'Error', message: 'Error al cargar datos. Intente nuevamente.', type: 'error' });
-        this.isLoading.set(false);
-      }
-    });
-  }
+    products = computed(() => this.initialData()?.products?.data?.content ?? []);
+    suppliers = computed(() => this.initialData()?.suppliers?.data ?? []);
+    displayProducts = computed(() => this.products());
 
-  private loadAllUnitsForPurchase(purchase: PurchaseResponse): void {
-    const uniqueProductIds = [...new Set(
-      purchase.items
-        .map(item => this.products().find(p => p.tradeName === item.productName)?.id)
-        .filter((id): id is number => id !== undefined)
-    )];
+    // Search Logic
+    private searchSubject = new Subject<string>();
+    private searchResults = toSignal(
+        this.searchSubject.pipe(
+            takeUntilDestroyed(this.destroyRef),
+            debounceTime(DEBOUNCE_TIME_MS),
+            distinctUntilChanged(),
+            switchMap(term => {
+                const normalizedTerm = term.trim();
+                if (!normalizedTerm) {
+                    return of(null);
+                }
+                return this.productService.search(normalizedTerm).pipe(
+                    map(response => response.data),
+                    catchError(err => {
+                        console.error('Error searching products', err);
+                        return of(null);
+                    })
+                );
+            })
+        )
+    );
 
-    if (uniqueProductIds.length === 0) {
-      this.isLoading.set(false);
-      return;
+    filteredProducts = computed(() => this.searchResults() ?? this.displayProducts());
+
+    cart = signal<PurchaseCartItem[]>([]);
+    isCartOpen = signal<boolean>(false);
+
+    onProductSearch(term: string): void {
+        this.searchSubject.next(term);
     }
 
-    const unitLoaders = forkJoin(Object.fromEntries(
-      uniqueProductIds.map(pid => [pid, this.productUnitService.getByProductId(pid)])
-    ));
+    onProcessPurchase(request: PurchaseRequest): void {
+        const estId = this.establishmentStateService.getSelectedEstablishment();
+        if (!estId) {
+            this.modalService.alert({ title: 'Error', message: 'Seleccione un establecimiento', type: 'error' });
+            return;
+        }
 
-    unitLoaders.subscribe({
-      next: (unitsMap) => {
-        this.productUnits.update(curr => ({ ...curr, ...unitsMap }));
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('Error al cargar unidades de productos.');
-        this.modalService.alert({ title: 'Error', message: 'Error al cargar unidades de productos.', type: 'error' });
-        this.isLoading.set(false);
-      }
-    });
-  }
+        const userId = this.authService.currentUser()?.id || 1;
+        request.establishmentId = estId;
 
-  onLoadProductUnits(productId: number): void {
-    if (this.productUnits()[productId]) return;
-    
-    this.productUnitService.getByProductId(productId).subscribe({
-      next: (units) => {
-        this.productUnits.update(curr => ({...curr, [productId]: units}));
-      }
-    });
-  }
+        this.isLoading.set(true);
+        this.purchaseService.create(request, userId).pipe(
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
+            next: (res) => {
+                this.modalService.alert({
+                    title: 'Éxito',
+                    message: `Compra registrada!<br>${res.data.series || ''}-${res.data.number || ''}`,
+                    type: 'success'
+                }).then(() => {
+                    this.cart.set([]);
+                    this.router.navigate(['/purchases']);
+                });
+            },
+            error: (err) => {
+                console.error('Error processing purchase', err);
+                const msg = err.error?.message || 'Ocurrió un error al registrar la compra.';
+                this.modalService.alert({ title: 'Error', message: msg, type: 'error' });
+            }
+        });
+    }
 
-  onSavePurchase(request: PurchaseRequest): void {
-    this.errorMessage.set('');
-    this.isLoading.set(true);
+    // Modal state for Suppliers
+    showSupplierModal = signal(false);
+    selectedSupplierIdToEdit = signal<number | null>(null);
+    preselectedSupplierId = signal<number | null>(null);
 
-    const userId = this.authService.currentUser()?.id || 1;
+    openSupplierModal(id?: number): void {
+        this.selectedSupplierIdToEdit.set(id || null);
+        this.showSupplierModal.set(true);
+    }
 
-    this.purchaseService.create(request, userId).subscribe({
-      next: () => {
-        this.router.navigate(['/purchases']);
-      },
-      error: () => {
-        this.errorMessage.set('Error al registrar la compra. Verifique los datos.');
-        this.modalService.alert({ title: 'Error', message: 'Error al registrar la compra. Verifique los datos.', type: 'error' });
-        this.isLoading.set(false);
-      }
-    });
-  }
+    closeSupplierModal(): void {
+        this.showSupplierModal.set(false);
+        this.selectedSupplierIdToEdit.set(null);
+    }
+
+    onSupplierSaveSuccess(newSupplierId: number): void {
+        this.showSupplierModal.set(false);
+        this.modalService.alert({ title: 'Éxito', message: 'Proveedor guardado correctamente', type: 'success' });
+        if (newSupplierId) {
+            this.preselectedSupplierId.set(newSupplierId);
+        }
+    }
 }

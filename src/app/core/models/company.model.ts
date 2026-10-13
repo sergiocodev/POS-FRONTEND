@@ -5,6 +5,9 @@ export interface CompanyMinimalResponse {
     address: string;
     ubigeo?: string;
     urbanization?: string;
+    department?: string;
+    city?: string;
+    district?: string;
     phone?: string;
     email?: string;
     logoUrl?: string;

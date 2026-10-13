@@ -136,7 +136,7 @@ export class ViewReportsComponent implements OnInit {
         forkJoin({
             est: this.establishmentService.getAll().pipe(take(1)),
             cat: this.maintenanceService.getAllCategory().pipe(take(1)),
-            products: this.productService.getAll().pipe(take(1)),
+            products: this.productService.getLookup().pipe(take(1)),
             suppliers: this.supplierService.getAll().pipe(take(1)),
             buyers: this.employeeService.getAll().pipe(take(1))
         }).subscribe({

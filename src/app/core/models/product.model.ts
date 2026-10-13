@@ -54,6 +54,7 @@ export interface ProductRequest {
     tradeName: string;
     genericName?: string;
     description?: string;
+    sanitaryRegistration?: string;
     categoryId: number;
     laboratoryId: number;
     presentationId: number;
@@ -73,17 +74,20 @@ export interface ProductResponse {
     tradeName: string;
     genericName?: string;
     description?: string;
+    sanitaryRegistration?: string;
     categoryName?: string;
     laboratoryName?: string;
     presentationDescription?: string;
     pharmaceuticalFormName?: string;
     taxTypeName?: string;
+    taxTypeRate?: number;
     requiresPrescription: boolean;
     isGeneric: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientResponse[];
     therapeuticActionNames?: string[];
     therapeuticActionIds?: number[];
+    units?: ProductUnitResponse[];
 }
 
 export interface ProductUnitRequest {
