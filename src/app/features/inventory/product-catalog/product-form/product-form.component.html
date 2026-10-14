@@ -162,20 +162,28 @@
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <h5 class="card-title mb-0 fw-bold text-primary">Acción Terapéutica</h5>
-                        <div class="therapeutic-search-wrapper position-relative">
-                            <i class="bi bi-search position-absolute text-muted therapeutic-search-icon"></i>
-                            <input type="text"
-                                class="form-control form-control-sm therapeutic-search-input"
-                                placeholder="Buscar acción terapéutica..."
-                                [ngModel]="therapeuticActionSearch()"
-                                (ngModelChange)="therapeuticActionSearch.set($event)"
-                                [ngModelOptions]="{standalone: true}">
-                            <button *ngIf="therapeuticActionSearch()"
-                                type="button"
-                                class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y text-muted p-0 me-2"
-                                (click)="therapeuticActionSearch.set('')"
-                                title="Limpiar búsqueda">
-                                <i class="bi bi-x-circle-fill"></i>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="therapeutic-search-wrapper position-relative">
+                                <i class="bi bi-search position-absolute text-muted therapeutic-search-icon"></i>
+                                <input type="text"
+                                    class="form-control form-control-sm therapeutic-search-input"
+                                    placeholder="Buscar acción terapéutica..."
+                                    [ngModel]="therapeuticActionSearch()"
+                                    (ngModelChange)="therapeuticActionSearch.set($event)"
+                                    [ngModelOptions]="{standalone: true}">
+                                <button *ngIf="therapeuticActionSearch()"
+                                    type="button"
+                                    class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y text-muted p-0 me-2"
+                                    (click)="therapeuticActionSearch.set('')"
+                                    title="Limpiar búsqueda">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
+                            <button type="button"
+                                class="btn btn-custom-primary text-white p-1 d-flex align-items-center justify-content-center"
+                                style="width: 31px; height: 31px;" title="Agregar Acción Terapéutica"
+                                (click)="onQuickAdd('therapeuticAction')">
+                                <i class="bi bi-plus-lg" style="font-size: 0.85rem;"></i>
                             </button>
                         </div>
                     </div>

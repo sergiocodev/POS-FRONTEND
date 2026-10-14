@@ -447,6 +447,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             case 'presentation': this.quickAddTitle = 'Nueva Presentación'; break;
             case 'pharmaceuticalForm': this.quickAddTitle = 'Nueva Forma Farmacéutica'; break;
             case 'activeIngredient': this.quickAddTitle = 'Nuevo Principio Activo'; break;
+            case 'therapeuticAction': this.quickAddTitle = 'Nueva Acción Terapéutica'; break;
             case 'taxType': this.quickAddTitle = 'Nuevo Tipo de Impuesto'; break;
             case 'unitOfMeasure': this.quickAddTitle = 'Nueva Unidad de Medida'; break;
         }
@@ -457,18 +458,26 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
 
     saveQuickAdd(): void {
-        if (!this.quickAddValue) return;
+        if (!this.quickAddValue?.trim()) return;
+
+        // Limpiar tildes/acentos y convertir a mayúsculas
+        const sanitizedValue = this.quickAddValue
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase();
 
         this.isSavingQuickAdd = true;
         let request$: import('rxjs').Observable<any> | undefined;
 
-        if (this.quickAddType === 'category') request$ = this.maintenanceService.createNewCategory(this.quickAddValue);
-        else if (this.quickAddType === 'laboratory') request$ = this.maintenanceService.createNewLaboratory(this.quickAddValue);
-        else if (this.quickAddType === 'presentation') request$ = this.maintenanceService.createNewPresentation(this.quickAddValue);
-        else if (this.quickAddType === 'pharmaceuticalForm') request$ = this.maintenanceService.createNewPharmaceuticalForm(this.quickAddValue);
-        else if (this.quickAddType === 'activeIngredient') request$ = this.maintenanceService.createNewActiveIngredient(this.quickAddValue);
-        else if (this.quickAddType === 'taxType') request$ = this.maintenanceService.createNewTaxType(this.quickAddValue, this.quickAddRate || 0);
-        else if (this.quickAddType === 'unitOfMeasure') request$ = this.maintenanceService.createNewUnitOfMeasure(this.quickAddValue);
+        if (this.quickAddType === 'category') request$ = this.maintenanceService.createNewCategory(sanitizedValue);
+        else if (this.quickAddType === 'laboratory') request$ = this.maintenanceService.createNewLaboratory(sanitizedValue);
+        else if (this.quickAddType === 'presentation') request$ = this.maintenanceService.createNewPresentation(sanitizedValue);
+        else if (this.quickAddType === 'pharmaceuticalForm') request$ = this.maintenanceService.createNewPharmaceuticalForm(sanitizedValue);
+        else if (this.quickAddType === 'activeIngredient') request$ = this.maintenanceService.createNewActiveIngredient(sanitizedValue);
+        else if (this.quickAddType === 'therapeuticAction') request$ = this.maintenanceService.createNewTherapeuticAction(sanitizedValue);
+        else if (this.quickAddType === 'taxType') request$ = this.maintenanceService.createNewTaxType(sanitizedValue, this.quickAddRate || 0);
+        else if (this.quickAddType === 'unitOfMeasure') request$ = this.maintenanceService.createNewUnitOfMeasure(sanitizedValue);
 
         if (!request$) {
             this.isSavingQuickAdd = false;
@@ -500,6 +509,14 @@ export class ProductFormComponent implements OnInit, OnChanges {
                     this.productForm.get('pharmaceuticalFormId')?.setValue(newData.id);
                 } else if (this.quickAddType === 'activeIngredient') {
                     this.activeIngredients.update(d => [...d, newData]);
+                } else if (this.quickAddType === 'therapeuticAction') {
+                    this.therapeuticActions.update(d => [...d, newData]);
+                    const currentActions = this.productForm.get('therapeuticActionIds')?.value || [];
+                    if (!currentActions.includes(newData.id)) {
+                        this.productForm.patchValue({
+                            therapeuticActionIds: [...currentActions, newData.id]
+                        });
+                    }
                 } else if (this.quickAddType === 'taxType') {
                     this.taxTypes.update(d => [...d, newData]);
                     this.productForm.get('taxTypeId')?.setValue(newData.id);
