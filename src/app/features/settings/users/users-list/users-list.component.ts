@@ -43,14 +43,14 @@ export class UsersListComponent implements OnInit, OnChanges {
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
-        { key: 'profilePicture', label: 'Perfil', type: 'image' },
-        { key: 'username', label: 'Usuario', type: 'text', filterable: true },
-        { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true },
-        { key: 'email', label: 'Email', type: 'text', filterable: true },
-        { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', ') },
+        { key: 'profilePicture', label: 'Perfil', type: 'image', align: 'center' },
+        { key: 'username', label: 'Usuario', type: 'text', filterable: true, align: 'center' },
+        { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true, align: 'center' },
+        { key: 'email', label: 'Email', type: 'text', filterable: true, align: 'center' },
+        { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', '), align: 'center' },
 
-        { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'dd/MM/yyyy HH:mm', 'UTC') || 'N/A' : 'Nunca' },
-        { key: 'actions', label: 'Acciones', type: 'action' }
+        { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'dd/MM/yyyy HH:mm', 'UTC') || 'N/A' : 'Nunca', align: 'center' },
+        { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
     ];
 
     constructor() { }

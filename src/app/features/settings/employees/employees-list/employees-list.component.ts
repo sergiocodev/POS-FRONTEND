@@ -37,17 +37,18 @@ export class EmployeesListComponent {
     // Configuración de la tabla
     cols: TableColumn[] = [
         { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
-        { key: 'fullName', label: 'Nombre', type: 'text', filterable: true },
-        { key: 'documentNumber', label: 'Documento', type: 'text', filterable: true },
+        { key: 'fullName', label: 'Nombre', type: 'text', filterable: true, align: 'center' },
+        { key: 'documentNumber', label: 'Documento', type: 'text', filterable: true, align: 'center' },
         {
             key: 'username',
             label: 'Usuario',
             type: 'text',
             filterable: true,
-            format: (v: any) => v || 'Sin cuenta'
+            format: (v: any) => v || 'Sin cuenta',
+            align: 'center'
         },
 
-        { key: 'actions', label: 'Acciones', type: 'action' }
+        { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
     ];
 
     // Filter Logic is handled by Backend now

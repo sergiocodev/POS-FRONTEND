@@ -154,8 +154,8 @@ export class UserFormComponent implements OnInit {
         const document = this.userForm.get('document')?.value;
         if (!document) {
             this.modalService.alert({
-                title: 'AtenciÃ³n',
-                message: 'Ingrese un nÃºmero de documento',
+                title: 'Atención',
+                message: 'Ingrese un número de documento',
                 type: 'warning'
             });
             return;
@@ -172,7 +172,7 @@ export class UserFormComponent implements OnInit {
                     const fullName = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
                     this.userForm.patchValue({ fullName: fullName });
                 }
-                this.modalService.alert({ title: 'Ã‰xito', message: 'Datos encontrados', type: 'success' });
+                this.modalService.alert({ title: 'Éxito', message: 'Datos encontrados', type: 'success' });
             },
             error: () => {
                 this.isSearching.set(false);
@@ -236,7 +236,7 @@ export class UserFormComponent implements OnInit {
                     });
                 }
                 this.modalService.alert({
-                    title: 'Ã‰xito',
+                    title: 'Éxito',
                     message: `Usuario ${this.isEditMode() ? 'actualizado' : 'creado'} correctamente`,
                     type: 'success'
                 });
