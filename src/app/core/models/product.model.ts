@@ -75,10 +75,15 @@ export interface ProductResponse {
     genericName?: string;
     description?: string;
     sanitaryRegistration?: string;
+    categoryId?: number;
     categoryName?: string;
+    laboratoryId?: number;
     laboratoryName?: string;
+    presentationId?: number;
     presentationDescription?: string;
+    pharmaceuticalFormId?: number;
     pharmaceuticalFormName?: string;
+    taxTypeId?: number;
     taxTypeName?: string;
     taxTypeRate?: number;
     requiresPrescription: boolean;

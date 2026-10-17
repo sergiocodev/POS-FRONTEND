@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed, Input, Output, EventEmitter, OnChanges, SimpleChanges, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators, FormArray } from '@angular/forms';
-import { forkJoin, from, of } from 'rxjs';
+import { forkJoin, from, of, Observable } from 'rxjs';
 import { switchMap, finalize, map, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductService } from '../../../../core/services/product.service';
@@ -14,13 +14,16 @@ import {
     TaxTypeResponse,
     ActiveIngredientResponse,
     ProductUnitRequest,
-    UnitOfMeasureResponse
+    ProductUnitResponse,
+    UnitOfMeasureResponse,
+    ProductResponse
 } from '../../../../core/models/product.model';
 import { ProductUnitService } from '../../../../core/services/product-unit.service';
 import { PharmaceuticalFormResponse } from '../../../../core/models/pharmaceutical-form.model';
 import { TherapeuticActionResponse } from '../../../../core/models/therapeutic-action.model';
 import { SearchableDropdownComponent } from '../../../../shared/components/searchable-dropdown/searchable-dropdown.component';
 import { ModalGenericComponent } from '../../../../shared/components/modal-generic/modal-generic.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ImageUrlPipe } from '../../../../shared/pipes/image-url.pipe';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
@@ -57,7 +60,7 @@ const uniqueFieldValidator = (fieldName: string): ValidatorFn => {
 @Component({
     selector: 'app-product-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchableDropdownComponent, ModalGenericComponent, ImageUrlPipe],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchableDropdownComponent, ModalGenericComponent, SpinnerComponent, ImageUrlPipe],
     templateUrl: './product-form.component.html',
     styleUrl: './product-form.component.scss'
 })
@@ -139,37 +142,189 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
 
     ngOnInit(): void {
-        this.loadLookupData();
-        this.checkEditMode();
+        this.initData();
     }
 
-    ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(changes: SimpleChanges): void {
         if (changes['idProduct'] && !changes['idProduct'].firstChange) {
-            this.checkEditMode();
+            this.initData();
         }
     }
 
-    checkEditMode(): void {
+    private initData(): void {
         const id = this.idProduct;
         if (id) {
             this.isEditMode.set(true);
-            this.loadProduct(id);
+            this.loadEditData(id);
         } else {
             this.isEditMode.set(false);
-            if (this.productForm) {
-                this.productForm.reset({
-                    therapeuticActionIds: [],
-                    ingredients: [],
-                    units: []
-                });
-                while (this.ingredients.length !== 0) {
-                    this.ingredients.removeAt(0);
-                }
-                while (this.units.length !== 0) {
-                    this.units.removeAt(0);
-                }
-                this.addUnit(); // Add at least one unit initially
+            this.resetForm();
+            this.loadCreateData();
+        }
+    }
+
+    private getLookups$(): Observable<any> {
+        return forkJoin({
+            categories: this.maintenanceService.getAllCategory(),
+            laboratories: this.maintenanceService.getAllLaboratory(),
+            presentations: this.maintenanceService.getAllPresentations(),
+            taxTypes: this.maintenanceService.getAllTaxTypes(),
+            activeIngredients: this.maintenanceService.getAllActiveIngredients(),
+            pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms(),
+            therapeuticActions: this.maintenanceService.getAllTherapeuticActions(),
+            unitsOfMeasure: this.maintenanceService.getAllUnitsOfMeasure()
+        });
+    }
+
+    private setLookupData(data: any): void {
+        this.categories.set(data.categories?.data || []);
+        this.laboratories.set(data.laboratories?.data || []);
+        this.presentations.set(data.presentations?.data || []);
+        this.taxTypes.set(data.taxTypes?.data || []);
+        this.activeIngredients.set(data.activeIngredients?.data || []);
+        this.pharmaceuticalForms.set(data.pharmaceuticalForms?.data || []);
+        this.therapeuticActions.set(data.therapeuticActions?.data || []);
+        this.unitsOfMeasure.set(data.unitsOfMeasure?.data || []);
+    }
+
+    private loadCreateData(): void {
+        this.isLoading.set(true);
+        this.getLookups$().pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
+            next: (lookups) => {
+                this.setLookupData(lookups);
+            },
+            error: (error) => {
+                console.error('Error al cargar datos maestros:', error);
+                this.errorMessage.set('Error al cargar datos referenciales.');
             }
+        });
+    }
+
+    private loadEditData(id: number): void {
+        this.isLoading.set(true);
+        forkJoin({
+            lookups: this.getLookups$(),
+            productRes: this.productService.getById(id),
+            unitsRes: this.productUnitService.getByProductId(id)
+        }).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.isLoading.set(false))
+        ).subscribe({
+            next: ({ lookups, productRes, unitsRes }) => {
+                this.setLookupData(lookups);
+                this.populateForm(productRes.data, unitsRes || []);
+            },
+            error: (error) => {
+                console.error('Error al cargar datos para edición:', error);
+                this.errorMessage.set('Error al cargar la información del producto.');
+            }
+        });
+    }
+
+    private populateForm(product: ProductResponse, units: ProductUnitResponse[]): void {
+        const catId = product.categoryId ?? this.categories().find(c => 
+            c.name?.trim().toLowerCase() === product.categoryName?.trim().toLowerCase()
+        )?.id;
+
+        const labId = product.laboratoryId ?? this.laboratories().find(l => 
+            l.name?.trim().toLowerCase() === product.laboratoryName?.trim().toLowerCase()
+        )?.id;
+
+        const presId = product.presentationId ?? this.presentations().find(p => 
+            p.description?.trim().toLowerCase() === product.presentationDescription?.trim().toLowerCase()
+        )?.id;
+
+        const formId = product.pharmaceuticalFormId ?? this.pharmaceuticalForms().find(p => 
+            p.name?.trim().toLowerCase() === product.pharmaceuticalFormName?.trim().toLowerCase()
+        )?.id;
+
+        const taxId = product.taxTypeId ?? this.taxTypes().find(t => 
+            t.name?.trim().toLowerCase() === product.taxTypeName?.trim().toLowerCase()
+        )?.id;
+
+        this.productForm.patchValue({
+            code: product.code,
+            digemidCode: product.digemidCode,
+            tradeName: product.tradeName,
+            genericName: product.genericName,
+            description: product.description,
+            sanitaryRegistration: product.sanitaryRegistration,
+            categoryId: catId ?? null,
+            laboratoryId: labId ?? null,
+            presentationId: presId ?? null,
+            pharmaceuticalFormId: formId ?? null,
+            taxTypeId: taxId ?? null,
+            requiresPrescription: product.requiresPrescription,
+            isGeneric: product.isGeneric,
+            imageUrl: product.imageUrl,
+            therapeuticActionIds: product.therapeuticActionIds || []
+        });
+
+        while (this.ingredients.length !== 0) {
+            this.ingredients.removeAt(0);
+        }
+
+        if (product.ingredients && product.ingredients.length > 0) {
+            product.ingredients.forEach(i => {
+                this.ingredients.push(this.fb.group({
+                    activeIngredientId: [i.activeIngredientId, Validators.required],
+                    concentration: [i.concentration || '']
+                }));
+            });
+        }
+
+        while (this.units.length !== 0) {
+            this.units.removeAt(0);
+        }
+
+        if (units && units.length > 0) {
+            units.forEach(u => {
+                this.units.push(this.fb.group({
+                    id: [u.id],
+                    unitOfMeasureId: [u.unitOfMeasureId, Validators.required],
+                    factor: [u.factor, [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
+                    barcode: [u.barcode || ''],
+                    sunatCode: [u.sunatCode || ''],
+                    price: [u.price, [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+                    isBaseUnit: [u.isBaseUnit]
+                }));
+            });
+        } else {
+            this.addUnit();
+        }
+    }
+
+    private resetForm(): void {
+        if (this.productForm) {
+            this.productForm.reset({
+                code: '',
+                digemidCode: '',
+                tradeName: '',
+                genericName: '',
+                description: '',
+                sanitaryRegistration: '',
+                categoryId: null,
+                laboratoryId: null,
+                presentationId: null,
+                pharmaceuticalFormId: null,
+                taxTypeId: null,
+                requiresPrescription: false,
+                isGeneric: false,
+                imageUrl: '',
+                therapeuticActionIds: [],
+                ingredients: [],
+                units: []
+            });
+            while (this.ingredients.length !== 0) {
+                this.ingredients.removeAt(0);
+            }
+            while (this.units.length !== 0) {
+                this.units.removeAt(0);
+            }
+            this.addUnit();
         }
     }
 
@@ -221,102 +376,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
             // Update the array validity state since we mutated with emitEvent: false
             this.units.updateValueAndValidity();
         }
-    }
-
-    loadLookupData(): void {
-        this.isLoading.set(true);
-        forkJoin({
-            categories: this.maintenanceService.getAllCategory(),
-            laboratories: this.maintenanceService.getAllLaboratory(),
-            presentations: this.maintenanceService.getAllPresentations(),
-            taxTypes: this.maintenanceService.getAllTaxTypes(),
-            activeIngredients: this.maintenanceService.getAllActiveIngredients(),
-            pharmaceuticalForms: this.maintenanceService.getAllPharmaceuticalForms(),
-            therapeuticActions: this.maintenanceService.getAllTherapeuticActions(),
-            unitsOfMeasure: this.maintenanceService.getAllUnitsOfMeasure()
-        }).pipe(
-            takeUntilDestroyed(this.destroyRef),
-            finalize(() => {
-                if (!this.isEditMode()) this.isLoading.set(false);
-            })
-        ).subscribe({
-            next: (data) => {
-                this.categories.set(data.categories.data);
-                this.laboratories.set(data.laboratories.data);
-                this.presentations.set(data.presentations.data);
-                this.taxTypes.set(data.taxTypes.data);
-                this.activeIngredients.set(data.activeIngredients.data);
-                this.pharmaceuticalForms.set(data.pharmaceuticalForms.data);
-                this.therapeuticActions.set(data.therapeuticActions.data);
-                this.unitsOfMeasure.set(data.unitsOfMeasure.data);
-            },
-            error: (error) => {
-                this.errorMessage.set('Error al cargar datos referenciales.');
-            }
-        });
-    }
-
-    loadProduct(id: number): void {
-        this.isLoading.set(true);
-        this.productService.getById(id).pipe(
-            takeUntilDestroyed(this.destroyRef),
-            switchMap(response => {
-                const product = response.data;
-                this.productForm.patchValue({
-                    code: product.code,
-                    digemidCode: product.digemidCode,
-                    tradeName: product.tradeName,
-                    genericName: product.genericName,
-                    description: product.description,
-                    sanitaryRegistration: product.sanitaryRegistration,
-                    categoryId: this.categories().find(c => c.name === product.categoryName)?.id,
-                    laboratoryId: this.laboratories().find(l => l.name === product.laboratoryName)?.id,
-                    presentationId: this.presentations().find(p => p.description === product.presentationDescription)?.id,
-                    pharmaceuticalFormId: this.pharmaceuticalForms().find(p => p.name === product.pharmaceuticalFormName)?.id,
-                    taxTypeId: this.taxTypes().find(t => t.name === product.taxTypeName)?.id,
-                    requiresPrescription: product.requiresPrescription,
-                    isGeneric: product.isGeneric,
-                    imageUrl: product.imageUrl,
-                    therapeuticActionIds: product.therapeuticActionIds || []
-                });
-
-                while (this.ingredients.length !== 0) {
-                    this.ingredients.removeAt(0);
-                }
-
-                if (product.ingredients) {
-                    product.ingredients.forEach(i => {
-                        this.ingredients.push(this.fb.group({
-                            activeIngredientId: [i.activeIngredientId, Validators.required],
-                            concentration: [i.concentration]
-                        }));
-                    });
-                }
-
-                return this.productUnitService.getByProductId(product.id).pipe(
-                    map(units => ({ product, units }))
-                );
-            }),
-            finalize(() => this.isLoading.set(false))
-        ).subscribe({
-            next: ({ units }) => {
-                while (this.units.length !== 0) this.units.removeAt(0);
-                units.forEach(u => {
-                    this.units.push(this.fb.group({
-                        id: [u.id],
-                        unitOfMeasureId: [u.unitOfMeasureId, Validators.required],
-                        factor: [u.factor, [Validators.required, Validators.min(1), Validators.pattern(/^[1-9]\d*$/)]],
-                        barcode: [u.barcode],
-                        sunatCode: [u.sunatCode],
-                        price: [u.price, [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-                        isBaseUnit: [u.isBaseUnit]
-                    }));
-                });
-            },
-            error: (error) => {
-                this.errorMessage.set('Error al cargar el producto.');
-            }
-        });
     }
 
     onFileSelected(event: any) {
