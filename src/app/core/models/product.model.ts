@@ -83,6 +83,7 @@ export interface ProductResponse {
     taxTypeRate?: number;
     requiresPrescription: boolean;
     isGeneric: boolean;
+    isActive?: boolean;
     imageUrl?: string;
     ingredients?: ProductIngredientResponse[];
     therapeuticActionNames?: string[];

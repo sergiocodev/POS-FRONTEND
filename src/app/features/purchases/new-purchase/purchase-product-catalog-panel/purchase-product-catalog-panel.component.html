@@ -5,7 +5,7 @@
                 <i class="bi bi-search"></i>
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Buscar producto a comprar..." [(ngModel)]="productSearchTerm"
+                placeholder="Buscar por nombre, código o registro sanitario..." [(ngModel)]="productSearchTerm"
                 (input)="onProductSearch()">
             <!--<button class="btn btn-outline-secondary border-0 px-3 bg-transparent" type="button"
                 (click)="openScanner()" title="Escanear con cámara" style="color: var(--primary-color) !important;">
@@ -16,7 +16,10 @@
 </div>
 
 <app-card-grid class="flex-grow-1" [products]="mappedProducts" [isLoading]="isLoading"
-    (productClick)="openUnitSelector($any($event))" (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
+    [showStock]="false"
+    (productClick)="openUnitSelector($any($event))" 
+    (unitClick)="onQuickUnitSelect($event)"
+    (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
 </app-card-grid>
 
 <!-- ======================================================= -->

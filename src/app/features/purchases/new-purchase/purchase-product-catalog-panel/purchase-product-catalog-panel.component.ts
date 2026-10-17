@@ -2,7 +2,7 @@ import { Component, inject, signal, Input, Output, EventEmitter, OnChanges, Simp
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductResponse, ProductUnitResponse } from '../../../../core/models/product.model';
-import { CardGridComponent, Product } from '../../../../shared/components/card-grid/card-grid.component';
+import { CardGridComponent, Product, ProductUnitOption } from '../../../../shared/components/card-grid/card-grid.component';
 import { ProductUnitService } from '../../../../core/services/product-unit.service';
 import { PurchaseCartItem } from '../purchase-cart.model';
 
@@ -41,29 +41,56 @@ export class PurchaseProductCatalogPanelComponent implements OnChanges {
     isUnitsLoading = signal<boolean>(false);
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['filteredProducts'] || changes['displayProducts']) {
-            const listToMap = this.filteredProducts || this.displayProducts || [];
-            this.mappedProducts = listToMap.map(p => ({
-                id: p.id,
-                productId: p.id,
-                imageUrl: p.imageUrl,
-                tradeName: p.tradeName,
-                genericName: p.genericName,
-                category: p.categoryName || '',
-                salesPrice: p.units && p.units.length > 0 
-                    ? (p.units.find(u => u.isBaseUnit)?.price || p.units[0].price) 
-                    : 0,
-                stock: 0, // In purchases we add stock, we don't strictly care about current stock to allow purchase
-                description: p.description,
-                presentation: p.presentationDescription,
-                laboratory: p.laboratoryName,
-                sanitaryRegistration: p.sanitaryRegistration,
-                pharmaceuticalFormName: p.pharmaceuticalFormName,
-                concentration: p.ingredients && p.ingredients.length > 0 
-                    ? p.ingredients.map(i => i.concentration).filter(c => !!c).join(' + ') 
-                    : undefined,
-                availableUnits: p.units ? p.units.map(u => u.unitName) : []
-            }));
+        if (changes['filteredProducts'] || changes['displayProducts'] || changes['products']) {
+            const listToMap = (this.filteredProducts || this.displayProducts || [])
+                .filter(p => p.units && p.units.length > 0 && p.isActive !== false);
+            this.mappedProducts = listToMap.map(p => {
+                const unitOptions: ProductUnitOption[] | undefined = p.units && p.units.length > 0
+                    ? [...p.units]
+                        .sort((a, b) => a.factor - b.factor)
+                        .map(u => ({
+                            productUnitId: u.id,
+                            unitName: u.unitName,
+                            factor: u.factor,
+                            salesPrice: u.price
+                        }))
+                    : undefined;
+
+                return {
+                    id: p.id,
+                    productId: p.id,
+                    imageUrl: p.imageUrl,
+                    tradeName: p.tradeName,
+                    genericName: p.genericName,
+                    category: p.categoryName || '',
+                    salesPrice: p.units && p.units.length > 0 
+                        ? (p.units.find(u => u.isBaseUnit)?.price || p.units[0].price) 
+                        : 0,
+                    description: p.description,
+                    presentation: p.presentationDescription,
+                    laboratory: p.laboratoryName,
+                    sanitaryRegistration: p.sanitaryRegistration,
+                    pharmaceuticalFormName: p.pharmaceuticalFormName,
+                    concentration: p.ingredients && p.ingredients.length > 0 
+                        ? p.ingredients.map(i => i.concentration).filter(c => !!c).join(' + ') 
+                        : undefined,
+                    availableUnits: p.units ? p.units.map(u => u.unitName) : [],
+                    unitOptions
+                };
+            });
+        }
+    }
+
+    onQuickUnitSelect(event: { product: Product; unitOption: ProductUnitOption }): void {
+        const product = (this.filteredProducts || this.displayProducts || []).find(p => p.id === event.product.id);
+        if (!product) return;
+
+        const unit = product.units?.find(u => u.id === event.unitOption.productUnitId);
+        if (unit) {
+            this.unitModalProduct.set(product);
+            this.selectUnit(unit);
+        } else {
+            this.openUnitSelector(event.product);
         }
     }
 

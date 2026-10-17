@@ -2,6 +2,13 @@ import { CommonModule, NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 
+export interface ProductUnitOption {
+  productUnitId: number;
+  unitName: string;
+  factor: number;
+  salesPrice: number;
+}
+
 export interface Product {
   id: string | number;
   productId?: number;
@@ -10,7 +17,7 @@ export interface Product {
   genericName?: string;
   category: string;
   salesPrice: number;
-  stock: number;
+  stock?: number;
   expirationDate?: string | Date;
   // Additional fields for compatibility with ProductForSaleResponse
   description?: string;
@@ -21,6 +28,9 @@ export interface Product {
   lotId?: number;
   locationShelf?: string;
   availableUnits?: string[];
+  unitName?: string;
+  factor?: number;
+  unitOptions?: ProductUnitOption[];
   sanitaryRegistration?: string;
   pharmaceuticalFormName?: string;
 }
@@ -36,9 +46,11 @@ export class CardGridComponent implements OnChanges {
   // Entradas desde el componente padre
   @Input() products: Product[] = [];
   @Input() isLoading: boolean = false;
+  @Input() showStock: boolean = true;
 
   // Salida hacia el componente padre
   @Output() productClick = new EventEmitter<Product>();
+  @Output() unitClick = new EventEmitter<{ product: Product; unitOption: ProductUnitOption }>();
   @Output() imagesLoadingStatus = new EventEmitter<boolean>();
 
   private imagesToLoad = 0;
@@ -82,6 +94,12 @@ export class CardGridComponent implements OnChanges {
   // Emitimos el evento cuando el usuario hace clic en una tarjeta
   onProductClick(product: Product): void {
     this.productClick.emit(product);
+  }
+
+  // Emitimos el evento cuando el usuario hace clic directamente en una unidad
+  onUnitClick(event: MouseEvent, product: Product, unitOption: ProductUnitOption): void {
+    event.stopPropagation();
+    this.unitClick.emit({ product, unitOption });
   }
 
   // Lógica para calcular los días de vencimiento

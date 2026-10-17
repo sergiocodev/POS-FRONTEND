@@ -147,7 +147,10 @@ $bg-image: $bg-body;
             color: $primary;
         }
 
-        .location-badge {
+
+
+        .location-badge,
+        .sanitary-badge {
             transform: translateY(-2px);
         }
     }
@@ -164,65 +167,53 @@ $bg-image: $bg-body;
 }
 
 // =============================================
-// Location Badge (Premium glassmorphism like sanitary)
+// Top Floating Badges Header
 // =============================================
-.location-badge {
+.card-top-badges {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 8px;
+    left: 8px;
+    right: 8px;
     z-index: 3;
     display: flex;
-    align-items: center;
-    gap: 3px;
-    padding: 3px 8px;
-    font-size: 0.55rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(#10b981, 0.9), rgba(#059669, 0.95)); // Emerald premium gradient
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     pointer-events: none;
-    transition: transform $transition-normal ease;
-
-    i {
-        font-size: 0.65rem;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-    }
 }
 
-// =============================================
-// Sanitary Registration Badge (Premium glassmorphism)
-// =============================================
+.location-badge,
 .sanitary-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 3;
-    display: flex;
+    display: inline-flex;
+    align-self: flex-start;
+    width: fit-content;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     padding: 3px 8px;
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
     color: #ffffff;
-    background: linear-gradient(135deg, rgba(#10b981, 0.9), rgba(#059669, 0.95)); // Emerald premium gradient
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.92), rgba(5, 150, 105, 0.98));
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    pointer-events: none;
+    max-width: 100%;
     transition: transform $transition-normal ease;
 
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     i {
-        font-size: 0.65rem;
+        font-size: 0.72rem;
+        flex-shrink: 0;
         filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     }
 }
@@ -310,40 +301,82 @@ $bg-image: $bg-body;
     max-width: 100%;
 }
 
-.pharma-form-tag {
-    display: inline-block;
-    text-align: center;
-    font-size: 0.62rem;
-    font-weight: 700;
-    color: $primary;
-    background: rgba($primary, 0.12);
-    border: 1px solid rgba($primary, 0.2);
-    padding: 4px 8px;
-    border-radius: 12px;
+// =============================================
+// Fila de Metadatos (Laboratorio y Forma Farmacéutica)
+// =============================================
+.product-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
     margin-top: 5px;
     margin-bottom: 2px;
+    width: 100%;
+}
+
+.lab-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fbbf24;
+    background: transparent;
+    border: none;
+    padding: 1px 4px;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     max-width: 100%;
 
     i {
-        font-size: 0.68rem;
-        margin-right: 2px;
+        font-size: 0.75rem;
+        flex-shrink: 0;
     }
 
     span {
         white-space: normal;
         line-height: 1.2;
+        text-align: center;
+    }
+}
+
+.pharma-form-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #60a5fa;
+    background: transparent;
+    border: none;
+    padding: 1px 4px;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    max-width: 100%;
+
+    i {
+        font-size: 0.75rem;
+        margin-right: 3px;
+    }
+
+    span {
+        white-space: normal;
+        line-height: 1.2;
+        text-align: center;
     }
 }
 
 .presentation-tag {
     display: inline-block;
-    font-size: 0.62rem;
+    font-size: 0.66rem;
     font-weight: 600;
     color: $text-muted;
     background: rgba($text-muted, 0.08);
-    padding: 1px 8px;
+    padding: 2px 8px;
     border-radius: 6px;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -364,9 +397,15 @@ $bg-image: $bg-body;
 
 .price-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     margin-bottom: 4px;
+}
+
+.price-wrapper {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
 }
 
 .price {
@@ -376,31 +415,32 @@ $bg-image: $bg-body;
     letter-spacing: -0.01em;
 }
 
+.price-unit-hint {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: lowercase;
+}
+
 .stock-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 22px;
-    padding: 0 8px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    border-radius: 8px;
-    letter-spacing: 0.01em;
+    justify-content: flex-end;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    background: transparent;
 
     &.stock-ok {
         color: $success;
-        background: rgba($success, 0.1);
     }
 
     &.stock-low {
         color: $warning;
-        background: rgba($warning, 0.12);
     }
 
     &.stock-critical {
         color: $danger;
-        background: rgba($danger, 0.1);
         animation: pulse-stock 2s infinite;
     }
 }
@@ -417,32 +457,84 @@ $bg-image: $bg-body;
     }
 }
 
-// Expiration Row
-.expiration-row {
+// =============================================
+// Footer Meta Row (Lote y Vencimiento)
+// =============================================
+.footer-meta-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    font-size: 0.62rem;
-    font-weight: 600;
-    padding: 3px 0;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+    width: 100%;
+}
+
+.lot-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3.5px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    padding: 2.5px 7px;
     border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    max-width: 100%;
+    white-space: nowrap;
+
+    i {
+        font-size: 0.70rem;
+        flex-shrink: 0;
+        color: #818cf8;
+    }
+
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.expiration-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2.5px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
 
     &.expiration-ok {
-        color: $success;
+        color: #34d399;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.25);
     }
 
     &.expiration-warning {
-        color: $warning;
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.25);
     }
 
     &.expiration-critical {
-        color: $danger;
+        color: #f87171;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
         animation: pulse-stock 2s infinite;
     }
 
     i {
-        font-size: 0.7rem;
+        font-size: 0.70rem;
+        flex-shrink: 0;
     }
 }
 
@@ -489,30 +581,110 @@ $bg-image: $bg-body;
 }
 
 // =============================================
-// Contenedor de Unidades de Medida
+// Fila de Unidades y Precios (Columnas en la misma fila)
 // =============================================
+.units-price-grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    padding: 2px 0;
+    gap: 4px;
+}
+
+.unit-price-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 3px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all $transition-fast ease;
+    user-select: none;
+    text-align: center;
+    flex: 1;
+    min-width: 0;
+
+    &:hover {
+        background: rgba(255, 0, 124, 0.12);
+        transform: translateY(-1px);
+
+        .unit-col-name,
+        .unit-col-price {
+            color: var(--secondary-color, #ff007c);
+            filter: drop-shadow(0 0 4px rgba(255, 0, 124, 0.45));
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    .unit-col-name {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--secondary-color, #ff007c);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        line-height: 1.15;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .unit-col-price {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--secondary-color, #ff007c);
+        font-style: italic;
+        letter-spacing: -0.01em;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+}
+
 .units-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 4px;
-    margin-top: 4px;
+    gap: 5px;
+    margin-top: 6px;
+    margin-bottom: 2px;
     width: 100%;
 }
 
 .unit-tag {
-    display: inline-block;
-    font-size: 0.58rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.66rem;
     font-weight: 700;
-    color: $accent;
-    background: rgba($accent, 0.08);
-    border: 1px solid rgba($accent, 0.15);
-    padding: 2px 6px;
-    border-radius: 6px;
+    color: #ff007c;
+    background: rgba(255, 0, 124, 0.10);
+    border: 1px solid rgba(255, 0, 124, 0.28);
+    padding: 3px 8px;
+    border-radius: 8px;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: all $transition-fast ease;
+    user-select: none;
+    outline: none;
+
+    &:hover {
+        background: rgba(255, 0, 124, 0.20);
+        border-color: rgba(255, 0, 124, 0.50);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(255, 0, 124, 0.25);
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
 }

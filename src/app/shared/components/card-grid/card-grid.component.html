@@ -20,17 +20,17 @@
             <div class="col" *ngFor="let prod of products">
                 <div class="product-card" (click)="onProductClick(prod)" tabindex="0" role="button">
 
-                    <!-- Floating Location Badge -->
-                    <div *ngIf="prod.locationShelf" class="location-badge" [title]="'Ubicación: ' + prod.locationShelf">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>{{ prod.locationShelf }}</span>
-                    </div>
-
-                    <!-- Floating Sanitary Registration Badge -->
-                    <div *ngIf="prod.sanitaryRegistration" class="sanitary-badge"
-                        [title]="'Registro Sanitario: ' + prod.sanitaryRegistration">
-                        <i class="bi bi-shield-check"></i>
-                        <span>{{ prod.sanitaryRegistration }}</span>
+                    <!-- Top Floating Badges Header -->
+                    <div class="card-top-badges" *ngIf="prod.locationShelf || prod.sanitaryRegistration">
+                        <div *ngIf="prod.locationShelf" class="location-badge" [title]="'Ubicación: ' + prod.locationShelf">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ prod.locationShelf }}</span>
+                        </div>
+                        <div *ngIf="prod.sanitaryRegistration" class="sanitary-badge"
+                            [title]="'Registro Sanitario: ' + prod.sanitaryRegistration">
+                            <i class="bi bi-shield-check"></i>
+                            <span>{{ prod.sanitaryRegistration }}</span>
+                        </div>
                     </div>
 
                     <!-- Image Section -->
@@ -56,17 +56,36 @@
                             {{ prod.genericName }}
                         </span>
 
-                        <div class="pharma-form-tag" *ngIf="prod.pharmaceuticalFormName"
-                            [title]="prod.pharmaceuticalFormName">
-                            <span>{{ prod.pharmaceuticalFormName }}</span>
+                        <!-- Metadata row: Laboratory chip & Pharma form tag -->
+                        <div class="product-meta-row" *ngIf="prod.laboratory || prod.pharmaceuticalFormName">
+                            <div class="lab-chip" *ngIf="prod.laboratory" [title]="'Laboratorio: ' + prod.laboratory">
+                                <i class="bi bi-buildings"></i>
+                                <span>{{ prod.laboratory }}</span>
+                            </div>
+                            <div class="pharma-form-tag" *ngIf="prod.pharmaceuticalFormName"
+                                [title]="prod.pharmaceuticalFormName">
+                                <span>{{ prod.pharmaceuticalFormName }}</span>
+                            </div>
                         </div>
 
-                        <div class="units-container"
-                            *ngIf="prod.availableUnits && prod.availableUnits.length > 0; else singleUnit">
-                            <span class="unit-tag" *ngFor="let unit of prod.availableUnits" [title]="unit">
-                                {{ unit }}
-                            </span>
+                        <!-- Units with price preview in a single horizontal row -->
+                        <div class="units-price-grid" *ngIf="prod.unitOptions && prod.unitOptions.length > 0; else fallbackUnits">
+                            <div class="unit-price-col" *ngFor="let opt of prod.unitOptions"
+                                [title]="opt.unitName + ': S/ ' + (opt.salesPrice | number:'1.2-2')"
+                                (click)="onUnitClick($event, prod, opt)"
+                                role="button"
+                                tabindex="0">
+                                <span class="unit-col-name">{{ opt.unitName }}</span>
+                                <span class="unit-col-price">S/ {{ opt.salesPrice | number:'1.2-2' }}</span>
+                            </div>
                         </div>
+                        <ng-template #fallbackUnits>
+                            <div class="units-container" *ngIf="prod.availableUnits && prod.availableUnits.length > 0; else singleUnit">
+                                <span class="unit-tag" *ngFor="let unit of prod.availableUnits" [title]="unit">
+                                    {{ unit }}
+                                </span>
+                            </div>
+                        </ng-template>
                         <ng-template #singleUnit>
                             <span class="presentation-tag" *ngIf="prod.presentation">
                                 {{ prod.presentation }}
@@ -77,15 +96,25 @@
                     <!-- Footer Section -->
                     <div class="card-footer-section">
                         <div class="price-row">
-                            <span class="price">S/ {{ prod.salesPrice | number:'1.2-2' }}</span>
-                            <span class="stock-badge" [ngClass]="getStockClass(prod.stock)">
+                            <div class="price-wrapper">
+                                <span class="price">S/ {{ prod.salesPrice | number:'1.2-2' }}</span>
+                                <span class="price-unit-hint">/ {{ prod.unitName || 'unidad' }}</span>
+                            </div>
+                            <span class="stock-badge" *ngIf="showStock && prod.stock !== undefined" [ngClass]="getStockClass(prod.stock)">
                                 {{ prod.stock }}
                             </span>
                         </div>
-                        <div *ngIf="prod.expirationDate" class="expiration-row"
-                            [ngClass]="getExpirationClass(prod.expirationDate)">
-                            <i class="bi bi-clock-history"></i>
-                            <span>{{ getDaysToExpire(prod.expirationDate) }} días</span>
+                        <!-- Lot & Expiration Row -->
+                        <div class="footer-meta-row" *ngIf="prod.lotCode || prod.expirationDate">
+                            <div *ngIf="prod.lotCode" class="lot-footer-badge" [title]="'Lote: ' + prod.lotCode">
+                                <i class="bi bi-tag-fill"></i>
+                                <span>Lote: {{ prod.lotCode }}</span>
+                            </div>
+                            <div *ngIf="prod.expirationDate" class="expiration-row"
+                                [ngClass]="getExpirationClass(prod.expirationDate)">
+                                <i class="bi bi-clock-history"></i>
+                                <span>{{ getDaysToExpire(prod.expirationDate) }} días</span>
+                            </div>
                         </div>
                     </div>
 

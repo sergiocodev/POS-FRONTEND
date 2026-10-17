@@ -138,5 +138,40 @@ export class ProductCatalogComponent implements OnInit {
             });
         }
     }
+
+    async onToggleStatus(product: ProductResponse) {
+        const nextState = !product.isActive;
+        const actionText = nextState ? 'activar' : 'desactivar';
+        const confirmed = await this.modalService.confirm({
+            title: nextState ? 'Activar Producto' : 'Desactivar Producto',
+            message: `¿Está seguro de ${actionText} el producto <b>${product.tradeName}</b>?`,
+            confirmText: nextState ? 'Activar' : 'Desactivar',
+            btnColor: nextState ? 'primary' : 'warning'
+        });
+
+        if (confirmed) {
+            this.productService.toggleStatus(product.id).subscribe({
+                next: () => {
+                    this.loadProducts();
+                    this.modalService.alert({
+                        title: 'Éxito',
+                        message: `Producto ${nextState ? 'activado' : 'desactivado'} correctamente`,
+                        type: 'success'
+                    });
+                },
+                error: (err) => {
+                    console.error('Error al cambiar estado del producto:', err);
+                    this.loadProducts();
+                    this.modalService.alert({
+                        title: 'Error',
+                        message: 'No se pudo actualizar el estado del producto',
+                        type: 'error'
+                    });
+                }
+            });
+        } else {
+            this.loadProducts();
+        }
+    }
 }
 

@@ -25,6 +25,7 @@ export class ProductListComponent implements OnInit {
     create = output<void>();
     edit = output<number>();
     delete = output<ProductResponse>();
+    toggleStatus = output<ProductResponse>();
     bulkImport = output<void>();
 
     pageChange = output<number>();
@@ -79,6 +80,7 @@ export class ProductListComponent implements OnInit {
             },
             { key: 'categoryName', label: 'Categoría', type: 'text', filterable: true, align: 'center' },
             { key: 'laboratoryName', label: 'Laboratorio', type: 'text', filterable: true, align: 'center' },
+            { key: 'isActive', label: 'Estado', type: 'toggle', align: 'center' },
             { key: 'actions', label: 'Acciones', type: 'action', align: 'center' }
         ];
     }
@@ -93,7 +95,9 @@ export class ProductListComponent implements OnInit {
     }
 
     handleTableToggle(event: { row: ProductResponse, key: string, checked: boolean }) {
-        // No longer toggling product active status
+        if (event.key === 'isActive') {
+            this.toggleStatus.emit(event.row);
+        }
     }
 
     handlePageChange(page: number) {

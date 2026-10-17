@@ -77,6 +77,13 @@ export interface SalePaymentResponse {
     createdAt: string;
 }
 
+export interface ProductUnitOption {
+    productUnitId: number;
+    unitName: string;
+    factor: number;
+    salesPrice: number;
+}
+
 export interface ProductForSaleResponse {
     id: number;
     productId: number;
@@ -100,6 +107,7 @@ export interface ProductForSaleResponse {
     factor: number;
     taxRate: number;
     availableUnits?: string[];
+    unitOptions?: ProductUnitOption[];
     locationShelf?: string;
 }
 

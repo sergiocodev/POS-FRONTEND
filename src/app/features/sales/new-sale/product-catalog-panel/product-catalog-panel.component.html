@@ -16,7 +16,9 @@
 </div>
 
 <app-card-grid class="flex-grow-1" [products]="mappedProducts" [isLoading]="isLoading"
-    (productClick)="openUnitSelector($any($event))" (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
+    (productClick)="openUnitSelector($any($event))" 
+    (unitClick)="onQuickUnitSelect($event)"
+    (imagesLoadingStatus)="imagesLoadingStatus.emit($event)">
 </app-card-grid>
 
 <!-- ======================================================= -->
@@ -50,13 +52,19 @@
         <!-- Unit cards -->
         <div class="unit-cards-grid">
             @for (data of unitDisplayData(); track data.unit.productUnitId) {
-            <button class="unit-card" (click)="selectUnit(data.unit)">
+            <button class="unit-card"
+                    [disabled]="!data.hasStock"
+                    [class.unit-card-disabled]="!data.hasStock"
+                    (click)="data.hasStock && selectUnit(data.unit)">
 
                 <!-- Unit name badge -->
                 <div class="unit-card-name">
                     <i class="bi bi-box-seam me-1"></i>{{ data.unit.unitName }}
                     @if (data.unit.factor > 1) {
                     <span class="unit-factor-badge">×{{ data.unit.factor }}</span>
+                    }
+                    @if (!data.hasStock) {
+                    <span class="badge bg-danger-subtle text-danger ms-auto" style="font-size: 0.65rem;">Sin stock</span>
                     }
                 </div>
 
@@ -84,7 +92,11 @@
                 <!-- Equivalence hint -->
                 @if (data.unit.factor > 1) {
                 <div class="unit-card-equiv">
+                    @if (!data.hasStock) {
+                    <span class="text-danger fw-semibold">Requiere mín. {{ data.unit.factor }} unidades base</span>
+                    } @else {
                     1 {{ data.unit.unitName }} = {{ data.unit.factor }} unidades base
+                    }
                 </div>
                 }
             </button>

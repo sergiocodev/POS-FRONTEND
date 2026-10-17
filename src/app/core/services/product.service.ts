@@ -54,6 +54,10 @@ export class ProductService {
         return this.http.delete<ResponseApi<void>>(`${this.apiUrl}/${id}`);
     }
 
+    toggleStatus(id: number): Observable<ResponseApi<ProductResponse>> {
+        return this.http.patch<ResponseApi<ProductResponse>>(`${this.apiUrl}/${id}/status`, {});
+    }
+
     search(query: string): Observable<ResponseApi<ProductResponse[]>> {
         return this.http.get<ResponseApi<ProductResponse[]>>(`${this.apiUrl}/search`, {
             params: new HttpParams().set('query', query)

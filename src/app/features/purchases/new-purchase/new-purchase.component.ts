@@ -67,7 +67,7 @@ export class NewPurchaseComponent {
             switchMap(id => {
                 if (!id) return of(null);
                 return forkJoin({
-                    products: this.productService.getPaged(0, PAGE_SIZE),
+                    products: this.productService.getPaged(0, PAGE_SIZE, { hasUnits: true, isActive: true }),
                     suppliers: this.supplierService.getAll()
                 }).pipe(
                     catchError(err => {
@@ -81,7 +81,10 @@ export class NewPurchaseComponent {
         )
     );
 
-    products = computed(() => this.initialData()?.products?.data?.content ?? []);
+    products = computed(() => {
+        const raw: ProductResponse[] = this.initialData()?.products?.data?.content ?? [];
+        return raw.filter(p => p.units && p.units.length > 0 && p.isActive !== false);
+    });
     suppliers = computed(() => this.initialData()?.suppliers?.data ?? []);
     displayProducts = computed(() => this.products());
 
@@ -98,7 +101,7 @@ export class NewPurchaseComponent {
                     return of(null);
                 }
                 return this.productService.search(normalizedTerm).pipe(
-                    map(response => response.data),
+                    map(response => (response.data || []).filter(p => p.units && p.units.length > 0 && p.isActive !== false)),
                     catchError(err => {
                         console.error('Error searching products', err);
                         return of(null);

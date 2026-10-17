@@ -5,7 +5,7 @@ import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { BarcodeFormat } from '@zxing/library';
 import { CustomerResponse } from '../../../../core/models/customer.model';
 import { SaleDocumentType, PaymentMethod, ProductForSaleResponse, CartItem } from '../../../../core/models/sale.model';
-import { CardGridComponent, Product } from '../../../../shared/components/card-grid/card-grid.component';
+import { CardGridComponent, Product, ProductUnitOption } from '../../../../shared/components/card-grid/card-grid.component';
 import { SaleService } from '../../../../core/services/sale.service';
 import { EstablishmentStateService } from '../../../../core/services/establishment-state.service';
 
@@ -14,6 +14,7 @@ export interface UnitDisplayData {
     fullPacks: number;
     remainder: number;
     stockLabel: string;
+    hasStock: boolean;
 }
 
 @Component({
@@ -82,15 +83,53 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
     ngOnInit(): void { }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['filteredProducts'] || changes['displayProducts']) {
+        if (changes['filteredProducts'] || changes['displayProducts'] || changes['products']) {
             const listToMap = this.filteredProducts || this.displayProducts || [];
-            this.mappedProducts = listToMap.map(p => ({
-                ...p,
-                concentration: p.ingredients && p.ingredients.length > 0
-                    ? p.ingredients.map(i => i.concentration).filter(c => !!c).join(' + ')
-                    : undefined
-            }));
+            this.mappedProducts = listToMap.map(p => {
+                let unitOptions = p.unitOptions;
+                if ((!unitOptions || unitOptions.length === 0) && this.products && this.products.length > 0) {
+                    const matched = this.products.filter(item => item.productId === p.productId && item.lotId === p.lotId);
+                    if (matched.length > 0) {
+                        matched.sort((a, b) => a.factor - b.factor);
+                        unitOptions = matched.map(u => ({
+                            productUnitId: u.productUnitId,
+                            unitName: u.unitName,
+                            factor: u.factor,
+                            salesPrice: u.salesPrice
+                        }));
+                    }
+                }
+                return {
+                    ...p,
+                    unitOptions,
+                    concentration: p.ingredients && p.ingredients.length > 0
+                        ? p.ingredients.map(i => i.concentration).filter(c => !!c).join(' + ')
+                        : undefined
+                };
+            });
         }
+    }
+
+    onQuickUnitSelect(event: { product: Product; unitOption: ProductUnitOption }): void {
+        const matchedUnit = this.products.find(p =>
+            p.productId === event.product.productId &&
+            p.lotId === event.product.lotId &&
+            p.productUnitId === event.unitOption.productUnitId
+        );
+
+        if (matchedUnit) {
+            const baseStock = matchedUnit.stock || 0;
+            const factor = matchedUnit.factor || 1;
+            if (baseStock >= factor) {
+                this.addToCartDirect(matchedUnit);
+                return;
+            }
+        }
+
+        const targetProduct = this.products.find(p =>
+            p.productId === event.product.productId && p.lotId === event.product.lotId
+        ) || (event.product as any);
+        this.openUnitSelector(targetProduct);
     }
 
     onProductSearch(): void {
@@ -169,15 +208,16 @@ export class ProductCatalogPanelComponent implements OnInit, OnChanges {
         const displayData: UnitDisplayData[] = units.map(unit => {
             const base = unit.stock || 0;
             const factor = unit.factor || 1;
+            const hasStock = base >= factor;
             if (factor === 1) {
-                return { unit, fullPacks: base, remainder: 0, stockLabel: `${base} disponibles` };
+                return { unit, fullPacks: base, remainder: 0, stockLabel: `${base} disponibles`, hasStock };
             }
             const full = Math.floor(base / factor);
             const rem = base % factor;
             const stockLabel = rem === 0
                 ? `${full} ${unit.unitName || 'unidades'} completos`
                 : `${full} completos + ${rem} sueltas`;
-            return { unit, fullPacks: full, remainder: rem, stockLabel };
+            return { unit, fullPacks: full, remainder: rem, stockLabel, hasStock };
         });
 
         this.unitModalProduct.set(product);

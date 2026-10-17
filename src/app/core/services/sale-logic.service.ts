@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ProductForSaleResponse } from '../models/sale.model';
+import { ProductForSaleResponse, ProductUnitOption } from '../models/sale.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,7 @@ export class SaleLogicService {
   deduplicateProductsForGrid(all: ProductForSaleResponse[]): ProductForSaleResponse[] {
     const seen = new Map<string, ProductForSaleResponse>();
     const unitsMap = new Map<string, string[]>();
+    const unitOptionsMap = new Map<string, ProductUnitOption[]>();
 
     for (const p of all) {
       const key = `${p.productId}_${p.lotId}`;
@@ -20,9 +21,16 @@ export class SaleLogicService {
       
       if (!unitsMap.has(key)) {
         unitsMap.set(key, []);
+        unitOptionsMap.set(key, []);
       }
       if (!unitsMap.get(key)!.includes(p.unitName)) {
         unitsMap.get(key)!.push(p.unitName);
+        unitOptionsMap.get(key)!.push({
+          productUnitId: p.productUnitId,
+          unitName: p.unitName,
+          factor: p.factor,
+          salesPrice: p.salesPrice
+        });
       }
 
       if (!existing || p.factor < existing.factor) {
@@ -30,10 +38,20 @@ export class SaleLogicService {
       }
     }
 
-    return Array.from(seen.values()).map(p => ({
-      ...p,
-      availableUnits: unitsMap.get(`${p.productId}_${p.lotId}`)
-    }));
+    // Sort options by factor ascending (e.g. UNIDAD factor 1, BLISTER factor 4, CAJA factor 50)
+    for (const options of unitOptionsMap.values()) {
+      options.sort((a, b) => a.factor - b.factor);
+    }
+
+    return Array.from(seen.values()).map(p => {
+      const key = `${p.productId}_${p.lotId}`;
+      const options = unitOptionsMap.get(key) || [];
+      return {
+        ...p,
+        availableUnits: options.map(o => o.unitName),
+        unitOptions: options
+      };
+    });
   }
 
 }
