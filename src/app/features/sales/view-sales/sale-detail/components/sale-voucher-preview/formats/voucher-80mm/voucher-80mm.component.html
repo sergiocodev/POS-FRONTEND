@@ -2,7 +2,8 @@
     <!-- Encabezado de Empresa -->
     <div class="voucher-header-gradient">
         <div class="logo-placeholder">
-            <img [src]="sale.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo" class="company-logo">
+            <img [src]="sale.company?.logoUrl || 'images/boticayulfarm.ico'" alt="Logo" class="company-logo"
+                crossorigin="anonymous">
         </div>
 
         <h5 class="company-name text-uppercase">{{ sale.company?.name || sale.establishmentName }}</h5>
@@ -10,12 +11,15 @@
             {{ sale.company?.secondaryName }}
         </p>
 
-        <div class="ruc-badge">
+        <p class="ruc-text">
             <span class="ruc-prefix">RUC:</span>
             <span class="ruc-val">{{ sale.company?.ruc || '20602518559' }}</span>
-        </div>
+        </p>
 
         <div class="company-contact">
+            <p *ngIf="companyLocation" class="contact-line text-uppercase">
+                <span>{{ companyLocation }}</span>
+            </p>
             <p class="contact-line">
                 <i class="bi bi-geo-alt-fill info-icon"></i>
                 <span>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</span>
@@ -39,9 +43,10 @@
             <p class="mb-0 info-row"><strong>Cliente:</strong> <span>{{ sale.customerName || 'VARIOS' }}</span></p>
             <p class="mb-0 info-row"><strong>RUC/DNI:</strong> <span>{{ sale.customerDocumentNumber || '00000000'
                     }}</span></p>
-            <p class="mb-0 info-row"><strong>Pago:</strong> <span>{{ sale.paymentCondition === 'CREDIT' ||
-                    sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
-                    sale.payments[0]?.paymentMethod) || 'CONTADO') }}</span></p>
+            <p class="mb-0 info-row"><strong>Condición:</strong> <span>{{ sale.paymentCondition === 'CREDIT' ||
+                    sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : (sale.paymentCondition || 'CONTADO') }}</span></p>
+            <p class="mb-0 info-row"><strong>Pago:</strong> <span>{{ (sale.payments && sale.payments[0]?.paymentMethod)
+                    || 'EFECTIVO' }}</span></p>
         </div>
 
         <!-- Tabla de Productos Compacta -->
@@ -103,7 +108,7 @@
         <!-- Pie de Página y QR Compacto -->
         <div class="mt-2 text-center footer-box">
             <div class="qr-placeholder d-flex align-items-center justify-content-center my-1">
-                <qrcode [elementType]="'svg'" [qrdata]="qrData" [width]="68" [errorCorrectionLevel]="'M'"></qrcode>
+                <qrcode [elementType]="'svg'" [qrdata]="qrData" [width]="95" [errorCorrectionLevel]="'M'"></qrcode>
             </div>
 
             <p class="fw-bold mb-1 doc-repr-text">Representación Impresa de la {{ sale.documentType }} Electrónica</p>

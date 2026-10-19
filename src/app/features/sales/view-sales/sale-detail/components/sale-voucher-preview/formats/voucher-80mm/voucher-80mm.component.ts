@@ -13,6 +13,15 @@ import { QRCodeComponent } from 'angularx-qrcode';
 export class Voucher80mmComponent {
   @Input() sale!: SaleResponse;
 
+  get companyLocation(): string {
+    const comp = this.sale?.company;
+    if (!comp) return '';
+    const parts = [comp.department, comp.city, comp.district].filter(
+      p => !!p && typeof p === 'string' && p.trim() !== ''
+    );
+    return parts.join(' - ');
+  }
+
   get qrData(): string {
     if (!this.sale) return '';
     const ruc = this.sale.company?.ruc || '20000000000';

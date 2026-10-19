@@ -90,6 +90,31 @@ export class SaleDetailComponent {
       }
     });
 
+    // Copiar imágenes ya cargadas en pantalla directamente como DataURL o src absoluto para que no dependan de peticiones de red en el iframe
+    const originalImages = element.querySelectorAll('img');
+    const clonedImages = clone.querySelectorAll('img');
+    originalImages.forEach((orig, index) => {
+      const dest = clonedImages[index];
+      if (dest) {
+        if (orig.complete && orig.naturalWidth > 0) {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = orig.naturalWidth;
+            canvas.height = orig.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(orig, 0, 0);
+              dest.src = canvas.toDataURL('image/png');
+            }
+          } catch (e) {
+            dest.src = orig.currentSrc || orig.src;
+          }
+        } else {
+          dest.src = orig.currentSrc || orig.src;
+        }
+      }
+    });
+
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -196,10 +221,19 @@ export class SaleDetailComponent {
           .voucher-header-gradient .logo-placeholder {
             background-color: transparent !important;
             box-shadow: none !important;
-            margin-bottom: 3px !important;
+            margin: 0 auto 4px auto !important;
             border: none !important;
-            width: 60px !important;
-            height: 32px !important;
+            width: 100px !important;
+            height: 56px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .voucher-header-gradient .company-logo {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain !important;
+            display: block !important;
           }
           .voucher-header-gradient .company-name {
             font-size: 13px !important;
@@ -211,14 +245,15 @@ export class SaleDetailComponent {
             font-size: 9.5px !important;
             line-height: 1.15 !important;
           }
-          .voucher-header-gradient .ruc-badge {
+          .voucher-header-gradient .ruc-text {
             background: transparent !important;
-            border: 1px solid #000000 !important;
+            border: none !important;
             color: #000000 !important;
             box-shadow: none !important;
-            padding: 1px 8px !important;
-            margin: 2px auto 4px !important;
-            font-size: 10px !important;
+            padding: 0 !important;
+            margin: 1px auto 3px !important;
+            font-size: 10.5px !important;
+            line-height: 1.2 !important;
           }
           .voucher-header-gradient .info-icon {
             display: none !important;
@@ -293,9 +328,9 @@ export class SaleDetailComponent {
           }
           .qr-placeholder {
             border: none !important;
-            width: 68px !important;
-            height: 68px !important;
-            margin: 3px auto !important;
+            width: 95px !important;
+            height: 95px !important;
+            margin: 4px auto !important;
           }
           img, svg {
             image-rendering: -webkit-optimize-contrast !important;
@@ -310,6 +345,7 @@ export class SaleDetailComponent {
       <!DOCTYPE html>
       <html>
         <head>
+          <base href="${document.baseURI}">
           <meta charset="utf-8">
           <title>${this.getProfessionalFileName('print')}</title>
           ${headStyles}
@@ -324,21 +360,56 @@ export class SaleDetailComponent {
     `);
     doc.close();
 
-    // Damos un tiempo breve para que las fuentes y estilos se calculen en el iframe
-    setTimeout(() => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      } catch (err) {
-        console.error('Error al imprimir:', err);
-      } finally {
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-        }, 1500);
-      }
-    }, 300);
+    // Esperar a que el iframe y todas sus imágenes estén 100% listas antes de invocar la impresión
+    const printWindow = iframe.contentWindow;
+    if (!printWindow) return;
+
+    const executePrint = () => {
+      setTimeout(() => {
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (err) {
+          console.error('Error al imprimir:', err);
+        } finally {
+          setTimeout(() => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+          }, 2000);
+        }
+      }, 150);
+    };
+
+    const iframeImages = Array.from(doc.querySelectorAll('img'));
+    if (iframeImages.length === 0) {
+      executePrint();
+    } else {
+      let loaded = 0;
+      const total = iframeImages.length;
+      const onDone = () => {
+        loaded++;
+        if (loaded >= total) {
+          executePrint();
+        }
+      };
+
+      iframeImages.forEach(img => {
+        if (img.complete && img.naturalWidth > 0) {
+          onDone();
+        } else {
+          img.onload = onDone;
+          img.onerror = onDone;
+        }
+      });
+
+      // Timeout de seguridad en caso de que alguna imagen demore
+      setTimeout(() => {
+        if (loaded < total) {
+          executePrint();
+        }
+      }, 1500);
+    }
   }
 
   onDownload() {
