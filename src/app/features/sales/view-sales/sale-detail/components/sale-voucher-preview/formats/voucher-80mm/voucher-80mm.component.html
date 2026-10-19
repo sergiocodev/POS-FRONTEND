@@ -1,32 +1,51 @@
 <div class="voucher-80mm-content w-100">
+    <!-- Encabezado de Empresa -->
     <div class="voucher-header-gradient">
         <div class="logo-placeholder">
-            <img [src]="sale.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo"
-                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+            <img [src]="sale.company?.logoUrl || 'images/iconosiges.ico'" alt="Logo" class="company-logo">
         </div>
-        <h6 class="fw-bold text-uppercase">{{ sale.company?.name || sale.establishmentName }}</h6>
-        <p>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</p>
-        <p class="fw-bold">RUC: {{ sale.company?.ruc || '20602518559' }}</p>
-        <p>Tel: {{ sale.company?.phone || '949978036' }}</p>
+
+        <h5 class="company-name text-uppercase">{{ sale.company?.name || sale.establishmentName }}</h5>
+        <p *ngIf="sale.company?.secondaryName" class="company-secondary text-uppercase">
+            {{ sale.company?.secondaryName }}
+        </p>
+
+        <div class="ruc-badge">
+            <span class="ruc-prefix">RUC:</span>
+            <span class="ruc-val">{{ sale.company?.ruc || '20602518559' }}</span>
+        </div>
+
+        <div class="company-contact">
+            <p class="contact-line">
+                <i class="bi bi-geo-alt-fill info-icon"></i>
+                <span>{{ sale.company?.address || 'Av. Javier Prado 1234 - San Isidro, Lima' }}</span>
+            </p>
+            <p *ngIf="sale.company?.phone" class="contact-line">
+                <i class="bi bi-telephone-fill info-icon"></i>
+                <span>Tel: {{ sale.company?.phone }}</span>
+            </p>
+        </div>
     </div>
 
+    <!-- Cuerpo del Comprobante -->
     <div class="voucher-body">
-        <div class="text-center mb-3">
-            <h6 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">{{ sale.documentType }} ELECTRÓNICA
-            </h6>
-            <h4 class="text-primary-custom mb-1">{{ sale.series }}-{{ sale.number }}</h4>
-            <p class="x-small" style="color: #666;">Emisión: {{ sale.date | date:'yyyy-MM-dd HH:mm:ss' }}</p>
+        <div class="text-center mb-2">
+            <div class="fw-bold text-uppercase doc-title-header">{{ sale.documentType }} ELECTRÓNICA</div>
+            <div class="doc-series-number text-primary-custom fw-bold">{{ sale.series }}-{{ sale.number }}</div>
+            <p class="x-small mb-0 text-muted">Emisión: {{ sale.date | date:'yyyy-MM-dd HH:mm:ss' }}</p>
         </div>
 
-        <div class="customer-info border-top border-bottom py-3 mb-3">
-            <p class="mb-1"><strong>Cliente:</strong> {{ sale.customerName || 'VARIOS' }}</p>
-            <p class="mb-1"><strong>RUC/DNI:</strong> {{ sale.customerDocumentNumber || '00000000' }}
-            </p>
-            <p class="mb-0"><strong>Pago:</strong> {{ sale.paymentCondition === 'CREDIT' || sale.paymentCondition ===
-                'CREDITO' ? 'CRÉDITO' : ((sale.payments && sale.payments[0]?.paymentMethod) || 'CONTADO') }}</p>
+        <div class="customer-info border-top border-bottom py-1 mb-2">
+            <p class="mb-0 info-row"><strong>Cliente:</strong> <span>{{ sale.customerName || 'VARIOS' }}</span></p>
+            <p class="mb-0 info-row"><strong>RUC/DNI:</strong> <span>{{ sale.customerDocumentNumber || '00000000'
+                    }}</span></p>
+            <p class="mb-0 info-row"><strong>Pago:</strong> <span>{{ sale.paymentCondition === 'CREDIT' ||
+                    sale.paymentCondition === 'CREDITO' ? 'CRÉDITO' : ((sale.payments &&
+                    sale.payments[0]?.paymentMethod) || 'CONTADO') }}</span></p>
         </div>
 
-        <table class="table table-sm mb-3">
+        <!-- Tabla de Productos Compacta -->
+        <table class="table table-sm mb-2">
             <thead>
                 <tr>
                     <th class="text-start">Cant.</th>
@@ -47,24 +66,25 @@
             </tbody>
         </table>
 
-        <div class="totals-box shadow-xs" style="color: #666;">
-            <div class="d-flex justify-content-between mb-1 small">
+        <!-- Totales -->
+        <div class="totals-box shadow-xs">
+            <div class="d-flex justify-content-between totals-row">
                 <span>Op. Gravadas S/</span>
-                <span>0.00</span>
+                <span>{{ (sale.tax && sale.tax > 0 ? sale.subTotal : 0) | number:'1.2-2' }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-1 small">
+            <div class="d-flex justify-content-between totals-row">
                 <span>Op. Inafectas S/</span>
                 <span>0.00</span>
             </div>
-            <div class="d-flex justify-content-between mb-1 small">
+            <div class="d-flex justify-content-between totals-row">
                 <span>Op. Exoneradas S/</span>
-                <span>{{ sale.subTotal | number:'1.2-2' }}</span>
+                <span>{{ (!sale.tax || sale.tax === 0 ? sale.subTotal : 0) | number:'1.2-2' }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-1 small">
+            <div class="d-flex justify-content-between totals-row">
                 <span>IGV S/</span>
-                <span>{{ sale.tax | number:'1.2-2' }}</span>
+                <span>{{ (sale.tax || 0) | number:'1.2-2' }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-1 small">
+            <div class="d-flex justify-content-between totals-row">
                 <span>ICBPER S/</span>
                 <span>0.00</span>
             </div>
@@ -74,31 +94,32 @@
             </div>
         </div>
 
-        <div class="mt-3 small">
-            <p class="mb-1"><strong>SON:</strong> {{ numeroALetras(sale.total) }}</p>
-            <p><strong>Observación:</strong> NINGUNO</p>
+        <!-- Importe en Letras y Observación -->
+        <div class="mt-2 text-start amount-words-box">
+            <p class="mb-0"><strong>SON:</strong> {{ numeroALetras(sale.total) }}</p>
+            <p class="mb-0 mt-1"><strong>Observación:</strong> {{ sale.noteReason || 'NINGUNO' }}</p>
         </div>
 
-        <div class="mt-3 text-center px-3">
-
-            <div class="qr-placeholder d-flex align-items-center justify-content-center my-2">
-                <qrcode [qrdata]="qrData" [width]="110" [errorCorrectionLevel]="'M'"></qrcode>
+        <!-- Pie de Página y QR Compacto -->
+        <div class="mt-2 text-center footer-box">
+            <div class="qr-placeholder d-flex align-items-center justify-content-center my-1">
+                <qrcode [elementType]="'svg'" [qrdata]="qrData" [width]="68" [errorCorrectionLevel]="'M'"></qrcode>
             </div>
 
-            <p class="fw-bold small mb-1" style="font-size: 0.75rem;">Representación Impresa de la {{ sale.documentType
-                }} Electrónica</p>
+            <p class="fw-bold mb-1 doc-repr-text">Representación Impresa de la {{ sale.documentType }} Electrónica</p>
 
-            <div *ngIf="sale.hashCpe" class="mb-1 text-break">
-                <p class="x-small mb-0" style="color: #666; font-size: 0.65rem;">Resumen Hash:</p>
-                <p class="fw-bold x-small" style="font-size: 0.65rem;">{{ sale.hashCpe }}</p>
+            <div *ngIf="sale.hashCpe" class="mb-1 text-break hash-box">
+                <span class="text-muted">Resumen Hash: </span>
+                <span class="fw-bold">{{ sale.hashCpe }}</span>
             </div>
 
-            <p class="x-small mb-1" style="color: #666; font-size: 0.7rem;">Consulte su comprobante en:</p>
-            <p class="small text-danger mb-2 fw-bold">www.sunat.gob.pe</p>
+            <p class="sunat-verify-text mb-1">
+                Consulte en: <strong class="text-danger">www.sunat.gob.pe</strong>
+            </p>
 
-            <div class="border-top pt-2">
-                <p class="fw-bold small mb-0">Sistema Integral de Operaciones Comerciales</p>
-                <p class="x-small" style="margin-bottom: 5px; color: #666;">SIOC | www.siocperu.com</p>
+            <div class="border-top pt-1 mt-1">
+                <p class="fw-bold mb-0 system-name">Sistema Integral de Operaciones Comerciales</p>
+                <p class="system-link mb-0 text-muted">SIOC | www.siocperu.com</p>
             </div>
         </div>
     </div>

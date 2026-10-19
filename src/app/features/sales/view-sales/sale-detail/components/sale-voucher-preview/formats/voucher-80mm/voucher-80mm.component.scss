@@ -1,51 +1,135 @@
 :host {
     display: block;
-    width: 80mm;
-    min-height: 120mm;
-    padding: 0 !important; // Header will have its own padding
-    font-size: 13px;
-    color: #333;
+    width: 100%;
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: 0 !important;
+    font-size: 11.5px;
+    line-height: 1.25;
+    color: #222;
+    box-sizing: border-box;
 }
 
 .voucher-header-gradient {
-    background: linear-gradient(180deg, #7c4dff 0%, #1a237e 100%);
-    color: white;
-    padding: 20px 10px;
+    background: linear-gradient(135deg, #6c47ff 0%, #3d2cb8 50%, #1a1e70 100%);
+    color: #ffffff;
+    padding: 12px 10px 10px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
 
     .logo-placeholder {
-        width: 70px;
-        height: 45px;
-        background-color: rgba(255, 255, 255, 1);
-        border-radius: 6px;
-        margin: 0 auto 10px;
+        width: 72px;
+        height: 40px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        margin: 0 auto 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 4px;
+        padding: 4px 6px;
         overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
-        img {
+        .company-logo {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
     }
 
-    h6 {
-        font-size: 16px;
-        margin-bottom: 5px;
+    .company-name {
+        font-size: 13.5px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+        margin-bottom: 2px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     }
 
-    p {
-        font-size: 12px;
-        margin-bottom: 2px;
-        color: rgba(255, 255, 255, 0.9);
+    .company-secondary {
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 3px;
+        line-height: 1.15;
+    }
+
+    .ruc-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(4px);
+        padding: 1px 10px;
+        border-radius: 14px;
+        margin: 2px auto 5px;
+        font-size: 10.5px;
+
+        .ruc-prefix {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.4px;
+        }
+
+        .ruc-val {
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #ffffff;
+        }
+    }
+
+    .company-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 1px;
+
+        .contact-line {
+            font-size: 10px;
+            line-height: 1.2;
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+
+            .info-icon {
+                font-size: 9.5px;
+                opacity: 0.85;
+            }
+        }
     }
 }
 
 .voucher-body {
-    padding: 15px;
+    padding: 10px 12px;
+}
+
+.doc-title-header {
+    font-size: 11.5px;
+    letter-spacing: 0.6px;
+}
+
+.doc-series-number {
+    font-size: 15px;
+    letter-spacing: 0.5px;
 }
 
 .text-primary-custom {
@@ -53,54 +137,110 @@
     font-weight: 700;
 }
 
-.totals-box {
-    background-color: #f5f7fb;
-    border-radius: 15px;
-    padding: 15px;
-    margin-top: 15px;
+.customer-info {
+    font-size: 11px;
+    line-height: 1.25;
 
-    .total-row-main {
-        border-top: 1px solid #dee2e6;
-        margin-top: 10px;
-        padding-top: 10px;
-        color: #3f51b5;
-        font-size: 18px;
-        font-weight: 800;
-    }
-}
+    .info-row {
+        margin-bottom: 1px;
+        display: flex;
+        gap: 4px;
 
-.qr-placeholder {
-    width: 80px;
-    height: 80px;
-    margin: 15px auto;
-    border: 1px solid #eee;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+        strong {
+            min-width: 60px;
+        }
     }
 }
 
 .table {
-    font-size: 12px;
+    font-size: 10.5px;
+    line-height: 1.2;
+    margin-bottom: 4px;
 
     th {
-        border-bottom: 1px solid #eee;
-        color: #666;
-        font-weight: 500;
+        border-bottom: 1px solid #dee2e6;
+        color: #555;
+        font-weight: 700;
+        padding: 4px 2px;
     }
 
     td {
         border: none;
-        padding: 8px 4px;
+        padding: 3px 2px;
+        vertical-align: middle;
     }
 }
 
-.x-small-text {
-    font-size: 0.7rem !important;
+.totals-box {
+    background-color: #f5f7fb;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    color: #444;
+
+    .totals-row {
+        font-size: 10.5px;
+        margin-bottom: 2px;
+        line-height: 1.25;
+    }
+
+    .total-row-main {
+        border-top: 1px solid #dee2e6;
+        margin-top: 4px;
+        padding-top: 4px;
+        color: #3f51b5;
+        font-size: 14.5px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+}
+
+.amount-words-box {
+    font-size: 9.5px;
+    line-height: 1.2;
+    color: #444;
+}
+
+.footer-box {
+    .qr-placeholder {
+        width: 68px;
+        height: 68px;
+        margin: 5px auto;
+        border: 1px solid #eee;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img, svg, canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .doc-repr-text {
+        font-size: 9.5px;
+        line-height: 1.2;
+    }
+
+    .hash-box {
+        font-size: 8.5px;
+        line-height: 1.15;
+    }
+
+    .sunat-verify-text {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .system-name {
+        font-size: 9.5px;
+        line-height: 1.2;
+    }
+
+    .system-link {
+        font-size: 8.5px;
+        line-height: 1.15;
+    }
 }

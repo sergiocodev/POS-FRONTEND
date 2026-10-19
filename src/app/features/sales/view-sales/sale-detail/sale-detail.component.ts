@@ -40,7 +40,12 @@ export class SaleDetailComponent {
     }
 
     return import('html2canvas').then(({ default: html2canvas }) => {
-      return html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      return html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
     });
   }
 
@@ -48,80 +53,304 @@ export class SaleDetailComponent {
     const docType = this.sale?.documentType ? this.sale.documentType.toUpperCase() : 'COMPROBANTE';
     const series = this.sale?.series || '000';
     const number = this.sale?.number || '000000';
-    
+
     // Incluir RUC/DNI si existe para mayor formalidad contable
     let docCliente = '';
     if (this.sale?.customerDocumentNumber && this.sale.customerDocumentNumber !== '00000000') {
       docCliente = `_${this.sale.customerDocumentNumber}`;
     }
-    
+
     // Reemplazar espacios por guiones bajos y armar el nombre final
     const baseName = `${docType}_${series}-${number}${docCliente}`.replace(/\s+/g, '_');
     return `${baseName}.${extension}`;
   }
 
   onPrint() {
-    this.generateCanvas().then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
+    const element = document.getElementById('voucher-preview-content');
+    if (!element) {
+      console.error('No se encontró el elemento para imprimir');
+      window.print();
+      return;
+    }
 
-      const format = this.selectedFormat();
-      let printStyle = '';
+    // Clonar el contenido para manipularlo sin alterar la pantalla
+    const clone = element.cloneNode(true) as HTMLElement;
 
-      if (format === 'A4') {
-        printStyle = `
-          @page { size: A4 portrait; margin: 0; }
-          img { width: 100%; height: auto; display: block; }
-        `;
-      } else if (format === '80MM') {
-        printStyle = `
-          @page { size: 80mm auto; margin: 0; }
-          img { width: 80mm; height: auto; display: block; margin: 0; }
-        `;
-      } else if (format === 'TICKET') {
-        printStyle = `
-          @page { size: 58mm auto; margin: 0; }
-          img { width: 58mm; height: auto; display: block; margin: 0; }
-        `;
+    // Si existen elementos canvas (como QR o gráficos), copiar su mapa de bits a una imagen para no perderlo
+    const originalCanvases = element.querySelectorAll('canvas');
+    const clonedCanvases = clone.querySelectorAll('canvas');
+    originalCanvases.forEach((orig, index) => {
+      const dest = clonedCanvases[index];
+      if (dest) {
+        const img = document.createElement('img');
+        img.src = orig.toDataURL('image/png');
+        img.style.width = orig.style.width || `${orig.width}px`;
+        img.style.height = orig.style.height || `${orig.height}px`;
+        dest.parentNode?.replaceChild(img, dest);
       }
-
-      const doc = iframe.contentWindow?.document;
-      if (doc) {
-        doc.open();
-        doc.write(`
-          <html>
-            <head>
-              <style>
-                body { margin: 0; padding: 0; text-align: left; }
-                ${printStyle}
-              </style>
-            </head>
-            <body>
-              <img src="${imgData}" onload="window.print(); window.onafterprint = function(){ window.parent.document.body.removeChild(window.frameElement); }" />
-            </body>
-          </html>
-        `);
-        doc.close();
-      }
-    }).catch(err => {
-      console.error('Error al intentar imprimir:', err);
-      window.print(); // Fallback
     });
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const format = this.selectedFormat();
+    let pageSize = 'auto';
+    let contentWidth = '80mm';
+
+    if (format === 'TICKET') {
+      pageSize = 'auto';
+      contentWidth = '58mm';
+    } else if (format === 'A4') {
+      pageSize = 'A4 portrait';
+      contentWidth = '210mm';
+    }
+
+    // Capturar todos los estilos cargados en la aplicación (Bootstrap, temas, fuentes)
+    const headStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map(node => node.outerHTML)
+      .join('\n');
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      document.body.removeChild(iframe);
+      window.print();
+      return;
+    }
+
+    // Estilos de impresión de alta definición optimizados para papel continuo e impresoras térmicas
+    const thermalPrintStyles = `
+      <style>
+        @page {
+          size: ${pageSize};
+          margin: 0;
+        }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          box-sizing: border-box !important;
+        }
+        body * {
+          visibility: visible !important;
+        }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          color: #000000 !important;
+          width: 100% !important;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+          -webkit-font-smoothing: antialiased;
+        }
+        #voucher-preview-content {
+          border: none !important;
+          box-shadow: none !important;
+          margin: 0 auto !important;
+          padding: ${format === 'A4' ? '12mm' : '2mm 3mm'} !important;
+          width: 100% !important;
+          max-width: ${contentWidth} !important;
+          box-sizing: border-box !important;
+          background: #ffffff !important;
+          position: static !important;
+        }
+
+        app-voucher-80mm, app-voucher-ticket, app-voucher-a4 {
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 auto !important;
+          box-sizing: border-box !important;
+        }
+
+        /* Optimizaciones térmicas para formato TICKET (58mm) y 80MM */
+        ${format !== 'A4' ? `
+          .voucher-80mm-content, .w-100 {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+          .voucher-body .px-3 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          /* Reemplazar degradado oscuro por fondo blanco y texto negro para no sobrecalentar el cabezal ni empastar el texto */
+          .voucher-header-gradient {
+            background: transparent !important;
+            color: #000000 !important;
+            padding: 2px 0 4px 0 !important;
+            border-bottom: 1px dashed #000000 !important;
+          }
+          .voucher-header-gradient h5,
+          .voucher-header-gradient h6,
+          .voucher-header-gradient p,
+          .voucher-header-gradient span,
+          .voucher-header-gradient div {
+            color: #000000 !important;
+            text-shadow: none !important;
+          }
+          .voucher-header-gradient .logo-placeholder {
+            background-color: transparent !important;
+            box-shadow: none !important;
+            margin-bottom: 3px !important;
+            border: none !important;
+            width: 60px !important;
+            height: 32px !important;
+          }
+          .voucher-header-gradient .company-name {
+            font-size: 13px !important;
+            margin-bottom: 1px !important;
+            line-height: 1.15 !important;
+          }
+          .voucher-header-gradient .company-secondary,
+          .voucher-header-gradient .contact-line {
+            font-size: 9.5px !important;
+            line-height: 1.15 !important;
+          }
+          .voucher-header-gradient .ruc-badge {
+            background: transparent !important;
+            border: 1px solid #000000 !important;
+            color: #000000 !important;
+            box-shadow: none !important;
+            padding: 1px 8px !important;
+            margin: 2px auto 4px !important;
+            font-size: 10px !important;
+          }
+          .voucher-header-gradient .info-icon {
+            display: none !important;
+          }
+          .voucher-body {
+            padding: 4px 0 !important;
+            font-size: 10.5px !important;
+            line-height: 1.2 !important;
+          }
+          .doc-title-header {
+            font-size: 11px !important;
+          }
+          .doc-series-number {
+            font-size: 14.5px !important;
+            margin: 1px 0 !important;
+          }
+          .customer-info {
+            padding: 2px 0 !important;
+            margin-bottom: 3px !important;
+          }
+          .customer-info p {
+            margin-bottom: 1px !important;
+            font-size: 10px !important;
+            line-height: 1.2 !important;
+          }
+          /* Todo texto forzado a negro puro (#000000) para evitar que la impresora térmica use tramado de puntos (dithering) */
+          h1, h2, h3, h4, h5, h6, p, span, td, th, div, strong, b, small {
+            color: #000000 !important;
+            text-shadow: none !important;
+          }
+          .text-primary-custom, .text-danger, .text-muted, [style*="color: #666"], [style*="color: #333"] {
+            color: #000000 !important;
+          }
+          .totals-box {
+            background-color: transparent !important;
+            border-top: 1px dashed #000000 !important;
+            border-bottom: 1px dashed #000000 !important;
+            border-radius: 0 !important;
+            padding: 3px 0 !important;
+            margin-top: 3px !important;
+            box-shadow: none !important;
+          }
+          .totals-box .totals-row {
+            font-size: 10px !important;
+            margin-bottom: 1px !important;
+          }
+          .totals-box .total-row-main {
+            border-top: 1px solid #000000 !important;
+            color: #000000 !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            margin-top: 2px !important;
+            padding-top: 2px !important;
+          }
+          table {
+            color: #000000 !important;
+            width: 100% !important;
+            font-size: 10px !important;
+            margin-bottom: 3px !important;
+          }
+          th, td {
+            color: #000000 !important;
+            border-color: #000000 !important;
+            padding: 2px 2px !important;
+          }
+          .dashed-line {
+            border-top: 1px dashed #000000 !important;
+            margin: 4px 0 !important;
+          }
+          .border-top, .border-bottom {
+            border-color: #000000 !important;
+          }
+          .qr-placeholder {
+            border: none !important;
+            width: 68px !important;
+            height: 68px !important;
+            margin: 3px auto !important;
+          }
+          img, svg {
+            image-rendering: -webkit-optimize-contrast !important;
+            image-rendering: crisp-edges !important;
+          }
+        ` : ''}
+      </style>
+    `;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${this.getProfessionalFileName('print')}</title>
+          ${headStyles}
+          ${thermalPrintStyles}
+        </head>
+        <body>
+          <div id="voucher-preview-content">
+            ${clone.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Damos un tiempo breve para que las fuentes y estilos se calculen en el iframe
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error('Error al imprimir:', err);
+      } finally {
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1500);
+      }
+    }, 300);
   }
 
   onDownload() {
     this.generateCanvas().then(canvas => {
       import('jspdf').then(({ default: jsPDF }) => {
         const imgData = canvas.toDataURL('image/png');
-        
+
         let pdf: any;
         const format = this.selectedFormat();
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
-        
+
         if (format === 'A4') {
           pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -151,7 +380,7 @@ export class SaleDetailComponent {
     this.generateCanvas().then(canvas => {
       canvas.toBlob(async (blob: Blob | null) => {
         if (!blob) return;
-        
+
         const fileName = this.getProfessionalFileName('png');
         const file = new File([blob], fileName, { type: 'image/png' });
 
@@ -186,7 +415,7 @@ export class SaleDetailComponent {
           } else {
             text += `\n\nTotal pagado: S/ ${this.sale?.total}\nGracias por tu preferencia.`;
           }
-          
+
           try {
             const ClipboardItemConstructor = (window as any).ClipboardItem;
             if (navigator.clipboard && navigator.clipboard.write && ClipboardItemConstructor) {
@@ -206,7 +435,7 @@ export class SaleDetailComponent {
             URL.revokeObjectURL(link.href);
             text += `\n\n*(Se descargó la foto en tu PC para que la adjuntes a este chat)*`;
           }
-          
+
           const whatsappWebUrl = `https://web.whatsapp.com/send?text=${encodeURIComponent(text)}`;
           window.open(whatsappWebUrl, '_blank');
         }
