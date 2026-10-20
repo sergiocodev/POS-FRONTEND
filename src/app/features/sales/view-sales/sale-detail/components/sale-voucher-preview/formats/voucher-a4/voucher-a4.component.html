@@ -61,6 +61,7 @@
                 <tr>
                     <th class="text-start">DESCRIPCIÓN</th>
                     <th class="text-center">CANTIDAD</th>
+                    <th class="text-center">U.M</th>
                     <th class="text-end">P.U</th>
                     <th class="text-end">IMPORTE</th>
                 </tr>
@@ -69,6 +70,7 @@
                 <tr *ngFor="let item of sale.items">
                     <td class="text-start">{{ item.productName }}</td>
                     <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-center text-uppercase">{{ item.unitName | unitAbbr }}</td>
                     <td class="text-end text-muted">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) / item.quantity | number:'1.2-2' }}</td>
                     <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) | number:'1.2-2' }}</td>
                 </tr>

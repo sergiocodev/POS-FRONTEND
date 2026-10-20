@@ -41,7 +41,7 @@
             </span>
             <input type="text" class="premium-input" id="username" placeholder="Usuario o Email"
               formControlName="usernameOrEmail" [class.is-invalid]="isInvalid('usernameOrEmail')">
-            <label for="username" class="premium-label">Usuario o Email</label>
+            <label for="username" class="premium-label">Usuario</label>
             <div class="input-border"></div>
           </div>
           <div class="invalid-feedback premium-feedback" *ngIf="isInvalid('usernameOrEmail')">
@@ -88,7 +88,6 @@
             <span class="premium-checkbox-box"></span>
             <span class="text-white-50 small fw-medium ms-2">Recordar acceso</span>
           </label>
-          <a href="#" class="premium-link small fw-medium">Recuperar clave</a>
         </div>
 
         <div *ngIf="errorMessage()" class="premium-alert d-flex align-items-center p-3 mb-4 staggered-item">

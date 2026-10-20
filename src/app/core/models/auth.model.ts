@@ -1,6 +1,6 @@
 export interface LoginRequest {
-    usernameOrEmail: string;
-    password: string;
+  usernameOrEmail: string;
+  password: string;
 }
 
 export interface RegisterRequest {
@@ -17,19 +17,21 @@ export interface LoginResponse {
   type?: string;
   id: number;
   username: string;
-  email: string;
-  fullName: string;
+  email?: string;
+  celular?: string;
+  fullName?: string;
   roles: string[];
   permissions: string[];
   profilePicture?: string;
 }
 
 export interface User {
-    id?: number;
-    username: string;
-    email: string;
-    fullName: string;
-    roles: string[];
-    permissions: string[];
-    profilePicture?: string;
+  id?: number;
+  username: string;
+  email?: string;
+  celular?: string;
+  fullName?: string;
+  roles: string[];
+  permissions: string[];
+  profilePicture?: string;
 }

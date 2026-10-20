@@ -6,9 +6,10 @@ import { RoleResponse } from './maintenance.model';
  */
 export interface UserRequest {
   username: string;
-  email: string;
+  email?: string;
+  celular?: string;
   password?: string;
-  fullName: string;
+  fullName?: string;
   roleIds: number[];
   profilePicture?: string;
 }
@@ -21,8 +22,9 @@ export interface UserRequest {
 export interface UserResponse {
   id: number;
   username: string;
-  email: string;
-  fullName: string;
+  email?: string;
+  celular?: string;
+  fullName?: string;
   roles: RoleResponse[];
   profilePicture?: string;
   /** ISO 8601 UTC (Instant). Ej: "2024-01-15T10:30:00Z". Null si nunca inició sesión. */

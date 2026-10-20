@@ -45,8 +45,9 @@ export class UsersListComponent implements OnInit, OnChanges {
         { key: 'index', label: 'N°', type: 'index', width: '50px', align: 'center' },
         { key: 'profilePicture', label: 'Perfil', type: 'image', align: 'center' },
         { key: 'username', label: 'Usuario', type: 'text', filterable: true, align: 'center' },
-        { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true, align: 'center' },
-        { key: 'email', label: 'Email', type: 'text', filterable: true, align: 'center' },
+        { key: 'fullName', label: 'Nombre Completo', type: 'text', filterable: true, align: 'center', format: (v: any) => v || '-' },
+        { key: 'email', label: 'Email', type: 'text', filterable: true, align: 'center', format: (v: any) => v || '-' },
+        { key: 'celular', label: 'Celular', type: 'text', filterable: true, align: 'center', format: (v: any) => v || '-' },
         { key: 'roles', label: 'Roles', type: 'text', format: (roles: any[]) => roles.map(r => r.name).join(', '), align: 'center' },
 
         { key: 'lastLogin', label: 'Último Acceso', type: 'text', format: (v: any) => v ? this.datePipe.transform(v, 'dd/MM/yyyy HH:mm', 'UTC') || 'N/A' : 'Nunca', align: 'center' },

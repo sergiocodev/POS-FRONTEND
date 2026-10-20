@@ -63,8 +63,9 @@ export class UserFormComponent implements OnInit {
     initForm() {
         this.userForm = this.fb.group({
             username: ['', [Validators.required, Validators.minLength(3)]],
-            email: ['', [Validators.required, Validators.email]],
-            fullName: ['', [Validators.required]],
+            email: ['', [Validators.email]],
+            celular: [''],
+            fullName: [''],
             document: [''],
             password: ['', [Validators.minLength(8)]],
             roleIds: [[]],
@@ -116,6 +117,7 @@ export class UserFormComponent implements OnInit {
                 this.userForm.patchValue({
                     username: user.username,
                     email: user.email,
+                    celular: user.celular,
                     fullName: user.fullName,
                     roleIds: user.roles?.map(r => r.id) || [],
                     profilePicture: user.profilePicture || ''
@@ -210,8 +212,9 @@ export class UserFormComponent implements OnInit {
 
         const request: UserRequest = {
             username: formValue.username,
-            email: formValue.email,
-            fullName: formValue.fullName,
+            email: formValue.email?.trim() || undefined,
+            celular: formValue.celular?.trim() || undefined,
+            fullName: formValue.fullName?.trim() || undefined,
             password: formValue.password || undefined,
             profilePicture: formValue.profilePicture || undefined,
             roleIds: this.selectedRoles()
@@ -224,13 +227,13 @@ export class UserFormComponent implements OnInit {
         operation.subscribe({
             next: (response) => {
                 this.isSaving.set(false);
-                // Si el usuario actualmente logueado es el mismo que se editÃ³, actualizar sesiÃ³n
                 const currentUser = this.authService.currentUser();
                 if (currentUser && currentUser.id === this.userId) {
                     this.authService.updateCurrentUser({
                         ...currentUser,
                         username: response.data.username,
                         email: response.data.email,
+                        celular: response.data.celular,
                         fullName: response.data.fullName,
                         profilePicture: response.data.profilePicture
                     });

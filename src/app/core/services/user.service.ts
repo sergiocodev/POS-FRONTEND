@@ -25,6 +25,7 @@ export class UserService {
         let url = `${this.apiUrl}/paged?page=${page}&size=${size}`;
         if (filters?.username) url += `&username=${filters.username}`;
         if (filters?.email) url += `&email=${filters.email}`;
+        if (filters?.celular) url += `&celular=${filters.celular}`;
         if (filters?.fullName) url += `&fullName=${filters.fullName}`;
         return this.http.get<ResponseApi<any>>(url);
     }

@@ -28,16 +28,18 @@
     <table class="table table-sm table-borderless mb-0">
         <thead>
             <tr>
-                <th class="text-start fw-bold" style="width: 45%;">DESCRIPCION</th>
-                <th class="text-center fw-bold" style="width: 13%;">CANT</th>
-                <th class="text-end fw-bold" style="width: 20%;">P.U.</th>
-                <th class="text-end fw-bold" style="width: 22%;">SUB</th>
+                <th class="text-start fw-bold" style="width: 38%;">DESCRIPCION</th>
+                <th class="text-center fw-bold" style="width: 12%;">CANT</th>
+                <th class="text-center fw-bold" style="width: 14%;">U.M</th>
+                <th class="text-end fw-bold" style="width: 18%;">P.U.</th>
+                <th class="text-end fw-bold" style="width: 18%;">SUB</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let item of sale.items">
                 <td class="text-start">{{ item.productName }}</td>
                 <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-center text-uppercase">{{ item.unitName | unitAbbr }}</td>
                 <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) /
                     item.quantity | number:'1.2-2' }}</td>
                 <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount || 0)) |

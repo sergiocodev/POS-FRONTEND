@@ -30,8 +30,8 @@
                                             accept="image/*">
                                         <div class="avatar-display">
                                             <img *ngIf="userForm.get('profilePicture')?.value && !imageError()"
-                                                [src]="userForm.get('profilePicture')?.value | imageUrl" class="avatar-img"
-                                                (error)="imageError.set(true)" alt="Preview">
+                                                [src]="userForm.get('profilePicture')?.value | imageUrl"
+                                                class="avatar-img" (error)="imageError.set(true)" alt="Preview">
                                             <div *ngIf="!userForm.get('profilePicture')?.value || imageError()"
                                                 class="avatar-placeholder">
                                                 <i class="bi bi-person-fill text-secondary"></i>
@@ -82,18 +82,12 @@
                                 <!-- Form Fields Grid -->
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
-                                        <label class="premium-label">Nombre Completo <span
-                                                class="text-danger">*</span></label>
+                                        <label class="premium-label">Nombre Completo</label>
                                         <div class="input-group-premium"
                                             [class.is-invalid-premium]="f['fullName'].invalid && f['fullName'].touched">
                                             <div class="input-icon"><i class="bi bi-card-text"></i></div>
                                             <input type="text" class="form-control premium-input"
                                                 formControlName="fullName" placeholder="Ej: Juan Pérez García">
-                                        </div>
-                                        <div class="premium-error"
-                                            *ngIf="f['fullName'].invalid && f['fullName'].touched">
-                                            <i class="bi bi-exclamation-circle-fill"></i> El nombre completo es
-                                            obligatorio.
                                         </div>
                                     </div>
                                 </div>
@@ -119,19 +113,16 @@
 
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
-                                        <label class="premium-label d-flex justify-content-between align-items-center">
-                                            <span>Contraseña de Acceso <span *ngIf="!isEditMode()"
-                                                    class="text-danger">*</span></span>
-                                            <span *ngIf="isEditMode()"
-                                                class="premium-hint-inline bg-light px-2 py-1 rounded text-muted">(Dejar
-                                                vacío para mantener actual)</span>
+                                        <label class="premium-label">
+                                            Contraseña de Acceso <span *ngIf="!isEditMode()"
+                                                class="text-danger">*</span>
                                         </label>
                                         <div class="input-group-premium"
                                             [class.is-invalid-premium]="f['password'].invalid && f['password'].touched">
                                             <div class="input-icon"><i class="bi bi-shield-lock"></i></div>
                                             <input [type]="showPassword() ? 'text' : 'password'"
                                                 class="form-control premium-input" formControlName="password"
-                                                placeholder="Mínimo 8 caracteres">
+                                                [placeholder]="isEditMode() ? 'Dejar vacío para mantener actual' : 'Mínimo 8 caracteres'">
                                             <button type="button" class="btn premium-btn-icon"
                                                 (click)="togglePassword()">
                                                 <i class="bi"
@@ -147,10 +138,21 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-12 col-md-6">
                                     <div class="form-group">
-                                        <label class="premium-label">Correo Electrónico <span
-                                                class="text-danger">*</span></label>
+                                        <label class="premium-label">Celular</label>
+                                        <div class="input-group-premium"
+                                            [class.is-invalid-premium]="f['celular'].invalid && f['celular'].touched">
+                                            <div class="input-icon"><i class="bi bi-phone"></i></div>
+                                            <input type="text" class="form-control premium-input"
+                                                formControlName="celular" placeholder="Ej: 987654321">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div [class]="isEditMode() ? 'col-12' : 'col-12 col-md-6'">
+                                    <div class="form-group">
+                                        <label class="premium-label">Correo Electrónico</label>
                                         <div class="input-group-premium"
                                             [class.is-invalid-premium]="f['email'].invalid && f['email'].touched">
                                             <div class="input-icon"><i class="bi bi-envelope-at"></i></div>
@@ -158,9 +160,7 @@
                                                 formControlName="email" placeholder="usuario@empresa.com">
                                         </div>
                                         <div class="premium-error" *ngIf="f['email'].invalid && f['email'].touched">
-                                            <i class="bi bi-exclamation-circle-fill"></i> {{
-                                            f['email'].errors?.['required'] ? 'El correo es obligatorio.' : 'Formato de
-                                            correo inválido.' }}
+                                            <i class="bi bi-exclamation-circle-fill"></i> Formato de correo inválido.
                                         </div>
                                     </div>
                                 </div>
