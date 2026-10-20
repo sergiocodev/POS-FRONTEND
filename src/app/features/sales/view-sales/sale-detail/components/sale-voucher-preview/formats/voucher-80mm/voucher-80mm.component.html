@@ -35,11 +35,11 @@
     <div class="voucher-body">
         <div class="text-center mb-2">
             <div class="fw-bold text-uppercase doc-title-header">{{ sale.documentType }} ELECTRÓNICA</div>
-            <div class="doc-series-number text-primary-custom fw-bold">{{ sale.series }}-{{ sale.number }}</div>
+            <div class="doc-series-number fw-bold">{{ sale.series }}-{{ sale.number }}</div>
             <p class="x-small mb-0 text-muted">Emisión: {{ sale.date | date:'yyyy-MM-dd HH:mm:ss' }}</p>
         </div>
 
-        <div class="customer-info border-top border-bottom py-1 mb-2">
+        <div class="customer-info py-1 mb-2">
             <p class="mb-0 info-row"><strong>Cliente:</strong> <span>{{ sale.customerName || 'VARIOS' }}</span></p>
             <p class="mb-0 info-row"><strong>RUC/DNI:</strong> <span>{{ sale.customerDocumentNumber || '00000000'
                     }}</span></p>

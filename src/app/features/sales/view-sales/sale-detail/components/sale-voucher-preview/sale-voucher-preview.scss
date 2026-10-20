@@ -82,7 +82,52 @@
         width: 100%;
         
         &.voucher-ticket,
-        &.voucher-80mm,
+        &.voucher-80mm {
+            width: auto;
+            min-height: auto;
+
+            .border, .border-top, .border-bottom, .border-start, .border-end,
+            .customer-info, .totals-box, .total-row-main, .voucher-header-gradient,
+            tbody, tr, td {
+                border: none !important;
+                border-top: none !important;
+                border-bottom: none !important;
+                box-shadow: none !important;
+            }
+
+            .dashed-line, hr {
+                display: none !important;
+            }
+
+            /* 4 líneas divisorias punteadas */
+            table th {
+                border: none !important;
+                border-bottom: 1px dashed #000000 !important;
+                padding-bottom: 3px !important;
+            }
+
+            table {
+                border: none !important;
+                border-bottom: 1px dashed #000000 !important;
+                margin-bottom: 4px !important;
+            }
+
+            .amount-words-box {
+                border: none !important;
+                border-bottom: 1px dashed #000000 !important;
+                padding-bottom: 4px !important;
+                margin-bottom: 4px !important;
+            }
+
+            .footer-box .border-top,
+            .footer-box > div:last-child {
+                border: none !important;
+                border-top: 1px dashed #000000 !important;
+                padding-top: 4px !important;
+                margin-top: 4px !important;
+            }
+        }
+
         &.voucher-a4 {
             width: auto;
             min-height: auto;

@@ -90,7 +90,9 @@ export class SaleDetailComponent {
       }
     });
 
-    // Copiar imágenes ya cargadas en pantalla directamente como DataURL o src absoluto para que no dependan de peticiones de red en el iframe
+    const format = this.selectedFormat();
+
+    // Copiar imágenes ya cargadas en pantalla directamente como DataURL optimizada para impresión
     const originalImages = element.querySelectorAll('img');
     const clonedImages = clone.querySelectorAll('img');
     originalImages.forEach((orig, index) => {
@@ -101,12 +103,49 @@ export class SaleDetailComponent {
             const canvas = document.createElement('canvas');
             canvas.width = orig.naturalWidth;
             canvas.height = orig.naturalHeight;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             if (ctx) {
+              // 1. Fondo blanco puro obligatorio para que la transparencia no se imprima negra ni tramada
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
               ctx.drawImage(orig, 0, 0);
+
+              // 2. Para formato térmico (80MM y TICKET 58mm): Binarización a Blanco y Negro puro (1-bit)
+              // Las impresoras térmicas no tienen color ni tonos continuos de gris.
+              // Cualquier color (rojo, azul) o gris intermedio hace que el driver aplique tramado de puntos (dithering).
+              // Al convertir los píxeles a negro puro (#000000) o blanco puro (#FFFFFF), el logo se imprime 100% nítido y sólido.
+              if (format !== 'A4') {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                  const r = data[i];
+                  const g = data[i + 1];
+                  const b = data[i + 2];
+                  const a = data[i + 3];
+
+                  // Cálculo estándar de luminancia percibida
+                  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                  // Todo píxel con color o trazo visible (alfa > 30 y luminancia < 205) se convierte a negro sólido puro
+                  if (a > 30 && luminance < 205) {
+                    data[i] = 0;       // R
+                    data[i + 1] = 0;   // G
+                    data[i + 2] = 0;   // B
+                    data[i + 3] = 255; // Alpha
+                  } else {
+                    data[i] = 255;     // R
+                    data[i + 1] = 255; // G
+                    data[i + 2] = 255; // B
+                    data[i + 3] = 255; // Alpha
+                  }
+                }
+                ctx.putImageData(imgData, 0, 0);
+              }
+
               dest.src = canvas.toDataURL('image/png');
             }
           } catch (e) {
+            console.warn('Fallback imagen normal:', e);
             dest.src = orig.currentSrc || orig.src;
           }
         } else {
@@ -114,6 +153,81 @@ export class SaleDetailComponent {
         }
       }
     });
+
+    // En formatos térmicos (80MM y TICKET 58mm), forzar estilo en línea a negro puro (#000000)
+    // para sobreescribir cualquier especificidad Scoped de Angular o clases previas
+    if (format !== 'A4') {
+      const coloredElements = clone.querySelectorAll<HTMLElement>(
+        '.text-primary-custom, .doc-series-number, .text-danger, .text-muted, [class*="text-primary"], .totals-row, .total-row-main'
+      );
+      coloredElements.forEach(el => {
+        el.classList.remove('text-primary-custom', 'text-muted');
+        el.style.setProperty('color', '#000000', 'important');
+        el.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+        el.style.setProperty('text-shadow', 'none', 'important');
+      });
+
+      const seriesEl = clone.querySelector<HTMLElement>('.doc-series-number');
+      if (seriesEl) {
+        seriesEl.style.setProperty('color', '#000000', 'important');
+        seriesEl.style.setProperty('-webkit-text-fill-color', '#000000', 'important');
+        seriesEl.style.setProperty('font-weight', '800', 'important');
+        seriesEl.style.setProperty('font-size', '15px', 'important');
+        seriesEl.style.setProperty('letter-spacing', '0.8px', 'important');
+      }
+
+      // Reset general de bordes y líneas no deseadas en el DOM clonado
+      const borderedElements = clone.querySelectorAll<HTMLElement>(
+        '.border, .border-top, .border-bottom, .border-start, .border-end, .customer-info, .totals-box, .total-row-main, .voucher-header-gradient, .table, tbody, tr, td, .dashed-line, hr'
+      );
+      borderedElements.forEach(el => {
+        el.classList.remove('border', 'border-top', 'border-bottom', 'border-start', 'border-end');
+        el.style.setProperty('border', 'none', 'important');
+        el.style.setProperty('border-top', 'none', 'important');
+        el.style.setProperty('border-bottom', 'none', 'important');
+        el.style.setProperty('border-left', 'none', 'important');
+        el.style.setProperty('border-right', 'none', 'important');
+        el.style.setProperty('box-shadow', 'none', 'important');
+      });
+
+      clone.querySelectorAll<HTMLElement>('.dashed-line, hr').forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+      });
+
+      // Aplicar exactamente las 4 líneas divisorias punteadas solicitadas:
+      // 1. Debajo del encabezado de la tabla (Cant. Descripción P.U. Total)
+      clone.querySelectorAll<HTMLElement>('table th').forEach(th => {
+        th.style.setProperty('border', 'none', 'important');
+        th.style.setProperty('border-bottom', '1px dashed #000000', 'important');
+        th.style.setProperty('padding-bottom', '3px', 'important');
+      });
+
+      // 2. Debajo de la tabla de productos (separando productos de los totales)
+      const tableEl = clone.querySelector<HTMLElement>('table');
+      if (tableEl) {
+        tableEl.style.setProperty('border', 'none', 'important');
+        tableEl.style.setProperty('border-bottom', '1px dashed #000000', 'important');
+        tableEl.style.setProperty('margin-bottom', '4px', 'important');
+      }
+
+      // 3. Debajo de Observación (separando observación del código QR)
+      const amountWordsBox = clone.querySelector<HTMLElement>('.amount-words-box');
+      if (amountWordsBox) {
+        amountWordsBox.style.setProperty('border', 'none', 'important');
+        amountWordsBox.style.setProperty('border-bottom', '1px dashed #000000', 'important');
+        amountWordsBox.style.setProperty('padding-bottom', '4px', 'important');
+        amountWordsBox.style.setProperty('margin-bottom', '4px', 'important');
+      }
+
+      // 4. Encima de Sistema Integral de Operaciones Comerciales
+      const footerDivider = clone.querySelector<HTMLElement>('.footer-box .border-top, .footer-box > div:last-child');
+      if (footerDivider) {
+        footerDivider.style.setProperty('border', 'none', 'important');
+        footerDivider.style.setProperty('border-top', '1px dashed #000000', 'important');
+        footerDivider.style.setProperty('padding-top', '4px', 'important');
+        footerDivider.style.setProperty('margin-top', '4px', 'important');
+      }
+    }
 
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -124,7 +238,6 @@ export class SaleDetailComponent {
     iframe.style.border = '0';
     document.body.appendChild(iframe);
 
-    const format = this.selectedFormat();
     let pageSize = 'auto';
     let contentWidth = '80mm';
 
@@ -208,7 +321,8 @@ export class SaleDetailComponent {
             background: transparent !important;
             color: #000000 !important;
             padding: 2px 0 4px 0 !important;
-            border-bottom: 1px dashed #000000 !important;
+            border: none !important;
+            border-bottom: none !important;
           }
           .voucher-header-gradient h5,
           .voucher-header-gradient h6,
@@ -221,19 +335,29 @@ export class SaleDetailComponent {
           .voucher-header-gradient .logo-placeholder {
             background-color: transparent !important;
             box-shadow: none !important;
-            margin: 0 auto 4px auto !important;
+            margin: 0 auto 5px auto !important;
             border: none !important;
-            width: 100px !important;
-            height: 56px !important;
+            width: auto !important;
+            max-width: 120px !important;
+            height: auto !important;
+            max-height: 58px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
           }
-          .voucher-header-gradient .company-logo {
-            max-width: 100% !important;
-            max-height: 100% !important;
+          .voucher-header-gradient .company-logo,
+          .company-logo {
+            max-width: 120px !important;
+            max-height: 58px !important;
+            width: auto !important;
+            height: auto !important;
             object-fit: contain !important;
             display: block !important;
+            margin: 0 auto !important;
+            filter: grayscale(100%) contrast(300%) !important;
+            image-rendering: -webkit-optimize-contrast !important;
+            image-rendering: crisp-edges !important;
+            image-rendering: pixelated !important;
           }
           .voucher-header-gradient .company-name {
             font-size: 13px !important;
@@ -266,13 +390,24 @@ export class SaleDetailComponent {
           .doc-title-header {
             font-size: 11px !important;
           }
-          .doc-series-number {
-            font-size: 14.5px !important;
+          .doc-series-number,
+          #voucher-preview-content .doc-series-number,
+          #voucher-preview-content .text-primary-custom,
+          .text-primary-custom {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-size: 15.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.8px !important;
             margin: 1px 0 !important;
+            text-shadow: none !important;
           }
           .customer-info {
             padding: 2px 0 !important;
             margin-bottom: 3px !important;
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
           }
           .customer-info p {
             margin-bottom: 1px !important;
@@ -280,17 +415,68 @@ export class SaleDetailComponent {
             line-height: 1.2 !important;
           }
           /* Todo texto forzado a negro puro (#000000) para evitar que la impresora térmica use tramado de puntos (dithering) */
+          #voucher-preview-content,
+          #voucher-preview-content *,
           h1, h2, h3, h4, h5, h6, p, span, td, th, div, strong, b, small {
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
             text-shadow: none !important;
           }
           .text-primary-custom, .text-danger, .text-muted, [style*="color: #666"], [style*="color: #333"] {
             color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
           }
+
+          /* Reset general de bordes no deseados para asegurar fondo limpio */
+          .border, .border-start, .border-end,
+          .customer-info, .totals-box, .total-row-main, .voucher-header-gradient,
+          tbody, tr, td, .qr-placeholder {
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: none !important;
+          }
+          .table > :not(caption) > * > * {
+            border-bottom-width: 0 !important;
+            border-top-width: 0 !important;
+            box-shadow: none !important;
+          }
+          .dashed-line, hr {
+            display: none !important;
+            border: none !important;
+          }
+
+          /* === 4 LÍNEAS DIVISORIAS PUNTEADAS === */
+          /* 1. Debajo del encabezado de la tabla (Cant. Descripción P.U. Total) */
+          table th {
+            border: none !important;
+            border-bottom: 1px dashed #000000 !important;
+            padding: 3px 2px !important;
+          }
+
+          /* 2. Debajo de la tabla de productos (separando productos de los totales) */
+          table {
+            color: #000000 !important;
+            width: 100% !important;
+            font-size: 10px !important;
+            border: none !important;
+            border-bottom: 1px dashed #000000 !important;
+            margin-bottom: 4px !important;
+            border-collapse: collapse !important;
+          }
+          th, td {
+            color: #000000 !important;
+            padding: 2px 2px !important;
+          }
+          td {
+            border: none !important;
+          }
+
           .totals-box {
             background-color: transparent !important;
-            border-top: 1px dashed #000000 !important;
-            border-bottom: 1px dashed #000000 !important;
+            border: none !important;
             border-radius: 0 !important;
             padding: 3px 0 !important;
             margin-top: 3px !important;
@@ -301,30 +487,29 @@ export class SaleDetailComponent {
             margin-bottom: 1px !important;
           }
           .totals-box .total-row-main {
-            border-top: 1px solid #000000 !important;
+            border: none !important;
             color: #000000 !important;
             font-size: 14px !important;
             font-weight: 800 !important;
             margin-top: 2px !important;
             padding-top: 2px !important;
           }
-          table {
-            color: #000000 !important;
-            width: 100% !important;
-            font-size: 10px !important;
-            margin-bottom: 3px !important;
+
+          /* 3. Debajo de Observación (separando observación del código QR) */
+          .amount-words-box {
+            border: none !important;
+            border-bottom: 1px dashed #000000 !important;
+            padding-bottom: 4px !important;
+            margin-bottom: 4px !important;
           }
-          th, td {
-            color: #000000 !important;
-            border-color: #000000 !important;
-            padding: 2px 2px !important;
-          }
-          .dashed-line {
+
+          /* 4. Encima de Sistema Integral de Operaciones Comerciales */
+          .footer-box .border-top,
+          .footer-box > div:last-child {
+            border: none !important;
             border-top: 1px dashed #000000 !important;
-            margin: 4px 0 !important;
-          }
-          .border-top, .border-bottom {
-            border-color: #000000 !important;
+            padding-top: 4px !important;
+            margin-top: 4px !important;
           }
           .qr-placeholder {
             border: none !important;

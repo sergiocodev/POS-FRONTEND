@@ -15,7 +15,7 @@
         <div class="text-center mb-3">
             <h6 class="fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">{{ purchase.documentType }}
             </h6>
-            <h4 class="text-primary-custom mb-1">{{ purchase.series || '-' }}-{{ purchase.number || '-' }}</h4>
+            <h4 class="doc-series-number fw-bold mb-1">{{ purchase.series || '-' }}-{{ purchase.number || '-' }}</h4>
             <p class="x-small mb-0" style="color: #666;">Fec. Emisión: {{ purchase.issueDate | date:'yyyy-MM-dd' }}</p>
             <p class="x-small" style="color: #666;">Fec. Ingreso: {{ purchase.arrivalDate | date:'yyyy-MM-dd' }}</p>
         </div>

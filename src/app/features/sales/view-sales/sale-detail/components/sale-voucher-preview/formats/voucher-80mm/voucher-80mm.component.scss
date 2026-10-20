@@ -121,12 +121,14 @@
 }
 
 .doc-series-number {
-    font-size: 15px;
-    letter-spacing: 0.5px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #000000;
 }
 
 .text-primary-custom {
-    color: #3f51b5 !important;
+    color: #3f51b5;
     font-weight: 700;
 }
 
@@ -149,9 +151,10 @@
     font-size: 10.5px;
     line-height: 1.2;
     margin-bottom: 4px;
+    border-bottom: 1px dashed #dee2e6;
 
     th {
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px dashed #dee2e6;
         color: #555;
         font-weight: 700;
         padding: 4px 2px;
@@ -192,6 +195,9 @@
     font-size: 9.5px;
     line-height: 1.2;
     color: #444;
+    border-bottom: 1px dashed #dee2e6;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
 }
 
 .footer-box {
@@ -237,5 +243,9 @@
     .system-link {
         font-size: 8.5px;
         line-height: 1.15;
+    }
+
+    .border-top {
+        border-top: 1px dashed #dee2e6 !important;
     }
 }
