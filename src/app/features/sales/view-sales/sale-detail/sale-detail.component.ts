@@ -338,17 +338,17 @@ export class SaleDetailComponent {
             margin: 0 auto 5px auto !important;
             border: none !important;
             width: auto !important;
-            max-width: 120px !important;
+            max-width: 160px !important;
             height: auto !important;
-            max-height: 58px !important;
+            max-height: 80px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
           }
           .voucher-header-gradient .company-logo,
           .company-logo {
-            max-width: 120px !important;
-            max-height: 58px !important;
+            max-width: 160px !important;
+            max-height: 80px !important;
             width: auto !important;
             height: auto !important;
             object-fit: contain !important;

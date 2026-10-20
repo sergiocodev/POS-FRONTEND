@@ -31,21 +31,23 @@
     }
 
     .logo-placeholder {
-        width: 100px;
-        height: 56px;
+        width: 160px;
+        height: 80px;
         background-color: #ffffff;
         border-radius: 8px;
-        margin: 0 auto 6px;
+        margin: 0 auto 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 4px 6px;
+        padding: 6px 10px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
         .company-logo {
             max-width: 100%;
             max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
         }
     }
