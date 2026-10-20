@@ -12,7 +12,6 @@
         </p>
 
         <p class="ruc-text">
-            <span class="ruc-prefix">RUC:</span>
             <span class="ruc-val">{{ sale.company?.ruc || '20602518559' }}</span>
         </p>
 
@@ -53,19 +52,22 @@
         <table class="table table-sm mb-2">
             <thead>
                 <tr>
-                    <th class="text-start">Cant.</th>
+                    <th class="text-start col-cant">Cant.</th>
+                    <th class="text-start col-um">U.M</th>
                     <th class="text-start">Descripción</th>
-                    <th class="text-end">P.U.</th>
-                    <th class="text-end">Total</th>
+                    <th class="text-end col-price">P.U.</th>
+                    <th class="text-end col-total">Total</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let item of sale.items">
-                    <td class="text-start fw-bold">{{ item.quantity }}</td>
+                    <td class="text-start fw-bold col-cant">{{ item.quantity }}</td>
+                    <td class="text-start col-um text-uppercase">{{ item.unitName || 'NIU' }}</td>
                     <td class="text-start">{{ item.productName }}</td>
-                    <td class="text-end">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount
+                    <td class="text-end col-price">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount
                         || 0)) / item.quantity | number:'1.2-2' }} </td>
-                    <td class="text-end fw-bold">{{ (item.amount - (item.discountAmount || 0) + (item.increaseAmount ||
+                    <td class="text-end fw-bold col-total">{{ (item.amount - (item.discountAmount || 0) +
+                        (item.increaseAmount ||
                         0)) | number:'1.2-2' }}</td>
                 </tr>
             </tbody>

@@ -167,6 +167,25 @@
         padding: 3px 2px;
         vertical-align: middle;
     }
+
+    .col-cant {
+        white-space: nowrap;
+        width: 1%;
+    }
+
+    .col-um {
+        font-size: 9.5px;
+        white-space: nowrap;
+        width: 1%;
+        padding-left: 2px;
+        padding-right: 4px;
+    }
+
+    .col-price,
+    .col-total {
+        white-space: nowrap;
+        width: 1%;
+    }
 }
 
 .totals-box {

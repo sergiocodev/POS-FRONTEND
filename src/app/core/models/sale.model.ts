@@ -51,6 +51,7 @@ export interface SaleItemResponse {
     id: number;
     productName: string;
     productUnitId: number;
+    unitName?: string;
     lotCode?: string;
     quantity: number;
     unitPrice: number;

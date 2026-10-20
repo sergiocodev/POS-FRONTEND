@@ -387,6 +387,21 @@ export class SaleDetailComponent {
             font-size: 10.5px !important;
             line-height: 1.2 !important;
           }
+          .table .col-um,
+          .col-um {
+            font-size: 9px !important;
+            white-space: nowrap !important;
+            padding-left: 2px !important;
+            padding-right: 3px !important;
+          }
+          .table .col-cant,
+          .col-cant,
+          .table .col-price,
+          .col-price,
+          .table .col-total,
+          .col-total {
+            white-space: nowrap !important;
+          }
           .doc-title-header {
             font-size: 11px !important;
           }
