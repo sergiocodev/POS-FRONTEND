@@ -85,6 +85,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     imageError = signal<boolean>(false);
     isGeneratingCode = signal<boolean>(false);
     codeGenError = signal<string>('');
+    deletedUnitIds: number[] = [];
 
 
     categories = signal<CategoryResponse[]>([]);
@@ -284,6 +285,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             });
         }
 
+        this.deletedUnitIds = [];
         while (this.units.length !== 0) {
             this.units.removeAt(0);
         }
@@ -330,6 +332,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
             while (this.ingredients.length !== 0) {
                 this.ingredients.removeAt(0);
             }
+            this.deletedUnitIds = [];
             while (this.units.length !== 0) {
                 this.units.removeAt(0);
             }
@@ -371,6 +374,11 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
 
     removeUnit(index: number): void {
+        const unitControl = this.units.at(index);
+        const id = unitControl?.get('id')?.value;
+        if (id && !this.deletedUnitIds.includes(id)) {
+            this.deletedUnitIds.push(id);
+        }
         this.units.removeAt(index);
     }
 
@@ -455,30 +463,21 @@ export class ProductFormComponent implements OnInit, OnChanges {
         };
         delete productData.units;
 
-        const request$ = this.isEditMode()
-            ? this.productService.update(this.idProduct!, productData)
-            : this.productService.create(productData);
+        const saveOperation$ = this.isEditMode()
+            ? this.saveUnits(this.idProduct!).pipe(
+                switchMap(() => this.productService.update(this.idProduct!, productData))
+            )
+            : this.productService.create(productData).pipe(
+                switchMap(res => this.saveUnits(res.data.id))
+            );
 
-        request$.pipe(
+        saveOperation$.pipe(
             takeUntilDestroyed(this.destroyRef),
-            switchMap(res => {
-                const productId = this.isEditMode() ? this.idProduct! : res.data.id;
-                return this.saveUnits(productId).pipe(
-                    map(() => true), // Éxito en las unidades
-                    catchError(err => {
-                        console.error(err);
-                        return of(false); // Falla en las unidades, pero producto guardado
-                    })
-                );
-            }),
             finalize(() => {
                 this.isLoading.set(false);
             })
         ).subscribe({
-            next: (unitsSuccess) => {
-                if (!unitsSuccess) {
-                    this.errorMessage.set('Producto guardado, pero hubo error al guardar las unidades.');
-                }
+            next: () => {
                 this.saved.emit();
             },
             error: (error) => {
@@ -489,10 +488,15 @@ export class ProductFormComponent implements OnInit, OnChanges {
         });
     }
 
-    private saveUnits(productId: number): import('rxjs').Observable<any> {
+    private saveUnits(productId: number): Observable<any> {
         const units: any[] = this.productForm.value.units || [];
+        const operations$: Observable<any>[] = [];
 
-        const unitObv$ = units.map(u => {
+        for (const id of this.deletedUnitIds) {
+            operations$.push(this.productUnitService.delete(id));
+        }
+
+        for (const u of units) {
             const req: ProductUnitRequest = {
                 productId: productId,
                 unitOfMeasureId: u.unitOfMeasureId,
@@ -503,17 +507,22 @@ export class ProductFormComponent implements OnInit, OnChanges {
                 isBaseUnit: u.isBaseUnit || false
             };
             if (u.id) {
-                return this.productUnitService.update(u.id, req);
+                operations$.push(this.productUnitService.update(u.id, req));
             } else {
-                return this.productUnitService.create(req);
+                operations$.push(this.productUnitService.create(req));
             }
-        });
+        }
 
-        if (unitObv$.length === 0) {
+        if (operations$.length === 0) {
             return of(null);
         }
 
-        return forkJoin(unitObv$);
+        return forkJoin(operations$).pipe(
+            map(res => {
+                this.deletedUnitIds = [];
+                return res;
+            })
+        );
     }
 
     onCancel(): void {
