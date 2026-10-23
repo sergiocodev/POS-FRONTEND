@@ -42,6 +42,11 @@ export class ProductService {
         return this.http.get<ResponseApi<ProductResponse>>(`${this.apiUrl}/${id}`);
     }
 
+    getNextCode(categoryId: number): Observable<ResponseApi<{ code: string }>> {
+        const params = new HttpParams().set('categoryId', categoryId.toString());
+        return this.http.get<ResponseApi<{ code: string }>>(`${this.apiUrl}/next-code`, { params });
+    }
+
     create(request: ProductRequest): Observable<ResponseApi<ProductResponse>> {
         return this.http.post<ResponseApi<ProductResponse>>(this.apiUrl, request);
     }

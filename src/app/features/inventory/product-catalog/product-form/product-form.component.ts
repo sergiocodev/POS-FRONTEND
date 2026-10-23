@@ -83,6 +83,8 @@ export class ProductFormComponent implements OnInit, OnChanges {
     isLoading = signal<boolean>(false);
     errorMessage = signal<string>('');
     imageError = signal<boolean>(false);
+    isGeneratingCode = signal<boolean>(false);
+    codeGenError = signal<string>('');
 
 
     categories = signal<CategoryResponse[]>([]);
@@ -138,6 +140,12 @@ export class ProductFormComponent implements OnInit, OnChanges {
             .pipe(takeUntilDestroyed())
             .subscribe(() => {
                 this.imageError.set(false);
+            });
+
+        this.productForm.get('categoryId')?.valueChanges
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => {
+                this.codeGenError.set('');
             });
     }
 
@@ -298,6 +306,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
 
     private resetForm(): void {
+        this.codeGenError.set('');
         if (this.productForm) {
             this.productForm.reset({
                 code: '',
@@ -398,6 +407,35 @@ export class ProductFormComponent implements OnInit, OnChanges {
         }
     }
 
+    onGenerateCode(): void {
+        this.codeGenError.set('');
+        const categoryId = this.productForm.get('categoryId')?.value;
+        if (!categoryId) {
+            this.codeGenError.set('Selecciona una categoría primero.');
+            this.productForm.get('categoryId')?.markAsTouched();
+            return;
+        }
+
+        this.isGeneratingCode.set(true);
+        this.productService.getNextCode(categoryId).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.isGeneratingCode.set(false))
+        ).subscribe({
+            next: (res) => {
+                if (res.data?.code) {
+                    this.productForm.patchValue({ code: res.data.code });
+                    this.productForm.get('code')?.markAsDirty();
+                    this.productForm.get('code')?.updateValueAndValidity();
+                }
+            },
+            error: (err) => {
+                console.error('Error generando código:', err);
+                const msg = err.error?.message || 'No se pudo generar el código.';
+                this.codeGenError.set(msg);
+            }
+        });
+    }
+
     onSubmit(): void {
         if (this.productForm.invalid) {
             this.productForm.markAllAsTouched();
@@ -405,8 +443,16 @@ export class ProductFormComponent implements OnInit, OnChanges {
         }
 
         this.isLoading.set(true);
+        this.errorMessage.set('');
         const formValue = this.productForm.value;
-        const productData = { ...formValue };
+        const productData = {
+            ...formValue,
+            code: formValue.code?.trim(),
+            digemidCode: formValue.digemidCode?.trim() || null,
+            sanitaryRegistration: formValue.sanitaryRegistration?.trim() || null,
+            genericName: formValue.genericName?.trim() || null,
+            description: formValue.description?.trim() || null
+        };
         delete productData.units;
 
         const request$ = this.isEditMode()
@@ -427,16 +473,18 @@ export class ProductFormComponent implements OnInit, OnChanges {
             }),
             finalize(() => {
                 this.isLoading.set(false);
-                this.saved.emit();
             })
         ).subscribe({
             next: (unitsSuccess) => {
                 if (!unitsSuccess) {
                     this.errorMessage.set('Producto guardado, pero hubo error al guardar las unidades.');
                 }
+                this.saved.emit();
             },
             error: (error) => {
-                this.errorMessage.set('Error al guardar el producto.');
+                console.error('Error al guardar el producto:', error);
+                const msg = error.error?.message || 'Error al guardar el producto.';
+                this.errorMessage.set(msg);
             }
         });
     }

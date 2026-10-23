@@ -37,17 +37,29 @@
                             <div class="col-md-4 text-start">
                                 <label class="form-label fw-semibold">Código Interno <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="code" placeholder="P001"
-                                    [class.is-invalid]="productForm.get('code')?.touched && productForm.get('code')?.invalid">
-                                <div class="invalid-feedback">El código es obligatorio</div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" formControlName="code" placeholder="Ej: MG-000001"
+                                        [class.is-invalid]="(productForm.get('code')?.touched && productForm.get('code')?.invalid) || codeGenError()">
+                                    <button type="button" class="btn btn-custom-primary text-white d-flex align-items-center gap-1"
+                                        [disabled]="isGeneratingCode()" (click)="onGenerateCode()" title="Autogenerar código según categoría">
+                                        <i class="bi" [ngClass]="isGeneratingCode() ? 'bi-arrow-repeat spin' : 'bi-magic'"></i>
+                                        <span>{{ isGeneratingCode() ? 'Generando...' : 'Generar' }}</span>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback d-block" *ngIf="productForm.get('code')?.touched && productForm.get('code')?.invalid">
+                                    El código es obligatorio
+                                </div>
+                                <div class="text-danger small mt-1" *ngIf="codeGenError()">
+                                    {{ codeGenError() }}
+                                </div>
                             </div>
                             <div class="col-md-4 text-start">
-                                <label class="form-label fw-semibold">Código DIGEMID</label>
+                                <label class="form-label fw-semibold">Código DIGEMID <span class="text-muted fw-normal small">(Opcional)</span></label>
                                 <input type="text" class="form-control" formControlName="digemidCode"
                                     placeholder="RSA-XXX">
                             </div>
                             <div class="col-md-4 text-start">
-                                <label class="form-label fw-semibold">Registro Sanitario</label>
+                                <label class="form-label fw-semibold">Registro Sanitario <span class="text-muted fw-normal small">(Opcional)</span></label>
                                 <input type="text" class="form-control" formControlName="sanitaryRegistration"
                                     placeholder="Ej: N-23543"
                                     [class.is-invalid]="productForm.get('sanitaryRegistration')?.touched && productForm.get('sanitaryRegistration')?.invalid">
